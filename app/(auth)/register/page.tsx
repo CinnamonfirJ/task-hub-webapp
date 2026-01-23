@@ -7,24 +7,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Lock, Phone, User, Activity, AlertTriangle } from "lucide-react";
-
-// Assuming Logo component or reuse
-const Logo = () => (
-  <div className="flex flex-col items-center justify-center mb-6">
-    <div className="flex items-center gap-2 mb-2">
-        <Activity className="h-8 w-8 text-primary" /> 
-        <span className="text-2xl font-bold tracking-tighter">TaskHub.</span>
-    </div>
-  </div>
-);
+import { Mail, Lock, Phone, User, AlertTriangle } from "lucide-react";
+import { Logo } from "@/components/layout/Logo";
 
 export default function RegisterPage() {
   const { form, onSubmit, currentRole, setRole, isRegistering, registerError } = useRegister();
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <Logo />
+      <div className="flex justify-center mb-6">
+        <Logo />
+      </div>
       
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold mb-2">Join us Today !</h1>

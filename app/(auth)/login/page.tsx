@@ -6,24 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mail, Lock, Activity } from "lucide-react"; 
-
-// Using generic Activity icon for logo placeholder until asset is available
-const Logo = () => (
-  <div className="flex flex-col items-center justify-center mb-6">
-    <div className="flex items-center gap-2 mb-2">
-        <Activity className="h-8 w-8 text-primary" /> 
-        <span className="text-2xl font-bold tracking-tighter">TaskHub.</span>
-    </div>
-  </div>
-);
+import { Mail, Lock } from "lucide-react"; 
+import { Logo } from "@/components/layout/Logo";
 
 export default function LoginPage() {
   const { form, role, setRole, onSubmit, isLoggingIn, loginError } = useLogin();
 
   return (
     <div className="w-full max-w-md mx-auto"> 
-      <Logo />
+      <div className="flex justify-center mb-6">
+        <Logo />
+      </div>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
         <p className="text-muted-foreground">Sign in to manage your {role === 'tasker' ? 'Work' : 'Tasks'}</p>

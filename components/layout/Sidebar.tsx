@@ -2,16 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, History, MessageSquare, User, Plus, Activity } from "lucide-react";
+import { Home, History, MessageSquare, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// Inline Logo for now or import if refined
-const SidebarLogo = () => (
-  <div className="flex items-center gap-2 mb-2">
-      <Activity className="h-6 w-6 text-primary" /> 
-      <span className="text-xl font-bold tracking-tighter">Task Hub</span>
-  </div>
-);
+import { Logo } from "./Logo";
 
 const navItems = [
   { icon: Home, label: "Home", href: "/home" },
@@ -26,7 +19,7 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-white lg:flex">
       <div className="p-6">
-        <SidebarLogo />
+        <Logo />
       </div>
 
       <nav className="flex-1 space-y-2 px-4 py-4">
