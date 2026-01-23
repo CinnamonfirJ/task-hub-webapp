@@ -1,43 +1,36 @@
-# TaskHub Web Application
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Purpose
+## Getting Started
 
-This repository contains the TaskHub web application used by customers, taskers, and businesses to interact with the platform.
+First, run the development server:
 
-It is the primary interface for posting tasks, bidding, booking services, and managing jobs.
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-This project is private and maintained internally.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## What the Web App Does
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-- Allows users to post service requests
-- Enables taskers and businesses to bid on tasks
-- Facilitates booking and secure payments
-- Provides real-time task updates
-- Supports reviews, ratings, and rewards
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Core Features
+## Learn More
 
-- Task creation with budgets and requirements
-- Competitive bidding from verified providers
-- Profile pages with ratings and work history
-- Secure booking and job completion flow
-- Loyalty rewards and reputation badges
+To learn more about Next.js, take a look at the following resources:
 
-## User Roles
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-- Clients hiring services
-- Taskers offering services
-- Businesses managing service listings
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Design Principles
+## Deploy on Vercel
 
-- Simple and intuitive user experience
-- Transparency in pricing and reviews
-- Speed from task posting to booking
-- Trust-first interactions
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-## Status
-
-Private  
-Internal company use only
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
