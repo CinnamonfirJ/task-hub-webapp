@@ -11,22 +11,17 @@ import { useRouter } from "next/navigation";
 const postTaskSchema = z.object({
   title: z.string().min(5, "Title is too short"),
   description: z.string().min(20, "Description is too short"),
-  category: z.string().min(1, "Please select a category"),
+  categories: z.array(z.string()).min(1, "Please select at least one category").max(3, "Max 3 categories allowed"),
   budget: z.string().min(1, "Budget is required"),
-  location: z.string().optional(),
-  deadline: z.string().optional(),
+  location: z.any().optional(),
+  deadline: z.string().min(1, "Deadline is required"),
+  isBiddingEnabled: z.boolean(),
+  tags: z.array(z.string()),
+  images: z.array(z.any()).optional(),
 });
 
 export type PostTaskValues = z.infer<typeof postTaskSchema>;
 
-/**
- * Custom hook for the Post Task page.
- * Encapsulates:
- * - Category fetching (useQuery)
- * - Task creation mutation (useMutation)
- * - Form initialization and validation (useForm)
- * - Navigation side-effect on success
- */
 export function usePostTask() {
   const router = useRouter();
 
@@ -51,7 +46,13 @@ export function usePostTask() {
   const form = useForm<PostTaskValues>({
     resolver: zodResolver(postTaskSchema),
     defaultValues: {
+      title: "",
+      description: "",
       budget: "",
+      categories: [],
+      isBiddingEnabled: false,
+      tags: [],
+      images: [],
     },
   });
 
@@ -60,19 +61,16 @@ export function usePostTask() {
     createTaskMutation.mutate({
       ...data,
       budget: Number(data.budget),
-    });
+      // If location is string, we might need a better format or mock coordinates
+      location: data.location || { latitude: 6.5244, longitude: 3.3792 }, 
+    } as any);
   };
 
   return {
-    // Form
     form,
     onSubmit,
-
-    // Categories
     categories,
     isLoadingCategories,
-
-    // Mutation state
     isSubmitting: createTaskMutation.isPending,
   };
 }

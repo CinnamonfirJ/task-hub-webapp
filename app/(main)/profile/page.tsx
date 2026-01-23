@@ -1,315 +1,160 @@
 "use client";
 
-import { useProfile, usePersonalInfoForm, useTaskerServiceStep, PersonalValues } from "@/hooks/useProfile";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Camera, CheckCircle2 } from "lucide-react";
-import { User } from "@/types/auth";
+import { 
+  Loader2, 
+  ChevronRight, 
+  Wallet, 
+  Plus, 
+  Zap, 
+  ShieldCheck, 
+  HelpCircle, 
+  Lock, 
+  FileQuestion, 
+  LogOut 
+} from "lucide-react";
+import Link from "next/link";
 
 export default function ProfilePage() {
-  const {
-    user,
-    isLoadingUser,
-    isUserError,
-    role,
-    step,
-    setStep,
-    isUpdatingProfile,
-    isUpdatingCategories,
-    handleProfileSubmit,
-    handleCategoriesSubmit,
-    handlePictureUpload,
-  } = useProfile();
+  const { user, isLoadingUser, logout } = useAuth();
 
   if (isLoadingUser) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-primary" />
+        <Loader2 className="animate-spin text-[#6B46C1]" />
       </div>
     );
   }
 
-  if (isUserError || !user) {
+  if (!user) {
     return (
-      <div className="p-8 text-center">
-        Failed to load profile. Please login again.
+      <div className="p-8 text-center text-gray-500">
+        Please login to view your profile.
       </div>
     );
   }
+
+  const userInitials = user.fullName
+    ? user.fullName.trim().split(/\s+/).map(n => n[0]).join('').toUpperCase()
+    : 'U';
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8">
-      {/* Header / Stepper UI */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Complete profile</h1>
-          <p className="text-gray-500">
-            {step === 1
-              ? "Step 1: Profile Information"
-              : step === 2 && role === "tasker"
-                ? "Step 2: Service Information"
-                : "Verification"}
-          </p>
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 pb-10">
+      <h1 className="text-2xl font-bold text-gray-900">Profile Information</h1>
+
+      {/* User Info Card */}
+      <div className="bg-white border-none shadow-sm rounded-3xl p-6 flex items-center gap-5">
+        <div className="w-16 h-16 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-sm">
+          {user.profilePicture ? (
+            <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+          ) : userInitials}
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-xl font-bold text-gray-900">{user.fullName}</h2>
+          <span className="inline-flex bg-purple-100 text-[#6B46C1] text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">
+            {user.role === 'tasker' ? 'Tasker' : 'User'}
+          </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-4 mb-8">
-        <StepIndicator number={1} label="Profile Info" active={step === 1} completed={step > 1} />
-        {role === "tasker" && (
-          <>
-            <div className="h-[1px] bg-gray-200 flex-1 max-w-[50px]"></div>
-            <StepIndicator number={2} label="Service Info" active={step === 2} completed={step > 2} />
-          </>
-        )}
-        <div className="h-[1px] bg-gray-200 flex-1 max-w-[50px]"></div>
-        <StepIndicator
-          number={role === "tasker" ? 3 : 2}
-          label="Verification"
-          active={step === (role === "tasker" ? 3 : 2)}
-          completed={false}
-        />
-      </div>
-
-      {/* Content */}
-      <Card className="border-none shadow-sm bg-white">
-        <CardContent className="p-6">
-          {step === 1 && (
-            <PersonalInfoStep
-              user={user}
-              onSubmit={handleProfileSubmit}
-              isLoading={isUpdatingProfile}
-              onUpload={handlePictureUpload}
-            />
-          )}
-
-          {step === 2 && role === "tasker" && (
-            <TaskerServiceStep
-              user={user}
-              onSubmit={handleCategoriesSubmit}
-              isLoading={isUpdatingCategories}
-              onBack={() => setStep(1)}
-            />
-          )}
-
-          {step === (role === "tasker" ? 3 : 2) && (
-            <VerificationStep onBack={() => setStep(role === "tasker" ? 2 : 1)} user={user} />
-          )}
+      {/* Wallet balance Card */}
+      <Card className="bg-gradient-to-br from-[#673AB7] to-[#512DA8] border-none shadow-xl rounded-[2.5rem] overflow-hidden text-white">
+        <CardContent className="p-8 space-y-8">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2 opacity-90">
+                <Wallet size={18} />
+                <span className="text-sm font-medium">Wallet balance</span>
+            </div>
+            <Button variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-none rounded-xl px-6 flex items-center gap-2">
+                <Plus size={18} /> Fund
+            </Button>
+          </div>
+          
+          <div className="space-y-1">
+            <div className="text-5xl font-black">
+               <span className="text-3xl mr-1">₦</span>0.00
+            </div>
+            <p className="text-sm text-white/60 font-medium">Available balance</p>
+          </div>
         </CardContent>
       </Card>
-    </div>
-  );
-}
 
-// -- Sub Components --
-
-function StepIndicator({
-  number,
-  label,
-  active,
-  completed,
-}: {
-  number: number;
-  label: string;
-  active: boolean;
-  completed: boolean;
-}) {
-  return (
-    <div className={`flex items-center gap-2 ${active || completed ? "opacity-100" : "opacity-50"}`}>
-      <div
-        className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${
-          completed
-            ? "bg-green-500 text-white"
-            : active
-              ? "bg-[#6B46C1] text-white"
-              : "bg-gray-200 text-gray-500"
-        }`}
-      >
-        {completed ? <CheckCircle2 size={16} /> : number}
-      </div>
-      <span className={`font-medium ${active ? "text-[#6B46C1]" : "text-gray-500"}`}>{label}</span>
-    </div>
-  );
-}
-
-function PersonalInfoStep({
-  user,
-  onSubmit,
-  isLoading,
-  onUpload,
-}: {
-  user: User;
-  onSubmit: (data: PersonalValues) => void;
-  isLoading: boolean;
-  onUpload: (data: string) => void;
-}) {
-  const { form, handleFileChange } = usePersonalInfoForm(user);
-
-  return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-      <div className="flex flex-col items-center mb-6">
-        <div className="h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden mb-2 relative group cursor-pointer">
-          {user.profilePicture ? (
-            <img src={user.profilePicture} alt="Profile" className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-2xl font-bold text-gray-400">{user.fullName?.charAt(0) || "U"}</span>
-          )}
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <Camera className="text-white" />
-          </div>
-          <input
-            type="file"
-            className="absolute inset-0 opacity-0 cursor-pointer"
-            accept="image/*"
-            onChange={(e) => handleFileChange(e, onUpload)}
-          />
-        </div>
-        <p className="text-sm text-gray-500">Upload profile image</p>
-      </div>
-
+      {/* Actions List */}
       <div className="space-y-4">
-        <h3 className="font-semibold text-lg">Basic Information</h3>
-
-        <div className="space-y-2">
-          <Label>Full name</Label>
-          <Input {...form.register("fullName")} disabled />
-          <p className="text-xs text-gray-400">Name cannot be changed directly.</p>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Phone number</Label>
-          <Input {...form.register("phoneNumber")} placeholder="Enter phone number" />
-          {form.formState.errors.phoneNumber && (
-            <p className="text-red-500 text-sm">{form.formState.errors.phoneNumber.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Date of Birth</Label>
-          <Input type="date" {...form.register("dateOfBirth")} />
-        </div>
-      </div>
-
-      <div className="space-y-4 pt-4 border-t">
-        <h3 className="font-semibold text-lg">Location</h3>
-
-        <div className="space-y-2">
-          <Label>Country</Label>
-          <Input {...form.register("country")} readOnly className="bg-gray-50" />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>State of residence</Label>
-            <Input {...form.register("residentState")} placeholder="Lagos" />
-            {form.formState.errors.residentState && (
-              <p className="text-red-500 text-sm">{form.formState.errors.residentState.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Home Address</Label>
-            <Input {...form.register("address")} placeholder="Full address" />
-            {form.formState.errors.address && (
-              <p className="text-red-500 text-sm">{form.formState.errors.address.message}</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end pt-6">
-        <Button
-          type="submit"
-          className="w-full md:w-auto min-w-[200px] bg-[#6B46C1] hover:bg-[#553C9A]"
-          disabled={isLoading}
-        >
-          {isLoading ? "Saving..." : "Next Step"}
-        </Button>
-      </div>
-    </form>
-  );
-}
-
-function TaskerServiceStep({
-  user,
-  onSubmit,
-  isLoading,
-  onBack,
-}: {
-  user: User;
-  onSubmit: (cats: string[]) => void;
-  isLoading: boolean;
-  onBack: () => void;
-}) {
-  const { allCategories, isCategoriesLoading, selectedCategories, toggleCategory } =
-    useTaskerServiceStep(user);
-
-  return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="font-semibold text-lg">Service Information</h3>
-        <p className="text-sm text-gray-500">Select the services you offer.</p>
-
-        {isCategoriesLoading ? (
-          <div>Loading categories...</div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {allCategories?.map((cat) => (
-              <div
-                key={cat._id}
-                className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                  selectedCategories.includes(cat._id)
-                    ? "bg-[#6B46C1]/10 border-[#6B46C1] text-[#6B46C1]"
-                    : "hover:bg-gray-50 border-gray-200"
-                }`}
-                onClick={() => toggleCategory(cat._id)}
-              >
-                <span className="font-medium">{cat.name}</span>
-              </div>
-            ))}
-          </div>
+        {/* Become a tasker (Only for regular users) */}
+        {user.role === 'user' && (
+          <Link href="/profile/become-tasker">
+            <div className="bg-white hover:bg-gray-50 transition-colors p-5 rounded-3xl flex items-center justify-between group cursor-pointer shadow-sm border border-gray-50 mb-6">
+                <div className="flex items-center gap-4">
+                    <div className="bg-purple-100 p-3 rounded-xl text-[#6B46C1]">
+                        <Zap size={22} fill="currentColor" />
+                    </div>
+                    <div>
+                        <p className="font-bold text-gray-900">Become a tasker</p>
+                        <p className="text-xs text-gray-400">Create and switch to being a tasker</p>
+                    </div>
+                </div>
+                <ChevronRight size={20} className="text-gray-300 group-hover:text-[#6B46C1] transition-colors" />
+            </div>
+          </Link>
         )}
-      </div>
 
-      <div className="flex justify-between pt-6 border-t">
-        <Button variant="outline" onClick={onBack}>
-          Back
-        </Button>
-        <Button
-          onClick={() => onSubmit(selectedCategories)}
-          className="bg-[#6B46C1] hover:bg-[#553C9A]"
-          disabled={isLoading || selectedCategories.length === 0}
-        >
-          {isLoading ? "Saving..." : "Next Step"}
-        </Button>
+        {/* Other menu items */}
+        <div className="bg-white border border-gray-50 rounded-[2.5rem] shadow-sm divide-y divide-gray-50 overflow-hidden">
+            <ProfileMenuItem 
+                icon={<ShieldCheck size={22} />} 
+                label="Verification" 
+                href="/profile/verification" 
+            />
+            <ProfileMenuItem 
+                icon={<HelpCircle size={22} />} 
+                label="Get Help" 
+                href="/profile/get-help" 
+            />
+            <ProfileMenuItem 
+                icon={<Lock size={22} />} 
+                label="Change password" 
+                href="/profile/change-password" 
+            />
+            <ProfileMenuItem 
+                icon={<FileQuestion size={22} />} 
+                label="FAQ" 
+                href="/profile/faq" 
+            />
+        </div>
+
+        {/* Logout */}
+        <div className="bg-white border border-gray-50 rounded-[2rem] shadow-sm overflow-hidden mt-6">
+            <button 
+                onClick={logout}
+                className="w-full flex items-center justify-between p-5 hover:bg-red-50 transition-colors group"
+            >
+                <div className="flex items-center gap-4">
+                    <div className="bg-red-50 p-3 rounded-xl text-red-500">
+                        <LogOut size={22} />
+                    </div>
+                    <span className="font-bold text-red-500">Log out</span>
+                </div>
+                <ChevronRight size={20} className="text-gray-300 group-hover:text-red-500 transition-colors" />
+            </button>
+        </div>
       </div>
     </div>
   );
 }
 
-function VerificationStep({ onBack, user }: { onBack: () => void; user: User }) {
+function ProfileMenuItem({ icon, label, href }: { icon: React.ReactNode, label: string, href: string }) {
   return (
-    <div className="space-y-6 text-center py-8">
-      <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
-      <h2 className="text-2xl font-bold">Verification Pending</h2>
-      <p className="text-gray-500 max-w-md mx-auto">
-        Thank you for updating your profile. Your ID verification status is currently
-        <span className="font-bold text-gray-900 mx-1">Pending</span>.
-      </p>
-
-      <div className="bg-blue-50 p-4 rounded-lg max-w-md mx-auto text-sm text-blue-700">
-        You can now access the dashboard features. Verification for ID (NIN) will be required later
-        for withdrawals.
-      </div>
-
-      <div className="flex justify-center gap-4 pt-4">
-        <Button variant="outline" onClick={onBack}>
-          Back
-        </Button>
-        <a href="/home">
-          <Button className="bg-[#6B46C1] hover:bg-[#553C9A]">Go to Dashboard</Button>
-        </a>
-      </div>
-    </div>
+    <Link href={href} className="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors group">
+        <div className="flex items-center gap-5">
+            <div className="bg-gray-50 p-2.5 rounded-xl text-gray-400 group-hover:bg-purple-50 group-hover:text-[#6B46C1] transition-colors">
+                {icon}
+            </div>
+            <span className="font-bold text-gray-700">{label}</span>
+        </div>
+        <ChevronRight size={20} className="text-gray-300 group-hover:text-[#6B46C1] transition-colors" />
+    </Link>
   );
 }

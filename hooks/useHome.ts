@@ -95,7 +95,9 @@ export function formatDeadline(deadline?: string): string {
 /**
  * Helper function to get category name from task
  */
-export function getCategoryName(category: Task["category"]): string {
+export function getCategoryName(categories: Task["categories"]): string {
+  if (!categories || categories.length === 0) return "Uncategorized";
+  const category = categories[0];
   if (typeof category === "string") return category;
   return category?.name || "Uncategorized";
 }

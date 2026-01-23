@@ -30,11 +30,11 @@ export const authApi = {
         password: data.password,
         phoneNumber: data.phone,
         // Mock defaults for required fields not in UI
-        // country: "Nigeria", // Default or extract
-        // residentState: "Lagos", 
-        // originState: "Lagos",
-        // address: "Default Address",
-        // dateOfBirth: "2000-01-01"
+        country: "Nigeria", // Default or extract
+        residentState: "Lagos", 
+        originState: "Lagos",
+        address: "Default Address",
+        dateOfBirth: "2000-01-01"
       }),
     });
   },
@@ -53,11 +53,11 @@ export const authApi = {
         password: data.password,
         phoneNumber: data.phone,
         // Mock defaults
-        // country: "Nigeria",
-        // residentState: "Lagos",
-        // originState: "Lagos",
-        // address: "Default Address",
-        // dateOfBirth: "2000-01-01"
+        country: "Nigeria",
+        residentState: "Lagos",
+        originState: "Lagos",
+        address: "Default Address",
+        dateOfBirth: "2000-01-01"
       }),
     });
   },
@@ -115,5 +115,40 @@ export const authApi = {
       body: JSON.stringify({ categories }),
     });
     return res.categories;
+  },
+
+  // Identity Verification (NIN)
+  verifyIdentity: async (data: {
+    nin: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+    gender: "male" | "female";
+    phoneNumber?: string;
+    email?: string;
+  }): Promise<{ isVerified: boolean; matchStatus: string }> => {
+    const res = await apiData<{ status: string; data: { isVerified: boolean; matchStatus: string } }>(
+      "/api/auth/verify-identity",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+    return res.data;
+  },
+
+  getVerificationStatus: async (): Promise<{ isVerified: boolean }> => {
+    const res = await apiData<{ data: { isVerified: boolean } }>("/api/auth/verification-status", {
+      method: "GET",
+    });
+    return res.data;
+  },
+
+  // Password Management
+  changePassword: async (data: any): Promise<{ message: string }> => {
+    return apiData<{ message: string }>("/api/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   },
 };

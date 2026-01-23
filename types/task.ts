@@ -11,9 +11,13 @@ export interface Task {
   _id: string;
   title: string;
   description: string;
-  category: Category | string; // Populated or ID
+  categories: Category[] | string[]; // Populated or IDs
   budget: number;
-  location?: string;
+  location?: {
+    latitude: number;
+    longitude: number;
+  } | string;
+  isBiddingEnabled?: boolean;
   status: "open" | "assigned" | "in-progress" | "completed" | "cancelled";
   creator: User | string;
   deadline?: string;
@@ -24,7 +28,7 @@ export interface Task {
 }
 
 export interface TaskFilters {
-  category?: string;
+  categories?: string[];
   minBudget?: number;
   maxBudget?: number;
   search?: string;

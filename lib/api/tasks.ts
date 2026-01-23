@@ -13,7 +13,9 @@ interface TasksResponse {
 export const tasksApi = {
   getTasks: async (filters: TaskFilters = {}): Promise<Task[]> => {
     const params = new URLSearchParams();
-    if (filters.category) params.append("category", filters.category);
+    if (filters.categories && filters.categories.length > 0) {
+      filters.categories.forEach(cat => params.append("categories", cat));
+    }
     if (filters.search) params.append("search", filters.search);
     if (filters.minBudget) params.append("minBudget", filters.minBudget.toString());
     if (filters.maxBudget) params.append("maxBudget", filters.maxBudget.toString());
