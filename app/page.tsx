@@ -1,23 +1,29 @@
-"use client";
+import Navbar from "@/components/landing/navbar"
+import Hero from "@/components/landing/hero"
+// import TrustBadges from "@/components/landing/trust-badges"
+import HowItWorks from "@/components/landing/how-it-works"
+import ServicesGrid from "@/components/landing/services-grid"
+import SafetySection from "@/components/landing/safety-section"
+import ProviderCTA from "@/components/landing/provider-cta"
+import RewardsSection from "@/components/landing/rewards-section"
+import FinalCTA from "@/components/landing/final-cta"
+import Footer from "@/components/landing/footer"
+import TheProblem from "@/components/landing/the-problem"
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-export default function RootPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (token) {
-      router.push("/home"); // Redirect to (main)/home (mapped as /home)
-    } else {
-      router.push("/login");
-    }
-  }, [router]);
-
+export default function Page() {
   return (
-    <div className='flex justify-center items-center bg-gray-50 min-h-screen'>
-      <div className='border-4 border-purple-600 border-t-transparent rounded-full w-8 h-8 animate-spin' />
-    </div>
-  );
+    <main>
+      <Navbar />
+      <Hero />
+      <TheProblem/>
+      {/* <TrustBadges /> */}
+      <HowItWorks />
+      <ServicesGrid />
+      <SafetySection />
+      <ProviderCTA />
+      <RewardsSection />
+      <FinalCTA />
+      <Footer />
+    </main>
+  )
 }
