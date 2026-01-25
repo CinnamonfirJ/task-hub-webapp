@@ -82,7 +82,7 @@ export default function Navbar() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="absolute top-full left-0 right-0 bg-white border-t border-gray-100 p-4 shadow-lg flex flex-col gap-4 md:hidden z-50"
+          className="absolute top-20 left-0 right-0  w-full bg-white border-t border-gray-100 p-4 shadow-lg flex flex-col gap-4 md:hidden z-50"
         >
            <Link href="#how-it-works" className="text-sm font-medium text-gray-700 py-2">How it works</Link>
            <Link href="#services" className="text-sm font-medium text-gray-700 py-2">Services</Link>
