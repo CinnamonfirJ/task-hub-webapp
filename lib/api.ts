@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3009";
+const BASE_URL = process.env.NEXT_BASE_API || "http://localhost:3009";
 
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
