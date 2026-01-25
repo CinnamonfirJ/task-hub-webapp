@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -29,13 +29,50 @@ export function useCompleteProfile() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Determine initial step based on user data once loaded
+  // Determine initial step based on user data once loaded
+  useEffect(() => {
+    if (user && !isLoadingUser && !isInitialized) {
+        if (checkProfileCompleteness(user)) {
+          setIsInitialized(true);
+          // If complete, no step changes needed
+          return; 
+        }
+        
+        const hasBasicInfo = !!(
+            user.fullName && 
+            user.phoneNumber && 
+            user.country && 
+            user.residentState && 
+            user.address &&
+            (user as any).dateOfBirth
+        );
+        
+        if (hasBasicInfo && user.role === "tasker") {
+            setStep(2);
+        }
+        setIsInitialized(true);
+    }
+  }, [user, isLoadingUser, isInitialized]);
 
   // Mutation for updating profile info (Step 1)
   const updateProfileMutation = useMutation({
     mutationFn: (data: Partial<ProfileValues>) => authApi.updateProfile(data as any),
     onSuccess: (updatedUser) => {
-      queryClient.setQueryData(["currentUser"], updatedUser);
-      setStep(2);
+      
+      // We need to optimistically update the user data
+      const optimisticUser = { ...user, ...updatedUser };
+      queryClient.setQueryData(["currentUser"], optimisticUser);
+      
+      // If user is tasker, move to next step, otherwise stay (ProfilePage will redirect if complete)
+      if (user?.role === "tasker") {
+         setStep(2);
+      } else {
+         // Force refetch to update sync derived state if needed or ProfilePage re-renders
+         queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      }
     },
   });
 
@@ -50,13 +87,21 @@ export function useCompleteProfile() {
             nin,
             firstName,
             lastName,
-            dateOfBirth: form.getValues("dateOfBirth"),
-            gender: "male", // Mock for now or add to form
+            dateOfBirth: form.getValues("dateOfBirth") || (user as any)?.dateOfBirth,
+            gender: "male", // Defaulting to male as per current requirements, should be added to form if needed
+            email: user?.emailAddress,
+            phoneNumber: form.getValues("phoneNumber") || user?.phoneNumber
         });
     },
     onSuccess: (data) => {
         if (data.isVerified) {
-            router.push("/home");
+          // Optimistically update user to set isProfileComplete to true
+           queryClient.setQueryData(["currentUser"], (oldUser: any) => ({
+            ...oldUser,
+            isProfileComplete: true,
+          }));
+          // Force a refetch to ensure we have the latest state
+          queryClient.invalidateQueries({ queryKey: ["currentUser"] });
         }
     },
   });
@@ -115,5 +160,42 @@ export function useCompleteProfile() {
     handlePictureUpload,
     isSubmitting: updateProfileMutation.isPending,
     isVerifying: verifyIdentityMutation.isPending,
+    isProfileComplete: user ? checkProfileCompleteness(user) : false,
   };
+}
+
+function checkProfileCompleteness(user: any): boolean {
+  if (!user) return false;
+
+  // Basic fields required for everyone
+  const hasBasicInfo = !!(
+    (user.fullName || (user.firstName && user.lastName)) &&
+    user.phoneNumber &&
+    user.country &&
+    user.residentState && 
+    user.address &&
+    user.dateOfBirth
+  );
+
+  if (!hasBasicInfo) return false;
+
+  // Tasker specific requirements: Verification
+  // Note: API only allows verifyIdentity for taskers.
+  // We assume 'isProfileComplete' is manually set if verified, or we check another flag if available.
+  // Since we rely on 'isProfileComplete' flag from backend OR optimistic update.
+  // AND for a clean flow, if I see no way to check verification, I will rely on user.isProfileComplete property if present.
+  
+  if (user.role === "tasker") {
+    // If we have an explicit flag from backend, use it.
+    if (typeof user.isProfileComplete === 'boolean') {
+      return user.isProfileComplete; 
+    }
+    // Otherwise fallback to basic info + maybe categories?
+    // Based on user request, NIN verification MARKS isProfileComplete as true.
+    // So if that flag is missing/false, it is false.
+    return false;
+  }
+
+  // Regular users only need basic info
+  return true;
 }

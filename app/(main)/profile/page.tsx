@@ -1,6 +1,9 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useCompleteProfile } from "@/hooks/useCompleteProfile";
+import { ProfileCompletionStep1 } from "@/components/profile/ProfileCompletionStep1";
+import { ProfileCompletionStep2 } from "@/components/profile/ProfileCompletionStep2";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
@@ -18,7 +21,19 @@ import {
 import Link from "next/link";
 
 export default function ProfilePage() {
+  // Use useCompleteProfile to get the step and completion status
+  // Note: We use useAuth for logout as useCompleteProfile doesn't expose it
   const { user, isLoadingUser, logout } = useAuth();
+  const { 
+      isProfileComplete, 
+      step, 
+      setStep,
+      form, 
+      handleNext, 
+      handleVerify, 
+      handlePictureUpload,
+      isVerifying 
+  } = useCompleteProfile();
 
   if (isLoadingUser) {
     return (
@@ -36,6 +51,29 @@ export default function ProfilePage() {
     );
   }
 
+  // If profile is NOT complete, show the setup flow
+  if (!isProfileComplete) {
+      if (step === 2) {
+          return (
+            <ProfileCompletionStep2 
+                form={form}
+                handleVerify={handleVerify}
+                setStep={setStep}
+                isVerifying={isVerifying}
+            />
+          );
+      }
+      return (
+        <ProfileCompletionStep1 
+            form={form}
+            handleNext={handleNext}
+            handlePictureUpload={handlePictureUpload}
+            user={user}
+        />
+      );
+  }
+
+  // --- Completed Profile View ---
   const userInitials = user.fullName
     ? user.fullName.trim().split(/\s+/).map(n => n[0]).join('').toUpperCase()
     : 'U';
@@ -46,7 +84,7 @@ export default function ProfilePage() {
 
       {/* User Info Card */}
       <div className="bg-white border-none shadow-sm rounded-3xl p-6 flex items-center gap-5">
-        <div className="w-16 h-16 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-sm">
+        <div className="w-16 h-16 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-sm overflow-hidden">
           {user.profilePicture ? (
             <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
           ) : userInitials}

@@ -26,6 +26,7 @@ export interface User {
     longitude: number;
     lastUpdated?: string;
   };
+  isProfileComplete?: boolean;
 }
 
 export interface AuthResponse {
