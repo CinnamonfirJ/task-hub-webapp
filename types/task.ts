@@ -3,8 +3,19 @@ import { User } from "./auth";
 export interface Category {
   _id: string;
   name: string;
-  slug: string;
+  displayName: string;
+  slug?: string;
   icon?: string;
+  description: string;
+  isActive: boolean;
+  count?: number;
+  createdBy?: string | {
+    _id: string;
+    fullName: string;
+    emailAddress: string;
+  };
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Task {
@@ -20,11 +31,23 @@ export interface Task {
   isBiddingEnabled?: boolean;
   status: "open" | "assigned" | "in-progress" | "completed" | "cancelled";
   creator: User | string;
+  user?: Partial<User>; // Populated user info (poster details)
   deadline?: string;
+  dueDate?: string; // New: matches spec
   images?: string[];
   tags?: string[];
   createdAt: string;
   bidsCount?: number;
+  taskerBidInfo?: {
+    hasBid: boolean;
+  };
+  applicationInfo?: {
+    canApply: boolean;
+    applicationMode: "bidding" | "fixed";
+    applicationLabel: string;
+    priceEditable: boolean;
+    fixedPrice: number | null;
+  };
 }
 
 export interface TaskFilters {

@@ -36,29 +36,23 @@ export const tasksApi = {
     });
   },
 
-  createTask: async (data: Partial<Task>): Promise<Task> => {
-    return apiData<Task>("/api/tasks", {
+  createTask: async (data: any): Promise<Task> => {
+    const response = await apiData<{ status: string; data: { task: Task } }>("/api/tasks", {
       method: "POST",
       body: JSON.stringify(data),
     });
+    return response.data.task;
   },
 
-  getCategories: async (): Promise<Category[]> => {
-    try {
-      const response = await apiData<Category[] | { categories: Category[] }>("/api/categories", {
-        method: "GET",
-      });
-      // Handle both array and object response formats
-      if (Array.isArray(response)) {
-        return response;
-      }
-      if (response && Array.isArray(response.categories)) {
-        return response.categories;
-      }
-      return [];
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
-      return [];
-    }
+  getTaskerFeed: async (params: { maxDistance?: number; status?: string } = {}): Promise<Task[]> => {
+    const searchParams = new URLSearchParams();
+    if (params.maxDistance) searchParams.append("maxDistance", params.maxDistance.toString());
+    if (params.status) searchParams.append("status", params.status);
+
+    const response = await apiData<{ status: string; count: number; tasks: Task[] }>(
+      `/api/tasks/tasker/feed?${searchParams.toString()}`,
+      { method: "GET" }
+    );
+    return response.tasks || [];
   },
 };

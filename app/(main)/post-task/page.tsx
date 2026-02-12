@@ -16,7 +16,7 @@ import {
   Loader2, 
   Image as ImageIcon 
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function PostTaskPage() {
   const {
@@ -29,6 +29,19 @@ export default function PostTaskPage() {
 
   const [tagInput, setTagInput] = useState("");
   const [showImages, setShowImages] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsCategoryOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleAddTag = () => {
     if (!tagInput.trim()) return;
@@ -75,14 +88,21 @@ export default function PostTaskPage() {
         {/* Task Category */}
         <div className="space-y-3">
           <Label className="text-sm font-bold text-gray-700">Task Category</Label>
-          <div className="relative">
-            <div className="min-h-14 w-full bg-gray-100/60 rounded-xl px-5 py-3 flex flex-wrap gap-2 items-center cursor-pointer group">
+          <div className="relative" ref={dropdownRef}>
+            <div 
+              tabIndex={0}
+              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+              onKeyDown={(e) => e.key === 'Enter' && setIsCategoryOpen(!isCategoryOpen)}
+              className={`min-h-14 w-full bg-gray-100/60 rounded-xl px-5 py-3 flex flex-wrap gap-2 items-center cursor-pointer transition-all border-2 ${
+                isCategoryOpen ? "border-purple-200 bg-white shadow-sm" : "border-transparent"
+              }`}
+            >
               {form.watch("categories")?.length > 0 ? (
                 form.watch("categories").map((catId: string) => {
                   const cat = categories?.find(c => c._id === catId);
                   return (
                     <span key={catId} className="bg-purple-100 text-[#6B46C1] text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-                      {cat?.name || "Category"}
+                      {cat?.displayName || cat?.name || "Category"}
                       <X size={14} className="cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleCategory(catId); }} />
                     </span>
                   );
@@ -93,26 +113,40 @@ export default function PostTaskPage() {
               <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-gray-600 transition-colors" size={20} />
             </div>
 
-            {/* Dropdown - Simple version for now */}
-            <div className="absolute z-10 w-full mt-2 bg-white border border-gray-100 shadow-xl rounded-2xl overflow-hidden hidden group-focus-within:block focus-within:block">
-              <div className="max-h-60 overflow-y-auto p-2">
-                {isLoadingCategories ? (
-                  <div className="p-4 text-center"><Loader2 className="animate-spin mx-auto text-purple-400" /></div>
-                ) : categories?.map((cat) => (
-                  <div 
-                    key={cat._id}
-                    onClick={() => toggleCategory(cat._id)}
-                    className={`p-3 rounded-xl cursor-pointer text-sm font-medium transition-colors ${
-                      form.watch("categories")?.includes(cat._id) 
-                        ? "bg-[#6B46C1] text-white" 
-                        : "hover:bg-gray-50 text-gray-600"
-                    }`}
-                  >
-                    {cat.name}
-                  </div>
-                ))}
+            {/* Dropdown */}
+            {isCategoryOpen && (
+              <div className="absolute z-20 w-full mt-2 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div className="max-h-60 overflow-y-auto p-2">
+                  {isLoadingCategories ? (
+                    <div className="p-4 text-center"><Loader2 className="animate-spin mx-auto text-purple-400" /></div>
+                  ) : categories?.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-gray-400">No categories found</div>
+                  ) : categories?.map((cat) => {
+                    const isSelected = form.watch("categories")?.includes(cat._id);
+                    return (
+                      <div 
+                        key={cat._id}
+                        onClick={() => {
+                          toggleCategory(cat._id);
+                          if (form.getValues("categories")?.length >= 2) {
+                             // Optional: don't close if they can select more? 
+                             // But for simplicity let's keep it open or closed based on preference
+                          }
+                        }}
+                        className={`p-3 rounded-xl cursor-pointer text-sm font-medium transition-colors flex items-center justify-between ${
+                          isSelected 
+                            ? "bg-[#6B46C1] text-white" 
+                            : "hover:bg-gray-50 text-gray-600"
+                        }`}
+                      >
+                        <span>{cat.displayName || cat.name}</span>
+                        {isSelected && <X size={14} className="opacity-60" />}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
           </div>
           {form.formState.errors.categories && <p className="text-xs text-red-500 font-medium px-1">{form.formState.errors.categories.message}</p>}
         </div>
@@ -140,16 +174,16 @@ export default function PostTaskPage() {
 
         {/* Deadline */}
         <div className="space-y-3">
-          <Label className="text-sm font-bold text-gray-700">Deadline ( End date )</Label>
+          <Label className="text-sm font-bold text-gray-700">Due Date ( End date )</Label>
           <div className="relative">
             <Input 
               type="date"
-              {...form.register("deadline")}
+              {...form.register("dueDate")}
               className="bg-gray-100/60 border-none h-14 rounded-xl px-5 focus-visible:ring-purple-400 placeholder:text-gray-300 appearance-none inline-flex items-center"
             />
             <CalendarDays className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
           </div>
-          {form.formState.errors.deadline && <p className="text-xs text-red-500 font-medium px-1">{form.formState.errors.deadline.message}</p>}
+          {form.formState.errors.dueDate && <p className="text-xs text-red-500 font-medium px-1">{form.formState.errors.dueDate.message}</p>}
         </div>
 
         {/* Task Description */}

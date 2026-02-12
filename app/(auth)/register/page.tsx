@@ -7,11 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Lock, Phone, User, AlertTriangle } from "lucide-react";
+import { Mail, Lock, Phone, User, AlertTriangle, EyeOff, Eye } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
+import { useState } from "react";
 
 export default function RegisterPage() {
   const { form, onSubmit, currentRole, setRole, isRegistering, registerError } = useRegister();
+  const [showPassword, setShowPassword] = useState(false)
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -101,22 +103,91 @@ export default function RegisterPage() {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                className="pl-9 h-12 bg-gray-50/50"
-                {...form.register("password")}
-                />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="country">Country</Label>
+              <Input
+                id="country"
+                placeholder="Nigeria"
+                className="h-12 bg-gray-50/50"
+                {...form.register("country")}
+              />
+              {form.formState.errors.country && (
+                <p className="text-sm text-red-500">{form.formState.errors.country.message}</p>
+              )}
             </div>
-            {form.formState.errors.password && (
-              <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
+            <div className="space-y-2">
+              <Label htmlFor="state">Resident State</Label>
+              <Input
+                id="state"
+                placeholder="Lagos"
+                className="h-12 bg-gray-50/50"
+                {...form.register("residentState")}
+              />
+              {form.formState.errors.residentState && (
+                <p className="text-sm text-red-500">{form.formState.errors.residentState.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address">Address</Label>
+            <Input
+              id="address"
+              placeholder="Enter your full address"
+              className="h-12 bg-gray-50/50"
+              {...form.register("address")}
+            />
+            {form.formState.errors.address && (
+              <p className="text-sm text-red-500">{form.formState.errors.address.message}</p>
             )}
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dateOfBirth">Date of Birth</Label>
+            <Input
+              id="dateOfBirth"
+              type="date"
+              className="h-12 bg-gray-50/50"
+              {...form.register("dateOfBirth")}
+            />
+            {form.formState.errors.dateOfBirth && (
+              <p className="text-sm text-red-500">{form.formState.errors.dateOfBirth.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+               <div className="relative">
+        {/* Left lock icon */}
+        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+        <Input
+          id="password"
+          type={showPassword ? "text" : "password"}
+          placeholder="Enter your password"
+          className="pl-9 pr-10 h-12 bg-gray-50/50"
+          {...form.register("password")}
+        />
+
+        {/* Eye toggle button */}
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          tabIndex={-1}
+        >
+          {showPassword ? (
+            <EyeOff className="h-4 w-4" />
+          ) : (
+            <Eye className="h-4 w-4" />
+          )}
+        </button>
+      </div>
+               {form.formState.errors.password && (
+                <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
+              )}
+            </div>
           
           <Button className="w-full h-12 text-lg font-medium" type="submit" disabled={isRegistering}>
             {isRegistering ? "Creating account..." : "Register"}

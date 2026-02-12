@@ -1,5 +1,16 @@
 "use client";
 
+const formatDateForInput = (dateString?: string) => {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    return date.toISOString().split('T')[0];
+  } catch (e) {
+    return "";
+  }
+};
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,11 +22,13 @@ import { useAuth } from "@/hooks/useAuth";
 
 // Schema for profile completion form
 const profileSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  gender: z.enum(["male", "female"]),
   phoneNumber: z.string().min(10, "Valid phone number is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
   country: z.string().min(1, "Country is required"),
-  residentState: z.string().min(1, "State is required"),
+  residentState: z.string().optional(),
   address: z.string().min(5, "Full address is required"),
   category: z.string().optional(),
   portfolioLink: z.string().url().optional().or(z.literal("")),
@@ -41,8 +54,9 @@ export function useCompleteProfile() {
           return; 
         }
         
+        const isTasker = user.role === "tasker";
         const hasBasicInfo = !!(
-            user.fullName && 
+            (user.firstName || user.fullName) && 
             user.phoneNumber && 
             user.country && 
             user.residentState && 
@@ -70,8 +84,9 @@ export function useCompleteProfile() {
       if (user?.role === "tasker") {
          setStep(2);
       } else {
-         // Force refetch to update sync derived state if needed or ProfilePage re-renders
+         // Force refetch and redirect for regular users
          queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+         router.push("/home");
       }
     },
   });
@@ -79,18 +94,16 @@ export function useCompleteProfile() {
   // Mutation for NIN verification (Step 2)
   const verifyIdentityMutation = useMutation({
     mutationFn: (nin: string) => {
-        // Extract names from fullName for verification
-        const [firstName, ...rest] = (user?.fullName || "").split(" ");
-        const lastName = rest.join(" ") || "User";
+        const values = form.getValues();
         
         return authApi.verifyIdentity({
             nin,
-            firstName,
-            lastName,
-            dateOfBirth: form.getValues("dateOfBirth") || (user as any)?.dateOfBirth,
-            gender: "male", // Defaulting to male as per current requirements, should be added to form if needed
+            firstName: values.firstName,
+            lastName: values.lastName,
+            dateOfBirth: values.dateOfBirth,
+            gender: values.gender as "male" | "female",
             email: user?.emailAddress,
-            phoneNumber: form.getValues("phoneNumber") || user?.phoneNumber
+            phoneNumber: values.phoneNumber || user?.phoneNumber
         });
     },
     onSuccess: (data) => {
@@ -109,9 +122,11 @@ export function useCompleteProfile() {
   const form = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      fullName: user?.fullName || "",
+      firstName: user?.firstName || user?.fullName?.split(" ")[0] || "",
+      lastName: user?.lastName || user?.fullName?.split(" ").slice(1).join(" ") || "",
+      gender: (user as any)?.gender || "male",
       phoneNumber: user?.phoneNumber || "",
-      dateOfBirth: (user as any)?.dateOfBirth || "",
+      dateOfBirth: formatDateForInput((user as any)?.dateOfBirth),
       country: user?.country || "Nigeria",
       residentState: user?.residentState || "",
       address: (user as any)?.address || "",
@@ -120,13 +135,15 @@ export function useCompleteProfile() {
       nin: "",
     },
     values: {
-      fullName: user?.fullName || "",
+      firstName: user?.firstName || user?.fullName?.split(" ")[0] || "",
+      lastName: user?.lastName || user?.fullName?.split(" ").slice(1).join(" ") || "",
+      gender: (user as any)?.gender || "male",
       phoneNumber: user?.phoneNumber || "",
-      dateOfBirth: (user as any)?.dateOfBirth || "",
+      dateOfBirth: formatDateForInput((user as any)?.dateOfBirth),
       country: user?.country || "Nigeria",
       residentState: user?.residentState || "",
       address: (user as any)?.address || "",
-    },
+    } as any,
   });
 
   const handleNext = (data: ProfileValues) => {
@@ -167,6 +184,7 @@ export function useCompleteProfile() {
 function checkProfileCompleteness(user: any): boolean {
   if (!user) return false;
 
+  const isTasker = user.role === "tasker";
   // Basic fields required for everyone
   const hasBasicInfo = !!(
     (user.fullName || (user.firstName && user.lastName)) &&

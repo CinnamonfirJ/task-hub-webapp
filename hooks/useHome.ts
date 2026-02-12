@@ -15,7 +15,7 @@ import { Task } from "@/types/task";
  * - Helper functions for formatting
  */
 export function useHome() {
-  const { user } = useAuth();
+  const { user, isLoadingUser, isUserError: isUserFetchError } = useAuth();
 
   // Profile Completeness Check
   const isProfileComplete = (() => {
@@ -46,10 +46,12 @@ export function useHome() {
     data: tasks,
     isLoading,
     isError,
+    refetch,
+    isRefetching
   } = useQuery({
     queryKey: ["recentTasks"],
     queryFn: () => tasksApi.getTasks({ limit: 6, status: "open" }),
-    enabled: isProfileComplete, // Only fetch if profile is complete
+    enabled: !!user, // Fetch if user exists, even if profile is incomplete
   });
 
   // Use the first task as the featured task
@@ -66,18 +68,39 @@ export function useHome() {
         .join("")
     : "U";
 
+  // Tasker specific state
+  // Tasker specific state
+  const isVerified = (user as any)?.isVerified || (user as any)?.verifyIdentity || false;
+
   return {
     // User data
     user,
     userInitials,
     isProfileComplete,
+    isLoadingUser,
+    isUserError: isError || isUserFetchError,
+    isVerified,
 
     // Tasks data
     featuredTask,
     recentTasks,
-    isLoading,
+    isLoading: isLoading || isRefetching,
     isError,
+    refetchTasks: refetch,
   };
+}
+
+/**
+ * Specialized hook for Tasker Feed
+ */
+export function useTaskerFeed(params: { maxDistance?: number; status?: string } = {}) {
+  const { user } = useAuth();
+  
+  return useQuery({
+    queryKey: ["taskerFeed", params],
+    queryFn: () => tasksApi.getTaskerFeed(params),
+    enabled: !!user && user.role === "tasker",
+  });
 }
 
 /**

@@ -9,8 +9,12 @@ import { UserType } from "@/types/auth";
 const registerSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   phone: z.string().min(10, "Valid phone number is required"),
+  country: z.string().min(1, "Country is required"),
+  residentState: z.string().optional(),
+  address: z.string().min(5, "Address is required"),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
   role: z.enum(["user", "tasker"]),
 });
 
@@ -26,6 +30,10 @@ export function useRegister() {
       email: "",
       password: "",
       phone: "",
+      country: "Nigeria",
+      residentState: "",
+      address: "",
+      dateOfBirth: "",
       role: "user",
     },
   });

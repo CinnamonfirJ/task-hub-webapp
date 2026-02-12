@@ -2,19 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, History, MessageSquare, User, Plus } from "lucide-react";
+import { Home, History, MessageSquare, User, Plus, Rss } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
-
-const navItems = [
-  { icon: Home, label: "Home", href: "/home" },
-  { icon: History, label: "History", href: "/history" },
-  { icon: MessageSquare, label: "Message", href: "/messages" },
-  { icon: User, label: "Profile", href: "/profile" },
-];
+import { useAuth } from "@/hooks/useAuth";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const isTasker = user?.role === 'tasker';
+
+  const navItems = [
+    { icon: Home, label: "Home", href: "/home" },
+    { icon: isTasker ? Rss : History, label: isTasker ? "Feed" : "History", href: isTasker ? "/feed" : "/history" },
+    { icon: MessageSquare, label: "Message", href: "/messages" },
+    { icon: User, label: "Profile", href: "/profile" },
+  ];
 
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-white lg:flex">
@@ -42,14 +45,16 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t">
-        <Link href="/post-task">
+      {!isTasker && (
+        <div className="p-4 border-t">
+          <Link href="/post-task">
             <Button className="w-full bg-[#6B46C1] hover:bg-[#553C9A] py-6 text-sm font-bold flex items-center justify-center gap-2">
-            <Plus size={18} />
-            Post a task
+              <Plus size={18} />
+              Post a task
             </Button>
-        </Link>
-      </div>
+          </Link>
+        </div>
+      )}
     </aside>
   );
 }

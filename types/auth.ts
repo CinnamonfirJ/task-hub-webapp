@@ -1,4 +1,4 @@
-export type UserType = "user" | "tasker";
+export type UserType = "user" | "tasker" | "admin";
 
 export interface User {
   _id: string; 
@@ -6,20 +6,23 @@ export interface User {
   fullName?: string;
   firstName?: string;
   lastName?: string;
+  gender?: "male" | "female";
   emailAddress: string;
   email?: string;
   phoneNumber?: string;
   role?: UserType;
   isEmailVerified: boolean;
+  isActive?: boolean;
+  lastLogin?: string;
   profilePicture?: string;
   categories?: any[];
   wallet?: number;
+  notificationId?: string | null;
   
   // Profile Fields
   address?: string;
   country?: string;
   residentState?: string;
-  originState?: string; // Tasker only
   dateOfBirth?: string;
   location?: {
     latitude: number;
@@ -27,11 +30,30 @@ export interface User {
     lastUpdated?: string;
   };
   isProfileComplete?: boolean;
+
+  // Tasker-specific
+  verifyIdentity?: boolean;
+  isVerified?: boolean;
+  isKYCVerified?: boolean;
 }
 
+// API returns accessToken (not "token") and user/tasker depending on role
 export interface AuthResponse {
-  user: User;
-  token: string;
+  status: string;
+  message: string;
+  accessToken: string;
+  user?: User;
+  tasker?: User;
+  emailVerificationRequired?: boolean;
+}
+
+// Registration response (no token, just confirmation)
+export interface RegisterResponse {
+  status: string;
+  message: string;
+  emailVerificationRequired: boolean;
+  user?: Partial<User>;
+  tasker?: Partial<User>;
 }
 
 // Input Types
@@ -46,10 +68,39 @@ export interface RegisterInput {
   password: string;
   phone: string;
   role: UserType;
+  country?: string;
+  residentState?: string;
+  address?: string;
+  dateOfBirth?: string;
+  // Tasker-specific (filled by API layer mapping)
+  firstName?: string;
+  lastName?: string;
+  categories?: string[];
 }
 
 export interface VerifyEmailInput {
-  email: string;
+  token: string;
+  type: UserType;
+  emailAddress?: string;
+}
+
+export interface ForgotPasswordInput {
+  emailAddress: string;
+  type: UserType;
+}
+
+export interface ResetPasswordInput {
   code: string;
-  type?: UserType;
+  newPassword: string;
+  emailAddress: string;
+  type: UserType;
+}
+
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface DeactivateAccountInput {
+  password: string;
 }

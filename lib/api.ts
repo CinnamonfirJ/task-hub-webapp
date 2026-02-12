@@ -15,33 +15,60 @@ export const apiData = async <T>(endpoint: string, options: FetchOptions = {}): 
     ...options.headers,
   };
 
+  if (process.env.NODE_ENV === 'development' && typeof window !== "undefined") {
+    console.log(`[API Request] ${options.method || 'GET'} ${endpoint}`, { 
+      hasToken: !!token,
+      tokenType: typeof token,
+      tokenPreview: token && typeof token === 'string' ? `${token.substring(0, 5)}...${token.slice(-5)}` : (typeof token === 'object' ? 'OBJECT!' : token),
+      headers: headers
+    });
+  }
+
   const config: RequestInit = {
     ...options,
     headers,
   };
 
   try {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[API Request] ${options.method || 'GET'} ${endpoint}`, { hasToken: !!token });
+    }
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
-    if (response.status === 401) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        window.location.href = "/login";
-      }
-      throw new Error("Unauthorized");
-    }
-
     if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({}));
-      throw new Error(errorBody.message || `Error ${response.status}: ${response.statusText}`);
+      if (response.status === 401) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`[API 401] Unauthorized response from ${endpoint}. Clearing token (simulated for now).`);
+        }
+        // Temporarily commented out to keep session for debugging
+        // if (typeof window !== "undefined") {
+        //   localStorage.removeItem("token");
+        // }
+        throw new Error("Unauthorized");
+      }
+      
+      const errorData = await response.json().catch(() => ({}));
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`[API Error] ${response.status} from ${endpoint}:`, errorData);
+      }
+      throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
     }
 
     // Check if the response is empty (e.g. 204 No Content)
     if (response.status === 204) {
+      if (process.env.NODE_ENV === 'development' && typeof window !== "undefined") {
+        console.log(`[API Response] ${options.method || 'GET'} ${endpoint}:`, "204 No Content - Empty response");
+      }
       return {} as T;
     }
 
-    return await response.json();
+    const data = await response.json();
+    
+    if (process.env.NODE_ENV === 'development' && typeof window !== "undefined") {
+      console.log(`[API Response] ${options.method || 'GET'} ${endpoint}:`, data);
+    }
+    
+    return data;
   } catch (error: any) {
     console.error("API Request Failed:", error);
     throw error;

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useCategories } from "@/hooks/useCategories";
 import { tasksApi } from "@/lib/api/tasks";
 import { authApi } from "@/lib/api/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -158,10 +159,7 @@ export function usePersonalInfoForm(user: User | null) {
  * Hook for the Tasker Service step
  */
 export function useTaskerServiceStep(user: User | null) {
-  const { data: allCategories, isLoading: isCategoriesLoading } = useQuery({
-    queryKey: ["categories"],
-    queryFn: tasksApi.getCategories,
-  });
+  const { data: allCategories, isLoading: isCategoriesLoading } = useCategories();
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 

@@ -3,8 +3,10 @@
 import { useTaskDetails } from "@/hooks/useTaskDetails";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, ArrowLeft, Loader2 } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Loader2, Clock, Stars } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
+import { Textarea } from "@/components/ui/textarea";
 
 function SimpleBadge({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
@@ -18,6 +20,9 @@ function SimpleBadge({ children, className }: { children: React.ReactNode; class
 
 export default function TaskDetailsPage() {
   const { task, isLoading, error, goBack } = useTaskDetails();
+  const { user } = useAuth();
+  
+  const isTasker = user?.role === 'tasker';
 
   if (isLoading) {
     return (
@@ -102,15 +107,59 @@ export default function TaskDetailsPage() {
           </div>
 
           {/* Description */}
-          <div className='space-y-4'>
-            <h3 className='font-bold text-gray-900 text-xl'>Description</h3>
-            <p className='text-gray-500 text-lg leading-relaxed whitespace-pre-wrap max-w-2xl'>
+          <div className='bg-white border border-gray-100 p-8 rounded-[2rem] space-y-4 shadow-sm'>
+            <h3 className='font-bold text-gray-900 text-xl'>
+                {isTasker ? "Task Description" : "Description"}
+            </h3>
+            <p className='text-gray-500 text-lg leading-relaxed whitespace-pre-wrap'>
               {task.description}
             </p>
           </div>
 
-          {/* Images Section */}
-          {task.images && task.images.length > 0 && (
+          {/* Tasker specific: Task Details Card as per design */}
+          {isTasker && (
+              <div className="bg-white border border-gray-100 p-8 rounded-[2rem] shadow-sm space-y-6">
+                <h3 className="font-bold text-gray-900 text-xl">Task Details</h3>
+                <div className="space-y-4">
+                    <DetailRow label="Category" value={categoryName} />
+                    <DetailRow label="Deadline" value={task.deadline ? new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "Flexible"} />
+                    <DetailRow label="Status" value={task.status.charAt(0).toUpperCase() + task.status.slice(1)} />
+                    <DetailRow label="Posted" value={task.createdAt ? new Date(task.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A"} />
+                </div>
+              </div>
+          )}
+
+          {/* Application Flow for Taskers */}
+          {isTasker && (
+              <div className="bg-white border border-gray-100 p-8 rounded-[2rem] shadow-sm space-y-8">
+                <div className="space-y-2">
+                    <h3 className="font-bold text-gray-900 text-xl">Application</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">
+                        This is a fixed-price task. Amount is set by the poster. You can include a message
+                    </p>
+                </div>
+
+                <div className="flex justify-between items-center py-4 border-y border-gray-50 text-sm font-bold">
+                    <span className="text-gray-400">Fixed Price</span>
+                    <span className="text-gray-900">₦{task.budget.toLocaleString()}</span>
+                </div>
+
+                <div className="space-y-3">
+                    <label className="text-gray-500 text-sm font-bold">Message (Optional)</label>
+                    <Textarea 
+                        placeholder="Introduce yourself , relevant experience, availability..."
+                        className="bg-gray-100/50 border-0 h-40 rounded-2xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] p-6 text-gray-600"
+                    />
+                </div>
+
+                <Button className="w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 rounded-2xl font-bold text-lg shadow-lg shadow-purple-200">
+                    Apply
+                </Button>
+              </div>
+          )}
+
+          {/* Images Section (Original - maybe move or adjust) */}
+          {task.images && task.images.length > 0 && !isTasker && (
             <div className='space-y-6'>
               <h3 className='font-bold text-gray-900 text-xl'>Attached Images</h3>
               <div className='grid grid-cols-2 gap-4'>
@@ -132,39 +181,50 @@ export default function TaskDetailsPage() {
         </div>
 
         {/* Sidebar - Right Side (4 cols) */}
-        <div className='lg:col-span-4 space-y-6 lg:sticky lg:top-8'>
-          <div className='bg-white border border-gray-100 shadow-sm p-8 rounded-[2rem] space-y-8'>
-             {/* Budget Display */}
-             <div className="bg-purple-50/50 p-6 rounded-2xl border border-purple-100/50">
-                <p className="text-[10px] uppercase font-bold text-[#6B46C1] tracking-[0.2em] mb-2 px-1">ESTIMATED BUDGET</p>
-                <div className="text-4xl font-black text-[#6B46C1] flex items-baseline gap-1">
-                    <span className="text-2xl font-bold">₦</span>
-                    {task.budget.toLocaleString()}
+        {!isTasker && (
+           <div className='lg:col-span-4 space-y-6 lg:sticky lg:top-8'>
+             <div className='bg-white border border-gray-100 shadow-sm p-8 rounded-[2rem] space-y-8'>
+                {/* Budget Display */}
+                <div className="bg-purple-50/50 p-6 rounded-2xl border border-purple-100/50">
+                    <p className="text-[10px] uppercase font-bold text-[#6B46C1] tracking-[0.2em] mb-2 px-1">ESTIMATED BUDGET</p>
+                    <div className="text-4xl font-black text-[#6B46C1] flex items-baseline gap-1">
+                        <span className="text-2xl font-bold">₦</span>
+                        {task.budget.toLocaleString()}
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <Button className='bg-[#6B46C1] hover:bg-[#553C9A] w-full py-8 text-lg font-bold rounded-2xl shadow-lg shadow-purple-200 transition-all active:scale-[0.98]'>
+                        Place a Bid
+                    </Button>
+                    
+                    <Button 
+                        variant="ghost" 
+                        className="w-full py-8 text-red-500 hover:text-red-600 hover:bg-red-50 font-bold rounded-2xl transition-all"
+                    >
+                        Cancel Task
+                    </Button>
                 </div>
              </div>
 
-             <div className="space-y-4">
-                 <Button className='bg-[#6B46C1] hover:bg-[#553C9A] w-full py-8 text-lg font-bold rounded-2xl shadow-lg shadow-purple-200 transition-all active:scale-[0.98]'>
-                    Place a Bid
-                 </Button>
-                 
-                 <Button 
-                    variant="ghost" 
-                    className="w-full py-8 text-red-500 hover:text-red-600 hover:bg-red-50 font-bold rounded-2xl transition-all"
-                 >
-                    Cancel Task
-                 </Button>
+             {/* Quick Info / Security Note */}
+             <div className="bg-gray-50 p-6 rounded-[2rem] border border-dashed border-gray-200">
+                <p className="text-xs text-center text-gray-400 font-medium">
+                    Make sure to communicate only through task-hub for your safety and security.
+                </p>
              </div>
-          </div>
-
-          {/* Quick Info / Security Note */}
-          <div className="bg-gray-50 p-6 rounded-[2rem] border border-dashed border-gray-200">
-             <p className="text-xs text-center text-gray-400 font-medium">
-                Make sure to communicate only through task-hub for your safety and security.
-             </p>
-          </div>
-        </div>
+           </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between items-center text-sm">
+        <span className="text-gray-400 font-bold">{label}</span>
+        <span className="text-gray-900 font-bold">{value}</span>
     </div>
   );
 }

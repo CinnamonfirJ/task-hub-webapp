@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { tasksApi } from "@/lib/api/tasks";
+import { useCategories } from "@/hooks/useCategories";
 import { useRouter } from "next/navigation";
 
 // Schema for task creation form
@@ -14,7 +15,7 @@ const postTaskSchema = z.object({
   categories: z.array(z.string()).min(1, "Please select at least one category").max(3, "Max 3 categories allowed"),
   budget: z.string().min(1, "Budget is required"),
   location: z.any().optional(),
-  deadline: z.string().min(1, "Deadline is required"),
+  dueDate: z.string().min(1, "Due date is required"),
   isBiddingEnabled: z.boolean(),
   tags: z.array(z.string()),
   images: z.array(z.any()).optional(),
@@ -29,10 +30,7 @@ export function usePostTask() {
   const {
     data: categories,
     isLoading: isLoadingCategories,
-  } = useQuery({
-    queryKey: ["categories"],
-    queryFn: tasksApi.getCategories,
-  });
+  } = useCategories();
 
   // Mutation for creating a new task
   const createTaskMutation = useMutation({
@@ -50,7 +48,8 @@ export function usePostTask() {
       description: "",
       budget: "",
       categories: [],
-      isBiddingEnabled: false,
+      isBiddingEnabled: true,
+      dueDate: "",
       tags: [],
       images: [],
     },
@@ -61,8 +60,16 @@ export function usePostTask() {
     createTaskMutation.mutate({
       ...data,
       budget: Number(data.budget),
-      // If location is string, we might need a better format or mock coordinates
-      location: data.location || { latitude: 6.5244, longitude: 3.3792 }, 
+      // Ensure location matches spec
+      location: typeof data.location === 'object' ? {
+        latitude: data.location?.latitude || 6.5244,
+        longitude: data.location?.longitude || 3.3792,
+        address: data.location?.address || "Lagos, Nigeria"
+      } : {
+        latitude: 6.5244,
+        longitude: 3.3792,
+        address: data.location || "Lagos, Nigeria"
+      },
     } as any);
   };
 

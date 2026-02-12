@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mail, Lock } from "lucide-react"; 
+import { Mail, Lock, Eye, EyeOff } from "lucide-react"; 
 import { Logo } from "@/components/layout/Logo";
+import { useState } from "react";
 
 export default function LoginPage() {
   const { form, role, setRole, onSubmit, isLoggingIn, loginError } = useLogin();
+  const [showPassword, setShowPassword] = useState(false)
 
   return (
     <div className="w-full max-w-md mx-auto"> 
@@ -71,16 +73,32 @@ export default function LoginPage() {
             
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  className="pl-9 h-12 bg-gray-50/50"
-                  {...form.register("password")}
-                />
-              </div>
+               <div className="relative">
+        {/* Left lock icon */}
+        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+        <Input
+          id="password"
+          type={showPassword ? "text" : "password"}
+          placeholder="Enter your password"
+          className="pl-9 pr-10 h-12 bg-gray-50/50"
+          {...form.register("password")}
+        />
+
+        {/* Eye toggle button */}
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          tabIndex={-1}
+        >
+          {showPassword ? (
+            <EyeOff className="h-4 w-4" />
+          ) : (
+            <Eye className="h-4 w-4" />
+          )}
+        </button>
+      </div>
                {form.formState.errors.password && (
                 <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
               )}

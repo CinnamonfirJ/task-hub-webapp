@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 import { User, LoginInput, RegisterInput, VerifyEmailInput } from "@/types/auth";
-import { useEffect } from "react";
 
 const USER_QUERY_KEY = ["currentUser"];
 
@@ -26,11 +25,43 @@ export function useAuth() {
       const role = data.role || 'user';
       return role === 'tasker' ? authApi.loginTasker(data) : authApi.loginUser(data);
     },
-    onSuccess: (data, variables) => {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userType", variables.role || 'user'); // Store userType for profile fetch
-      queryClient.setQueryData(USER_QUERY_KEY, data.user);
-      router.push("/home"); // Redirect to home/dashboard
+    onSuccess: (data: any, variables) => {
+      // API might return { accessToken } or { token } or { data: { ... } }
+      let accessToken = data.accessToken || data.token || data.data?.accessToken || data.data?.token;
+      
+      // If it's an object, try to drill down further (unlikely but safe)
+      if (accessToken && typeof accessToken === 'object') {
+        accessToken = accessToken.token || accessToken.accessToken;
+      }
+
+      const role = variables.role || 'user';
+      
+      if (!accessToken || typeof accessToken !== 'string') {
+        console.error("Invalid or missing access token in login response:", data);
+        return;
+      }
+
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem("userType", role);
+
+      // Handle dual response shapes (user vs tasker, wrapped or unwrapped)
+      let userData = data.user || data.tasker || data.data?.user || data.data?.tasker;
+      
+      if (userData) {
+        // Detect role from response structure first
+        if (data.tasker || data.data?.tasker) {
+          userData.role = "tasker";
+        } else if (data.user || data.data?.user) {
+          userData.role = "user";
+        } else {
+          // Fallback to the intent from variables
+          userData.role = role;
+        }
+        
+        queryClient.setQueryData(USER_QUERY_KEY, userData);
+      }
+      
+      router.push("/home");
     },
   });
 
@@ -40,19 +71,33 @@ export function useAuth() {
       return role === 'tasker' ? authApi.registerTasker(data) : authApi.registerUser(data);
     },
     onSuccess: (data, variables) => {
-       // Backend logic: User/Tasker needs verification.
-       // Redirect to verify-email, passing email and type.
-       const role = variables.role || 'user';
-       router.replace(`/verify-email?email=${encodeURIComponent(data.user?.emailAddress || variables.email)}&type=${role}`);
+      // Registration does NOT return a token — redirect to email verification
+      const role = variables.role || 'user';
+      const emailAddress = data.user?.emailAddress || data.tasker?.emailAddress || variables.email;
+      
+      // Store email in localStorage as a fallback for the verification page
+      if (emailAddress) {
+        localStorage.setItem("lastRegisteredEmail", emailAddress);
+      }
+      
+      router.replace(`/verify-email?email=${encodeURIComponent(emailAddress)}&type=${role}`);
     },
   });
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userType");
-    queryClient.setQueryData(USER_QUERY_KEY, null);
-    queryClient.clear(); // clear all cache
-    router.push("/login"); // Redirect to login
+  const logout = async () => {
+    try {
+      // Remove notification ID before logout
+      await authApi.removeNotificationId().catch(() => {});
+      // Call server-side logout
+      await authApi.logout().catch(() => {});
+    } finally {
+      // Always clear client state even if server calls fail
+      localStorage.removeItem("token");
+      localStorage.removeItem("userType");
+      queryClient.setQueryData(USER_QUERY_KEY, null);
+      queryClient.clear();
+      router.push("/login");
+    }
   };
 
   return {
@@ -81,7 +126,7 @@ export function useVerifyEmail() {
   const verifyMutation = useMutation({
     mutationFn: (data: VerifyEmailInput) => authApi.verifyEmail(data),
     onSuccess: () => {
-      router.push("/login"); // Redirect to login after verification
+      router.push("/login");
     },
   });
 

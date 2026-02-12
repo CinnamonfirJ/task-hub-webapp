@@ -20,7 +20,7 @@ export function ProfileCompletionStep1({ form, handleNext, handlePictureUpload, 
   const { register, handleSubmit, formState: { errors, isValid } } = form;
   const [activeField, setActiveField] = useState<string | null>(null);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: ProfileValues) => {
     handleNext(data);
   };
 
@@ -99,17 +99,32 @@ export function ProfileCompletionStep1({ form, handleNext, handlePictureUpload, 
           <h3 className="font-bold text-gray-900">Basic Information</h3>
           
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full name</Label>
-              <div className="relative">
-                <Input
-                  id="fullName"
-                  {...register("fullName")}
-                  className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]"
-                  placeholder="Enter your full name"
-                />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First name</Label>
+                <div className="relative">
+                  <Input
+                    id="firstName"
+                    {...register("firstName")}
+                    className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]"
+                    placeholder="e.g shola"
+                  />
+                </div>
+                {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName.message}</p>}
               </div>
-              {errors.fullName && <p className="text-red-500 text-xs">{errors.fullName.message}</p>}
+
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last name</Label>
+                <div className="relative">
+                  <Input
+                    id="lastName"
+                    {...register("lastName")}
+                    className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]"
+                    placeholder="e.g davies"
+                  />
+                </div>
+                {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName.message}</p>}
+              </div>
             </div>
 
             <div className="space-y-2">
