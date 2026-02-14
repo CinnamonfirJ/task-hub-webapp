@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation } from "@tanstack/react-query";
@@ -34,7 +34,7 @@ export function useForgotPassword() {
     onSuccess: (_data, variables) => {
       // Redirect to reset-password page with email pre-filled
       router.push(
-        `/reset-password?email=${encodeURIComponent(variables.emailAddress)}&type=${variables.type}`
+        `/reset-password?email=${encodeURIComponent(variables.emailAddress)}&type=${variables.type}`,
       );
     },
   });
@@ -60,7 +60,7 @@ const resetPasswordSchema = z
     newPassword: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(6, "Please confirm your password"),
     emailAddress: z.string().email(),
-    type: z.enum(["user", "tasker"]),
+    type: z.enum(["user", "tasker", "admin"]),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords do not match",
@@ -69,10 +69,19 @@ const resetPasswordSchema = z
 
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 
-export function useResetPassword(email?: string, type?: string) {
+export function useResetPassword(
+  email?: string,
+  type?: string,
+): {
+  form: UseFormReturn<ResetPasswordValues, any, ResetPasswordValues>;
+  onSubmit: (data: ResetPasswordValues) => void;
+  isSubmitting: boolean;
+  isSuccess: boolean;
+  error: any;
+} {
   const router = useRouter();
 
-  const form = useForm<ResetPasswordValues>({
+  const form = useForm<ResetPasswordValues, any, ResetPasswordValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       code: "",

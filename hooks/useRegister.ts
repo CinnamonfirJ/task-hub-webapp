@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,15 +15,22 @@ const registerSchema = z.object({
   residentState: z.string().optional(),
   address: z.string().min(5, "Address is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
-  role: z.enum(["user", "tasker"]),
+  role: z.enum(["user", "tasker", "admin"]),
 });
 
 export type RegisterValues = z.infer<typeof registerSchema>;
 
-export function useRegister() {
+export function useRegister(): {
+  form: UseFormReturn<RegisterValues, any, RegisterValues>;
+  onSubmit: (data: RegisterValues) => Promise<void>;
+  currentRole: UserType;
+  setRole: (role: string) => void;
+  isRegistering: boolean;
+  registerError: any;
+} {
   const { registerAsync, isRegistering, registerError } = useAuth();
-  
-  const form = useForm<RegisterValues>({
+
+  const form = useForm<RegisterValues, any, RegisterValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       fullName: "",
@@ -42,7 +49,7 @@ export function useRegister() {
     try {
       await registerAsync(data);
     } catch (err) {
-       // Error handled by useMutation state
+      // Error handled by useMutation state
     }
   };
 

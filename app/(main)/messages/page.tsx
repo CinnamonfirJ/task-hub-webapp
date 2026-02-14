@@ -10,6 +10,9 @@ import Loading from "./loading";
 
 export default function MessagesPage() {
   const { user } = useAuth();
+  const [activeFilter, setActiveFilter] = useState<"all" | "unread" | "read">(
+    "all",
+  );
   const searchParams = useSearchParams();
 
   const userInitials = user?.fullName

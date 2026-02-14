@@ -10,31 +10,37 @@ import {
   ChangePasswordInput,
   DeactivateAccountInput,
   User,
+  UserType,
 } from "@/types/auth";
 
 export const authApi = {
   // ── Login ──────────────────────────────────────────────────────────────
 
   loginUser: async (data: LoginInput): Promise<AuthResponse> => {
-    const res = await apiData<any>(
-      "/api/auth/user-login",
-      {
-        method: "POST",
-        body: JSON.stringify({ emailAddress: data.email, password: data.password }),
-      }
-    );
-    
+    const res = await apiData<any>("/api/auth/user-login", {
+      method: "POST",
+      body: JSON.stringify({
+        emailAddress: data.email,
+        password: data.password,
+      }),
+    });
+
     // Extract token and user data (handle both wrapped in 'data' and unwrapped)
     // Use optional chaining for the root object 'res' to be safe
-    const token = res?.data?.token || res?.token || res?.data?.accessToken || res?.accessToken;
-    const userData = res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
-    
+    const token =
+      res?.data?.token ||
+      res?.token ||
+      res?.data?.accessToken ||
+      res?.accessToken;
+    const userData =
+      res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
+
     // Store token and user type
     if (token) {
       localStorage.setItem("token", token);
       localStorage.setItem("userType", "user");
     }
-    
+
     // Return in AuthResponse format
     return {
       status: res?.status || "error",
@@ -45,30 +51,37 @@ export const authApi = {
   },
 
   loginTasker: async (data: LoginInput): Promise<AuthResponse> => {
-    const res = await apiData<any>(
-      "/api/auth/tasker-login",
-      {
-        method: "POST",
-        body: JSON.stringify({ emailAddress: data.email, password: data.password }),
-      }
-    );
-    
+    const res = await apiData<any>("/api/auth/tasker-login", {
+      method: "POST",
+      body: JSON.stringify({
+        emailAddress: data.email,
+        password: data.password,
+      }),
+    });
+
     // Extract token and tasker data (handle both wrapped in 'data' and unwrapped)
-    const token = res?.data?.token || res?.token || res?.data?.accessToken || res?.accessToken;
-    const taskerData = res?.data?.tasker || res?.tasker || res?.data?.user || res?.user;
-    
+    const token =
+      res?.data?.token ||
+      res?.token ||
+      res?.data?.accessToken ||
+      res?.accessToken;
+    const taskerData =
+      res?.data?.tasker || res?.tasker || res?.data?.user || res?.user;
+
     // Store token and user type
     if (token) {
       localStorage.setItem("token", token);
       localStorage.setItem("userType", "tasker");
     }
-    
+
     // Return in AuthResponse format
     return {
       status: res?.status || "error",
       message: res?.message || "",
       accessToken: token,
-      tasker: taskerData ? { ...taskerData, role: "tasker" as const } : undefined,
+      tasker: taskerData
+        ? { ...taskerData, role: "tasker" as const }
+        : undefined,
     };
   },
 
@@ -114,18 +127,23 @@ export const authApi = {
 
   // ── Email Verification ─────────────────────────────────────────────────
 
-  verifyEmail: async (data: VerifyEmailInput): Promise<{ status: string; message: string }> => {
-    return apiData<{ status: string; message: string }>("/api/auth/verify-email", {
-      method: "POST",
-      body: JSON.stringify({
-        code: data.token,
-        emailAddress: data.emailAddress,
-        type: data.type,
-      }),
-    });
+  verifyEmail: async (
+    data: VerifyEmailInput,
+  ): Promise<{ status: string; message: string }> => {
+    return apiData<{ status: string; message: string }>(
+      "/api/auth/verify-email",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          code: data.token,
+          emailAddress: data.emailAddress,
+          type: data.type,
+        }),
+      },
+    );
   },
 
-  resendCode: async (email: string, type: "user" | "tasker" = "user"): Promise<void> => {
+  resendCode: async (email: string, type: UserType = "user"): Promise<void> => {
     return apiData<void>("/api/auth/resend-verification", {
       method: "POST",
       body: JSON.stringify({ emailAddress: email, type }),
@@ -134,59 +152,82 @@ export const authApi = {
 
   // ── Password Management ────────────────────────────────────────────────
 
-  forgotPassword: async (data: ForgotPasswordInput): Promise<{ status: string; message: string }> => {
-    return apiData<{ status: string; message: string }>("/api/auth/forgot-password", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  forgotPassword: async (
+    data: ForgotPasswordInput,
+  ): Promise<{ status: string; message: string }> => {
+    return apiData<{ status: string; message: string }>(
+      "/api/auth/forgot-password",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+    );
   },
 
-  resetPassword: async (data: ResetPasswordInput): Promise<{ status: string; message: string }> => {
-    return apiData<{ status: string; message: string }>("/api/auth/reset-password", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  resetPassword: async (
+    data: ResetPasswordInput,
+  ): Promise<{ status: string; message: string }> => {
+    return apiData<{ status: string; message: string }>(
+      "/api/auth/reset-password",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+    );
   },
 
-  changePassword: async (data: ChangePasswordInput): Promise<{ status: string; message: string }> => {
-    return apiData<{ status: string; message: string }>("/api/auth/change-password", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  changePassword: async (
+    data: ChangePasswordInput,
+  ): Promise<{ status: string; message: string }> => {
+    return apiData<{ status: string; message: string }>(
+      "/api/auth/change-password",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+    );
   },
 
   // ── Profile ────────────────────────────────────────────────────────────
 
   getProfile: async (): Promise<User> => {
-    const userType = typeof window !== "undefined" ? localStorage.getItem("userType") : null;
-    
+    const userType =
+      typeof window !== "undefined" ? localStorage.getItem("userType") : null;
+
     // Determine which endpoint to try first
-    const endpoints = userType === "tasker" 
-      ? ["/api/auth/tasker", "/api/auth/user"] 
-      : (userType === "user" ? ["/api/auth/user", "/api/auth/tasker"] : ["/api/auth/user", "/api/auth/tasker"]);
+    const endpoints =
+      userType === "tasker"
+        ? ["/api/auth/tasker", "/api/auth/user"]
+        : userType === "user"
+          ? ["/api/auth/user", "/api/auth/tasker"]
+          : ["/api/auth/user", "/api/auth/tasker"];
 
     for (const endpoint of endpoints) {
       try {
         const res = await apiData<any>(endpoint, { method: "GET" });
-        
+
         // Extract user or tasker data
         const userData = res?.data?.user || res?.user;
         const taskerData = res?.data?.tasker || res?.tasker;
 
         if (endpoint === "/api/auth/tasker") {
-          const profileData = res?.data?.tasker || res?.tasker || res?.data?.user || res?.user;
+          const profileData =
+            res?.data?.tasker || res?.tasker || res?.data?.user || res?.user;
           if (profileData) {
             // Force role to tasker since we hit the tasker endpoint successfully
             profileData.role = "tasker";
-            if (typeof window !== "undefined") localStorage.setItem("userType", "tasker");
+            if (typeof window !== "undefined")
+              localStorage.setItem("userType", "tasker");
             return profileData;
           }
         } else {
-          const profileData = res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
+          const profileData =
+            res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
           if (profileData) {
             // Force role to user since we hit the user endpoint successfully
             profileData.role = "user";
-            if (typeof window !== "undefined") localStorage.setItem("userType", "user");
+            if (typeof window !== "undefined")
+              localStorage.setItem("userType", "user");
             return profileData;
           }
         }
@@ -198,35 +239,37 @@ export const authApi = {
         // Otherwise, continue to the next endpoint
       }
     }
-    
+
     throw new Error("Could not retrieve profile from any known endpoint");
   },
 
   updateProfile: async (data: Partial<User>): Promise<User> => {
-    const userType = typeof window !== "undefined" ? localStorage.getItem("userType") : "user";
-    const endpoint = userType === "tasker" ? "/api/auth/tasker" : "/api/auth/user";
+    const userType =
+      typeof window !== "undefined" ? localStorage.getItem("userType") : "user";
+    const endpoint =
+      userType === "tasker" ? "/api/auth/tasker" : "/api/auth/user";
 
-    const res = await apiData<any>(
-      endpoint,
-      {
-        method: "PUT",
-        body: JSON.stringify(data),
-      }
-    );
-    
+    const res = await apiData<any>(endpoint, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+
     // Extract user or tasker
-    const userData = res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
+    const userData =
+      res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
     if (!userData) {
       throw new Error("Invalid update profile response");
     }
-    
+
     // Preserve role explicitly
     userData.role = userType as any;
-    
+
     return userData;
   },
 
-  updateProfilePicture: async (url: string): Promise<{ profilePicture: string }> => {
+  updateProfilePicture: async (
+    url: string,
+  ): Promise<{ profilePicture: string }> => {
     return apiData<{ profilePicture: string }>("/api/auth/profile-picture", {
       method: "PUT",
       body: JSON.stringify({ profilePicture: url }),
@@ -242,10 +285,14 @@ export const authApi = {
 
   // ── Notification ID ────────────────────────────────────────────────────
 
-  updateNotificationId: async (notificationId: string): Promise<{ status: string; data: any }> => {
+  updateNotificationId: async (
+    notificationId: string,
+  ): Promise<{ status: string; data: any }> => {
     const userType = localStorage.getItem("userType") || "user";
     const endpoint =
-      userType === "tasker" ? "/api/auth/tasker/notification-id" : "/api/auth/user/notification-id";
+      userType === "tasker"
+        ? "/api/auth/tasker/notification-id"
+        : "/api/auth/user/notification-id";
 
     return apiData<any>(endpoint, {
       method: "PUT",
@@ -256,7 +303,9 @@ export const authApi = {
   removeNotificationId: async (): Promise<{ status: string; data: any }> => {
     const userType = localStorage.getItem("userType") || "user";
     const endpoint =
-      userType === "tasker" ? "/api/auth/tasker/notification-id" : "/api/auth/user/notification-id";
+      userType === "tasker"
+        ? "/api/auth/tasker/notification-id"
+        : "/api/auth/user/notification-id";
 
     return apiData<any>(endpoint, {
       method: "DELETE",
@@ -274,13 +323,10 @@ export const authApi = {
     phoneNumber?: string;
     email?: string;
   }): Promise<{ isVerified: boolean; matchStatus: string }> => {
-    const res = await apiData<any>(
-      "/api/auth/verify-identity",
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    );
+    const res = await apiData<any>("/api/auth/verify-identity", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
     return res?.data || { isVerified: false, matchStatus: "error" };
   },
 
@@ -299,10 +345,15 @@ export const authApi = {
     });
   },
 
-  deactivateAccount: async (data: DeactivateAccountInput): Promise<{ status: string; message: string }> => {
-    return apiData<{ status: string; message: string }>("/api/auth/deactivate-account", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  deactivateAccount: async (
+    data: DeactivateAccountInput,
+  ): Promise<{ status: string; message: string }> => {
+    return apiData<{ status: string; message: string }>(
+      "/api/auth/deactivate-account",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+    );
   },
 };

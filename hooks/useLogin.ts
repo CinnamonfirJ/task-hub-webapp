@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/hooks/useAuth";
 
+import { UserType } from "@/types/auth";
+
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -14,7 +16,7 @@ const loginSchema = z.object({
 export type LoginValues = z.infer<typeof loginSchema>;
 
 export function useLogin() {
-  const [role, setRole] = useState<"user" | "tasker">("user");
+  const [role, setRole] = useState<UserType>("user");
   const { loginAsync, isLoggingIn, loginError } = useAuth();
 
   const form = useForm<LoginValues>({
