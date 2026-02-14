@@ -16,17 +16,60 @@ export const authApi = {
   // ── Login ──────────────────────────────────────────────────────────────
 
   loginUser: async (data: LoginInput): Promise<AuthResponse> => {
-    return apiData<AuthResponse>("/api/auth/user-login", {
-      method: "POST",
-      body: JSON.stringify({ emailAddress: data.email, password: data.password }),
-    });
+    const res = await apiData<any>(
+      "/api/auth/user-login",
+      {
+        method: "POST",
+        body: JSON.stringify({ emailAddress: data.email, password: data.password }),
+      }
+    );
+    
+    // Extract token and user data (handle both wrapped in 'data' and unwrapped)
+    // Use optional chaining for the root object 'res' to be safe
+    const token = res?.data?.token || res?.token || res?.data?.accessToken || res?.accessToken;
+    const userData = res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
+    
+    // Store token and user type
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("userType", "user");
+    }
+    
+    // Return in AuthResponse format
+    return {
+      status: res?.status || "error",
+      message: res?.message || "",
+      accessToken: token,
+      user: userData ? { ...userData, role: "user" as const } : undefined,
+    };
   },
 
   loginTasker: async (data: LoginInput): Promise<AuthResponse> => {
-    return apiData<AuthResponse>("/api/auth/tasker-login", {
-      method: "POST",
-      body: JSON.stringify({ emailAddress: data.email, password: data.password }),
-    });
+    const res = await apiData<any>(
+      "/api/auth/tasker-login",
+      {
+        method: "POST",
+        body: JSON.stringify({ emailAddress: data.email, password: data.password }),
+      }
+    );
+    
+    // Extract token and tasker data (handle both wrapped in 'data' and unwrapped)
+    const token = res?.data?.token || res?.token || res?.data?.accessToken || res?.accessToken;
+    const taskerData = res?.data?.tasker || res?.tasker || res?.data?.user || res?.user;
+    
+    // Store token and user type
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("userType", "tasker");
+    }
+    
+    // Return in AuthResponse format
+    return {
+      status: res?.status || "error",
+      message: res?.message || "",
+      accessToken: token,
+      tasker: taskerData ? { ...taskerData, role: "tasker" as const } : undefined,
+    };
   },
 
   // ── Register ───────────────────────────────────────────────────────────
@@ -115,65 +158,72 @@ export const authApi = {
   // ── Profile ────────────────────────────────────────────────────────────
 
   getProfile: async (): Promise<User> => {
-    // Try the unified profile endpoint first
-    try {
-      const res = await apiData<any>("/api/auth/profile", { method: "GET" });
-      const userData = res.user || res.tasker || res.data?.user || res.data?.tasker || res.data || res;
-      
-      if (userData) {
-        // Detect role from response structure if possible
-        if (res.tasker || res.data?.tasker) {
-          userData.role = "tasker";
-        } else if (res.user || res.data?.user) {
-          userData.role = "user";
-        } 
-        
-        // Final fallback: use localStorage or default
-        if (!userData.role) {
-          userData.role = (localStorage.getItem("userType") as any) || "user";
-        }
-      }
-      return userData;
-    } catch (err) {
-      // Fallback
-      const userType = localStorage.getItem("userType");
-      
-      // If we know the type, try that specifically
-      if (userType) {
-        const endpoint = userType === "tasker" ? "/api/auth/tasker" : "/api/auth/user";
-        const res = await apiData<any>(endpoint, { method: "GET" });
-        const userData = res.user || res.tasker || res.data?.user || res.data?.tasker || res.data || res;
-        
-        // Aggressively force the role based on the endpoint we just hit
-        if (userData) {
-          userData.role = userType as any;
-        }
-        return userData;
-      }
+    const userType = typeof window !== "undefined" ? localStorage.getItem("userType") : null;
+    
+    // Determine which endpoint to try first
+    const endpoints = userType === "tasker" 
+      ? ["/api/auth/tasker", "/api/auth/user"] 
+      : (userType === "user" ? ["/api/auth/user", "/api/auth/tasker"] : ["/api/auth/user", "/api/auth/tasker"]);
 
-      // If we don't know, try both
+    for (const endpoint of endpoints) {
       try {
-        const res = await apiData<any>("/api/auth/user", { method: "GET" });
-        localStorage.setItem("userType", "user");
-        const userData = res.user || res.data?.user || res.data || res;
-        if (userData) userData.role = "user";
-        return userData;
-      } catch (userErr) {
-        const res = await apiData<any>("/api/auth/tasker", { method: "GET" });
-        localStorage.setItem("userType", "tasker");
-        const userData = res.tasker || res.data?.tasker || res.data || res;
-        if (userData) userData.role = "tasker";
-        return userData;
+        const res = await apiData<any>(endpoint, { method: "GET" });
+        
+        // Extract user or tasker data
+        const userData = res?.data?.user || res?.user;
+        const taskerData = res?.data?.tasker || res?.tasker;
+
+        if (endpoint === "/api/auth/tasker") {
+          const profileData = res?.data?.tasker || res?.tasker || res?.data?.user || res?.user;
+          if (profileData) {
+            // Force role to tasker since we hit the tasker endpoint successfully
+            profileData.role = "tasker";
+            if (typeof window !== "undefined") localStorage.setItem("userType", "tasker");
+            return profileData;
+          }
+        } else {
+          const profileData = res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
+          if (profileData) {
+            // Force role to user since we hit the user endpoint successfully
+            profileData.role = "user";
+            if (typeof window !== "undefined") localStorage.setItem("userType", "user");
+            return profileData;
+          }
+        }
+      } catch (error: any) {
+        // If it's the last endpoint or not a 404, we might want to throw
+        if (endpoint === endpoints[endpoints.length - 1]) {
+          throw error;
+        }
+        // Otherwise, continue to the next endpoint
       }
     }
+    
+    throw new Error("Could not retrieve profile from any known endpoint");
   },
 
   updateProfile: async (data: Partial<User>): Promise<User> => {
-    const res = await apiData<{ status: string; user: User }>("/api/auth/profile", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
-    return res.user;
+    const userType = typeof window !== "undefined" ? localStorage.getItem("userType") : "user";
+    const endpoint = userType === "tasker" ? "/api/auth/tasker" : "/api/auth/user";
+
+    const res = await apiData<any>(
+      endpoint,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }
+    );
+    
+    // Extract user or tasker
+    const userData = res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
+    if (!userData) {
+      throw new Error("Invalid update profile response");
+    }
+    
+    // Preserve role explicitly
+    userData.role = userType as any;
+    
+    return userData;
   },
 
   updateProfilePicture: async (url: string): Promise<{ profilePicture: string }> => {
@@ -197,7 +247,7 @@ export const authApi = {
     const endpoint =
       userType === "tasker" ? "/api/auth/tasker/notification-id" : "/api/auth/user/notification-id";
 
-    return apiData<{ status: string; data: any }>(endpoint, {
+    return apiData<any>(endpoint, {
       method: "PUT",
       body: JSON.stringify({ notificationId }),
     });
@@ -208,7 +258,7 @@ export const authApi = {
     const endpoint =
       userType === "tasker" ? "/api/auth/tasker/notification-id" : "/api/auth/user/notification-id";
 
-    return apiData<{ status: string; data: any }>(endpoint, {
+    return apiData<any>(endpoint, {
       method: "DELETE",
     });
   },
@@ -224,21 +274,21 @@ export const authApi = {
     phoneNumber?: string;
     email?: string;
   }): Promise<{ isVerified: boolean; matchStatus: string }> => {
-    const res = await apiData<{ status: string; data: { isVerified: boolean; matchStatus: string } }>(
+    const res = await apiData<any>(
       "/api/auth/verify-identity",
       {
         method: "POST",
         body: JSON.stringify(data),
       }
     );
-    return res.data;
+    return res?.data || { isVerified: false, matchStatus: "error" };
   },
 
   getVerificationStatus: async (): Promise<{ isVerified: boolean }> => {
-    const res = await apiData<{ data: { isVerified: boolean } }>("/api/auth/verification-status", {
+    const res = await apiData<any>("/api/auth/verification-status", {
       method: "GET",
     });
-    return res.data;
+    return res?.data || { isVerified: false };
   },
 
   // ── Session ────────────────────────────────────────────────────────────

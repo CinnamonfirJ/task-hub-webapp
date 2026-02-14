@@ -14,45 +14,93 @@ export const tasksApi = {
   getTasks: async (filters: TaskFilters = {}): Promise<Task[]> => {
     const params = new URLSearchParams();
     if (filters.categories && filters.categories.length > 0) {
-      filters.categories.forEach(cat => params.append("categories", cat));
+      filters.categories.forEach((cat) => params.append("categories", cat));
     }
     if (filters.search) params.append("search", filters.search);
-    if (filters.minBudget) params.append("minBudget", filters.minBudget.toString());
-    if (filters.maxBudget) params.append("maxBudget", filters.maxBudget.toString());
+    if (filters.minBudget)
+      params.append("minBudget", filters.minBudget.toString());
+    if (filters.maxBudget)
+      params.append("maxBudget", filters.maxBudget.toString());
     if (filters.limit) params.append("limit", filters.limit.toString());
     if (filters.page) params.append("page", filters.page.toString());
     if (filters.status) params.append("status", filters.status);
-    
-    const response = await apiData<TasksResponse>(`/api/tasks?${params.toString()}`, {
+
+    const res = await apiData<any>(`/api/tasks?${params.toString()}`, {
       method: "GET",
     });
-    
-    return response.tasks || [];
+
+    return (
+      res?.tasks ||
+      (Array.isArray(res?.data) ? res.data : res?.data?.tasks) ||
+      (Array.isArray(res) ? res : [])
+    );
   },
 
   getTask: async (id: string): Promise<Task> => {
-    return apiData<Task>(`/api/tasks/${id}`, {
+    const res = await apiData<any>(`/api/tasks/${id}`, {
       method: "GET",
     });
+    return res?.data?.task || res?.task || res;
   },
 
   createTask: async (data: any): Promise<Task> => {
-    const response = await apiData<{ status: string; data: { task: Task } }>("/api/tasks", {
+    const res = await apiData<any>("/api/tasks", {
       method: "POST",
       body: JSON.stringify(data),
     });
-    return response.data.task;
+    return res?.data?.task || res?.task;
   },
 
-  getTaskerFeed: async (params: { maxDistance?: number; status?: string } = {}): Promise<Task[]> => {
+  getTaskerFeed: async (
+    params: { maxDistance?: number; status?: string } = {},
+  ): Promise<Task[]> => {
     const searchParams = new URLSearchParams();
-    if (params.maxDistance) searchParams.append("maxDistance", params.maxDistance.toString());
+    if (params.maxDistance)
+      searchParams.append("maxDistance", params.maxDistance.toString());
     if (params.status) searchParams.append("status", params.status);
 
-    const response = await apiData<{ status: string; count: number; tasks: Task[] }>(
+    const res = await apiData<any>(
       `/api/tasks/tasker/feed?${searchParams.toString()}`,
-      { method: "GET" }
+      { method: "GET" },
     );
-    return response.tasks || [];
+    return (
+      res?.tasks ||
+      (Array.isArray(res?.data) ? res.data : res?.data?.tasks) ||
+      (Array.isArray(res) ? res : [])
+    );
+  },
+
+  getUserTasks: async (
+    filters: { status?: string; page?: number; limit?: number } = {},
+  ): Promise<Task[]> => {
+    const params = new URLSearchParams();
+    if (filters.status) params.append("status", filters.status);
+    if (filters.page) params.append("page", filters.page.toString());
+    if (filters.limit) params.append("limit", filters.limit.toString());
+
+    // Fallback to a large limit if no status/page provided to try and get 'all' for client-side legacy
+    // But ideally we should use server-side filtering.
+    if (!filters.limit && !filters.page && !filters.status) {
+      params.append("limit", "100");
+    }
+
+    const res = await apiData<any>(
+      `/api/tasks/user/tasks?${params.toString()}`,
+      { method: "GET" },
+    );
+
+    return (
+      res?.tasks ||
+      (Array.isArray(res?.data) ? res.data : res?.data?.tasks) ||
+      (Array.isArray(res) ? res : [])
+    );
+  },
+
+  cancelTask: async (
+    id: string,
+  ): Promise<{ status: string; message: string }> => {
+    return apiData<{ status: string; message: string }>(`/api/tasks/${id}`, {
+      method: "DELETE",
+    });
   },
 };

@@ -6,6 +6,7 @@ import confetti from "canvas-confetti"
 import { CheckCircle2, ArrowLeft, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { fadeInUp, staggerContainer, scaleOnHover } from "@/utils/landing-animations"
+import { GuestGuard } from "@/components/auth/GuestGuard"
 
 export default function WaitlistSuccess() {
   useEffect(() => {
@@ -40,7 +41,8 @@ export default function WaitlistSuccess() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center px-6 py-20 overflow-hidden relative">
+    <GuestGuard>
+      <main className="min-h-screen bg-white flex items-center justify-center px-6 py-20 overflow-hidden relative">
       {/* Background Gradients */}
       <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-100/50 rounded-full blur-3xl animate-pulse" />
@@ -123,5 +125,6 @@ export default function WaitlistSuccess() {
         </motion.div>
       </motion.div>
     </main>
-  )
+  </GuestGuard>
+)
 }

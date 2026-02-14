@@ -9,11 +9,11 @@ export function useMyBids(status?: string) {
   });
 }
 
-export function useTaskBids(taskId: string) {
+export function useTaskBids(taskId: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["taskBids", taskId],
     queryFn: () => bidsApi.getTaskBids(taskId),
-    enabled: !!taskId,
+    enabled: options?.enabled !== undefined ? options.enabled : !!taskId,
   });
 }
 

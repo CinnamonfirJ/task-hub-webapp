@@ -9,10 +9,12 @@ import RewardsSection from "@/components/landing/rewards-section"
 import FinalCTA from "@/components/landing/final-cta"
 import Footer from "@/components/landing/footer"
 import TheProblem from "@/components/landing/the-problem"
+import { GuestGuard } from "@/components/auth/GuestGuard"
 
 export default function Page() {
   return (
-    <main>
+    <GuestGuard>
+      <main>
       <Navbar />
       <Hero />
       <TheProblem/>
@@ -25,5 +27,6 @@ export default function Page() {
       <FinalCTA />
       <Footer />
     </main>
+    </GuestGuard>
   )
 }

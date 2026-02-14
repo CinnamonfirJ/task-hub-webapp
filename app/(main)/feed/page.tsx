@@ -1,33 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import { useHome, formatDeadline, getCategoryName } from "@/hooks/useHome";
+import { useTaskerFeed } from "@/hooks/useHome";
+import { useCategories } from "@/hooks/useCategories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Calendar, MapPin, Clock, FilePlus, Loader2 } from "lucide-react";
+import { Search, Calendar, Clock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function FeedPage() {
-  const {
-    recentTasks,
-    isLoading,
-    isError,
-    refetchTasks,
-  } = useHome();
-
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", "Digital Marketing", "Graphics Design", "Cleaning", "Handyman"];
+  // Fetch categories for filter
+  const { data: categoriesData } = useCategories();
+  const categories = categoriesData || [];
 
-  // Filter tasks based on search and category
-  const filteredTasks = recentTasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         task.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "All" || getCategoryName(task.categories) === selectedCategory;
+  // Fetch tasker feed
+  const {
+    data: tasks,
+    isLoading,
+    isError,
+    refetch: refetchTasks,
+  } = useTaskerFeed({ maxDistance: 200 });
+
+  // Client-side filtering
+  const filteredTasks = (tasks || []).filter((task) => {
+    const matchesSearch =
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "All" ||
+      (Array.isArray(task.categories) &&
+        task.categories.some((cat) =>
+          typeof cat === "object"
+            ? cat._id === selectedCategory
+            : cat === selectedCategory,
+        ));
+
     return matchesSearch && matchesCategory;
   });
+
+  const categoryFilters = [
+    { _id: "All", displayName: "All" },
+    ...categories.filter((cat) => cat.isActive),
+  ];
 
   return (
     <div className='flex flex-col space-y-8 mx-auto p-8 w-full max-w-7xl min-h-screen'>
@@ -39,7 +60,7 @@ export default function FeedPage() {
         <Search className='top-1/2 left-4 absolute w-5 h-5 text-gray-400 -translate-y-1/2' />
         <Input
           type='text'
-          placeholder='Search tasks...'
+          placeholder='Search messages'
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className='bg-gray-100/80 pr-4 pl-12 border-none rounded-xl h-14 text-gray-600 focus-visible:ring-1 focus-visible:ring-[#6B46C1]'
@@ -48,17 +69,17 @@ export default function FeedPage() {
 
       {/* Category Filters */}
       <div className='flex flex-wrap gap-3'>
-        {categories.map((cat) => (
+        {categoryFilters.map((cat) => (
           <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
+            key={cat._id}
+            onClick={() => setSelectedCategory(cat._id)}
             className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${
-              selectedCategory === cat
+              selectedCategory === cat._id
                 ? "bg-[#6B46C1] text-white shadow-md shadow-purple-100"
                 : "bg-gray-100 text-gray-500 hover:bg-gray-200"
             }`}
           >
-            {cat}
+            {cat.displayName}
           </button>
         ))}
       </div>
@@ -72,13 +93,33 @@ export default function FeedPage() {
         </div>
       ) : isError ? (
         <div className='flex flex-col items-center justify-center py-20 text-center space-y-4'>
-           <p className='font-medium text-gray-500'>Failed to load tasks. Please try again.</p>
-           <Button onClick={() => refetchTasks()} className='bg-[#6B46C1]'>Retry</Button>
+          <p className='font-medium text-gray-500'>
+            Failed to load tasks. Please try again.
+          </p>
+          <Button onClick={() => refetchTasks()} className='bg-[#6B46C1]'>
+            Retry
+          </Button>
         </div>
       ) : filteredTasks.length > 0 ? (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {filteredTasks.map((task) => {
-            const creator = task.creator && typeof task.creator === 'object' ? task.creator : null;
+            const primaryCategory =
+              Array.isArray(task.categories) && task.categories.length > 0
+                ? task.categories[0]
+                : null;
+            const categoryName =
+              primaryCategory && typeof primaryCategory === "object"
+                ? primaryCategory.displayName || primaryCategory.name
+                : "Uncategorized";
+
+            const posterName = task.user?.fullName || "Task NG";
+            const posterInitial = posterName
+              .trim()
+              .split(/\s+/)
+              .map((word) => word[0].toUpperCase())
+              .join("")
+              .slice(0, 2);
+
             return (
               <div
                 key={task._id}
@@ -87,59 +128,79 @@ export default function FeedPage() {
                 {/* Card Top: Category Badge */}
                 <div className='mb-6'>
                   <span className='bg-purple-100/60 px-4 py-1.5 rounded-lg font-bold text-[#6B46C1] text-[10px] uppercase tracking-wider'>
-                    {getCategoryName(task.categories)}
+                    {categoryName}
                   </span>
                 </div>
 
                 {/* Poster Info */}
                 <div className='flex items-center gap-3 mb-6'>
                   <div className='flex justify-center items-center bg-[#6B46C1] rounded-full w-9 h-9 font-bold text-white text-[10px]'>
-                    {creator?.fullName?.[0] || creator?.firstName?.[0] || "T"}
+                    {posterInitial}
                   </div>
                   <div className='flex flex-col'>
                     <span className='font-medium text-gray-400 text-[10px]'>
-                      Posted by {creator?.fullName || (creator?.firstName ? `${creator.firstName} ${creator.lastName || ''}` : "Task Hub")}
+                      Posted by {posterName}
                     </span>
                   </div>
                 </div>
 
-              {/* Title & Description */}
-              <div className='flex-1 space-y-3 mb-8'>
-                <h3 className='group-hover:text-[#6B46C1] font-bold text-gray-900 text-xl transition-colors line-clamp-2'>
-                  {task.title}
-                </h3>
-                <p className='text-gray-400 text-sm leading-relaxed line-clamp-3'>
-                  {task.description}
-                </p>
-              </div>
+                {/* Title & Description */}
+                <div className='flex-1 space-y-3 mb-8'>
+                  <h3 className='group-hover:text-[#6B46C1] font-bold text-gray-900 text-xl transition-colors line-clamp-2'>
+                    {task.title}
+                  </h3>
+                  <p className='text-gray-400 text-sm leading-relaxed line-clamp-3'>
+                    {task.description}
+                  </p>
+                </div>
 
-              {/* Footer: Date & Price */}
-              <div className='flex justify-between items-center pt-6 border-t border-gray-50'>
-                <div className='flex items-center gap-2 text-gray-400 text-xs font-bold'>
-                  <Calendar size={16} />
-                  <span>{task.deadline ? new Date(task.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : "Flexible"}</span>
+                {/* Footer: Date & Price */}
+                <div className='flex justify-between items-center pt-6 border-t border-gray-50'>
+                  <div className='flex items-center gap-2 text-gray-400 text-xs font-bold'>
+                    <Calendar size={16} />
+                    <span>
+                      {task.deadline
+                        ? new Date(task.deadline).toLocaleDateString("en-US", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })
+                        : "Pending"}
+                    </span>
+                  </div>
+                  <div className='font-black text-[#4CAF50] text-xl'>
+                    ₦{task.budget?.toLocaleString() || "0"}
+                  </div>
                 </div>
-                <div className='font-black text-[#22C55E] text-xl'>
-                   ₦{task.budget.toLocaleString()}
-                </div>
+
+                {/* Distance (if available) */}
+                {task.distance !== undefined && (
+                  <div className='mt-2 text-gray-400 text-xs font-medium'>
+                    📍 {task.distance.toFixed(1)} miles away
+                  </div>
+                )}
+
+                {/* Hidden Action for Hover or Click */}
+                <Link
+                  href={`/tasks/${task._id}`}
+                  className='inset-0 absolute rounded-[2.5rem]'
+                />
               </div>
-              
-              {/* Hidden Action for Hover or Click */}
-              <Link href={`/tasks/${task._id}`} className="inset-0 absolute rounded-[2.5rem]" />
-            </div>
-          );
+            );
           })}
         </div>
       ) : (
         /* Empty State Matching Design */
         <div className='flex flex-col items-center justify-center py-32 text-center space-y-6'>
           <div className='flex justify-center items-center bg-purple-50 rounded-full w-24 h-24'>
-             <div className="bg-white p-4 rounded-3xl shadow-sm">
-                <Clock className="w-10 h-10 text-[#6B46C1] animate-pulse" />
-             </div>
+            <div className='bg-white p-4 rounded-3xl shadow-sm'>
+              <Clock className='w-10 h-10 text-[#6B46C1] animate-pulse' />
+            </div>
           </div>
           <div className='space-y-2'>
-            <h2 className='font-bold text-gray-900 text-2xl'>No Task Available</h2>
+            <h2 className='font-bold text-gray-900 text-2xl'>
+              No Task Available
+            </h2>
             <p className='text-gray-400 text-sm max-w-sm'>
               No tasks matching your categories right now. Check back soon!
             </p>

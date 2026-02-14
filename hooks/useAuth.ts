@@ -27,7 +27,7 @@ export function useAuth() {
     },
     onSuccess: (data: any, variables) => {
       // API might return { accessToken } or { token } or { data: { ... } }
-      let accessToken = data.accessToken || data.token || data.data?.accessToken || data.data?.token;
+      let accessToken = data?.accessToken || data?.token || data?.data?.accessToken || data?.data?.token;
       
       // If it's an object, try to drill down further (unlikely but safe)
       if (accessToken && typeof accessToken === 'object') {
@@ -45,20 +45,20 @@ export function useAuth() {
       localStorage.setItem("userType", role);
 
       // Handle dual response shapes (user vs tasker, wrapped or unwrapped)
-      let userData = data.user || data.tasker || data.data?.user || data.data?.tasker;
+      let userData = data?.user || data?.tasker || data?.data?.user || data?.data?.tasker;
       
       if (userData) {
-        // Detect role from response structure first
-        if (data.tasker || data.data?.tasker) {
-          userData.role = "tasker";
-        } else if (data.user || data.data?.user) {
-          userData.role = "user";
+        // Create a fresh object to ensure state updates trigger correctly
+        const finalUser = { ...userData };
+        
+        // Use intent (role) or response structure to determine final role
+        if (role === 'tasker' || data?.tasker || data?.data?.tasker) {
+          finalUser.role = "tasker";
         } else {
-          // Fallback to the intent from variables
-          userData.role = role;
+          finalUser.role = "user";
         }
         
-        queryClient.setQueryData(USER_QUERY_KEY, userData);
+        queryClient.setQueryData(USER_QUERY_KEY, finalUser);
       }
       
       router.push("/home");

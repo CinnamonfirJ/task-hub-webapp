@@ -9,11 +9,13 @@ export interface Category {
   description: string;
   isActive: boolean;
   count?: number;
-  createdBy?: string | {
-    _id: string;
-    fullName: string;
-    emailAddress: string;
-  };
+  createdBy?:
+    | string
+    | {
+        _id: string;
+        fullName: string;
+        emailAddress: string;
+      };
   createdAt: string;
   updatedAt?: string;
 }
@@ -24,10 +26,13 @@ export interface Task {
   description: string;
   categories: Category[] | string[]; // Populated or IDs
   budget: number;
-  location?: {
-    latitude: number;
-    longitude: number;
-  } | string;
+  location?:
+    | {
+        latitude: number;
+        longitude: number;
+        address?: string;
+      }
+    | string;
   isBiddingEnabled?: boolean;
   status: "open" | "assigned" | "in-progress" | "completed" | "cancelled";
   creator: User | string;
@@ -38,8 +43,13 @@ export interface Task {
   tags?: string[];
   createdAt: string;
   bidsCount?: number;
+  distance?: number; // Distance in miles/km (tasker feed only)
   taskerBidInfo?: {
+    _id?: string;
     hasBid: boolean;
+    amount?: number;
+    message?: string;
+    bidType?: "custom" | "fixed";
   };
   applicationInfo?: {
     canApply: boolean;

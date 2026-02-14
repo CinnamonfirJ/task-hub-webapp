@@ -57,8 +57,12 @@ export function usePostTask() {
 
   // Submit handler that transforms data and calls mutation
   const onSubmit = (data: PostTaskValues) => {
+    // Format deadline as ISO 8601 string (e.g. 2024-01-15T00:00:00.000Z)
+    const deadline = data.dueDate ? new Date(data.dueDate).toISOString() : undefined;
+
     createTaskMutation.mutate({
       ...data,
+      deadline, // Map dueDate to deadline
       budget: Number(data.budget),
       // Ensure location matches spec
       location: typeof data.location === 'object' ? {

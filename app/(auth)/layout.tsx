@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
+import { GuestGuard } from "@/components/auth/GuestGuard";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen w-full overflow-hidden bg-white">
+    <GuestGuard>
+      <div className="flex min-h-screen w-full overflow-hidden bg-white">
       {/* Left Side - Background Image */}
       <div className="relative hidden w-1/2 lg:block">
         <Image
@@ -37,5 +39,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </AnimatePresence>
       </div>
     </div>
-  );
+  </GuestGuard>
+);
 }
