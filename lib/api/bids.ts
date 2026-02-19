@@ -33,42 +33,30 @@ export const bidsApi = {
   getMyBids: async (status?: string): Promise<Bid[]> => {
     const params = new URLSearchParams();
     if (status) params.append("status", status);
+    try {
+      const res = await apiData<any>(`/api/bids/tasker/bids`, {
+        method: "GET",
+      });
+      const bids =
+        res?.bids ||
+        (Array.isArray(res?.data) ? res.data : res?.data?.bids) ||
+        (Array.isArray(res) ? res : null);
 
-    // Try multiple endpoints to handle potential backend inconsistencies or 401s
-    const endpoints = [
-      `/api/bids/tasker?${params.toString()}`, // Primary
-      `/api/bids?${params.toString()}`, // Fallback 1: Generic plural
-      `/api/tasker/bids?${params.toString()}`, // Fallback 2: Resource nested
-      `/api/my-bids?${params.toString()}`, // Fallback 3: Direct alias
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        const res = await apiData<any>(endpoint, { method: "GET" });
-        const bids =
-          res?.bids ||
-          (Array.isArray(res?.data) ? res.data : res?.data?.bids) ||
-          (Array.isArray(res) ? res : null);
-
-        if (Array.isArray(bids)) {
-          if (process.env.NODE_ENV === "development") {
-            console.log(`[bidsApi] Successfully fetched bids from ${endpoint}`);
-          }
-          return bids;
-        }
-      } catch (err: any) {
-        // Log but continue to next endpoint
+      if (Array.isArray(bids)) {
         if (process.env.NODE_ENV === "development") {
-          console.warn(
-            `[bidsApi] Failed to fetch from ${endpoint}:`,
-            err.message,
-          );
+          console.log(`[bidsApi] Successfully fetched bids `);
         }
+        return bids;
+      }
+    } catch (err: any) {
+      // Log but continue to next endpoint
+      if (process.env.NODE_ENV === "development") {
+        console.warn(`[bidsApi] Failed to fetch from`, err.message);
       }
     }
 
     // If all fail, return empty array to prevent UI crash, but log error
-    console.error("[bidsApi] All bid fetch endpoints failed.");
+    console.error("All bid fetch endpoints failed.");
     return [];
   },
 

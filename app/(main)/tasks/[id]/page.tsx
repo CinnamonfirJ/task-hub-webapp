@@ -6,6 +6,7 @@ import {
   useAcceptBid,
   useCreateBid,
   useUpdateBid,
+  useMyBids,
 } from "@/hooks/useBids";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Edit2 } from "lucide-react";
@@ -16,6 +17,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tasksApi } from "@/lib/api/tasks";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useCreateConversation } from "@/hooks/useChat";
+import { MessageSquare } from "lucide-react";
 
 export default function TaskDetailsPage() {
   const router = useRouter();
@@ -33,16 +36,77 @@ export default function TaskDetailsPage() {
     enabled: !!task && isOwner && !isTasker,
   });
 
+  // Fetch current tasker's bids to check if they've applied
+  const { data: myBids } = useMyBids(undefined);
+
   const bids = bidsData?.bids || [];
+
+  // Find if current tasker has already bid on this task
+  const existingBid =
+    isTasker && Array.isArray(myBids)
+      ? myBids.find((b) => {
+          const bidTaskId = typeof b.task === "object" ? b.task?._id : b.task;
+          return bidTaskId?.toString() === task?._id?.toString();
+        })
+      : null;
+
+  // Use either the info from task object (if present) or our fetched existing bid
+  const taskerBid =
+    existingBid ||
+    (task?.taskerBidInfo?.hasBid
+      ? {
+          _id: task.taskerBidInfo._id,
+          amount: task.taskerBidInfo.amount,
+          message: task.taskerBidInfo.message,
+          status: "pending", // Default if we only have taskerBidInfo
+        }
+      : null);
+
+  const hasApplied = !!taskerBid;
 
   // Accept bid mutation
   const { mutate: acceptBid, isPending: isAccepting } = useAcceptBid();
 
-  // Create bid mutation (for taskers)
-  const { mutate: createBid, isPending: isSubmittingBid } = useCreateBid();
+  // Create conversation mutation
+  const { mutate: createConv, isPending: isCreatingConv } =
+    useCreateConversation();
+
+  const handleOpenChat = (taskerId?: string, bidId?: string) => {
+    createConv(
+      {
+        taskId: task?._id || "",
+        taskerId: taskerId,
+        bidId: bidId,
+      },
+      {
+        onSuccess: (conversation) => {
+          if (process.env.NODE_ENV === "development") {
+            console.log(
+              "[TaskDetails] Conversation created/retrieved:",
+              conversation,
+            );
+          }
+          const conv = conversation as any;
+          const convId =
+            conv?._id || conv?.id || conv?.data?._id || conv?.data?.id;
+          if (convId) {
+            router.push(`/messages/${convId}`);
+          } else {
+            console.error(
+              "[TaskDetails] Could not find ID in conversation response:",
+              conversation,
+            );
+          }
+        },
+      },
+    );
+  };
 
   // Update bid mutation
   const { mutate: updateBid, isPending: isUpdatingBid } = useUpdateBid();
+
+  // Create bid mutation (for taskers)
+  const { mutate: createBid, isPending: isSubmittingBid } = useCreateBid();
 
   const [isEditingApplication, setIsEditingApplication] = useState(false);
 
@@ -62,16 +126,20 @@ export default function TaskDetailsPage() {
   };
 
   const handleMessageTasker = (bidId: string) => {
-    // Navigate to messages or open modal
-    router.push(`/messages?bidId=${bidId}`);
+    const bid = bids.find((b) => b._id === bidId);
+    if (bid) {
+      const bidderId =
+        typeof bid.tasker === "object" ? bid.tasker?._id : bid.tasker;
+      handleOpenChat(bidderId, bidId);
+    }
   };
 
   const handleApply = (data: { amount?: number; message: string }) => {
     if (!task) return;
 
-    if (isEditingApplication && task.taskerBidInfo?._id) {
+    if (isEditingApplication && taskerBid?._id) {
       updateBid({
-        id: task.taskerBidInfo._id,
+        id: taskerBid._id,
         data: {
           amount: data.amount,
           message: data.message,
@@ -335,7 +403,7 @@ export default function TaskDetailsPage() {
             </div>
 
             {/* Application Form Section */}
-            {isTasker && !task.taskerBidInfo?.hasBid && (
+            {isTasker && !hasApplied && (
               <ApplicationForm
                 task={task}
                 onSubmit={handleApply}
@@ -344,7 +412,7 @@ export default function TaskDetailsPage() {
             )}
 
             {/* Already Applied State / Edit Mode */}
-            {task.taskerBidInfo?.hasBid && (
+            {isTasker && hasApplied && (
               <>
                 {!isEditingApplication ? (
                   <div className='bg-purple-50 border border-purple-100 p-8 rounded-[2rem] space-y-4'>
@@ -357,36 +425,49 @@ export default function TaskDetailsPage() {
                           You have submitted an application for this task.
                         </p>
                       </div>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        onClick={() => setIsEditingApplication(true)}
-                        className='border-purple-200 text-purple-700 hover:bg-purple-100 gap-2'
-                      >
-                        <Edit2 size={14} />
-                        Edit
-                      </Button>
+                      <div className='flex items-center gap-2'>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          onClick={() =>
+                            handleOpenChat(undefined, taskerBid?._id)
+                          }
+                          disabled={isCreatingConv}
+                          className='border-purple-200 text-purple-700 hover:bg-purple-100 gap-2'
+                        >
+                          <MessageSquare size={14} />
+                          Message Owner
+                        </Button>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          onClick={() => setIsEditingApplication(true)}
+                          className='border-purple-200 text-purple-700 hover:bg-purple-100 gap-2'
+                        >
+                          <Edit2 size={14} />
+                          Edit
+                        </Button>
+                      </div>
                     </div>
 
                     <div className='bg-white/50 rounded-xl p-4 space-y-3'>
-                      {task.taskerBidInfo.amount && (
+                      {taskerBid.amount && (
                         <div className='flex justify-between'>
                           <span className='text-gray-500 font-medium text-sm'>
                             Your Rate
                           </span>
                           <span className='text-gray-900 font-bold'>
-                            ₦
-                            {task.taskerBidInfo.amount?.toLocaleString() || "0"}
+                            ₦{taskerBid.amount?.toLocaleString() || "0"}
                           </span>
                         </div>
                       )}
-                      {task.taskerBidInfo.message && (
+                      {taskerBid.message && (
                         <div className='space-y-1'>
                           <span className='text-gray-500 font-medium text-sm'>
                             Your Message
                           </span>
                           <p className='text-gray-700 text-sm leading-relaxed'>
-                            {task.taskerBidInfo.message}
+                            {taskerBid.message}
                           </p>
                         </div>
                       )}
@@ -413,8 +494,8 @@ export default function TaskDetailsPage() {
                       isSubmitting={isUpdatingBid}
                       isEditing={true}
                       initialData={{
-                        amount: task.taskerBidInfo.amount,
-                        message: task.taskerBidInfo.message,
+                        amount: taskerBid.amount,
+                        message: taskerBid.message,
                       }}
                     />
                   </div>
@@ -425,7 +506,7 @@ export default function TaskDetailsPage() {
             {/* Cannot Apply State */}
             {task.applicationInfo &&
               !task.applicationInfo.canApply &&
-              !task.taskerBidInfo?.hasBid && (
+              !hasApplied && (
                 <div className='bg-gray-50 border border-gray-200 p-8 rounded-[2rem] text-center space-y-2'>
                   <h3 className='font-bold text-gray-600 text-xl'>
                     Cannot Apply

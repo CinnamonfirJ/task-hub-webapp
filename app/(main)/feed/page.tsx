@@ -51,29 +51,31 @@ export default function FeedPage() {
   ];
 
   return (
-    <div className='flex flex-col space-y-8 mx-auto p-8 w-full max-w-7xl min-h-screen'>
+    <div className='flex flex-col space-y-6 md:space-y-8 mx-auto p-4 md:p-8 w-full max-w-7xl min-h-screen'>
       {/* Header */}
-      <h1 className='font-bold text-gray-900 text-3xl'>Explore Tasks</h1>
+      <h1 className='font-bold text-gray-900 text-2xl md:text-3xl'>
+        Explore Tasks
+      </h1>
 
       {/* Search Bar */}
       <div className='relative w-full'>
-        <Search className='top-1/2 left-4 absolute w-5 h-5 text-gray-400 -translate-y-1/2' />
+        <Search className='top-1/2 left-4 absolute w-4 h-4 md:w-5 md:h-5 text-gray-400 -translate-y-1/2' />
         <Input
           type='text'
-          placeholder='Search messages'
+          placeholder='Search tasks'
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className='bg-gray-100/80 pr-4 pl-12 border-none rounded-xl h-14 text-gray-600 focus-visible:ring-1 focus-visible:ring-[#6B46C1]'
+          className='bg-gray-100/80 pr-4 pl-10 md:pl-12 border-none rounded-xl h-12 md:h-14 text-sm md:text-base text-gray-600 focus-visible:ring-1 focus-visible:ring-[#6B46C1]'
         />
       </div>
 
       {/* Category Filters */}
-      <div className='flex flex-wrap gap-3'>
+      <div className='flex gap-2 overflow-x-auto pb-2 scrollbar-none'>
         {categoryFilters.map((cat) => (
           <button
             key={cat._id}
             onClick={() => setSelectedCategory(cat._id)}
-            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${
+            className={`px-4 md:px-6 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
               selectedCategory === cat._id
                 ? "bg-[#6B46C1] text-white shadow-md shadow-purple-100"
                 : "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -123,52 +125,52 @@ export default function FeedPage() {
             return (
               <div
                 key={task._id}
-                className='flex flex-col bg-white hover:bg-gray-50/50 p-8 border border-gray-100 rounded-[2.5rem] shadow-sm transition-all group relative'
+                className='flex flex-col bg-white hover:bg-gray-50/50 p-6 md:p-8 border border-gray-100 rounded-[2rem] md:rounded-[2.5rem] shadow-sm transition-all group relative'
               >
                 {/* Card Top: Category Badge */}
-                <div className='mb-6'>
-                  <span className='bg-purple-100/60 px-4 py-1.5 rounded-lg font-bold text-[#6B46C1] text-[10px] uppercase tracking-wider'>
+                <div className='mb-4 md:mb-6'>
+                  <span className='bg-purple-100/60 px-3 py-1 md:px-4 md:py-1.5 rounded-lg font-bold text-[#6B46C1] text-[8px] md:text-[10px] uppercase tracking-wider'>
                     {categoryName}
                   </span>
                 </div>
 
                 {/* Poster Info */}
-                <div className='flex items-center gap-3 mb-6'>
-                  <div className='flex justify-center items-center bg-[#6B46C1] rounded-full w-9 h-9 font-bold text-white text-[10px]'>
+                <div className='flex items-center gap-2 md:gap-3 mb-4 md:mb-6'>
+                  <div className='flex justify-center items-center bg-[#6B46C1] rounded-full w-8 h-8 md:w-9 md:h-9 font-bold text-white text-[8px] md:text-[10px]'>
                     {posterInitial}
                   </div>
                   <div className='flex flex-col'>
-                    <span className='font-medium text-gray-400 text-[10px]'>
+                    <span className='font-medium text-gray-400 text-[8px] md:text-[10px]'>
                       Posted by {posterName}
                     </span>
                   </div>
                 </div>
 
                 {/* Title & Description */}
-                <div className='flex-1 space-y-3 mb-8'>
-                  <h3 className='group-hover:text-[#6B46C1] font-bold text-gray-900 text-xl transition-colors line-clamp-2'>
+                <div className='flex-1 space-y-2 md:space-y-3 mb-6 md:mb-8'>
+                  <h3 className='group-hover:text-[#6B46C1] font-bold text-gray-900 text-lg md:text-xl transition-colors line-clamp-2'>
                     {task.title}
                   </h3>
-                  <p className='text-gray-400 text-sm leading-relaxed line-clamp-3'>
+                  <p className='text-gray-400 text-xs md:text-sm leading-relaxed line-clamp-3'>
                     {task.description}
                   </p>
                 </div>
 
                 {/* Footer: Date & Price */}
-                <div className='flex justify-between items-center pt-6 border-t border-gray-50'>
-                  <div className='flex items-center gap-2 text-gray-400 text-xs font-bold'>
-                    <Calendar size={16} />
+                <div className='flex justify-between items-center pt-4 md:pt-6 border-t border-gray-50'>
+                  <div className='flex items-center gap-1.5 md:gap-2 text-gray-400 text-[10px] md:text-xs font-bold'>
+                    <Calendar size={14} className='md:w-4 md:h-4' />
                     <span>
                       {task.deadline
                         ? new Date(task.deadline).toLocaleDateString("en-US", {
                             day: "numeric",
-                            month: "long",
+                            month: "short",
                             year: "numeric",
                           })
                         : "Pending"}
                     </span>
                   </div>
-                  <div className='font-black text-[#4CAF50] text-xl'>
+                  <div className='font-black text-[#4CAF50] text-lg md:text-xl'>
                     ₦{task.budget?.toLocaleString() || "0"}
                   </div>
                 </div>

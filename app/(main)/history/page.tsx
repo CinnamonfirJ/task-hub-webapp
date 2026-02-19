@@ -61,20 +61,24 @@ export default function HistoryPage() {
   const isEmpty = !isLoading && currentTasks.length === 0;
 
   return (
-    <div className='p-8 space-y-8 max-w-6xl'>
+    <div className='p-4 md:p-8 space-y-6 md:space-y-8 max-w-6xl'>
       {/* Header */}
       <div>
-        <h1 className='text-3xl font-bold text-gray-900'>Task History</h1>
-        <p className='text-gray-600 mt-1'>View all your previous tasks</p>
+        <h1 className='text-2xl md:text-3xl font-bold text-gray-900'>
+          Task History
+        </h1>
+        <p className='text-sm md:text-base text-gray-600 mt-1'>
+          View all your previous tasks
+        </p>
       </div>
 
       {/* Filter Tabs */}
-      <div className='flex gap-3 flex-wrap'>
+      <div className='flex gap-2 overflow-x-auto pb-2 scrollbar-none'>
         {filters.map((filter) => (
           <button
             key={filter.key}
             onClick={() => setActiveFilter(filter.key)}
-            className={`px-6 py-2 rounded-full font-medium transition-all ${
+            className={`px-4 md:px-6 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
               activeFilter === filter.key
                 ? "bg-[#6B46C1] text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"

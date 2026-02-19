@@ -1,44 +1,44 @@
 "use client";
 
 import { useState } from "react";
-import { X, Wallet, CreditCard, Coins } from "lucide-react";
+import { X, Wallet, CreditCard, Coins, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface FundWalletModalProps {
+interface WithdrawFundsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToStellar: (amount: string) => void;
   balance?: string;
 }
 
-export function FundWalletModal({
+export function WithdrawFundsModal({
   isOpen,
   onClose,
   onSwitchToStellar,
   balance = "0.00",
-}: FundWalletModalProps) {
+}: WithdrawFundsModalProps) {
   const [amount, setAmount] = useState("0.00");
   const [method, setMethod] = useState<"paystack" | "stellar">("paystack");
   const isDev = process.env.NODE_ENV === "development";
 
   if (!isOpen) return null;
 
-  const handleFund = () => {
+  const handleWithdraw = () => {
     if (method === "stellar") {
       onSwitchToStellar(amount);
     } else {
-      console.log("Funding wallet with Paystack:", amount);
-      // Implement Paystack logic here or via callback
+      console.log("Withdrawing with Paystack:", amount);
+      // Implement Paystack logic here
       onClose();
     }
   };
 
   return (
     <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50'>
-      <div className='bg-white rounded-[2.5rem] p-8 w-full max-w-xl shadow-2xl relative animate-in fade-in zoom-in duration-300'>
+      <div className='bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in duration-300'>
         <div className='flex items-center justify-between mb-8'>
-          <h2 className='text-2xl font-bold text-gray-900'>Fund wallet</h2>
+          <h2 className='text-2xl font-bold text-gray-900'>Withdraw Funds</h2>
           <button
             onClick={onClose}
             className='text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full'
@@ -48,7 +48,7 @@ export function FundWalletModal({
         </div>
 
         {/* Wallet Balance Card */}
-        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-3xl p-6 text-white mb-8 shadow-lg shadow-purple-100 relative overflow-hidden'>
+        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-3xl p-6 text-white mb-6 shadow-lg shadow-purple-100 relative overflow-hidden'>
           <div className='relative z-10 flex items-center gap-3 mb-4 opacity-90'>
             <Wallet size={18} />
             <span className='text-sm font-medium'>Wallet balance</span>
@@ -57,15 +57,30 @@ export function FundWalletModal({
             <span className='text-2xl mr-1 font-normal opacity-80'>₦</span>
             {balance}
           </div>
-          {/* Decorative circles */}
           <div className='absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl' />
           <div className='absolute -right-8 -top-8 w-32 h-32 bg-white/5 rounded-full blur-3xl' />
         </div>
 
+        {/* Withdrawal Info Alert */}
+        <div className='bg-[#E0F2FE] border border-sky-100 p-5 rounded-3xl flex items-center gap-4 mb-6 shadow-sm'>
+          <div className='bg-white/50 p-2 rounded-xl text-sky-500'>
+            <AlertCircle size={22} />
+          </div>
+          <div className='space-y-1'>
+            <h3 className='font-bold text-sky-900 text-sm'>
+              Withdrawal Information
+            </h3>
+            <p className='text-[11px] text-sky-600 font-medium leading-relaxed'>
+              Minimum withdrawal: ₦5,000. Withdrawals are processed within 24-48
+              hours.
+            </p>
+          </div>
+        </div>
+
         <div className='space-y-6'>
           <div className='space-y-2'>
-            <p className='text-gray-400 text-sm font-bold tracking-tight px-1'>
-              ENTER AMOUNT TO ADD TO YOUR WALLET
+            <p className='text-gray-400 text-sm font-bold tracking-tight px-1 uppercase'>
+              Enter amount to withdraw
             </p>
             <input
               type='number'
@@ -81,7 +96,6 @@ export function FundWalletModal({
               Select Payment method
             </p>
 
-            {/* Paystack Option */}
             <button
               onClick={() => setMethod("paystack")}
               className={cn(
@@ -104,7 +118,7 @@ export function FundWalletModal({
                 </div>
                 <div className='text-left'>
                   <p className='font-bold text-gray-900'>Paystack</p>
-                  <p className='text-xs text-gray-400 font-medium'>
+                  <p className='text-xs text-gray-400 font-medium tracking-tight'>
                     Card, Bank Transfer, USSD
                   </p>
                 </div>
@@ -123,7 +137,6 @@ export function FundWalletModal({
               </div>
             </button>
 
-            {/* Stellar Option */}
             {isDev && (
               <button
                 onClick={() => setMethod("stellar")}
@@ -178,10 +191,10 @@ export function FundWalletModal({
             Cancel
           </Button>
           <Button
-            onClick={handleFund}
-            className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base shadow-lg shadow-purple-200 transition-all'
+            onClick={handleWithdraw}
+            className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base shadow-lg shadow-purple-200 transition-all uppercase tracking-wider'
           >
-            {method === "stellar" ? "Continue" : "Fund"}
+            Withdraw
           </Button>
         </div>
       </div>
