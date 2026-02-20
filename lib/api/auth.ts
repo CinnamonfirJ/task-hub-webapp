@@ -212,8 +212,19 @@ export const authApi = {
 
         if (endpoint === "/api/auth/tasker") {
           const profileData =
-            res?.data?.tasker || res?.tasker || res?.data?.user || res?.user;
-          if (profileData) {
+            res?.data?.tasker ||
+            res?.tasker ||
+            res?.data?.user ||
+            res?.user ||
+            res?.data ||
+            res;
+          if (profileData && (profileData._id || profileData.id)) {
+            if (process.env.NODE_ENV === "development") {
+              console.log(
+                "[authApi] getProfile (tasker endpoint) success:",
+                profileData,
+              );
+            }
             // Force role to tasker since we hit the tasker endpoint successfully
             profileData.role = "tasker";
             if (typeof window !== "undefined")
@@ -222,8 +233,19 @@ export const authApi = {
           }
         } else {
           const profileData =
-            res?.data?.user || res?.user || res?.data?.tasker || res?.tasker;
-          if (profileData) {
+            res?.data?.user ||
+            res?.user ||
+            res?.data?.tasker ||
+            res?.tasker ||
+            res?.data ||
+            res;
+          if (profileData && (profileData._id || profileData.id)) {
+            if (process.env.NODE_ENV === "development") {
+              console.log(
+                "[authApi] getProfile (user endpoint) success:",
+                profileData,
+              );
+            }
             // Force role to user since we hit the user endpoint successfully
             profileData.role = "user";
             if (typeof window !== "undefined")
