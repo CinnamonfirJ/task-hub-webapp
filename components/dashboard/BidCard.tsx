@@ -34,7 +34,7 @@ export function BidCard({
 
   return (
     <div className='bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm'>
-      <div className='flex items-start justify-between gap-6'>
+      <div className='flex md:flex-row flex-col items-start justify-between gap-6'>
         <div className='flex items-start gap-4 flex-1'>
           <div className='w-12 h-12 rounded-full overflow-hidden shrink-0 border border-gray-100'>
             {tasker?.profilePicture ? (
@@ -78,18 +78,23 @@ export function BidCard({
         </div>
 
         {/* Right: Amount */}
-        <div className='text-right space-y-4 shrink-0'>
-          <div className='text-[#4CAF50] font-black text-2xl'>
-            ₦{bid.amount?.toLocaleString() || "0"}
+        <div className='w-full md:w-auto text-left md:text-right space-y-4 shrink-0 mt-4 md:mt-0'>
+          <div className='flex items-center justify-between md:block'>
+            <span className='md:hidden text-gray-400 font-bold text-sm'>
+              Bid Amount:
+            </span>
+            <div className='text-[#4CAF50] font-black text-xl md:text-2xl'>
+              ₦{bid.amount?.toLocaleString() || "0"}
+            </div>
           </div>
 
           {bid.status === "pending" && (
-            <div className='flex gap-2'>
+            <div className='flex justify-between md:justify-end gap-3'>
               <Button
                 variant='outline'
                 size='sm'
                 onClick={() => onMessage(bid._id)}
-                className='rounded-xl font-bold text-xs h-10 px-4'
+                className='flex-1 md:flex-none rounded-xl font-bold text-xs h-10 px-4'
               >
                 Message
               </Button>
@@ -97,7 +102,7 @@ export function BidCard({
                 size='sm'
                 onClick={() => onAccept(bid._id)}
                 disabled={isAccepting}
-                className='bg-[#6B46C1] hover:bg-[#553C9A] rounded-xl font-bold text-xs h-10 px-6'
+                className='flex-1 md:flex-none bg-[#6B46C1] hover:bg-[#553C9A] rounded-xl font-bold text-xs h-10 px-6'
               >
                 {isAccepting ? "Accepting..." : "Accept"}
               </Button>

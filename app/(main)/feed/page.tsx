@@ -125,7 +125,7 @@ export default function FeedPage() {
             return (
               <div
                 key={task._id}
-                className='flex flex-col bg-white hover:bg-gray-50/50 p-6 md:p-8 border border-gray-100 rounded-[2rem] md:rounded-[2.5rem] shadow-sm transition-all group relative'
+                className='flex flex-col bg-white hover:bg-gray-50/50 p-5 md:p-8 border border-gray-100 rounded-3xl md:rounded-[2.5rem] shadow-sm transition-all group relative'
               >
                 {/* Card Top: Category Badge */}
                 <div className='mb-4 md:mb-6'>
@@ -193,7 +193,7 @@ export default function FeedPage() {
         </div>
       ) : (
         /* Empty State Matching Design */
-        <div className='flex flex-col items-center justify-center py-32 text-center space-y-6'>
+        <div className='flex flex-col items-center justify-center py-16 md:py-32 text-center space-y-6'>
           <div className='flex justify-center items-center bg-purple-50 rounded-full w-24 h-24'>
             <div className='bg-white p-4 rounded-3xl shadow-sm'>
               <Clock className='w-10 h-10 text-[#6B46C1] animate-pulse' />
