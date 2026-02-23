@@ -3,6 +3,7 @@ import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { FEATURES } from "@/lib/features";
 import { notFound } from "next/navigation";
+import { SidebarProvider } from "@/components/admin/SidebarContext";
 
 export default function AdminLayout({
   children,
@@ -15,13 +16,15 @@ export default function AdminLayout({
 
   return (
     <AuthGuard>
-      <div className='min-h-screen bg-[#F9FAFB]'>
-        <AdminSidebar />
-        <div className='lg:pl-64'>
-          <DashboardHeader />
-          <main className='p-6'>{children}</main>
+      <SidebarProvider>
+        <div className='min-h-screen bg-[#F9FAFB]'>
+          <AdminSidebar />
+          <div className='lg:pl-64'>
+            <DashboardHeader />
+            <main className='p-6'>{children}</main>
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     </AuthGuard>
   );
 }
