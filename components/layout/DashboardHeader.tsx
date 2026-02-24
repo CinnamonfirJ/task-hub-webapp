@@ -14,25 +14,43 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAdminProfile } from "@/hooks/useAdmin";
 
 export function DashboardHeader() {
-  const { user } = useAuth();
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith("/admin");
+  const { user, logout } = useAuth();
+  const { data: admin, isLoading: adminLoading } = useAdminProfile();
   const { toggleSidebar } = useSidebar();
 
-  const userName = user?.fullName || "Welcome";
-  const userRole = user?.role === "tasker" ? "Tasker" : "Administrator";
-  const userInitial = user?.fullName ? user.fullName[0].toUpperCase() : "U";
+  // Determine which user data to use based on route
+  const activeUser = isAdminRoute ? admin : user;
+
+  const userName =
+    activeUser?.fullName ||
+    (adminLoading && isAdminRoute ? "Loading..." : "Welcome");
+  const userRole =
+    activeUser?.role === "tasker"
+      ? "Tasker"
+      : isAdminRoute
+        ? activeUser?.role?.replace("_", " ") || "Administrator"
+        : "User Account";
+
+  const userInitial = activeUser?.fullName
+    ? activeUser.fullName[0].toUpperCase()
+    : isAdminRoute
+      ? "A"
+      : "U";
 
   return (
     <header className='sticky top-0 z-40 w-full bg-white border-b border-gray-100/60 px-4 sm:px-6 py-4 flex items-center justify-between'>
       {/* Mobile Header Design (Mock Match) */}
       <div className='flex flex-col lg:hidden'>
         <span className='text-[#6B46C1] font-bold text-lg leading-tight'>
-          Task hub Admin
+          {isAdminRoute ? "Task hub Admin" : "Task hub"}
         </span>
         <span className='text-gray-400 text-[10px] md:text-xs'>
-          System control panel
+          {isAdminRoute ? "System control panel" : "Dashboard"}
         </span>
       </div>
 
@@ -81,19 +99,19 @@ export function DashboardHeader() {
                   <p className='text-sm font-bold text-gray-900 tracking-tight leading-none'>
                     {userName}
                   </p>
-                  <p className='text-xs font-medium text-gray-500 mt-1'>
+                  <p className='text-xs font-medium text-gray-500 mt-1 uppercase'>
                     {userRole}
                   </p>
                 </div>
                 <div className='h-9 w-9 sm:h-10 sm:w-10 rounded-full overflow-hidden shrink-0 border border-gray-200 shadow-sm bg-gray-50 flex items-center justify-center'>
-                  {user?.profilePicture ? (
+                  {activeUser?.profilePicture ? (
                     <img
-                      src={user.profilePicture}
+                      src={activeUser.profilePicture}
                       alt='Profile'
                       className='h-full w-full object-cover'
                     />
                   ) : (
-                    <span className='text-gray-600 font-semibold'>
+                    <span className='text-[#6B46C1] font-bold text-sm'>
                       {userInitial}
                     </span>
                   )}
@@ -108,7 +126,10 @@ export function DashboardHeader() {
               <DropdownMenuItem className='cursor-pointer'>
                 Profile Settings
               </DropdownMenuItem>
-              <DropdownMenuItem className='cursor-pointer text-red-600 focus:text-red-600'>
+              <DropdownMenuItem
+                className='cursor-pointer text-red-600 focus:text-red-600'
+                onClick={() => logout()}
+              >
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>

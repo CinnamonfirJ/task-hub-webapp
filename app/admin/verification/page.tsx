@@ -2,72 +2,71 @@
 
 import { useState } from "react";
 import {
-  Search,
   Download,
-  MoreVertical,
+  Loader2,
   ExternalLink,
   CheckCircle,
   XCircle,
+  ChevronLeft,
+  ChevronRight,
+  MoreVertical,
+  ShieldCheck,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
-
-const kycMetrics = [
-  { label: "Total Submissions", value: "14" },
-  { label: "Pending Review", value: "14" },
-  { label: "Approved", value: "14" },
-  { label: "Rejected", value: "14" },
-  { label: "Verified Users", value: "14" },
-  { label: "Verified Taskers", value: "14" },
-];
-
-const kycSubmissions = [
-  {
-    id: "1",
-    user: { name: "Adewale Thompson", email: "adewale.t@example.com" },
-    type: "USER",
-    nin: "12345678901",
-    status: "Pending",
-    submissionDate: "7:25PM, 11/15/2025",
-  },
-  {
-    id: "2",
-    user: { name: "Adewale Thompson", email: "adewale.t@example.com" },
-    type: "TASKER",
-    nin: "12345678901",
-    status: "Verified",
-    submissionDate: "7:25PM, 11/15/2025",
-  },
-  {
-    id: "3",
-    user: { name: "Adewale Thompson", email: "adewale.t@example.com" },
-    type: "TASKER",
-    nin: "12345678901",
-    status: "Not verified",
-    submissionDate: "7:25PM, 11/15/2025",
-  },
-  {
-    id: "4",
-    user: { name: "Adewale Thompson", email: "adewale.t@example.com" },
-    type: "TASKER",
-    nin: "12345678901",
-    status: "Verified",
-    submissionDate: "7:25PM, 11/15/2025",
-  },
-];
+import { useKYCRequests, useKYCStats } from "@/hooks/useAdmin";
 
 export default function KYCManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
+  const statusParam =
+    activeFilter === "All"
+      ? undefined
+      : (activeFilter.toLowerCase() as "pending" | "approved" | "rejected");
+
+  const { data: kycStats } = useKYCStats();
+  const { data: kycData, isLoading } = useKYCRequests({
+    status: statusParam,
+    page,
+    limit,
+  });
+
+  const records = kycData?.records ?? [];
+  const pagination = kycData?.pagination;
+
+  const summaryMetrics = [
+    { label: "Total Submissions", value: String(kycStats?.total ?? "—") },
+    {
+      label: "Pending Review",
+      value: String(kycStats?.pending ?? "—"),
+      color: "text-yellow-500",
+    },
+    {
+      label: "Approved",
+      value: String(kycStats?.approved ?? "—"),
+      color: "text-green-500",
+    },
+    {
+      label: "Rejected",
+      value: String(kycStats?.rejected ?? "—"),
+      color: "text-red-500",
+    },
+  ];
+
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
+    setPage(1);
+  };
 
   return (
     <div className='space-y-6'>
@@ -80,149 +79,163 @@ export default function KYCManagementPage() {
             Review and manage identity verifications
           </p>
         </div>
-        <div className='flex gap-26 md:gap-3'>
-          <Button
-            variant='outline'
-            className='text-sm h-10 px-4 gap-2 border-gray-200 text-gray-600'
-          >
-            Default
-          </Button>
-          <Button
-            variant='outline'
-            className='text-sm h-10 px-4 gap-2 border-gray-200 text-gray-600'
-          >
-            <Download size={16} /> Export
-          </Button>
-        </div>
+        <Button variant='outline' className='text-sm h-10 px-4 gap-2'>
+          <Download size={16} /> Export
+        </Button>
       </div>
 
-      <div className='grid grid-cols-2 md:grid-cols-6 gap-4'>
-        {kycMetrics.map((metric, idx) => (
-          <Card key={idx} className='border border-gray-100 shadow-sm'>
+      <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+        {summaryMetrics.map((metric, idx) => (
+          <Card key={idx} className='border-none shadow-sm'>
             <CardContent className='p-4'>
-              <div className='text-[10px] text-gray-400 font-medium text-center md:text-left'>
+              <div className='text-xl font-bold'>{metric.value}</div>
+              <div
+                className={`text-[10px] mt-1 font-semibold uppercase tracking-wider ${metric.color || "text-gray-500"}`}
+              >
                 {metric.label}
-              </div>
-              <div className='text-xl font-bold mt-1 text-center md:text-left'>
-                {metric.value}
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card className='border border-gray-100 shadow-sm'>
+      <Card className='border-none shadow-sm overflow-hidden'>
         <CardContent className='p-0'>
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
-              searchPlaceholder='Search name, email or NIN...'
+              searchPlaceholder='Search submissions...'
               filterOptions={["All", "Pending", "Approved", "Rejected"]}
               activeFilter={activeFilter}
-              onFilterChange={setActiveFilter}
+              onFilterChange={handleFilterChange}
             />
           </div>
 
-          <ExpandableTableContainer>
-            <div className='overflow-x-auto'>
-              <table className='w-full text-left text-sm'>
-                <thead>
-                  <tr className='border-b border-gray-100/50 bg-white text-[10px] text-gray-900 font-bold uppercase tracking-wider'>
-                    <th className='px-6 py-4'>USER</th>
-                    <th className='px-6 py-4'>TYPE</th>
-                    <th className='px-6 py-4'>NIN</th>
-                    <th className='px-6 py-4'>STATUS</th>
-                    <th className='px-6 py-4'>SUBMISSION</th>
-                    <th className='px-6 py-4 text-right'>ACTION</th>
-                  </tr>
-                </thead>
-                <tbody className='divide-y divide-gray-100/50'>
-                  {kycSubmissions.map((submission) => (
-                    <tr
-                      key={submission.id}
-                      className='group hover:bg-gray-50/50 transition-colors'
-                    >
-                      <td className='px-6 py-4'>
-                        <div className='flex items-center gap-3'>
-                          <div className='w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0' />
-                          <div>
-                            <div className='font-bold text-gray-900 text-sm'>
-                              {submission.user.name}
-                            </div>
-                            <div className='text-xs text-gray-500 font-medium'>
-                              {submission.user.email}
-                            </div>
-                          </div>
+          <div className='overflow-x-auto min-h-[400px] relative'>
+            {isLoading && (
+              <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
+                <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+              </div>
+            )}
+
+            <table className='w-full text-left text-sm'>
+              <thead>
+                <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                  <th className='px-6 py-4'>USER</th>
+                  <th className='px-6 py-4'>NIN</th>
+                  <th className='px-6 py-4'>STATUS</th>
+                  <th className='px-6 py-4'>DATE</th>
+                  <th className='px-6 py-4 text-right'>ACTION</th>
+                </tr>
+              </thead>
+              <tbody className='divide-y'>
+                {records.map((record) => (
+                  <tr
+                    key={record._id}
+                    className='group hover:bg-gray-50 transition-colors'
+                  >
+                    <td className='px-6 py-4'>
+                      <div>
+                        <div className='font-bold text-gray-900'>
+                          {record.user.fullName}
                         </div>
-                      </td>
-                      <td className='px-6 py-4'>
-                        <span className='text-[10px] bg-gray-50 text-gray-600 px-2 py-1.5 rounded-md border border-gray-100 font-semibold uppercase'>
-                          {submission.type}
-                        </span>
-                      </td>
-                      <td className='px-6 py-4'>
-                        <span className='text-xs bg-gray-50/50 text-gray-900 px-3 py-2 rounded-lg font-bold'>
-                          {submission.nin}
-                        </span>
-                      </td>
-                      <td className='px-6 py-4'>
-                        <span
-                          className={`px-3 py-1.5 rounded-full text-[10px] font-bold ${
-                            submission.status === "Pending"
-                              ? "bg-yellow-50 text-yellow-600"
-                              : submission.status === "Verified"
-                                ? "bg-blue-50 text-blue-500"
-                                : "bg-purple-50 text-purple-600"
-                          }`}
-                        >
-                          {submission.status}
-                        </span>
-                      </td>
-                      <td className='px-6 py-4 text-xs font-semibold text-gray-500'>
-                        {submission.submissionDate}
-                      </td>
-                      <td className='px-6 py-4 text-right'>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              className='h-8 w-8 text-gray-400 hover:text-gray-900'
-                            >
-                              <MoreVertical size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align='end'
-                            className='w-48 rounded-xl p-2'
+                        <div className='text-xs text-gray-500'>
+                          {record.user.emailAddress}
+                        </div>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4 text-gray-500 font-mono text-xs'>
+                      {record.nin}
+                    </td>
+                    <td className='px-6 py-4'>
+                      <span
+                        className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
+                          record.status === "approved"
+                            ? "bg-green-50 text-green-500"
+                            : record.status === "pending"
+                              ? "bg-yellow-50 text-yellow-500"
+                              : "bg-red-50 text-red-500"
+                        }`}
+                      >
+                        {record.status.charAt(0).toUpperCase() +
+                          record.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4 text-xs text-gray-500'>
+                      {new Date(record.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className='px-6 py-4 text-right'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8 text-gray-400'
                           >
-                            <Link href={`/admin/verification/${submission.id}`}>
-                              <DropdownMenuItem className='gap-2 cursor-pointer text-xs font-medium rounded-lg p-2 hover:bg-gray-50'>
-                                <ExternalLink
-                                  size={14}
-                                  className='text-gray-500'
-                                />{" "}
-                                View Details
+                            <MoreVertical size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end' className='w-44'>
+                          <Link href={`/admin/verification/${record._id}`}>
+                            <DropdownMenuItem className='gap-2 cursor-pointer'>
+                              <ExternalLink size={14} /> View Details
+                            </DropdownMenuItem>
+                          </Link>
+                          {record.status === "pending" && (
+                            <>
+                              <DropdownMenuItem className='gap-2 cursor-pointer text-green-600 focus:text-green-600'>
+                                <CheckCircle size={14} /> Approve
                               </DropdownMenuItem>
-                            </Link>
-                            {submission.status === "Pending" && (
-                              <>
-                                <DropdownMenuItem className='gap-2 cursor-pointer text-xs font-medium rounded-lg p-2 text-green-600 hover:text-green-700 hover:bg-green-50 focus:text-green-700 focus:bg-green-50 mt-1'>
-                                  <CheckCircle size={14} /> Approve
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className='gap-2 cursor-pointer text-xs font-medium rounded-lg p-2 text-red-600 hover:text-red-700 hover:bg-red-50 focus:text-red-700 focus:bg-red-50 mt-1'>
-                                  <XCircle size={14} /> Reject
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                              <DropdownMenuItem className='gap-2 cursor-pointer text-red-600 focus:text-red-600'>
+                                <XCircle size={14} /> Reject
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))}
+                {!isLoading && records.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className='py-12 text-center text-gray-400 font-medium'
+                    >
+                      No KYC submissions found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {pagination && pagination.totalPages > 1 && (
+            <div className='flex items-center justify-between px-6 py-4 border-t border-gray-100'>
+              <p className='text-xs text-gray-500'>
+                Page {pagination.currentPage} of {pagination.totalPages}
+              </p>
+              <div className='flex gap-2'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={!pagination.hasPrev}
+                  className='h-8 w-8 p-0'
+                >
+                  <ChevronLeft size={16} />
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={!pagination.hasNext}
+                  className='h-8 w-8 p-0'
+                >
+                  <ChevronRight size={16} />
+                </Button>
+              </div>
             </div>
-          </ExpandableTableContainer>
+          )}
         </CardContent>
       </Card>
     </div>

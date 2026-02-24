@@ -10,7 +10,7 @@ import {
 export interface AdminSearchFilterProps {
   searchPlaceholder?: string;
   searchTerm?: string;
-  onSearchChange?: (value: string) => void;
+  onSearch?: (value: string) => void;
   filterOptions: string[];
   activeFilter: string;
   onFilterChange: (filter: string) => void;
@@ -19,7 +19,7 @@ export interface AdminSearchFilterProps {
 export function AdminSearchFilter({
   searchPlaceholder = "Search...",
   searchTerm,
-  onSearchChange,
+  onSearch,
   filterOptions,
   activeFilter,
   onFilterChange,
@@ -35,7 +35,7 @@ export function AdminSearchFilter({
           type='search'
           placeholder={searchPlaceholder}
           value={searchTerm}
-          onChange={(e) => onSearchChange?.(e.target.value)}
+          onChange={(e) => onSearch?.(e.target.value)}
           className='pl-10 h-11 w-full bg-gray-50/50 border-gray-100 rounded-xl focus-visible:ring-[#6B46C1] text-sm'
         />
       </div>

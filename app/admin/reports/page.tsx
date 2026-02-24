@@ -1,246 +1,346 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Download, ChevronDown } from "lucide-react";
+import {
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  ExternalLink,
+  MoreVertical,
+  Flag,
+  AlertTriangle,
+  Clock,
+  Activity,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
-
-const summaryMetrics = [
-  { label: "Total Logs", value: "14" },
-  { label: "Today's reviews", value: "14" },
-  { label: "Admin Actions", value: "14" },
-  { label: "User Reports", value: "14" },
-  { label: "Pending Reports", value: "14" },
-  { label: "Resolved Reports", value: "14" },
-];
-
-const activityLogs = [
-  {
-    id: 1,
-    actionType: "Task Posted",
-    description: "Approved KYC verification for Chukwudi Eze",
-    date: "1/29/2026, 11:12:47 AM",
-  },
-  {
-    id: 2,
-    actionType: "Task Assigned",
-    description: "Approved KYC verification for Chukwudi Eze",
-    date: "1/29/2026, 11:12:47 AM",
-  },
-  {
-    id: 3,
-    actionType: "Verification Submitted",
-    description: "Approved KYC verification for Chukwudi Eze",
-    date: "1/29/2026, 11:12:47 AM",
-  },
-  {
-    id: 4,
-    actionType: "Task completed",
-    description: "Approved KYC verification for Chukwudi Eze",
-    date: "1/29/2026, 11:12:47 AM",
-  },
-  {
-    id: 5,
-    actionType: "Payment made",
-    description: "Approved KYC verification for Chukwudi Eze",
-    date: "1/29/2026, 11:12:47 AM",
-  },
-];
-
-const userReports = [
-  {
-    id: 1,
-    status: "Resolved",
-    date: "1/29/2026, 10:41:44 AM",
-    title: "Inappropriate Behavior",
-    description: "User sent inappropriate messages during task discussion",
-    reporter: "fatima.h@example.com",
-    reported: "tunde.bak@example.com",
-    statusBadgeColor: "bg-green-50 text-green-600",
-  },
-  {
-    id: 2,
-    status: "Investigating",
-    date: "1/29/2026, 10:41:44 AM",
-    title: "Inappropriate Behavior",
-    description: "User sent inappropriate messages during task discussion",
-    reporter: "fatima.h@example.com",
-    reported: "tunde.bak@example.com",
-    statusBadgeColor: "bg-yellow-50 text-yellow-600",
-  },
-  {
-    id: 3,
-    status: "Pending",
-    date: "1/29/2026, 10:41:44 AM",
-    title: "Inappropriate Behavior",
-    description: "User sent inappropriate messages during task discussion",
-    reporter: "fatima.h@example.com",
-    reported: "tunde.bak@example.com",
-    statusBadgeColor: "bg-red-50 text-red-500",
-  },
-];
+import { useReports, useActivityLogs } from "@/hooks/useAdmin";
 
 export default function ReportsManagementPage() {
+  const [activeTab, setActiveTab] = useState<"reports" | "activity">("reports");
   const [activeFilter, setActiveFilter] = useState("All");
+  const [page, setPage] = useState(1);
+  const [logPage, setLogPage] = useState(1);
+  const limit = 20;
+
+  const statusParam =
+    activeFilter === "All" ? undefined : activeFilter.toLowerCase();
+
+  const { data: reportsData, isLoading: loadingReports } = useReports({
+    status: statusParam,
+    page,
+    limit,
+  });
+
+  const { data: logsData, isLoading: loadingLogs } = useActivityLogs({
+    page: logPage,
+    limit: 50,
+  });
+
+  const reports = reportsData?.reports ?? [];
+  const reportsPagination = reportsData?.pagination;
+  const activities = logsData?.activities ?? [];
+  const logsPagination = logsData?.pagination;
+
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
+    setPage(1);
+  };
+
+  const statusColor: Record<string, string> = {
+    pending: "bg-yellow-50 text-yellow-500",
+    resolved: "bg-green-50 text-green-500",
+    dismissed: "bg-gray-50 text-gray-500",
+  };
+
+  const priorityColor: Record<string, string> = {
+    high: "bg-red-50 text-red-500",
+    medium: "bg-orange-50 text-orange-500",
+    low: "bg-blue-50 text-blue-500",
+  };
+
+  const typeLabel = (type: string) =>
+    type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+
+  const getReporterName = (report: (typeof reports)[0]) =>
+    report.reporter.fullName ||
+    `${report.reporter.firstName || ""} ${report.reporter.lastName || ""}`.trim() ||
+    "Unknown";
 
   return (
-    <div className='space-y-6 md:space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto'>
+    <div className='space-y-6'>
       <div className='flex flex-col md:flex-row gap-3 md:items-center justify-between'>
         <div>
           <h1 className='text-2xl font-bold text-gray-900'>
             Reports & Activity Logs
           </h1>
-          <p className='text-sm text-gray-500 mt-1'>
-            Monitor system activity and user reports
+          <p className='text-sm text-gray-500'>
+            Manage disputes, reports, and view admin activity
           </p>
         </div>
-        <div className='flex gap-18 md:gap-3'>
-          <Button
-            variant='outline'
-            className='text-sm h-10 px-4 gap-2 border-gray-200'
-          >
-            Default
-          </Button>
-          <Button
-            variant='outline'
-            className='text-sm h-10 px-4 gap-2 border-gray-200'
-          >
-            <Download size={16} /> Export
-          </Button>
-        </div>
+        <Button variant='outline' className='text-sm h-10 px-4 gap-2'>
+          <Download size={16} /> Export
+        </Button>
       </div>
 
-      <div className='grid grid-cols-2 md:grid-cols-6 gap-4'>
-        {summaryMetrics.map((metric, idx) => (
-          <Card key={idx} className='border border-gray-100 shadow-sm'>
-            <CardContent className='p-4 md:p-5'>
-              <div className='text-xs text-gray-500 font-medium'>
-                {metric.label}
-              </div>
-              <div className='text-2xl font-bold mt-1 text-gray-900'>
-                {metric.value}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Tab Switcher */}
+      <div className='flex gap-1 bg-gray-100 rounded-xl p-1 w-fit'>
+        <button
+          onClick={() => setActiveTab("reports")}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "reports" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+        >
+          <Flag size={14} className='inline mr-2' /> User Reports
+        </button>
+        <button
+          onClick={() => setActiveTab("activity")}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "activity" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+        >
+          <Activity size={14} className='inline mr-2' /> Activity Logs
+        </button>
       </div>
 
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
-        <div className='p-6 flex items-center justify-between'>
-          <h2 className='text-lg font-bold text-gray-900'>Activity Logs</h2>
-          <Button variant='ghost' className='text-sm text-gray-500 font-medium'>
-            See all
-          </Button>
-        </div>
-        <CardContent className='p-6 pt-0 space-y-6'>
-          <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
-            <div className='relative w-full text-sm'>
-              <Search
-                className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
-                size={18}
-              />
-              <Input
-                placeholder='Search Log'
-                className='pl-10 h-11 bg-gray-50/50 border border-gray-100 focus-visible:ring-1 focus-visible:ring-purple-200 rounded-xl'
+      {/* Reports Tab */}
+      {activeTab === "reports" && (
+        <Card className='border border-gray-100 shadow-sm overflow-hidden'>
+          <CardContent className='p-0'>
+            <div className='p-6 border-b border-gray-100'>
+              <AdminSearchFilter
+                searchPlaceholder='Search reports...'
+                filterOptions={["All", "Pending", "Resolved", "Dismissed"]}
+                activeFilter={activeFilter}
+                onFilterChange={handleFilterChange}
               />
             </div>
-            <Button
-              variant='outline'
-              className='h-11 px-4 gap-2 border-gray-200 rounded-xl min-w-[140px] justify-between'
-            >
-              All Actions <ChevronDown size={16} className='text-gray-400' />
-            </Button>
-          </div>
 
-          <ExpandableTableContainer>
-            <div className='space-y-4'>
-              {activityLogs.map((log) => (
-                <div
-                  key={log.id}
-                  className='pb-4 border-b border-gray-50 last:border-0 last:pb-0'
-                >
-                  <div className='inline-block px-2.5 py-1 mb-2 bg-gray-50 text-gray-600 border border-gray-100 rounded text-[10px] font-medium'>
-                    {log.actionType}
-                  </div>
-                  <h3 className='text-sm text-gray-900 font-medium'>
-                    {log.description}
-                  </h3>
-                  <p className='text-xs text-gray-500 mt-1'>{log.date}</p>
+            <div className='overflow-x-auto min-h-[400px] relative'>
+              {loadingReports && (
+                <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
+                  <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
                 </div>
-              ))}
-            </div>
-          </ExpandableTableContainer>
-        </CardContent>
-      </Card>
-
-      <div className='mt-8 pt-4'>
-        <div className='mb-6'>
-          <AdminSearchFilter
-            searchPlaceholder='Search Name or email..'
-            filterOptions={["All", "Pending", "Investigating", "Resolved"]}
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-          />
-        </div>
-
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
-          <div className='p-6 flex items-center justify-between'>
-            <h2 className='text-lg font-bold text-gray-900'>User Reports</h2>
-            <Button
-              variant='ghost'
-              className='text-sm text-gray-500 font-medium'
-            >
-              See all
-            </Button>
-          </div>
-          <CardContent className='p-6 pt-0 space-y-4'>
-            <ExpandableTableContainer>
-              <div className='grid gap-4'>
-                {userReports.map((report) => (
-                  <Link key={report.id} href={`/admin/reports/${report.id}`}>
-                    <div className='p-6 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors bg-white hover:bg-gray-50/30'>
-                      <div className='flex items-center gap-2 mb-2'>
+              )}
+              <table className='w-full text-left text-sm'>
+                <thead>
+                  <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    <th className='px-6 py-4'>TYPE</th>
+                    <th className='px-6 py-4'>REPORTER</th>
+                    <th className='px-6 py-4'>REASON</th>
+                    <th className='px-6 py-4'>PRIORITY</th>
+                    <th className='px-6 py-4'>STATUS</th>
+                    <th className='px-6 py-4'>DATE</th>
+                    <th className='px-6 py-4 text-right'>ACTION</th>
+                  </tr>
+                </thead>
+                <tbody className='divide-y'>
+                  {reports.map((report) => (
+                    <tr
+                      key={report._id}
+                      className='group hover:bg-gray-50 transition-colors'
+                    >
+                      <td className='px-6 py-5'>
+                        <span className='text-xs font-bold text-gray-700 bg-gray-50 px-2 py-1 rounded-md border border-gray-100'>
+                          {typeLabel(report.type)}
+                        </span>
+                      </td>
+                      <td className='px-6 py-5 text-gray-900 font-medium text-xs'>
+                        {getReporterName(report)}
+                      </td>
+                      <td className='px-6 py-5 text-gray-500 text-xs max-w-[200px] truncate'>
+                        {report.reason}
+                      </td>
+                      <td className='px-6 py-5'>
+                        {report.priority && (
+                          <span
+                            className={`px-2 py-1 rounded-full text-[10px] font-bold capitalize ${priorityColor[report.priority] || "bg-gray-50 text-gray-500"}`}
+                          >
+                            {report.priority}
+                          </span>
+                        )}
+                      </td>
+                      <td className='px-6 py-5'>
                         <span
-                          className={`px-2 py-1 rounded text-[10px] font-semibold ${report.statusBadgeColor}`}
+                          className={`px-2 py-1 rounded-full text-[10px] font-bold capitalize ${statusColor[report.status]}`}
                         >
                           {report.status}
                         </span>
-                      </div>
-                      <div className='text-xs text-gray-400 font-medium mb-3'>
-                        {report.date}
-                      </div>
-                      <h3 className='text-base font-bold text-gray-900 mb-1'>
-                        {report.title}
-                      </h3>
-                      <p className='text-sm text-gray-500 mb-4'>
-                        {report.description}
-                      </p>
-                      <div className='space-y-1 text-xs'>
-                        <div className='flex items-center text-gray-500'>
-                          <span className='font-medium text-gray-400 w-[60px]'>
-                            Reporter:
-                          </span>
-                          {report.reporter}
-                        </div>
-                        <div className='flex items-center text-gray-500'>
-                          <span className='font-medium text-gray-400 w-[60px]'>
-                            Reported:
-                          </span>
-                          {report.reported}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                      </td>
+                      <td className='px-6 py-5 text-xs text-gray-500'>
+                        {new Date(report.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className='px-6 py-5 text-right'>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='h-8 w-8 text-gray-400'
+                            >
+                              <MoreVertical size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end' className='w-40'>
+                            <Link href={`/admin/reports/${report._id}`}>
+                              <DropdownMenuItem className='gap-2 cursor-pointer text-xs'>
+                                <ExternalLink size={14} /> View Details
+                              </DropdownMenuItem>
+                            </Link>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
+                  {!loadingReports && reports.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className='py-12 text-center text-gray-400 font-medium'
+                      >
+                        No reports found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {reportsPagination && reportsPagination.totalPages > 1 && (
+              <div className='flex items-center justify-between px-6 py-4 border-t border-gray-100'>
+                <p className='text-xs text-gray-500'>
+                  Page {reportsPagination.currentPage} of{" "}
+                  {reportsPagination.totalPages}
+                </p>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={!reportsPagination.hasPrev}
+                    className='h-8 w-8 p-0'
+                  >
+                    <ChevronLeft size={16} />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={!reportsPagination.hasNext}
+                    className='h-8 w-8 p-0'
+                  >
+                    <ChevronRight size={16} />
+                  </Button>
+                </div>
               </div>
-            </ExpandableTableContainer>
+            )}
           </CardContent>
         </Card>
-      </div>
+      )}
+
+      {/* Activity Logs Tab */}
+      {activeTab === "activity" && (
+        <Card className='border border-gray-100 shadow-sm overflow-hidden'>
+          <CardContent className='p-0'>
+            <div className='overflow-x-auto min-h-[400px] relative'>
+              {loadingLogs && (
+                <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
+                  <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                </div>
+              )}
+              <table className='w-full text-left text-sm'>
+                <thead>
+                  <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    <th className='px-6 py-4'>ACTION TYPE</th>
+                    <th className='px-6 py-4'>ACTION</th>
+                    <th className='px-6 py-4'>ADMIN</th>
+                    <th className='px-6 py-4'>TARGET</th>
+                    <th className='px-6 py-4'>DATE</th>
+                  </tr>
+                </thead>
+                <tbody className='divide-y'>
+                  {activities.map((log) => (
+                    <tr
+                      key={log._id}
+                      className='hover:bg-gray-50 transition-colors'
+                    >
+                      <td className='px-6 py-4'>
+                        <span className='text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md'>
+                          {typeLabel(log.type)}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 text-xs font-medium text-gray-900'>
+                        {log.action}
+                      </td>
+                      <td className='px-6 py-4 text-xs text-gray-500'>
+                        {log.admin.fullName}
+                        {log.admin.role && (
+                          <span className='text-[10px] ml-1 text-gray-400'>
+                            ({log.admin.role})
+                          </span>
+                        )}
+                      </td>
+                      <td className='px-6 py-4 text-xs text-gray-500'>
+                        {log.target
+                          ? `${log.target.name} (${log.target.type})`
+                          : "—"}
+                      </td>
+                      <td className='px-6 py-4 text-xs text-gray-400'>
+                        {new Date(log.timestamp).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                  {!loadingLogs && activities.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className='py-12 text-center text-gray-400 font-medium'
+                      >
+                        No activity logs found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {logsPagination && logsPagination.totalPages > 1 && (
+              <div className='flex items-center justify-between px-6 py-4 border-t border-gray-100'>
+                <p className='text-xs text-gray-500'>
+                  Page {logsPagination.currentPage} of{" "}
+                  {logsPagination.totalPages} ({logsPagination.totalActivities}{" "}
+                  logs)
+                </p>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => setLogPage((p) => Math.max(1, p - 1))}
+                    disabled={!logsPagination.hasPrev}
+                    className='h-8 w-8 p-0'
+                  >
+                    <ChevronLeft size={16} />
+                  </Button>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => setLogPage((p) => p + 1)}
+                    disabled={!logsPagination.hasNext}
+                    className='h-8 w-8 p-0'
+                  >
+                    <ChevronRight size={16} />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

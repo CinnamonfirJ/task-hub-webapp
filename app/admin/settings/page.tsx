@@ -1,38 +1,151 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Loader2, Save, CheckCircle2 } from "lucide-react";
+import { useSystemSettings, useUpdateSystemSettings } from "@/hooks/useAdmin";
 
 export default function AdminSettingsPage() {
-  const [settings, setSettings] = useState({
-    maintenanceMode: false,
-    newUserRegistrations: true,
-    taskPostingEnabled: true,
-    emailNotifications: false,
-    reportAlerts: true,
-    kycSubmissionAlerts: true,
-    twoFactorAuth: false,
-    sessionTimeout: true,
-    ipWhitelist: true,
-  });
+  const { data: settings, isLoading } = useSystemSettings();
+  const {
+    mutate: updateSettings,
+    isPending: isSaving,
+    isSuccess: didSave,
+  } = useUpdateSystemSettings();
 
-  const handleToggle = (key: keyof typeof settings) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+  const [localSettings, setLocalSettings] = useState<Record<string, any>>({});
+  const [pendingChanges, setPendingChanges] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    if (settings) {
+      setLocalSettings({
+        "system.maintenanceMode": settings.system.maintenanceMode,
+        "system.registrationEnabled": settings.system.registrationEnabled,
+        "system.taskCreationEnabled": settings.system.taskCreationEnabled,
+        "system.biddingEnabled": settings.system.biddingEnabled,
+        "system.paymentsEnabled": settings.system.paymentsEnabled,
+        "features.ninVerification": settings.features.ninVerification,
+        "features.kycVerification": settings.features.kycVerification,
+        "features.pushNotifications": settings.features.pushNotifications,
+        "features.emailNotifications": settings.features.emailNotifications,
+        "features.smsNotifications": settings.features.smsNotifications,
+        "fees.platform_fee_percentage": settings.fees.platform_fee_percentage,
+        "fees.withdrawal_fee": settings.fees.withdrawal_fee,
+        "fees.payment_gateway_fee_percentage":
+          settings.fees.payment_gateway_fee_percentage,
+        "limits.max_task_budget": settings.limits.max_task_budget,
+        "limits.min_task_budget": settings.limits.min_task_budget,
+        "limits.max_withdrawal": settings.limits.max_withdrawal,
+        "limits.min_withdrawal": settings.limits.min_withdrawal,
+        "security.max_login_attempts":
+          settings.security?.max_login_attempts ?? 5,
+        "security.session_timeout_minutes":
+          settings.security?.session_timeout_minutes ?? 60,
+      });
+    }
+  }, [settings]);
+
+  const handleToggle = (key: string) => {
+    const newValue = !localSettings[key];
+    setLocalSettings((prev) => ({ ...prev, [key]: newValue }));
+    setPendingChanges((prev) => ({ ...prev, [key]: newValue }));
   };
+
+  const handleNumberChange = (key: string, value: string) => {
+    const num = Number(value);
+    setLocalSettings((prev) => ({ ...prev, [key]: num }));
+    setPendingChanges((prev) => ({ ...prev, [key]: num }));
+  };
+
+  const handleSave = () => {
+    if (Object.keys(pendingChanges).length === 0) return;
+    updateSettings(pendingChanges, {
+      onSuccess: () => setPendingChanges({}),
+    });
+  };
+
+  const hasPendingChanges = Object.keys(pendingChanges).length > 0;
+
+  if (isLoading) {
+    return (
+      <div className='flex h-[80vh] items-center justify-center'>
+        <Loader2 className='h-12 w-12 animate-spin text-[#6B46C1]' />
+      </div>
+    );
+  }
+
+  const toggleSetting = (key: string, label: string, description: string) => (
+    <div className='flex items-center justify-between'>
+      <div>
+        <div className='text-sm font-bold text-gray-900'>{label}</div>
+        <div className='text-xs text-gray-500 mt-1'>{description}</div>
+      </div>
+      <Switch
+        checked={localSettings[key] ?? false}
+        onCheckedChange={() => handleToggle(key)}
+        className='data-[state=checked]:bg-[#6B46C1]'
+      />
+    </div>
+  );
+
+  const numberSetting = (key: string, label: string, suffix?: string) => (
+    <div className='flex items-center justify-between gap-4'>
+      <div className='flex-1'>
+        <div className='text-sm font-bold text-gray-900'>{label}</div>
+      </div>
+      <div className='flex items-center gap-2'>
+        <Input
+          type='number'
+          value={localSettings[key] ?? ""}
+          onChange={(e) => handleNumberChange(key, e.target.value)}
+          className='w-32 h-9 text-sm rounded-lg text-right'
+        />
+        {suffix && (
+          <span className='text-xs text-gray-400 font-medium w-8'>
+            {suffix}
+          </span>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className='space-y-6 md:space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto'>
-      <div>
-        <h1 className='text-xl md:text-2xl font-bold text-gray-900'>
-          Admin Settings
-        </h1>
-        <p className='text-xs md:text-sm text-gray-500 mt-1'>
-          Configure system settings and preferences
-        </p>
+      <div className='flex items-center justify-between'>
+        <div>
+          <h1 className='text-xl md:text-2xl font-bold text-gray-900'>
+            Admin Settings
+          </h1>
+          <p className='text-xs md:text-sm text-gray-500 mt-1'>
+            Configure system settings and preferences
+          </p>
+        </div>
+        <div className='flex items-center gap-3'>
+          {didSave && !hasPendingChanges && (
+            <span className='text-xs text-green-500 font-semibold flex items-center gap-1'>
+              <CheckCircle2 size={14} /> Saved
+            </span>
+          )}
+          <Button
+            onClick={handleSave}
+            disabled={!hasPendingChanges || isSaving}
+            className='bg-[#6B46C1] hover:bg-[#553098] text-white gap-2 h-10 px-5 rounded-xl font-semibold'
+          >
+            {isSaving ? (
+              <Loader2 size={16} className='animate-spin' />
+            ) : (
+              <Save size={16} />
+            )}
+            Save Changes
+          </Button>
+        </div>
       </div>
 
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8'>
+        {/* System Settings */}
         <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
@@ -40,170 +153,121 @@ export default function AdminSettingsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className='p-6 md:p-8 pt-0 space-y-6 md:space-y-8'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <div className='text-sm font-bold text-gray-900'>
-                  Maintenance Mode
-                </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  Temporarily disable user access
-                </div>
-              </div>
-              <Switch
-                checked={settings.maintenanceMode}
-                onCheckedChange={() => handleToggle("maintenanceMode")}
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <div>
-                <div className='text-sm font-bold text-gray-900'>
-                  New User Registrations
-                </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  Allow new users to sign up
-                </div>
-              </div>
-              <Switch
-                checked={settings.newUserRegistrations}
-                onCheckedChange={() => handleToggle("newUserRegistrations")}
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <div>
-                <div className='text-sm font-bold text-gray-900'>
-                  Task Posting Enabled
-                </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  Allow users to post new tasks
-                </div>
-              </div>
-              <Switch
-                checked={settings.taskPostingEnabled}
-                onCheckedChange={() => handleToggle("taskPostingEnabled")}
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
+            {toggleSetting(
+              "system.maintenanceMode",
+              "Maintenance Mode",
+              "Temporarily disable user access",
+            )}
+            {toggleSetting(
+              "system.registrationEnabled",
+              "New User Registrations",
+              "Allow new users to sign up",
+            )}
+            {toggleSetting(
+              "system.taskCreationEnabled",
+              "Task Posting Enabled",
+              "Allow users to post new tasks",
+            )}
+            {toggleSetting(
+              "system.biddingEnabled",
+              "Bidding Enabled",
+              "Allow taskers to bid on tasks",
+            )}
+            {toggleSetting(
+              "system.paymentsEnabled",
+              "Payments Enabled",
+              "Allow payment processing",
+            )}
           </CardContent>
         </Card>
 
+        {/* Feature Toggles */}
         <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Notification Settings
+              Feature Toggles
             </CardTitle>
           </CardHeader>
           <CardContent className='p-6 md:p-8 pt-0 space-y-6 md:space-y-8'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <div className='text-sm font-bold text-gray-900'>
-                  Email Notifications
-                </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  Send email alerts to admins
-                </div>
-              </div>
-              <Switch
-                checked={settings.emailNotifications}
-                onCheckedChange={() => handleToggle("emailNotifications")}
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <div>
-                <div className='text-sm font-bold text-gray-900'>
-                  Report Alerts
-                </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  Notify when users submit reports
-                </div>
-              </div>
-              <Switch
-                checked={settings.reportAlerts}
-                onCheckedChange={() => handleToggle("reportAlerts")}
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <div>
-                <div className='text-sm font-bold text-gray-900'>
-                  KYC Submission Alerts
-                </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  Alert on new verification submissions
-                </div>
-              </div>
-              <Switch
-                checked={settings.kycSubmissionAlerts}
-                onCheckedChange={() => handleToggle("kycSubmissionAlerts")}
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
+            {toggleSetting(
+              "features.ninVerification",
+              "NIN Verification",
+              "Enable NIN verification checks",
+            )}
+            {toggleSetting(
+              "features.kycVerification",
+              "KYC Verification",
+              "Enable KYC verification flow",
+            )}
+            {toggleSetting(
+              "features.pushNotifications",
+              "Push Notifications",
+              "Send push notifications",
+            )}
+            {toggleSetting(
+              "features.emailNotifications",
+              "Email Notifications",
+              "Send email alerts to users",
+            )}
+            {toggleSetting(
+              "features.smsNotifications",
+              "SMS Notifications",
+              "Send SMS notifications",
+            )}
           </CardContent>
         </Card>
 
+        {/* Fees */}
         <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Security & Privacy
+              Platform Fees
             </CardTitle>
           </CardHeader>
           <CardContent className='p-6 md:p-8 pt-0 space-y-6 md:space-y-8'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <div className='text-sm font-bold text-gray-900'>
-                  Two-Factor Authentication
-                </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  Require 2FA for admin accounts
-                </div>
-              </div>
-              <Switch
-                checked={settings.twoFactorAuth}
-                onCheckedChange={() => handleToggle("twoFactorAuth")}
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <div>
-                <div className='text-sm font-bold text-gray-900'>
-                  Session Timeout
-                </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  Auto-logout after 30 minutes of inactivity
-                </div>
-              </div>
-              <Switch
-                checked={settings.sessionTimeout}
-                onCheckedChange={() => handleToggle("sessionTimeout")}
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <div>
-                <div className='text-sm font-bold text-gray-900'>
-                  IP Whitelist
-                </div>
-                <div className='text-xs text-gray-500 mt-1'>
-                  Restrict admin access to specific IPs
-                </div>
-              </div>
-              <Switch
-                checked={settings.ipWhitelist}
-                onCheckedChange={() => handleToggle("ipWhitelist")}
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
+            {numberSetting("fees.platform_fee_percentage", "Platform Fee", "%")}
+            {numberSetting("fees.withdrawal_fee", "Withdrawal Fee", "₦")}
+            {numberSetting(
+              "fees.payment_gateway_fee_percentage",
+              "Payment Gateway Fee",
+              "%",
+            )}
           </CardContent>
         </Card>
 
+        {/* Limits */}
+        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
+          <CardHeader className='p-6 md:p-8 pb-4'>
+            <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
+              Budget & Withdrawal Limits
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='p-6 md:p-8 pt-0 space-y-6 md:space-y-8'>
+            {numberSetting("limits.min_task_budget", "Min Task Budget", "₦")}
+            {numberSetting("limits.max_task_budget", "Max Task Budget", "₦")}
+            {numberSetting("limits.min_withdrawal", "Min Withdrawal", "₦")}
+            {numberSetting("limits.max_withdrawal", "Max Withdrawal", "₦")}
+          </CardContent>
+        </Card>
+
+        {/* Security */}
+        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
+          <CardHeader className='p-6 md:p-8 pb-4'>
+            <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
+              Security
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='p-6 md:p-8 pt-0 space-y-6 md:space-y-8'>
+            {numberSetting("security.max_login_attempts", "Max Login Attempts")}
+            {numberSetting(
+              "security.session_timeout_minutes",
+              "Session Timeout",
+              "min",
+            )}
+          </CardContent>
+        </Card>
+
+        {/* System Info */}
         <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
@@ -222,26 +286,10 @@ export default function AdminSettingsPage() {
               </div>
               <div>
                 <div className='text-xs text-gray-500 font-medium tracking-wide'>
-                  Last Backup
-                </div>
-                <div className='text-sm font-bold text-gray-900 mt-1'>
-                  2 hours ago
-                </div>
-              </div>
-              <div>
-                <div className='text-xs text-gray-500 font-medium tracking-wide'>
                   Database Status
                 </div>
                 <div className='text-sm font-bold text-[#10B981] mt-1'>
                   Healthy
-                </div>
-              </div>
-              <div>
-                <div className='text-xs text-gray-500 font-medium tracking-wide'>
-                  Storage used
-                </div>
-                <div className='text-sm font-bold text-gray-900 mt-1'>
-                  2.4 GB / 10 GB
                 </div>
               </div>
             </div>

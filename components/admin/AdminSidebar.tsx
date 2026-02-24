@@ -15,12 +15,12 @@ import {
   ShieldCheck,
   Bell,
   LogOut,
-  User,
   X,
 } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminProfile } from "@/hooks/useAdmin";
 import { Button } from "../ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 export const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
@@ -37,12 +37,13 @@ export const navItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { data: admin, isLoading } = useAdminProfile();
+  const { logout } = useAuth();
   const { isOpen, closeSidebar } = useSidebar();
 
-  const userName = user?.fullName || "Welcome";
-  const userRole = user?.role === "tasker" ? "Tasker" : "Administrator";
-  const userInitial = user?.fullName ? user.fullName[0].toUpperCase() : "U";
+  const userName = admin?.fullName || "Admin User";
+  const userRole = admin?.role?.replace("_", " ") || "Administrator";
+  const userInitial = admin?.fullName ? admin.fullName[0].toUpperCase() : "A";
 
   return (
     <>
@@ -121,25 +122,26 @@ export function AdminSidebar() {
 
           <div className='p-3 bg-gray-50 rounded-xl flex items-center gap-3 border border-gray-100/50'>
             <div className='h-10 w-10 rounded-full overflow-hidden shrink-0 border border-gray-200 bg-white flex items-center justify-center'>
-              {user?.profilePicture ? (
-                <img
-                  src={user.profilePicture}
-                  alt='Profile'
-                  className='h-full w-full object-cover'
-                />
+              {admin?.emailAddress ? (
+                <div className='h-full w-full bg-[#6B46C1] flex items-center justify-center text-white text-sm font-bold'>
+                  {userInitial}
+                </div>
               ) : (
                 <span className='text-[#6B46C1] font-bold'>{userInitial}</span>
               )}
             </div>
             <div className='flex-1 min-w-0'>
               <p className='text-sm font-bold text-gray-900 truncate leading-none'>
-                {userName}
+                {isLoading ? "Loading..." : userName}
               </p>
               <p className='text-[11px] font-medium text-gray-500 mt-1 uppercase'>
-                {userRole}
+                {isLoading ? "Please wait" : userRole}
               </p>
             </div>
-            <button className='p-1.5 text-gray-400 hover:text-red-600 transition-colors'>
+            <button
+              className='p-1.5 text-gray-400 hover:text-red-600 transition-colors'
+              onClick={() => logout()}
+            >
               <LogOut size={16} />
             </button>
           </div>
