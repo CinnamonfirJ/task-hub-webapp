@@ -123,9 +123,10 @@ export default function FeedPage() {
               .slice(0, 2);
 
             return (
+              // h-full fills the grid cell so every card in a row matches the tallest one
               <div
                 key={task._id}
-                className='flex flex-col bg-white hover:bg-gray-50/50 p-5 md:p-8 border border-gray-100 rounded-3xl md:rounded-[2.5rem] shadow-sm transition-all group relative'
+                className='relative flex flex-col h-full bg-white hover:bg-gray-50/50 p-5 md:p-8 border border-gray-100 rounded-3xl md:rounded-[2.5rem] shadow-sm transition-all group'
               >
                 {/* Card Top: Category Badge */}
                 <div className='mb-4 md:mb-6'>
@@ -146,8 +147,8 @@ export default function FeedPage() {
                   </div>
                 </div>
 
-                {/* Title & Description */}
-                <div className='flex-1 space-y-2 md:space-y-3 mb-6 md:mb-8'>
+                {/* Title & Description — flex-1 pushes footer to the bottom */}
+                <div className='flex-1 space-y-2  mb-2 md:mb-4'>
                   <h3 className='group-hover:text-[#6B46C1] font-bold text-gray-900 text-lg md:text-xl transition-colors line-clamp-2'>
                     {task.title}
                   </h3>
@@ -156,8 +157,8 @@ export default function FeedPage() {
                   </p>
                 </div>
 
-                {/* Footer: Date & Price */}
-                <div className='flex justify-between items-center pt-4 md:pt-6 border-t border-gray-50'>
+                {/* Footer: Date & Price — pinned to bottom */}
+                <div className='flex justify-between items-center  border-t border-gray-50'>
                   <div className='flex items-center gap-1.5 md:gap-2 text-gray-400 text-[10px] md:text-xs font-bold'>
                     <Calendar size={14} className='md:w-4 md:h-4' />
                     <span>
@@ -182,7 +183,7 @@ export default function FeedPage() {
                   </div>
                 )}
 
-                {/* Hidden Action for Hover or Click */}
+                {/* Full-card link overlay */}
                 <Link
                   href={`/tasks/${task._id}`}
                   className='inset-0 absolute rounded-[2.5rem]'
@@ -192,7 +193,7 @@ export default function FeedPage() {
           })}
         </div>
       ) : (
-        /* Empty State Matching Design */
+        /* Empty State */
         <div className='flex flex-col items-center justify-center py-16 md:py-32 text-center space-y-6'>
           <div className='flex justify-center items-center bg-purple-50 rounded-full w-24 h-24'>
             <div className='bg-white p-4 rounded-3xl shadow-sm'>

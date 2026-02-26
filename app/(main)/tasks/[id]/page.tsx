@@ -37,7 +37,7 @@ export default function TaskDetailsPage() {
   });
 
   // Fetch current tasker's bids to check if they've applied
-  const { data: myBids } = useMyBids(undefined);
+  const { data: myBids } = useMyBids(undefined, { enabled: !!isTasker });
 
   const bids = bidsData?.bids || [];
 
@@ -238,7 +238,7 @@ export default function TaskDetailsPage() {
               <h2 className='font-bold text-gray-900 text-xl md:text-2xl'>
                 Task Title
               </h2>
-              <p className='text-gray-900 text-lg md:text-xl break-words'>
+              <p className='text-gray-900 text-lg md:text-xl wrap-break-words'>
                 {task.title}
               </p>
             </div>
@@ -343,7 +343,7 @@ export default function TaskDetailsPage() {
                   <h3 className='text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider'>
                     Task Title
                   </h3>
-                  <h2 className='font-bold text-gray-900 text-xl md:text-2xl break-words'>
+                  <h2 className='font-bold text-gray-900 text-xl md:text-2xl wrap-break-words'>
                     {task.title}
                   </h2>
                 </div>

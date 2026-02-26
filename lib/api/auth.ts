@@ -265,7 +265,10 @@ export const authApi = {
           return profileData;
         }
       } catch (error: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (
+          process.env.NODE_ENV === "development" &&
+          error?.message !== "Unauthorized"
+        ) {
           console.error(
             `[authApi] Endpoint ${endpoint} failed:`,
             error.message || error,

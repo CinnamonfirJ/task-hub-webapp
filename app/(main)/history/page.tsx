@@ -37,8 +37,7 @@ export default function HistoryPage() {
     queryFn: () => tasksApi.getUserTasks(),
   });
 
-  // Filter tasks based on active tabs
-  // API statuses might differ slightly, so we normalize
+  // Filter tasks based on active tab
   const currentTasks = (tasks || []).filter((task: Task) => {
     const status = task.status?.toLowerCase() || "";
 
@@ -130,14 +129,17 @@ export default function HistoryPage() {
           </Link>
         </div>
       ) : (
-        <div className='space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-          {currentTasks.map((task) => (
-            <Link href={`/tasks/${task._id}`}>
+        // FIX 1: Removed `space-y-4` — it was adding margin-top on every child,
+        //         fighting `gap-4` and making vertical spacing uneven.
+        // FIX 2: Changed gap-4 → gap-6 for consistent spacing on both axes.
+        // FIX 3: Added h-full to Link so it fills the grid cell height.
+        // FIX 4: Passed className="h-full" into ActivityItem so it stretches too.
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          {currentTasks.map((task: Task) => (
+            <Link key={task._id} href={`/tasks/${task._id}`} className='h-full'>
               <ActivityItem
-                key={task._id}
                 id={task._id}
                 title={task.title}
-                // Handle category object or string
                 category={
                   typeof task.categories?.[0] === "string"
                     ? task.categories[0]
@@ -149,6 +151,7 @@ export default function HistoryPage() {
                 date={task.createdAt}
                 status={task.status}
                 amount={task.budget}
+                className='h-full'
               />
             </Link>
           ))}
