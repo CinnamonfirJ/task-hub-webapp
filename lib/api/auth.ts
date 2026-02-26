@@ -194,71 +194,88 @@ export const authApi = {
     const userType =
       typeof window !== "undefined" ? localStorage.getItem("userType") : null;
 
-    // Determine which endpoint to try first
-    const endpoints =
-      userType === "tasker"
-        ? ["/api/auth/tasker", "/api/auth/user"]
-        : userType === "user"
-          ? ["/api/auth/user", "/api/auth/tasker"]
-          : ["/api/auth/user", "/api/auth/tasker"];
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `[authApi] getProfile starting. userType from storage: ${userType}`,
+      );
+    }
+
+    // Determine which endpoints to try in order of probability
+    const endpoints = [];
+    if (userType === "admin") {
+      endpoints.push("/api/admin/me", "/api/auth/user", "/api/auth/tasker");
+    } else if (userType === "tasker") {
+      endpoints.push("/api/auth/tasker", "/api/auth/user");
+    } else {
+      endpoints.push("/api/auth/user", "/api/auth/tasker", "/api/admin/me");
+    }
 
     for (const endpoint of endpoints) {
       try {
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[authApi] Trying endpoint: ${endpoint}`);
+        }
         const res = await apiData<any>(endpoint, { method: "GET" });
 
-        // Extract user or tasker data
-        const userData = res?.data?.user || res?.user;
-        const taskerData = res?.data?.tasker || res?.tasker;
+        // Extract profile data based on standard patterns
+        const profileData =
+          res?.data?.admin ||
+          res?.admin ||
+          res?.data?.user ||
+          res?.user ||
+          res?.data?.tasker ||
+          res?.tasker ||
+          res?.data ||
+          res;
 
-        if (endpoint === "/api/auth/tasker") {
-          const profileData =
-            res?.data?.tasker ||
-            res?.tasker ||
-            res?.data?.user ||
-            res?.user ||
-            res?.data ||
-            res;
-          if (profileData && (profileData._id || profileData.id)) {
-            if (process.env.NODE_ENV === "development") {
-              console.log(
-                "[authApi] getProfile (tasker endpoint) success:",
-                profileData,
-              );
+        if (profileData && (profileData._id || profileData.id)) {
+          if (process.env.NODE_ENV === "development") {
+            console.log(
+              `[authApi] getProfile (${endpoint}) success:`,
+              profileData,
+            );
+          }
+
+          // Sync userType based on where we found the profile
+          if (endpoint === "/api/admin/me") {
+            if (typeof window !== "undefined")
+              localStorage.setItem("userType", "admin");
+            // Normalize fields for consistency across the app
+            if (!profileData._id && profileData.id)
+              profileData._id = profileData.id;
+            if (!profileData.fullName && profileData.name)
+              profileData.fullName = profileData.name;
+            if (!profileData.emailAddress && profileData.email)
+              profileData.emailAddress = profileData.email;
+            // Admin profiles usually already have a specific role (operations, super_admin, etc.)
+            // We only default to 'admin' if it's missing or generic
+            if (!profileData.role || profileData.role === "admin") {
+              profileData.role = "admin";
             }
-            // Force role to tasker since we hit the tasker endpoint successfully
+          } else if (endpoint === "/api/auth/tasker") {
             profileData.role = "tasker";
             if (typeof window !== "undefined")
               localStorage.setItem("userType", "tasker");
-            return profileData;
-          }
-        } else {
-          const profileData =
-            res?.data?.user ||
-            res?.user ||
-            res?.data?.tasker ||
-            res?.tasker ||
-            res?.data ||
-            res;
-          if (profileData && (profileData._id || profileData.id)) {
-            if (process.env.NODE_ENV === "development") {
-              console.log(
-                "[authApi] getProfile (user endpoint) success:",
-                profileData,
-              );
-            }
-            // Force role to user since we hit the user endpoint successfully
+          } else if (endpoint === "/api/auth/user") {
             profileData.role = "user";
             if (typeof window !== "undefined")
               localStorage.setItem("userType", "user");
-            return profileData;
           }
+
+          return profileData;
         }
       } catch (error: any) {
-        // If it's the last endpoint or not a 404, we might want to throw
+        if (process.env.NODE_ENV === "development") {
+          console.error(
+            `[authApi] Endpoint ${endpoint} failed:`,
+            error.message || error,
+          );
+        }
+        // If it's the last endpoint, we must throw
         if (endpoint === endpoints[endpoints.length - 1]) {
           throw error;
         }
-        // Otherwise, continue to the next endpoint
+        // Otherwise, ignore 401/404/etc and try next
       }
     }
 

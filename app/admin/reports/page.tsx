@@ -48,8 +48,21 @@ export default function ReportsManagementPage() {
 
   const reports = reportsData?.reports ?? [];
   const reportsPagination = reportsData?.pagination;
-  const activities = logsData?.activities ?? [];
-  const logsPagination = logsData?.pagination;
+
+  // FIX: API returns `logs` at root level, not `data.activities`
+  const activities = logsData?.logs ?? [];
+
+  // FIX: API returns pagination fields at root level, not nested under `pagination`
+  const logsPagination =
+    logsData?.totalPages != null
+      ? {
+          currentPage: logsData.currentPage ?? logPage,
+          totalPages: logsData.totalPages,
+          totalActivities: logsData.totalRecords,
+          hasNext: (logsData.currentPage ?? logPage) < logsData.totalPages,
+          hasPrev: (logsData.currentPage ?? logPage) > 1,
+        }
+      : null;
 
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
@@ -256,42 +269,51 @@ export default function ReportsManagementPage() {
               <table className='w-full text-left text-sm'>
                 <thead>
                   <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
-                    <th className='px-6 py-4'>ACTION TYPE</th>
+                    <th className='px-6 py-4'>RESOURCE TYPE</th>
                     <th className='px-6 py-4'>ACTION</th>
                     <th className='px-6 py-4'>ADMIN</th>
-                    <th className='px-6 py-4'>TARGET</th>
+                    <th className='px-6 py-4'>TARGET ID</th>
                     <th className='px-6 py-4'>DATE</th>
                   </tr>
                 </thead>
                 <tbody className='divide-y'>
-                  {activities.map((log) => (
+                  {activities.map((log: any) => (
                     <tr
                       key={log._id}
                       className='hover:bg-gray-50 transition-colors'
                     >
+                      {/* FIX: API uses `resourceType`, not `type` */}
                       <td className='px-6 py-4'>
                         <span className='text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md'>
-                          {typeLabel(log.type)}
+                          {typeLabel(log.resourceType ?? log.type ?? "—")}
                         </span>
                       </td>
+                      {/* `action` is correct in the API */}
                       <td className='px-6 py-4 text-xs font-medium text-gray-900'>
-                        {log.action}
+                        {typeLabel(log.action)}
                       </td>
+                      {/* FIX: API returns `admin.email`, not `admin.fullName` */}
                       <td className='px-6 py-4 text-xs text-gray-500'>
-                        {log.admin.fullName}
-                        {log.admin.role && (
+                        {log.admin?.fullName ?? log.admin?.email ?? "—"}
+                        {log.admin?.role && (
                           <span className='text-[10px] ml-1 text-gray-400'>
                             ({log.admin.role})
                           </span>
                         )}
                       </td>
-                      <td className='px-6 py-4 text-xs text-gray-500'>
+                      {/* FIX: API has no `target` object; use `resourceId` instead */}
+                      <td className='px-6 py-4 text-xs text-gray-500 font-mono'>
                         {log.target
                           ? `${log.target.name} (${log.target.type})`
-                          : "—"}
+                          : log.resourceId
+                            ? log.resourceId
+                            : "—"}
                       </td>
+                      {/* FIX: API uses `createdAt`, not `timestamp` */}
                       <td className='px-6 py-4 text-xs text-gray-400'>
-                        {new Date(log.timestamp).toLocaleString()}
+                        {new Date(
+                          log.timestamp ?? log.createdAt,
+                        ).toLocaleString()}
                       </td>
                     </tr>
                   ))}

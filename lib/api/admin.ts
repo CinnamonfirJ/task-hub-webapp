@@ -39,6 +39,11 @@ import {
   PaymentExportRecord,
   UserExportRecord,
   TaskerExportRecord,
+  AdminCategoryListResponse,
+  AdminCategoryDetailResponse,
+  CreateCategoryRequest,
+  AdminCategory,
+  UpdateCategoryRequest,
 } from "@/types/admin";
 
 export const adminApi = {
@@ -53,43 +58,46 @@ export const adminApi = {
   },
 
   getMe: async (): Promise<AdminProfile> => {
-    const response = await apiData<{
-      status: string;
-      data: { admin: AdminProfile };
-    }>("/api/admin/me", {
+    const response = await apiData<any>("/api/admin/me", {
       method: "GET",
     });
-    return response.data.admin;
+
+    const admin =
+      response?.data?.admin || response?.admin || response?.data || response;
+
+    if (!admin || typeof admin !== "object") {
+      throw new Error("Failed to retrieve admin profile from response");
+    }
+
+    // Normalize fields for consistency across the app
+    if (!admin._id && admin.id) admin._id = admin.id;
+    if (!admin.fullName && admin.name) admin.fullName = admin.name;
+    if (!admin.emailAddress && admin.email) admin.emailAddress = admin.email;
+
+    return admin;
   },
 
   getSystemStats: async (): Promise<SystemHealthStats> => {
-    const response = await apiData<{ status: string; data: SystemHealthStats }>(
-      "/api/admin/me/system-stats",
-      {
-        method: "GET",
-      },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/me/system-stats", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   // Dashboard Statistics
   getDashboardStats: async (): Promise<AdminDashboardStats> => {
-    const response = await apiData<{
-      status: string;
-      data: AdminDashboardStats;
-    }>("/api/admin/dashboard/stats", {
+    const response = await apiData<any>("/api/admin/dashboard/stats", {
       method: "GET",
     });
-    return response.data;
+    return response.data ?? response;
   },
 
   // User Management
   getUserStats: async (): Promise<UserStats> => {
-    const response = await apiData<{ status: string; data: UserStats }>(
-      "/api/admin/users/stats",
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/users/stats", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   getUsers: async (params?: {
@@ -105,25 +113,33 @@ export const adminApi = {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) query.append(key, String(value));
+        if (value !== undefined) {
+          if (key === "status") {
+            if (value === "active") query.append("isActive", "true");
+            else if (value === "inactive") query.append("isActive", "false");
+            else if (value === "locked") query.append("isLocked", "true");
+            else query.append(key, String(value));
+          } else {
+            query.append(key, String(value));
+          }
+        }
       });
     }
 
-    const response = await apiData<AdminUserListResponse>(
+    const response = await apiData<any>(
       `/api/admin/users?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
   getUserDetails: async (
     id: string,
   ): Promise<AdminUserDetailResponse["data"]> => {
-    const response = await apiData<AdminUserDetailResponse>(
-      `/api/admin/users/${id}`,
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>(`/api/admin/users/${id}`, {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   activateUser: async (id: string): Promise<any> => {
@@ -182,9 +198,10 @@ export const adminApi = {
         if (value !== undefined) query.append(key, String(value));
       });
     }
-    return apiData<KYCListResponse>(`/api/admin/kyc?${query.toString()}`, {
+    const response = await apiData<any>(`/api/admin/kyc?${query.toString()}`, {
       method: "GET",
     });
+    return response.data ?? response;
   },
 
   approveKYC: async (
@@ -208,13 +225,10 @@ export const adminApi = {
   },
 
   getKYCStats: async (): Promise<KYCStats> => {
-    const response = await apiData<{ status: string; data: KYCStats }>(
-      "/api/admin/kyc/stats",
-      {
-        method: "GET",
-      },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/kyc/stats", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   // Reports Management
@@ -230,20 +244,20 @@ export const adminApi = {
         if (value !== undefined) query.append(key, String(value));
       });
     }
-    return apiData<ReportListResponse>(
+    const response = await apiData<any>(
       `/api/admin/reports?${query.toString()}`,
       { method: "GET" },
     );
+    return response.data ?? response;
   },
 
   getReportDetails: async (
     id: string,
   ): Promise<ReportDetailResponse["data"]> => {
-    const response = await apiData<ReportDetailResponse>(
-      `/api/admin/reports/${id}`,
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>(`/api/admin/reports/${id}`, {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   resolveReport: async (
@@ -269,27 +283,26 @@ export const adminApi = {
     adminId?: string;
     startDate?: string;
     endDate?: string;
-  }): Promise<ActivityLogResponse["data"]> => {
+  }): Promise<ActivityLogResponse> => {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) query.append(key, String(value));
       });
     }
-    const response = await apiData<ActivityLogResponse>(
+    const response = await apiData<any>(
       `/api/admin/reports/activity-logs?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response ?? response;
   },
 
   // Messages & Support
   getMessageStats: async (): Promise<MessageStats> => {
-    const response = await apiData<{ status: string; data: MessageStats }>(
-      "/api/admin/messages/stats",
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/messages/stats", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   getConversations: async (params?: {
@@ -305,21 +318,20 @@ export const adminApi = {
         if (value !== undefined) query.append(key, String(value));
       });
     }
-    const response = await apiData<ConversationListResponse>(
+    const response = await apiData<any>(
       `/api/admin/messages?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
   getConversationDetails: async (
     id: string,
   ): Promise<ConversationDetailResponse["data"]> => {
-    const response = await apiData<ConversationDetailResponse>(
-      `/api/admin/messages/${id}`,
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>(`/api/admin/messages/${id}`, {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   sendAdminMessage: async (
@@ -334,11 +346,10 @@ export const adminApi = {
 
   // System Settings
   getSystemSettings: async (): Promise<SystemSettings> => {
-    const response = await apiData<{ status: string; data: SystemSettings }>(
-      "/api/admin/settings",
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/settings", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   updateSystemSettings: async (settings: Record<string, any>): Promise<any> => {
@@ -362,24 +373,32 @@ export const adminApi = {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) query.append(key, String(value));
+        if (value !== undefined) {
+          if (key === "status") {
+            if (value === "active") query.append("isActive", "true");
+            else if (value === "inactive") query.append("isActive", "false");
+            else if (value === "suspended") query.append("isSuspended", "true");
+            else query.append(key, String(value));
+          } else {
+            query.append(key, String(value));
+          }
+        }
       });
     }
-    const response = await apiData<AdminTaskerListResponse>(
+    const response = await apiData<any>(
       `/api/admin/taskers?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
   getTaskerDetails: async (
     id: string,
   ): Promise<AdminTaskerDetailResponse["data"]> => {
-    const response = await apiData<AdminTaskerDetailResponse>(
-      `/api/admin/taskers/${id}`,
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>(`/api/admin/taskers/${id}`, {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   verifyTasker: async (
@@ -410,11 +429,10 @@ export const adminApi = {
 
   // Task Management
   getTaskStats: async (): Promise<TaskStats> => {
-    const response = await apiData<{ status: string; data: TaskStats }>(
-      "/api/admin/tasks/stats",
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/tasks/stats", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   getTasks: async (params?: {
@@ -434,21 +452,20 @@ export const adminApi = {
         if (value !== undefined) query.append(key, String(value));
       });
     }
-    const response = await apiData<AdminTaskListResponse>(
+    const response = await apiData<any>(
       `/api/admin/tasks?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
   getTaskDetails: async (
     id: string,
   ): Promise<AdminTaskDetailResponse["data"]> => {
-    const response = await apiData<AdminTaskDetailResponse>(
-      `/api/admin/tasks/${id}`,
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>(`/api/admin/tasks/${id}`, {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   forceCancelTask: async (
@@ -477,11 +494,10 @@ export const adminApi = {
 
   // Financials & Payments
   getPaymentStats: async (): Promise<PaymentStats> => {
-    const response = await apiData<{ status: string; data: PaymentStats }>(
-      "/api/admin/payments",
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/payments", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   getTransactions: async (params?: {
@@ -500,30 +516,28 @@ export const adminApi = {
         if (value !== undefined) query.append(key, String(value));
       });
     }
-    const response = await apiData<TransactionListResponse>(
+    const response = await apiData<any>(
       `/api/admin/payments/history?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
   getTransactionDetails: async (
     id: string,
   ): Promise<TransactionDetailResponse["data"]> => {
-    const response = await apiData<TransactionDetailResponse>(
-      `/api/admin/payments/${id}`,
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>(`/api/admin/payments/${id}`, {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   // Staff Management
   getStaffStats: async (): Promise<StaffStats> => {
-    const response = await apiData<{ status: string; data: StaffStats }>(
-      "/api/admin/staff/stats",
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/staff/stats", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   getStaffList: async (params?: {
@@ -535,14 +549,22 @@ export const adminApi = {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) query.append(key, String(value));
+        if (value !== undefined) {
+          if (key === "status") {
+            if (value === "active") query.append("isActive", "true");
+            else if (value === "inactive") query.append("isActive", "false");
+            else query.append(key, String(value));
+          } else {
+            query.append(key, String(value));
+          }
+        }
       });
     }
-    const response = await apiData<StaffListResponse>(
+    const response = await apiData<any>(
       `/api/admin/staff?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
   createStaffAccount: async (data: CreateStaffInput): Promise<any> => {
@@ -553,11 +575,10 @@ export const adminApi = {
   },
 
   getStaffDetails: async (id: string): Promise<StaffDetailResponse["data"]> => {
-    const response = await apiData<StaffDetailResponse>(
-      `/api/admin/staff/${id}`,
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>(`/api/admin/staff/${id}`, {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   updateStaffStatus: async (
@@ -581,11 +602,11 @@ export const adminApi = {
         if (value !== undefined) query.append(key, String(value));
       });
     }
-    const response = await apiData<ExportResponse<DashboardExportRecord>>(
+    const response = await apiData<any>(
       `/api/admin/reports/export/dashboard?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
   exportTasks: async (params?: {
@@ -600,38 +621,236 @@ export const adminApi = {
         if (value !== undefined) query.append(key, String(value));
       });
     }
-    const response = await apiData<ExportResponse<TaskExportRecord>>(
+    const response = await apiData<any>(
       `/api/admin/reports/export/tasks?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
   exportPayments: async (): Promise<
     ExportResponse<PaymentExportRecord>["data"]
   > => {
-    const response = await apiData<ExportResponse<PaymentExportRecord>>(
-      "/api/admin/reports/export/payments",
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/reports/export/payments", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   exportUsers: async (): Promise<ExportResponse<UserExportRecord>["data"]> => {
-    const response = await apiData<ExportResponse<UserExportRecord>>(
-      "/api/admin/reports/export/users",
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/reports/export/users", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 
   exportTaskers: async (): Promise<
     ExportResponse<TaskerExportRecord>["data"]
   > => {
-    const response = await apiData<ExportResponse<TaskerExportRecord>>(
-      "/api/admin/reports/export/taskers",
-      { method: "GET" },
-    );
-    return response.data;
+    const response = await apiData<any>("/api/admin/reports/export/taskers", {
+      method: "GET",
+    });
+    return response.data ?? response;
+  },
+
+  // ============================================================================
+  // Categories (Mock Data Implementation)
+  // ============================================================================
+
+  getCategories: async (): Promise<AdminCategoryListResponse["data"]> => {
+    // Generate mock categories
+    const mockCategories = [
+      {
+        _id: "cat_1",
+        name: "Cleaning Services",
+        description: "Professional home and office cleaning",
+        minPrice: 15000,
+        status: "Active" as const,
+        serviceCount: 5,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        _id: "cat_2",
+        name: "Plumbing",
+        description: "Expert plumbing services and repairs",
+        minPrice: 20000,
+        status: "Active" as const,
+        serviceCount: 5,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        _id: "cat_3",
+        name: "Electrical Repairs",
+        description: "Licensed electricians for all electrical work",
+        minPrice: 25000,
+        status: "Active" as const,
+        serviceCount: 5,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        _id: "cat_4",
+        name: "Graphics design",
+        description: "Creative design services for businesses",
+        minPrice: 50000,
+        status: "Closed" as const,
+        serviceCount: 5,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        _id: "cat_5",
+        name: "Digital marketing",
+        description: "SEO, social media, and online marketing",
+        minPrice: 40000,
+        status: "Active" as const,
+        serviceCount: 5,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          categories: mockCategories,
+          stats: {
+            activeCategories: 4,
+            closedCategories: 1,
+            totalServices: 184,
+          },
+          pagination: {
+            total: mockCategories.length,
+            page: 1,
+            limit: 10,
+            pages: 1,
+          },
+        });
+      }, 500);
+    });
+  },
+
+  getCategoryDetails: async (
+    id: string,
+  ): Promise<AdminCategoryDetailResponse["data"]> => {
+    const mockCategory = {
+      _id: id,
+      name: "Cleaning Services",
+      description:
+        "Professional home and office cleaning services for all your needs",
+      minPrice: 15000,
+      status: "Active" as const,
+      serviceCount: 4,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const mockTasks = Array(4)
+      .fill(null)
+      .map((_, i) => ({
+        _id: `task_${i}`,
+        title: "Fix Leaking Kitchen Sink",
+        postedBy: "aisha.musa@taskhubdemo.com",
+        category: "Cleaning services",
+        budget: 40000,
+        status:
+          i === 0
+            ? "In progress"
+            : i === 1
+              ? "Open"
+              : i === 2
+                ? "Completed"
+                : "Assigned",
+        date: "02/02/2025",
+      }));
+
+    const mockTaskers = Array(4)
+      .fill(null)
+      .map((_, i) => ({
+        _id: `tasker_${i}`,
+        fullName:
+          i === 2
+            ? "Ibrahim Yusuf"
+            : i === 3
+              ? "Ngozi Adekunle"
+              : "Adewale Thompson",
+        email:
+          i === 2
+            ? "ibrahim.y@example.com"
+            : i === 3
+              ? "ngozi.a@example.com"
+              : "adewale.t@example.com",
+        category: "Cleaning services",
+        status: i === 1 ? ("Suspended" as const) : ("Active" as const),
+        verification:
+          i === 0 || i === 1
+            ? ("Verified" as const)
+            : i === 2
+              ? ("Not verified" as const)
+              : ("Pending" as const),
+        lastActive: "7:25PM, 11/15/2025",
+      }));
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          category: mockCategory,
+          stats: {
+            totalServices: 4,
+            activeServices: 1,
+            taskers: 184,
+            revenue: 459045.1,
+          },
+          tasks: mockTasks,
+          taskers: mockTaskers,
+        });
+      }, 500);
+    });
+  },
+
+  createCategory: async (
+    data: CreateCategoryRequest,
+  ): Promise<AdminCategory> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          _id: `cat_${Date.now()}`,
+          ...data,
+          serviceCount: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }, 600);
+    });
+  },
+
+  updateCategory: async (
+    id: string,
+    data: UpdateCategoryRequest,
+  ): Promise<AdminCategory> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          _id: id,
+          name: data.name || "Updated Category",
+          description: data.description || "Updated Description",
+          minPrice: data.minPrice || 0,
+          status: data.status || "Active",
+          serviceCount: 5,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }, 600);
+    });
+  },
+
+  deleteCategory: async (id: string): Promise<{ success: boolean }> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ success: true });
+      }, 600);
+    });
   },
 };

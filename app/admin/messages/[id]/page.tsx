@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import {
   AlertTriangle,
   Loader2,
@@ -17,9 +17,9 @@ import { useConversationDetails, useSendAdminMessage } from "@/hooks/useAdmin";
 export default function MessageDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = use(params);
   const { data: detailData, isLoading, isError } = useConversationDetails(id);
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);

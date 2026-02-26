@@ -13,7 +13,6 @@ import {
   History,
   Wallet,
   CheckCircle2,
-  Clock,
   XCircle,
   X,
   Lock,
@@ -34,7 +33,7 @@ import {
   useSoftDeleteUser,
 } from "@/hooks/useAdmin";
 import { formatCurrency } from "@/lib/utils";
-import { useState } from "react";
+import { useState, use } from "react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -46,15 +45,15 @@ import {
 export default function UserDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = use(params);
   const { data: detailData, isLoading, isError } = useUserDetails(id);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [deactivateReason, setDeactivateReason] = useState("");
   const [isLockModalOpen, setIsLockModalOpen] = useState(false);
   const [lockReason, setLockReason] = useState("");
-  const [lockDuration, setLockDuration] = useState(24); // hours
+  const [lockDuration, setLockDuration] = useState(24);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteReason, setDeleteReason] = useState("");
 
@@ -84,7 +83,17 @@ export default function UserDetailsPage({
     );
   }
 
-  const { user, stats, recentTasks, recentTransactions } = detailData;
+  const {
+    user,
+    wallet,
+    verification,
+    tasks,
+    transactions,
+    activityLog,
+    stats,
+    recentTasks,
+    recentTransactions,
+  } = detailData;
 
   const handleDeactivate = () => {
     deactivate(
@@ -134,9 +143,13 @@ export default function UserDetailsPage({
     );
   };
 
+  const allTasks = tasks || recentTasks || [];
+  const allTransactions = transactions || recentTransactions || [];
+
   return (
-    <div className='space-y-6 md:space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto relative'>
-      <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
+    <div className='space-y-6 p-4 md:p-8 max-w-[1400px] mx-auto relative'>
+      {/* ── Header ── */}
+      <div className='flex items-center justify-between gap-4'>
         <div className='flex items-center gap-4'>
           <Link href='/admin/users'>
             <Button
@@ -156,7 +169,9 @@ export default function UserDetailsPage({
             </p>
           </div>
         </div>
+
         <div className='flex items-center gap-3'>
+          {/* Primary: Suspend / Activate */}
           <Button
             onClick={handleToggleStatus}
             disabled={
@@ -176,7 +191,7 @@ export default function UserDetailsPage({
               <Loader2 size={18} className='animate-spin' />
             ) : user.isActive ? (
               <>
-                <Ban size={18} /> Deactivate User
+                <Ban size={18} /> Suspend User
               </>
             ) : (
               <>
@@ -185,6 +200,7 @@ export default function UserDetailsPage({
             )}
           </Button>
 
+          {/* More Actions dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -239,10 +255,12 @@ export default function UserDetailsPage({
         </div>
       </div>
 
-      <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
-        <CardContent className='p-6 md:p-8'>
-          <div className='flex flex-col md:flex-row items-center gap-6'>
-            <div className='w-20 h-20 md:w-24 md:h-24 rounded-full bg-purple-50 flex items-center justify-center text-[#6B46C1] overflow-hidden border border-purple-100 shrink-0'>
+      {/* ── Profile Card ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <CardContent className='p-5 md:p-6'>
+          <div className='flex items-center gap-4'>
+            {/* Avatar */}
+            <div className='w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-lg font-bold shrink-0 overflow-hidden'>
               {user.profilePicture ? (
                 <img
                   src={user.profilePicture}
@@ -250,59 +268,66 @@ export default function UserDetailsPage({
                   className='w-full h-full object-cover'
                 />
               ) : (
-                <ArrowLeft size={40} className='rotate-180 opacity-20' />
+                <span>
+                  {user.fullName
+                    ?.split(" ")
+                    .map((w: string) => w[0])
+                    .join("")
+                    .toUpperCase()
+                    .substring(0, 2)}
+                </span>
               )}
             </div>
-            <div className='flex-1 text-center md:text-left space-y-4 md:space-y-6 w-full'>
-              <div className='flex flex-col md:flex-row items-center justify-between gap-4'>
-                <div className='flex flex-wrap items-center justify-center md:justify-start gap-3'>
-                  <h2 className='text-xl md:text-2xl font-bold text-gray-900'>
-                    {user.fullName}
-                  </h2>
-                  <span
-                    className={`${
-                      user.isEmailVerified
-                        ? "bg-blue-50 text-[#3B82F6]"
-                        : "bg-gray-50 text-gray-400"
-                    } text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide`}
-                  >
-                    {user.isEmailVerified ? "VERIFIED" : "UNVERIFIED"}
+
+            {/* Name + badges + contact */}
+            <div className='flex-1 min-w-0'>
+              <div className='flex flex-wrap items-center gap-2 mb-2'>
+                <h2 className='text-base md:text-lg font-bold text-gray-900'>
+                  {user.fullName}
+                </h2>
+                <span
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                    user.isEmailVerified
+                      ? "bg-blue-50 text-blue-600 border border-blue-200"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
+                >
+                  {user.isEmailVerified ? "Verified" : "Unverified"}
+                </span>
+                <span
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                    user.isActive
+                      ? "bg-green-50 text-green-600 border border-green-200"
+                      : "bg-red-50 text-red-500 border border-red-200"
+                  }`}
+                >
+                  {user.isActive ? "Active" : "Inactive"}
+                </span>
+                {user.isLocked && (
+                  <span className='text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-500 border border-red-200 flex items-center gap-1'>
+                    <ShieldAlert size={10} /> Locked
                   </span>
-                  <span
-                    className={`${
-                      user.isActive
-                        ? "bg-green-50 text-[#10B981]"
-                        : "bg-red-50 text-[#EF4444]"
-                    } text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide`}
-                  >
-                    {user.isActive ? "ACTIVE" : "DEACTIVATED"}
-                  </span>
-                  {user.isLocked && (
-                    <span className='bg-red-100 text-[#EF4444] text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide flex items-center gap-1'>
-                      <ShieldAlert size={12} /> LOCKED
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
-              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-4 gap-x-8 text-sm'>
-                <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
-                  <Mail size={16} className='text-gray-400' />
-                  <span className='truncate max-w-[150px] md:max-w-none'>
-                    {user.emailAddress}
-                  </span>
+
+              {/* Contact row */}
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-1.5 text-sm text-gray-600'>
+                <div className='flex items-center gap-2'>
+                  <Mail size={14} className='text-gray-400 shrink-0' />
+                  <span className='truncate'>{user.emailAddress}</span>
                 </div>
-                <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
-                  <Phone size={16} className='text-gray-400' />
+                <div className='flex items-center gap-2'>
+                  <Phone size={14} className='text-gray-400 shrink-0' />
                   <span>{user.phoneNumber || "Not provided"}</span>
                 </div>
-                <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
-                  <MapPin size={16} className='text-gray-400' />
+                <div className='flex items-center gap-2'>
+                  <MapPin size={14} className='text-gray-400 shrink-0' />
                   <span>
                     {user.residentState || "N/A"}, {user.country || "N/A"}
                   </span>
                 </div>
-                <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
-                  <Calendar size={16} className='text-gray-400' />
+                <div className='flex items-center gap-2'>
+                  <Calendar size={14} className='text-gray-400 shrink-0' />
                   <span>
                     Joined {new Date(user.createdAt).toLocaleDateString()}
                   </span>
@@ -313,281 +338,326 @@ export default function UserDetailsPage({
         </CardContent>
       </Card>
 
+      {/* ── Three info cards ── */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] h-full'>
-          <CardHeader className='pb-4'>
-            <CardTitle className='text-sm md:text-base font-bold text-gray-900 flex items-center gap-2'>
-              <ShieldCheck size={18} className='text-[#6B46C1]' />
+        {/* KYC Information */}
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <CardHeader className='pb-2'>
+            <CardTitle className='text-sm font-bold text-gray-900'>
               KYC Information
             </CardTitle>
           </CardHeader>
-          <CardContent className='space-y-5'>
-            <div className='space-y-1.5'>
-              <div className='text-xs text-gray-500 font-medium'>NIN</div>
-              <div className='text-sm font-bold text-gray-900'>
-                {/* Assuming user.nin exists or we use a placeholder */}
-                {(user as any).nin || "Not uploaded"}
-              </div>
+          <CardContent className='space-y-4'>
+            <div>
+              <p className='text-xs text-gray-400 mb-1'>NIN</p>
+              <p className='text-sm font-bold text-gray-900'>
+                {(verification as any)?.nin ?? (user as any)?.nin ?? "—"}
+              </p>
             </div>
-            <div className='space-y-2'>
-              <div className='text-xs text-gray-500 font-medium'>
-                Verification Status
-              </div>
-              <div>
-                <span
-                  className={`${
-                    user.isKYCVerified
-                      ? "bg-emerald-50 text-emerald-600"
-                      : "bg-yellow-50 text-yellow-600"
-                  } text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-full inline-block uppercase`}
-                >
-                  {user.isKYCVerified ? "Verified" : "Pending / Not Started"}
-                </span>
-              </div>
+            <div>
+              <p className='text-xs text-gray-400 mb-1'>Verification Status</p>
+              <span
+                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${
+                  verification?.status === "verified" || user.isKYCVerified
+                    ? "bg-blue-50 text-blue-600 border border-blue-200"
+                    : "bg-gray-100 text-gray-400"
+                }`}
+              >
+                {verification?.status === "verified" || user.isKYCVerified
+                  ? "Verified"
+                  : "Not Submitted"}
+              </span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] h-full'>
-          <CardHeader className='pb-4'>
-            <CardTitle className='text-sm md:text-base font-bold text-gray-900 flex items-center gap-2'>
-              <History size={18} className='text-[#6B46C1]' />
+        {/* Statistics */}
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <CardHeader className='pb-2'>
+            <CardTitle className='text-sm font-bold text-gray-900'>
               Statistics
             </CardTitle>
           </CardHeader>
-          <CardContent className='space-y-4'>
+          <CardContent className='space-y-3'>
             <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Total Tasks</span>
+              <span className='text-gray-500'>Total Tasks</span>
               <span className='font-bold text-gray-900'>
-                {stats.tasks.total}
+                {stats?.tasks?.total ?? allTasks.length ?? 0}
               </span>
             </div>
             <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Completed Tasks</span>
+              <span className='text-gray-500'>Active Tasks</span>
               <span className='font-bold text-gray-900'>
-                {stats.tasks.completed}
+                {(stats?.tasks as any)?.active ??
+                  allTasks.filter((t: any) => t.status === "in_progress")
+                    .length ??
+                  0}
               </span>
             </div>
             <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Cancelled Tasks</span>
-              <span className='font-bold text-red-500'>
-                {stats.tasks.cancelled}
-              </span>
-            </div>
-            <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Total Spent</span>
+              <span className='text-gray-500'>Completed Tasks</span>
               <span className='font-bold text-gray-900'>
-                {formatCurrency(stats.financials.totalSpent)}
+                {stats?.tasks?.completed ??
+                  allTasks.filter((t: any) => t.status === "completed")
+                    .length ??
+                  0}
               </span>
             </div>
             <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Escrow Held</span>
-              <span className='font-bold text-[#6B46C1]'>
-                {formatCurrency(stats.financials.escrowHeld)}
+              <span className='text-gray-500'>Total Transaction</span>
+              <span className='font-bold text-gray-900'>
+                {formatCurrency(stats?.financials?.totalSpent ?? 0)}
+              </span>
+            </div>
+            <div className='flex justify-between items-center text-sm'>
+              <span className='text-gray-500'>Current balance</span>
+              <span className='font-bold text-gray-900'>
+                {formatCurrency(wallet?.balance ?? user?.wallet ?? 0)}
               </span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] h-full'>
-          <CardHeader className='pb-4'>
-            <CardTitle className='text-sm md:text-base font-bold text-gray-900 flex items-center gap-2'>
-              <Wallet size={18} className='text-[#6B46C1]' />
-              Financial Status
+        {/* Account Information */}
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <CardHeader className='pb-2'>
+            <CardTitle className='text-sm font-bold text-gray-900'>
+              Account Information
             </CardTitle>
           </CardHeader>
-          <CardContent className='space-y-5'>
-            <div className='space-y-1.5'>
-              <div className='text-xs text-gray-500 font-medium'>
-                Current Balance
-              </div>
-              <div className='text-2xl font-bold text-gray-900'>
-                {formatCurrency(user.wallet || 0)}
-              </div>
+          <CardContent className='space-y-3'>
+            <div>
+              <p className='text-xs text-gray-400 mb-0.5'>User ID</p>
+              <p className='text-sm font-bold text-gray-900'>
+                {(user as any)?.userId ?? user?._id ?? "—"}
+              </p>
             </div>
-            <div className='space-y-1.5'>
-              <div className='text-xs text-gray-500 font-medium'>
-                Average Task Budget
-              </div>
-              <div className='text-sm font-bold text-gray-900'>
-                {formatCurrency(stats.financials.averageTaskBudget)}
-              </div>
+            <div>
+              <p className='text-xs text-gray-400 mb-0.5'>Role</p>
+              <p className='text-sm font-bold text-gray-900'>
+                {(user as any)?.role ?? "User"}
+              </p>
+            </div>
+            <div>
+              <p className='text-xs text-gray-400 mb-0.5'>Last Updated</p>
+              <p className='text-sm font-bold text-gray-900'>
+                {user?.updatedAt
+                  ? new Date(user.updatedAt).toLocaleString()
+                  : "—"}
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
-        <CardHeader>
-          <CardTitle className='text-sm md:text-base font-bold text-gray-900 flex items-center gap-2'>
-            <MapPin size={18} className='text-[#6B46C1]' />
-            Address & Location
-          </CardTitle>
-        </CardHeader>
-        <CardContent className='space-y-4'>
-          <div className='space-y-1.5'>
-            <div className='text-xs text-gray-500 font-medium'>
-              Full Address
-            </div>
-            <div className='text-sm font-bold text-gray-900'>
-              {(user as any).address || "Not provided"}
-            </div>
+      {/* ── Address ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <CardContent className='p-5 md:p-6 space-y-3'>
+          <h3 className='text-sm font-bold text-gray-900'>Address</h3>
+          <div>
+            <p className='text-xs text-gray-400 mb-0.5'>Location</p>
+            <p className='text-sm font-bold text-gray-900'>
+              {[user.residentState, user.country].filter(Boolean).join(" ") ||
+                (user as any).address ||
+                "Not provided"}
+            </p>
           </div>
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='space-y-1.5'>
-              <div className='text-xs text-gray-500 font-medium'>State</div>
-              <div className='text-sm font-bold text-gray-900'>
-                {user.residentState || "N/A"}
-              </div>
-            </div>
-            <div className='space-y-1.5'>
-              <div className='text-xs text-gray-500 font-medium'>Country</div>
-              <div className='text-sm font-bold text-gray-900'>
-                {user.country || "N/A"}
-              </div>
-            </div>
+          <div>
+            <p className='text-xs text-gray-400 mb-0.5'>Last Updated</p>
+            <p className='text-sm text-gray-700'>
+              {user?.updatedAt
+                ? new Date(user.updatedAt).toLocaleString()
+                : "—"}
+            </p>
           </div>
         </CardContent>
       </Card>
 
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        {/* Recent Tasks */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] overflow-hidden'>
-          <CardHeader className='flex flex-row items-center justify-between p-6 md:p-8 pb-4'>
-            <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Recent Tasks ({recentTasks.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='p-0'>
-            <div className='overflow-x-auto'>
-              <table className='w-full text-left text-sm whitespace-nowrap'>
-                <thead>
-                  <tr className='border-b border-gray-50 text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider'>
-                    <th className='py-4 px-6 md:px-8 font-medium'>TITLE</th>
-                    <th className='py-4 px-6 font-medium'>BUDGET</th>
-                    <th className='py-4 px-6 font-medium text-right'>STATUS</th>
-                  </tr>
-                </thead>
-                <tbody className='divide-y divide-gray-50 text-xs md:text-sm'>
-                  {recentTasks.map((task) => (
-                    <tr
-                      key={task._id}
-                      className='group hover:bg-gray-50/50 transition-colors'
-                    >
-                      <td className='py-5 px-6 md:px-8 font-semibold text-gray-900 max-w-[200px] truncate'>
-                        {task.title}
-                      </td>
-                      <td className='py-5 px-6 font-bold text-gray-900'>
-                        {formatCurrency(task.budget)}
-                      </td>
-                      <td className='py-5 px-6 text-right'>
-                        <span
-                          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                            task.status === "completed"
+      {/* ── Posted Tasks ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+        <div className='flex items-center justify-between px-6 pt-5 pb-3'>
+          <h3 className='text-base font-bold text-gray-900'>
+            Posted Tasks ({allTasks.length})
+          </h3>
+          <button className='text-xs text-gray-400 hover:text-gray-600 font-medium'>
+            See all
+          </button>
+        </div>
+        <div className='overflow-x-auto'>
+          <table className='w-full text-left text-sm'>
+            <thead>
+              <tr className='border-b border-gray-100 text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider'>
+                <th className='py-3 px-6 font-medium'>Title</th>
+                <th className='py-3 px-6 font-medium'>Budget</th>
+                <th className='py-3 px-6 font-medium'>Status</th>
+                <th className='py-3 px-6 font-medium'>Date</th>
+              </tr>
+            </thead>
+            <tbody className='divide-y divide-gray-50 text-xs md:text-sm'>
+              {allTasks.map((task: any) => (
+                <tr
+                  key={task._id}
+                  className='hover:bg-gray-50/50 transition-colors'
+                >
+                  <td className='py-4 px-6 font-semibold text-gray-900 max-w-[180px] truncate'>
+                    {task.title}
+                  </td>
+                  <td className='py-4 px-6 font-bold text-gray-900'>
+                    {formatCurrency(task.budget)}
+                  </td>
+                  <td className='py-4 px-6'>
+                    <span
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${
+                        task.status === "completed"
+                          ? "bg-green-50 text-green-600"
+                          : task.status === "in_progress"
+                            ? "bg-blue-50 text-blue-600"
+                            : task.status === "open"
                               ? "bg-green-50 text-green-600"
-                              : task.status === "in_progress"
-                                ? "bg-blue-50 text-blue-600"
-                                : "bg-gray-50 text-gray-500"
-                          }`}
-                        >
-                          {task.status.replace("_", " ")}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {recentTasks.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={3}
-                        className='py-8 text-center text-gray-400 font-medium'
-                      >
-                        No tasks posted yet
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Transactions */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] overflow-hidden'>
-          <CardHeader className='flex flex-row items-center justify-between p-6 md:p-8 pb-4'>
-            <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Recent Transactions ({recentTransactions.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='p-0'>
-            <div className='overflow-x-auto'>
-              <table className='w-full text-left text-sm whitespace-nowrap'>
-                <thead>
-                  <tr className='border-b border-gray-50 text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider'>
-                    <th className='py-4 px-6 md:px-8 font-medium'>
-                      DESCRIPTION
-                    </th>
-                    <th className='py-4 px-6 font-medium text-right'>AMOUNT</th>
-                  </tr>
-                </thead>
-                <tbody className='divide-y divide-gray-50 text-xs md:text-sm'>
-                  {recentTransactions.map((tx) => (
-                    <tr
-                      key={tx._id}
-                      className='group hover:bg-gray-50/50 transition-colors'
+                              : "bg-gray-50 text-gray-500"
+                      }`}
                     >
-                      <td className='py-5 px-6 md:px-8'>
-                        <div className='font-medium text-gray-900'>
-                          {tx.description}
-                        </div>
-                        <div className='text-[10px] text-gray-400 mt-0.5'>
-                          {new Date(tx.createdAt).toLocaleString()}
-                        </div>
-                      </td>
-                      <td
-                        className={`py-5 px-6 text-right font-bold ${
-                          tx.type.includes("credit")
-                            ? "text-green-600"
-                            : "text-red-500"
+                      {task.status === "in_progress"
+                        ? "In progress"
+                        : task.status.charAt(0).toUpperCase() +
+                          task.status.slice(1)}
+                    </span>
+                  </td>
+                  <td className='py-4 px-6 text-gray-500 whitespace-nowrap'>
+                    {task.createdAt
+                      ? new Date(task.createdAt).toLocaleString()
+                      : "—"}
+                  </td>
+                </tr>
+              ))}
+              {allTasks.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className='py-8 text-center text-gray-400 font-medium'
+                  >
+                    No tasks posted yet
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* ── Transaction History ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+        <div className='flex items-center justify-between px-6 pt-5 pb-3'>
+          <h3 className='text-base font-bold text-gray-900'>
+            Transaction History
+          </h3>
+          <button className='text-xs text-gray-400 hover:text-gray-600 font-medium'>
+            See all
+          </button>
+        </div>
+        <div className='overflow-x-auto'>
+          <table className='w-full text-left text-sm'>
+            <thead>
+              <tr className='border-b border-gray-100 text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider'>
+                <th className='py-3 px-6 font-medium'>Description</th>
+                <th className='py-3 px-6 font-medium'>Type</th>
+                <th className='py-3 px-6 font-medium'>Amount</th>
+                <th className='py-3 px-6 font-medium'>Date</th>
+              </tr>
+            </thead>
+            <tbody className='divide-y divide-gray-50 text-xs md:text-sm'>
+              {allTransactions.map((tx: any) => {
+                const isCredit =
+                  tx.type?.toLowerCase().includes("credit") ||
+                  tx.type === "credit";
+                return (
+                  <tr
+                    key={tx._id}
+                    className='hover:bg-gray-50/50 transition-colors'
+                  >
+                    <td className='py-4 px-6 text-gray-900 font-medium max-w-[200px] truncate'>
+                      {tx.description}
+                    </td>
+                    <td className='py-4 px-6'>
+                      <span
+                        className={`text-xs font-semibold ${
+                          isCredit ? "text-green-600" : "text-red-500"
                         }`}
                       >
-                        {tx.type.includes("credit") ? "+" : "-"}
-                        {formatCurrency(tx.amount)}
-                      </td>
-                    </tr>
-                  ))}
-                  {recentTransactions.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={2}
-                        className='py-8 text-center text-gray-400 font-medium'
-                      >
-                        No transactions found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                        {isCredit ? "Credit" : "Debit"}
+                      </span>
+                    </td>
+                    <td className='py-4 px-6 font-bold text-gray-900'>
+                      {formatCurrency(tx.amount)}
+                    </td>
+                    <td className='py-4 px-6 text-gray-500 whitespace-nowrap'>
+                      {tx.createdAt
+                        ? new Date(tx.createdAt).toLocaleString()
+                        : "—"}
+                    </td>
+                  </tr>
+                );
+              })}
+              {allTransactions.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className='py-8 text-center text-gray-400 font-medium'
+                  >
+                    No transactions found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
-      {/* Deactivate User Modal */}
+      {/* ── Activity Log ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <div className='flex items-center justify-between px-6 pt-5 pb-3'>
+          <h3 className='text-base font-bold text-gray-900'>Activity Log</h3>
+          <button className='text-xs text-gray-400 hover:text-gray-600 font-medium'>
+            See all
+          </button>
+        </div>
+        <CardContent className='px-6 pb-6 pt-0 space-y-5'>
+          {(activityLog || []).map((log: any, idx: number) => (
+            <div key={idx} className='flex items-start gap-4'>
+              <div className='mt-1.5 w-2.5 h-2.5 rounded-full bg-[#6B46C1] shrink-0' />
+              <div>
+                <p className='text-sm font-bold text-gray-900'>{log.action}</p>
+                <p className='text-xs text-gray-500'>{log.details}</p>
+                <p className='text-xs text-gray-400 mt-0.5'>
+                  {log.date ? new Date(log.date).toLocaleString() : "—"}
+                </p>
+              </div>
+            </div>
+          ))}
+          {(activityLog || []).length === 0 && (
+            <div className='py-6 text-center text-gray-400 font-medium text-sm'>
+              No activity logs found
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Deactivate / Suspend Modal ── */}
       {isDeactivateModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
           <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl animate-in fade-in zoom-in duration-200'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-gray-900'>
-                  Deactivate User Account
+                  Suspend User Account
                 </h2>
                 <p className='text-sm text-gray-500 mt-1'>
-                  Are you sure you want to deactivate **{user.fullName}**?
+                  Suspend access for {user.fullName}
                 </p>
               </div>
               <button
                 onClick={() => setIsDeactivateModalOpen(false)}
-                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
+                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400'
               >
                 <X size={20} />
               </button>
@@ -599,7 +669,7 @@ export default function UserDetailsPage({
               </p>
               <div className='space-y-2'>
                 <label className='text-xs font-bold text-gray-700 uppercase'>
-                  Reason for Deactivation
+                  Reason for Suspension
                 </label>
                 <Input
                   placeholder='e.g. Violation of terms of service'
@@ -627,14 +697,14 @@ export default function UserDetailsPage({
                 ) : (
                   <Ban size={16} />
                 )}
-                Confirm Deactivation
+                Confirm Suspension
               </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Lock User Modal */}
+      {/* ── Lock User Modal ── */}
       {isLockModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
           <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl animate-in fade-in zoom-in duration-200'>
@@ -644,12 +714,12 @@ export default function UserDetailsPage({
                   Lock User Account
                 </h2>
                 <p className='text-sm text-gray-500 mt-1'>
-                  Temporarily restrict access for **{user.fullName}**.
+                  Temporarily restrict access for {user.fullName}
                 </p>
               </div>
               <button
                 onClick={() => setIsLockModalOpen(false)}
-                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
+                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400'
               >
                 <X size={20} />
               </button>
@@ -704,7 +774,7 @@ export default function UserDetailsPage({
         </div>
       )}
 
-      {/* Delete User Modal */}
+      {/* ── Delete User Modal ── */}
       {isDeleteModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
           <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl animate-in fade-in zoom-in duration-200'>
@@ -714,12 +784,12 @@ export default function UserDetailsPage({
                   Delete User Account
                 </h2>
                 <p className='text-sm text-gray-500 mt-1'>
-                  This is a **soft delete** for **{user.fullName}**.
+                  This is a soft delete for {user.fullName}
                 </p>
               </div>
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
+                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400'
               >
                 <X size={20} />
               </button>

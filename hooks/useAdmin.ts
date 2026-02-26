@@ -15,13 +15,49 @@ export function useAdminLogin() {
     mutationFn: (credentials: Parameters<typeof adminApi.login>[0]) =>
       adminApi.login(credentials),
     onSuccess: (data) => {
-      if (data?.data?.token) {
-        localStorage.setItem("token", data.data.token);
+      const token = (data as any)?.token || data?.data?.token;
+      const adminData = (data as any)?.admin || data?.data?.admin;
+
+      if (token) {
+        if (process.env.NODE_ENV === "development") {
+          console.log("[useAdminLogin] Success, setting session state...");
+        }
+
+        // Critical: Set userType BEFORE state sync so getProfile knows the role
         localStorage.setItem("userType", "admin");
+        localStorage.setItem("token", token);
+
+        // Set the user in the main auth query to prevent 404/redirect loops
+        if (adminData) {
+          const adminProfile = { ...adminData };
+
+          // Normalize fields for consistency across the app
+          if (!adminProfile._id && adminProfile.id)
+            adminProfile._id = adminProfile.id;
+          if (!adminProfile.fullName && adminProfile.name)
+            adminProfile.fullName = adminProfile.name;
+          if (!adminProfile.emailAddress && adminProfile.email)
+            adminProfile.emailAddress = adminProfile.email;
+
+          // Ensure role is preserved or defaulted
+          if (!adminProfile.role) adminProfile.role = "admin";
+
+          queryClient.setQueryData(["currentUser"], adminProfile);
+          if (process.env.NODE_ENV === "development") {
+            console.log(
+              "[useAdminLogin] Set currentUser query data (normalized):",
+              adminProfile,
+            );
+          }
+        }
 
         // Clear all queries and invalidate admin status
-        queryClient.clear();
         queryClient.invalidateQueries({ queryKey: ["admin"] });
+      } else {
+        console.error(
+          "[useAdminLogin] Login succeeded but no token found in response:",
+          data,
+        );
       }
     },
   });
@@ -565,5 +601,67 @@ export function useExportUsers() {
 export function useExportTaskers() {
   return useMutation({
     mutationFn: () => adminApi.exportTaskers(),
+  });
+}
+
+// ============================================================================
+// Categories Hooks
+// ============================================================================
+
+export function useAdminCategories() {
+  return useQuery({
+    queryKey: ["admin", "categories"],
+    queryFn: () => adminApi.getCategories(),
+  });
+}
+
+export function useAdminCategoryDetails(id: string) {
+  return useQuery({
+    queryKey: ["admin", "category", id],
+    queryFn: () => adminApi.getCategoryDetails(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateAdminCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Parameters<typeof adminApi.createCategory>[0]) =>
+      adminApi.createCategory(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "categories"] });
+    },
+  });
+}
+
+export function useUpdateAdminCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Parameters<typeof adminApi.updateCategory>[1];
+    }) => adminApi.updateCategory(id, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "categories"] });
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "category", variables.id],
+      });
+    },
+  });
+}
+
+export function useDeleteAdminCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => adminApi.deleteCategory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "categories"] });
+    },
   });
 }

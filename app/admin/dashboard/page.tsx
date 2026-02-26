@@ -89,19 +89,17 @@ export default function AdminDashboardPage() {
   const metrics = [
     {
       label: "Total Users",
-      value: stats?.users.total.toLocaleString() || "0",
-      trend: stats?.users.new_this_month
-        ? `+${stats.users.new_this_month}`
-        : "0",
+      value: stats?.cards?.totalUsers?.toLocaleString() || "0",
+      trend: stats?.growth ? `+${stats.growth}%` : "0%",
       trendType: "up",
       icon: Users,
       color: "bg-purple-100 text-purple-600",
     },
     {
       label: "Total Taskers",
-      value: stats?.taskers.total.toLocaleString() || "0",
-      trend: stats?.taskers.pending_verification
-        ? `${stats.taskers.pending_verification} pending`
+      value: stats?.cards?.totalTaskers?.toLocaleString() || "0",
+      trend: stats?.cards?.pendingKyc
+        ? `${stats.cards.pendingKyc} pending`
         : "0",
       trendType: "up",
       icon: Users2,
@@ -109,55 +107,51 @@ export default function AdminDashboardPage() {
     },
     {
       label: "Total Tasks",
-      value: stats?.tasks.total.toLocaleString() || "0",
-      trend: stats?.tasks.this_month ? `+${stats.tasks.this_month}` : "0",
+      value: stats?.cards?.totalTasks?.toLocaleString() || "0",
+      trend: "Recent",
       trendType: "up",
       icon: Briefcase,
       color: "bg-orange-100 text-orange-600",
     },
     {
       label: "Active Tasks",
-      value: (
-        (stats?.tasks.open || 0) + (stats?.tasks.in_progress || 0)
-      ).toLocaleString(),
-      trend: stats?.tasks.in_progress
-        ? `${stats.tasks.in_progress} in progress`
-        : "0",
+      value: (stats?.cards?.activeTasks || 0).toLocaleString(),
+      trend: "Live",
       trendType: "up",
       icon: BarChart3,
       color: "bg-indigo-100 text-indigo-600",
     },
     {
       label: "Completed Tasks",
-      value: stats?.tasks.completed.toLocaleString() || "0",
-      trend: "85%",
+      value: stats?.cards?.completedTasks?.toLocaleString() || "0",
+      trend: stats?.quickStats?.completionRate
+        ? `${stats.quickStats.completionRate}%`
+        : "0%",
       trendType: "up",
       icon: CheckCircle2,
       color: "bg-green-100 text-green-600",
     },
     {
       label: "Cancelled Tasks",
-      value: stats?.tasks.cancelled.toLocaleString() || "0",
-      trend: "5%",
+      value: stats?.cards?.cancelledTasks?.toLocaleString() || "0",
+      trend: "Total",
       trendType: "down",
       icon: XCircle,
       color: "bg-red-100 text-red-600",
     },
     {
       label: "Pending KYC",
-      value: stats?.kyc.pending.toLocaleString() || "0",
-      trend: stats?.kyc.pending_review
-        ? `${stats.kyc.pending_review} review`
-        : "0",
+      value: stats?.cards?.pendingKyc?.toLocaleString() || "0",
+      trend: "Awaiting",
       trendType: "up",
       icon: AlertCircle,
       color: "bg-yellow-100 text-yellow-600",
     },
     {
       label: "Total Revenue",
-      value: formatCurrency(stats?.financials.total_revenue || 0),
-      trend: stats?.financials.this_month_revenue
-        ? `+${formatCurrency(stats.financials.this_month_revenue)}`
+      value: formatCurrency(stats?.cards?.totalRevenue || 0),
+      trend: stats?.quickStats?.avgTaskValue
+        ? `Avg: ${formatCurrency(stats.quickStats.avgTaskValue)}`
         : "0",
       trendType: "up",
       icon: DollarSign,
@@ -208,8 +202,14 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
               <div className='mt-4'>
-                <div className='text-2xl font-bold'>{metric.value}</div>
-                <div className='text-xs text-gray-500 mt-1'>{metric.label}</div>
+                <div
+                  className={`text-2xl font-bold ${metric.color.split(" ").find((c: string) => c.startsWith("text-")) || "text-gray-900"}`}
+                >
+                  {metric.value}
+                </div>
+                <div className='text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-500'>
+                  {metric.label}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -246,7 +246,7 @@ export default function AdminDashboardPage() {
                       Healthy
                     </div>
                     <div className='text-[10px] text-gray-400'>
-                      UPTIME: {systemStats?.systemHealth.uptime}
+                      UPTIME: {systemStats?.systemHealth?.uptime || "N/A"}
                     </div>
                   </div>
                 </div>
@@ -260,10 +260,10 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className='space-y-1'>
                     <div className='text-lg font-bold text-green-600 uppercase'>
-                      {systemStats?.database.status}
+                      {systemStats?.database?.status || "CONNECTED"}
                     </div>
                     <div className='text-[10px] text-gray-400'>
-                      LATENCY: {systemStats?.database.responseTime}
+                      LATENCY: {systemStats?.database?.responseTime || "0ms"}
                     </div>
                   </div>
                 </div>
@@ -277,10 +277,10 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className='space-y-1'>
                     <div className='text-lg font-bold text-gray-900 uppercase'>
-                      {systemStats?.performance.avgResponseTime} avg
+                      {systemStats?.performance?.avgResponseTime || "0ms"} avg
                     </div>
                     <div className='text-[10px] text-gray-400'>
-                      ERROR RATE: {systemStats?.performance.errorRate}
+                      ERROR RATE: {systemStats?.performance?.errorRate || "0%"}
                     </div>
                   </div>
                 </div>
@@ -342,23 +342,19 @@ export default function AdminDashboardPage() {
                     Pending Requests
                   </span>
                   <span className='font-bold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full text-xs'>
-                    {stats?.kyc.pending}
+                    {stats?.cards?.pendingKyc || 0}
                   </span>
                 </div>
                 <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-500 font-medium'>
-                    Approved Today
+                  <span className='text-gray-500 font-medium'>Total Tasks</span>
+                  <span className='font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full text-xs'>
+                    {stats?.cards?.totalTasks || 0}
                   </span>
+                </div>
+                <div className='flex justify-between items-center text-sm'>
+                  <span className='text-gray-500 font-medium'>Revenue</span>
                   <span className='font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs'>
-                    {stats?.kyc.approved}
-                  </span>
-                </div>
-                <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-500 font-medium'>
-                    Rejected Today
-                  </span>
-                  <span className='font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full text-xs'>
-                    {stats?.kyc.rejected}
+                    {formatCurrency(stats?.cards?.totalRevenue || 0)}
                   </span>
                 </div>
               </div>
@@ -379,36 +375,25 @@ export default function AdminDashboardPage() {
               <div className='flex justify-between items-center text-sm'>
                 <span className='text-gray-500'>User to Tasker Ratio</span>
                 <span className='font-semibold'>
-                  {stats
-                    ? (stats.users.total / (stats.taskers.total || 1)).toFixed(
-                        1,
-                      )
-                    : "0.0"}
-                  :1
+                  {stats?.quickStats?.userToTaskerRatio || "0.0"}:1
                 </span>
               </div>
               <div className='flex justify-between items-center text-sm'>
                 <span className='text-gray-500'>Task Completion Rate</span>
                 <span className='font-semibold'>
-                  {stats
-                    ? Math.round(
-                        (stats.tasks.completed / (stats.tasks.total || 1)) *
-                          100,
-                      )
-                    : 0}
-                  %
+                  {stats?.quickStats?.completionRate || "0"}%
                 </span>
               </div>
               <div className='flex justify-between items-center text-sm'>
-                <span className='text-gray-500'>Verified Users</span>
-                <span className='font-semibold'>
-                  {stats?.users.verified.toLocaleString() || "0"}
+                <span className='text-gray-500'>Growth</span>
+                <span className='font-semibold text-purple-600'>
+                  +{stats?.growth || 0}%
                 </span>
               </div>
               <div className='flex justify-between items-center text-sm'>
-                <span className='text-gray-500'>Escrow Held</span>
+                <span className='text-gray-500'>Avg Task Value</span>
                 <span className='font-semibold text-emerald-600'>
-                  {formatCurrency(stats?.financials.escrow_held || 0)}
+                  {formatCurrency(stats?.quickStats?.avgTaskValue || 0)}
                 </span>
               </div>
             </CardContent>

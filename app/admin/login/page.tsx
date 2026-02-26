@@ -23,7 +23,7 @@ import { useAdminLogin } from "@/hooks/useAdmin";
 import Link from "next/link";
 
 const adminLoginSchema = z.object({
-  emailAddress: z.string().email("Invalid admin email address"),
+  email: z.string().email("Invalid admin email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
   const form = useForm<AdminLoginValues>({
     resolver: zodResolver(adminLoginSchema),
     defaultValues: {
-      emailAddress: "",
+      email: "",
       password: "",
     },
   });
@@ -99,12 +99,12 @@ export default function AdminLoginPage() {
                     type='email'
                     placeholder='admin@taskhub.com'
                     className='pl-10 h-12 bg-gray-50/50 border-gray-100 rounded-xl focus-visible:ring-[#6B46C1]'
-                    {...form.register("emailAddress")}
+                    {...form.register("email")}
                   />
                 </div>
-                {form.formState.errors.emailAddress && (
+                {form.formState.errors.email && (
                   <p className='text-[10px] font-bold text-red-500 mt-1 uppercase'>
-                    {form.formState.errors.emailAddress.message}
+                    {form.formState.errors.email.message}
                   </p>
                 )}
               </div>

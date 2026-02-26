@@ -22,28 +22,22 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     if (settings) {
       setLocalSettings({
-        "system.maintenanceMode": settings.system.maintenanceMode,
-        "system.registrationEnabled": settings.system.registrationEnabled,
-        "system.taskCreationEnabled": settings.system.taskCreationEnabled,
-        "system.biddingEnabled": settings.system.biddingEnabled,
-        "system.paymentsEnabled": settings.system.paymentsEnabled,
-        "features.ninVerification": settings.features.ninVerification,
-        "features.kycVerification": settings.features.kycVerification,
-        "features.pushNotifications": settings.features.pushNotifications,
-        "features.emailNotifications": settings.features.emailNotifications,
-        "features.smsNotifications": settings.features.smsNotifications,
-        "fees.platform_fee_percentage": settings.fees.platform_fee_percentage,
-        "fees.withdrawal_fee": settings.fees.withdrawal_fee,
-        "fees.payment_gateway_fee_percentage":
-          settings.fees.payment_gateway_fee_percentage,
-        "limits.max_task_budget": settings.limits.max_task_budget,
-        "limits.min_task_budget": settings.limits.min_task_budget,
-        "limits.max_withdrawal": settings.limits.max_withdrawal,
-        "limits.min_withdrawal": settings.limits.min_withdrawal,
-        "security.max_login_attempts":
-          settings.security?.max_login_attempts ?? 5,
-        "security.session_timeout_minutes":
-          settings.security?.session_timeout_minutes ?? 60,
+        "system.maintenanceMode": settings.system?.maintenanceMode ?? false,
+        "system.newUserRegistrations":
+          settings.system?.newUserRegistrations ?? true,
+        "system.taskPostingEnabled":
+          settings.system?.taskPostingEnabled ?? true,
+        "security.twoFactorAuthRequired":
+          settings.security?.twoFactorAuthRequired ?? false,
+        "security.sessionTimeout": settings.security?.sessionTimeout ?? 30,
+        "security.ipWhitelistEnabled":
+          settings.security?.ipWhitelistEnabled ?? false,
+        "notifications.emailNotifications":
+          settings.notifications?.emailNotifications ?? true,
+        "notifications.reportAlerts":
+          settings.notifications?.reportAlerts ?? true,
+        "notifications.kycSubmissionAlerts":
+          settings.notifications?.kycSubmissionAlerts ?? true,
       });
     }
   }, [settings]);
@@ -159,94 +153,41 @@ export default function AdminSettingsPage() {
               "Temporarily disable user access",
             )}
             {toggleSetting(
-              "system.registrationEnabled",
+              "system.newUserRegistrations",
               "New User Registrations",
               "Allow new users to sign up",
             )}
             {toggleSetting(
-              "system.taskCreationEnabled",
+              "system.taskPostingEnabled",
               "Task Posting Enabled",
               "Allow users to post new tasks",
-            )}
-            {toggleSetting(
-              "system.biddingEnabled",
-              "Bidding Enabled",
-              "Allow taskers to bid on tasks",
-            )}
-            {toggleSetting(
-              "system.paymentsEnabled",
-              "Payments Enabled",
-              "Allow payment processing",
             )}
           </CardContent>
         </Card>
 
-        {/* Feature Toggles */}
+        {/* Notifications & Alerts */}
         <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Feature Toggles
+              Notifications & Alerts
             </CardTitle>
           </CardHeader>
           <CardContent className='p-6 md:p-8 pt-0 space-y-6 md:space-y-8'>
             {toggleSetting(
-              "features.ninVerification",
-              "NIN Verification",
-              "Enable NIN verification checks",
-            )}
-            {toggleSetting(
-              "features.kycVerification",
-              "KYC Verification",
-              "Enable KYC verification flow",
-            )}
-            {toggleSetting(
-              "features.pushNotifications",
-              "Push Notifications",
-              "Send push notifications",
-            )}
-            {toggleSetting(
-              "features.emailNotifications",
+              "notifications.emailNotifications",
               "Email Notifications",
               "Send email alerts to users",
             )}
             {toggleSetting(
-              "features.smsNotifications",
-              "SMS Notifications",
-              "Send SMS notifications",
+              "notifications.reportAlerts",
+              "Report Alerts",
+              "Notify admin of new reports",
             )}
-          </CardContent>
-        </Card>
-
-        {/* Fees */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
-          <CardHeader className='p-6 md:p-8 pb-4'>
-            <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Platform Fees
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='p-6 md:p-8 pt-0 space-y-6 md:space-y-8'>
-            {numberSetting("fees.platform_fee_percentage", "Platform Fee", "%")}
-            {numberSetting("fees.withdrawal_fee", "Withdrawal Fee", "₦")}
-            {numberSetting(
-              "fees.payment_gateway_fee_percentage",
-              "Payment Gateway Fee",
-              "%",
+            {toggleSetting(
+              "notifications.kycSubmissionAlerts",
+              "KYC Submission Alerts",
+              "Notify admin of new KYC submissions",
             )}
-          </CardContent>
-        </Card>
-
-        {/* Limits */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
-          <CardHeader className='p-6 md:p-8 pb-4'>
-            <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Budget & Withdrawal Limits
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='p-6 md:p-8 pt-0 space-y-6 md:space-y-8'>
-            {numberSetting("limits.min_task_budget", "Min Task Budget", "₦")}
-            {numberSetting("limits.max_task_budget", "Max Task Budget", "₦")}
-            {numberSetting("limits.min_withdrawal", "Min Withdrawal", "₦")}
-            {numberSetting("limits.max_withdrawal", "Max Withdrawal", "₦")}
           </CardContent>
         </Card>
 
@@ -254,16 +195,21 @@ export default function AdminSettingsPage() {
         <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Security
+              Security Settings
             </CardTitle>
           </CardHeader>
           <CardContent className='p-6 md:p-8 pt-0 space-y-6 md:space-y-8'>
-            {numberSetting("security.max_login_attempts", "Max Login Attempts")}
-            {numberSetting(
-              "security.session_timeout_minutes",
-              "Session Timeout",
-              "min",
+            {toggleSetting(
+              "security.twoFactorAuthRequired",
+              "2FA Required",
+              "Force admins to use two-factor authentication",
             )}
+            {toggleSetting(
+              "security.ipWhitelistEnabled",
+              "IP Whitelisting",
+              "Restrict admin access to specific IP ranges",
+            )}
+            {numberSetting("security.sessionTimeout", "Session Timeout", "min")}
           </CardContent>
         </Card>
 

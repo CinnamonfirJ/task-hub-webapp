@@ -104,9 +104,9 @@ export function DashboardHeader() {
                   </p>
                 </div>
                 <div className='h-9 w-9 sm:h-10 sm:w-10 rounded-full overflow-hidden shrink-0 border border-gray-200 shadow-sm bg-gray-50 flex items-center justify-center'>
-                  {activeUser?.profilePicture ? (
+                  {(activeUser as any)?.profilePicture ? (
                     <img
-                      src={activeUser.profilePicture}
+                      src={(activeUser as any).profilePicture}
                       alt='Profile'
                       className='h-full w-full object-cover'
                     />

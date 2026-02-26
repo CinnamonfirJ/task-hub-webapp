@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import {
   ArrowLeft,
   CheckCircle,
@@ -17,8 +17,12 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useKYCRequests, useApproveKYC, useRejectKYC } from "@/hooks/useAdmin";
 
-export default function KYCDetailsPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function KYCDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const { data: kycData, isLoading } = useKYCRequests({ status: undefined });
   const record = kycData?.records?.find((r) => r._id === id);
 

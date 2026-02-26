@@ -29,47 +29,47 @@ export default function AdminLayout({
     if (isMounted && !isLoadingUser && !isLoginPage) {
       if (!isAuthenticated) {
         router.replace("/admin/login");
-      } else if (user?.role !== "admin" && user?.role !== "super_admin") {
-        // Handled by return if we want immediate 404, or we can use notFound() here
       }
     }
   }, [isMounted, isLoadingUser, isAuthenticated, user, isLoginPage, router]);
-
-  if (!FEATURES.admin) {
-    notFound();
-  }
-
-  // Purely client-side mount check
-  if (!isMounted) return null;
 
   // Don't wrap login page with security logic or sidebar
   if (isLoginPage) {
     return <>{children}</>;
   }
 
-  if (isLoadingUser) {
-    return (
-      <div className='flex h-screen w-full flex-col items-center justify-center space-y-4 bg-[#F8F9FC]'>
-        <Loader2 className='h-10 w-10 animate-spin text-[#6B46C1]' />
-        <p className='text-sm font-medium text-gray-500'>
-          Checking admin authorization...
-        </p>
-      </div>
-    );
-  }
+  // Purely client-side mount check
+  if (!isMounted) return null;
 
-  // If authenticated but not an admin, show 404
-  if (
-    isAuthenticated &&
-    user?.role !== "admin" &&
-    user?.role !== "super_admin"
-  ) {
-    notFound();
-  }
+  // 2. Authentication check
+  // If we have a token but no user yet, wait for isLoadingUser
+  const hasToken =
+    typeof window !== "undefined" && !!localStorage.getItem("token");
 
-  // If not authenticated, the useEffect will handle the redirect, but we return null to avoid flashing
   if (!isAuthenticated) {
+    if (hasToken) {
+      // We have a token but no user object, wait for the query to finish
+      return (
+        <div className='flex h-screen w-full flex-col items-center justify-center space-y-4 bg-[#F8F9FC]'>
+          <Loader2 className='h-10 w-10 animate-spin text-[#6B46C1]' />
+          <p className='text-sm font-medium text-gray-500'>
+            Verifying session...
+          </p>
+        </div>
+      );
+    }
+    // No token, useEffect handles the actual router push
     return null;
+  }
+
+  // 3. Authorization check (Only allow staff roles)
+  const isStaff = user?.role !== "user" && user?.role !== "tasker";
+
+  if (!isStaff) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[AdminLayout] Non-staff user blocked:", user?.role);
+    }
+    notFound();
   }
 
   return (

@@ -168,7 +168,7 @@ export default function MessagesLayout({
                         />
                       )}
                       <span className='text-[10px] font-bold text-gray-400 uppercase'>
-                        {conv.type.replace("_", " ")}
+                        {conv.type?.replace("_", " ") || "unknown"}
                       </span>
                       {conv.priority && (
                         <span

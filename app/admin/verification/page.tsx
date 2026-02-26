@@ -45,20 +45,23 @@ export default function KYCManagementPage() {
   const pagination = kycData?.pagination;
 
   const summaryMetrics = [
-    { label: "Total Submissions", value: String(kycStats?.total ?? "—") },
+    {
+      label: "Total Submissions",
+      value: kycStats?.total?.toLocaleString() || "0",
+    },
     {
       label: "Pending Review",
-      value: String(kycStats?.pending ?? "—"),
+      value: kycStats?.pending?.toLocaleString() || "0",
       color: "text-yellow-500",
     },
     {
       label: "Approved",
-      value: String(kycStats?.approved ?? "—"),
+      value: kycStats?.approved?.toLocaleString() || "0",
       color: "text-green-500",
     },
     {
       label: "Rejected",
-      value: String(kycStats?.rejected ?? "—"),
+      value: kycStats?.rejected?.toLocaleString() || "0",
       color: "text-red-500",
     },
   ];
@@ -88,10 +91,12 @@ export default function KYCManagementPage() {
         {summaryMetrics.map((metric, idx) => (
           <Card key={idx} className='border-none shadow-sm'>
             <CardContent className='p-4'>
-              <div className='text-xl font-bold'>{metric.value}</div>
               <div
-                className={`text-[10px] mt-1 font-semibold uppercase tracking-wider ${metric.color || "text-gray-500"}`}
+                className={`text-xl font-bold ${metric.color || "text-gray-900"}`}
               >
+                {metric.value}
+              </div>
+              <div className='text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-500'>
                 {metric.label}
               </div>
             </CardContent>

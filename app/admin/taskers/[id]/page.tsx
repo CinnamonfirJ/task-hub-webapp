@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import {
   ArrowLeft,
   Ban,
@@ -12,25 +12,16 @@ import {
   Loader2,
   XCircle,
   ShieldCheck,
-  ShieldAlert,
   X,
-  MoreVertical,
-  ChevronDown,
   CheckCircle2,
-  Briefcase,
   DollarSign,
-  Clock,
-  TrendingUp,
+  LogIn,
+  CheckSquare,
+  UserCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import {
   useTaskerDetails,
@@ -43,9 +34,9 @@ import { formatCurrency } from "@/lib/utils";
 export default function TaskerDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = use(params);
   const { data: detailData, isLoading, isError } = useTaskerDetails(id);
 
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
@@ -78,8 +69,9 @@ export default function TaskerDetailsPage({
     );
   }
 
-  const { tasker, stats, recentTasks, reviews } = detailData;
-  const fullName = `${tasker.firstName} ${tasker.lastName}`;
+  const { tasker, stats, recentTasks, reviews, account, kyc } = detailData;
+  const activityLog = detailData?.activityLog ?? [];
+  const fullName = account?.fullName;
 
   const handleSuspend = () => {
     suspend(
@@ -109,10 +101,16 @@ export default function TaskerDetailsPage({
     );
   };
 
+  const activityIconMap: Record<string, React.ReactNode> = {
+    login: <LogIn size={14} className='text-[#6B46C1]' />,
+    task_completed: <CheckSquare size={14} className='text-green-500' />,
+    profile_update: <UserCog size={14} className='text-blue-500' />,
+  };
+
   return (
-    <div className='space-y-6 md:space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto relative'>
-      {/* Header */}
-      <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
+    <div className='space-y-6 p-4 md:p-8 max-w-[1400px] mx-auto relative'>
+      {/* ── Header ── */}
+      <div className='flex items-center justify-between gap-4'>
         <div className='flex items-center gap-4'>
           <Link href='/admin/taskers'>
             <Button
@@ -128,351 +126,183 @@ export default function TaskerDetailsPage({
               Tasker Details
             </h1>
             <p className='text-xs md:text-sm text-gray-500'>
-              View and manage tasker information
+              View and manage User Information
             </p>
           </div>
         </div>
 
-        <div className='flex items-center gap-3'>
-          <Button
-            onClick={
-              tasker.isSuspended
-                ? handleActivate
-                : () => setIsSuspendModalOpen(true)
-            }
-            disabled={isSuspending || isActivating}
-            className={`${
-              tasker.isSuspended
-                ? "bg-[#10B981] hover:bg-[#059669]"
-                : "bg-[#EF4444] hover:bg-[#DC2626]"
-            } text-white gap-2 h-10 px-6 font-semibold rounded-xl min-w-[160px] transition-all`}
-          >
-            {isSuspending || isActivating ? (
-              <Loader2 size={18} className='animate-spin' />
-            ) : tasker.isSuspended ? (
-              <>
-                <ShieldCheck size={18} /> Activate Tasker
-              </>
-            ) : (
-              <>
-                <Ban size={18} /> Suspend Tasker
-              </>
-            )}
-          </Button>
-
-          {!tasker.verifyIdentity && (
-            <Button
-              onClick={() => setIsVerifyModalOpen(true)}
-              disabled={isVerifying}
-              className='bg-[#3B82F6] hover:bg-[#2563EB] text-white gap-2 h-10 px-6 font-semibold rounded-xl transition-all'
-            >
-              {isVerifying ? (
-                <Loader2 size={18} className='animate-spin' />
-              ) : (
-                <>
-                  <CheckCircle2 size={18} /> Verify Profile
-                </>
-              )}
-            </Button>
+        {/* Suspend / Activate button */}
+        {/* <Button
+          onClick={
+            tasker.isSuspended
+              ? handleActivate
+              : () => setIsSuspendModalOpen(true)
+          }
+          disabled={isSuspending || isActivating}
+          className={`${
+            tasker.isSuspended
+              ? "bg-[#10B981] hover:bg-[#059669]"
+              : "bg-[#EF4444] hover:bg-[#DC2626]"
+          } text-white gap-2 h-10 px-6 font-semibold rounded-xl min-w-[160px] transition-all`}
+        >
+          {isSuspending || isActivating ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : tasker.isSuspended ? (
+            <>
+              <ShieldCheck size={18} /> Activate Tasker
+            </>
+          ) : (
+            <>
+              <Ban size={18} /> Suspend Tasker
+            </>
           )}
-        </div>
+        </Button> */}
       </div>
 
-      {/* Profile Card */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
-        <CardContent className='p-6 md:p-8'>
-          <div className='flex flex-col md:flex-row items-center gap-6'>
-            <div className='w-20 h-20 md:w-24 md:h-24 rounded-full bg-purple-50 flex items-center justify-center text-[#6B46C1] overflow-hidden border border-purple-100 shrink-0'>
-              {tasker.profilePicture ? (
-                <img
-                  src={tasker.profilePicture}
-                  alt={fullName}
-                  className='w-full h-full object-cover'
-                />
-              ) : (
-                <span className='text-2xl font-bold'>
-                  {tasker.firstName[0]}
-                  {tasker.lastName[0]}
-                </span>
-              )}
-            </div>
-            <div className='flex-1 text-center md:text-left space-y-4 md:space-y-6 w-full'>
-              <div className='flex flex-wrap items-center justify-center md:justify-start gap-3'>
-                <h2 className='text-xl md:text-2xl font-bold text-gray-900'>
-                  {fullName}
-                </h2>
-                <span
-                  className={`${
-                    tasker.verifyIdentity
-                      ? "bg-blue-50 text-[#3B82F6]"
-                      : "bg-gray-50 text-gray-400"
-                  } text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide`}
-                >
-                  {tasker.verifyIdentity ? "VERIFIED" : "UNVERIFIED"}
-                </span>
-                <span
-                  className={`${
-                    tasker.isSuspended
-                      ? "bg-red-50 text-[#EF4444]"
-                      : tasker.isActive
-                        ? "bg-green-50 text-[#10B981]"
-                        : "bg-gray-50 text-gray-400"
-                  } text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide`}
-                >
-                  {tasker.isSuspended
-                    ? "SUSPENDED"
-                    : tasker.isActive
-                      ? "ACTIVE"
-                      : "INACTIVE"}
-                </span>
-                {tasker.rating > 0 && (
-                  <span className='bg-amber-50 text-amber-600 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1'>
-                    <Star size={12} className='fill-amber-500 text-amber-500' />
-                    {tasker.rating.toFixed(1)}
-                  </span>
-                )}
-              </div>
-              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-4 gap-x-8 text-sm'>
-                <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
-                  <Mail size={16} className='text-gray-400' />
-                  <span className='truncate max-w-[150px] md:max-w-none'>
-                    {tasker.emailAddress}
-                  </span>
-                </div>
-                <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
-                  <Phone size={16} className='text-gray-400' />
-                  <span>{tasker.phoneNumber || "Not provided"}</span>
-                </div>
-                <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
-                  <MapPin size={16} className='text-gray-400' />
-                  <span>
-                    {tasker.residentState || tasker.location?.address || "N/A"},{" "}
-                    {tasker.country || "N/A"}
-                  </span>
-                </div>
-                <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
-                  <Calendar size={16} className='text-gray-400' />
-                  <span>
-                    Joined {new Date(tasker.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Stats Cards */}
-      <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
-          <CardContent className='p-5'>
-            <div className='flex items-center gap-3 mb-3'>
-              <div className='p-2 bg-purple-50 rounded-xl'>
-                <Briefcase size={18} className='text-[#6B46C1]' />
-              </div>
-              <span className='text-xs font-bold text-gray-400 uppercase'>
-                Tasks
-              </span>
-            </div>
-            <div className='text-2xl font-black text-gray-900'>
-              {stats.tasks.completed}
-            </div>
-            <div className='text-[10px] text-gray-400 mt-1'>
-              {stats.tasks.completionRate}% completion rate
-            </div>
-          </CardContent>
-        </Card>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
-          <CardContent className='p-5'>
-            <div className='flex items-center gap-3 mb-3'>
-              <div className='p-2 bg-green-50 rounded-xl'>
-                <DollarSign size={18} className='text-green-500' />
-              </div>
-              <span className='text-xs font-bold text-gray-400 uppercase'>
-                Earnings
-              </span>
-            </div>
-            <div className='text-2xl font-black text-gray-900'>
-              {formatCurrency(stats.financials.totalEarnings)}
-            </div>
-            <div className='text-[10px] text-gray-400 mt-1'>
-              Avg: {formatCurrency(stats.financials.averageTaskValue)}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
-          <CardContent className='p-5'>
-            <div className='flex items-center gap-3 mb-3'>
-              <div className='p-2 bg-amber-50 rounded-xl'>
-                <Star size={18} className='text-amber-500' />
-              </div>
-              <span className='text-xs font-bold text-gray-400 uppercase'>
-                Rating
-              </span>
-            </div>
-            <div className='text-2xl font-black text-gray-900'>
-              {stats.performance.averageRating.toFixed(1)}
-            </div>
-            <div className='text-[10px] text-gray-400 mt-1'>
-              {stats.performance.totalReviews} reviews
-            </div>
-          </CardContent>
-        </Card>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
-          <CardContent className='p-5'>
-            <div className='flex items-center gap-3 mb-3'>
-              <div className='p-2 bg-blue-50 rounded-xl'>
-                <TrendingUp size={18} className='text-blue-500' />
-              </div>
-              <span className='text-xs font-bold text-gray-400 uppercase'>
-                Bids
-              </span>
-            </div>
-            <div className='text-2xl font-black text-gray-900'>
-              {stats.bids.total}
-            </div>
-            <div className='text-[10px] text-gray-400 mt-1'>
-              {stats.bids.acceptanceRate}% acceptance rate
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Info Grid */}
+      {/* ── Three info cards ── */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-        {/* Bid Statistics */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] h-full'>
-          <CardHeader className='pb-4'>
-            <CardTitle className='text-sm md:text-base font-bold text-gray-900 flex items-center gap-2'>
-              <TrendingUp size={18} className='text-[#6B46C1]' />
-              Bid Statistics
+        {/* KYC Information */}
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <CardHeader className='pb-2'>
+            <CardTitle className='text-sm font-bold text-gray-900'>
+              KYC Information
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
+            <div>
+              <p className='text-xs text-gray-400 mb-1'>NIN</p>
+              <p className='text-sm font-bold text-gray-900'>
+                {kyc?.number || "—"}
+              </p>
+            </div>
+            <div>
+              <p className='text-xs text-gray-400 mb-1'>Verification Status</p>
+              <span
+                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${
+                  kyc?.status === "verified"
+                    ? "bg-blue-50 text-blue-600 border border-blue-200"
+                    : "bg-gray-100 text-gray-400"
+                }`}
+              >
+                {kyc?.status === "verified" ? "Verified" : "Unverified"}
+              </span>
+            </div>
+
+            {/* {kyc?.status === "unverified" && (
+              <Button
+                onClick={() => setIsVerifyModalOpen(true)}
+                disabled={isVerifying}
+                size='sm'
+                className='w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white gap-2 rounded-xl font-semibold mt-2'
+              >
+                {isVerifying ? (
+                  <Loader2 size={16} className='animate-spin' />
+                ) : (
+                  <>
+                    <CheckCircle2 size={16} /> Verify Profile
+                  </>
+                )}
+              </Button>
+            )} */}
+          </CardContent>
+        </Card>
+
+        {/* Statistics */}
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <CardHeader className='pb-2'>
+            <CardTitle className='text-sm font-bold text-gray-900'>
+              Statistics
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-3'>
             <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Total Bids</span>
+              <span className='text-gray-500'>Rating</span>
+              <span className='font-bold text-gray-900 flex items-center gap-1'>
+                <Star size={14} className='fill-amber-400 text-amber-400' />
+                {(
+                  stats?.rating ??
+                  stats?.performance?.averageRating ??
+                  0
+                ).toFixed(1)}
+              </span>
+            </div>
+            <div className='flex justify-between items-center text-sm'>
+              <span className='text-gray-500'>Completion Rate</span>
               <span className='font-bold text-gray-900'>
-                {stats.bids.total}
+                {stats?.completionRate ?? stats?.tasks?.completionRate ?? 0}%
               </span>
             </div>
             <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Accepted</span>
-              <span className='font-bold text-green-600'>
-                {stats.bids.accepted}
+              <span className='text-gray-500'>Completed Tasks</span>
+              <span className='font-bold text-gray-900'>
+                {stats?.completedTasks ?? stats?.tasks?.completed ?? 0}
               </span>
             </div>
             <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Rejected</span>
-              <span className='font-bold text-red-500'>
-                {stats.bids.rejected}
+              <span className='text-gray-500'>Total Transaction</span>
+              <span className='font-bold text-gray-900'>
+                {formatCurrency(stats?.totalTransaction ?? 0)}
               </span>
             </div>
             <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Pending</span>
-              <span className='font-bold text-amber-600'>
-                {stats.bids.pending}
+              <span className='text-gray-500'>Current balance</span>
+              <span className='font-bold text-gray-900'>
+                {formatCurrency(tasker?.wallet ?? stats?.currentBalance ?? 0)}
               </span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Performance */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] h-full'>
-          <CardHeader className='pb-4'>
-            <CardTitle className='text-sm md:text-base font-bold text-gray-900 flex items-center gap-2'>
-              <Clock size={18} className='text-[#6B46C1]' />
-              Performance
+        {/* Account Information */}
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <CardHeader className='pb-2'>
+            <CardTitle className='text-sm font-bold text-gray-900'>
+              Account Information
             </CardTitle>
           </CardHeader>
-          <CardContent className='space-y-4'>
-            <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>
-                Avg. Response Time
-              </span>
-              <span className='font-bold text-gray-900'>
-                {stats.performance.responseTime}
-              </span>
+          <CardContent className='space-y-3'>
+            <div>
+              <p className='text-xs text-gray-400 mb-0.5'>User ID</p>
+              <p className='text-sm font-bold text-gray-900'>
+                {account?.userId ?? tasker?._id ?? "—"}
+              </p>
             </div>
-            <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>
-                Avg. Completion Time
-              </span>
-              <span className='font-bold text-gray-900'>
-                {stats.performance.completionTime}
-              </span>
+            <div>
+              <p className='text-xs text-gray-400 mb-0.5'>Role</p>
+              <p className='text-sm font-bold text-gray-900'>
+                {account?.role ?? "User"}
+              </p>
             </div>
-            <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Completion Rate</span>
-              <span className='font-bold text-gray-900'>
-                {stats.tasks.completionRate}%
-              </span>
-            </div>
-            <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Cancelled Tasks</span>
-              <span className='font-bold text-red-500'>
-                {stats.tasks.cancelled}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Financial Overview */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] h-full'>
-          <CardHeader className='pb-4'>
-            <CardTitle className='text-sm md:text-base font-bold text-gray-900 flex items-center gap-2'>
-              <DollarSign size={18} className='text-[#6B46C1]' />
-              Financial Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Wallet Balance</span>
-              <span className='font-bold text-gray-900'>
-                {formatCurrency(tasker.wallet)}
-              </span>
-            </div>
-            <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Total Earnings</span>
-              <span className='font-bold text-green-600'>
-                {formatCurrency(stats.financials.totalEarnings)}
-              </span>
-            </div>
-            <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>
-                Pending Payments
-              </span>
-              <span className='font-bold text-[#6B46C1]'>
-                {formatCurrency(stats.financials.pendingPayments)}
-              </span>
-            </div>
-            <div className='flex justify-between items-center text-sm'>
-              <span className='text-gray-500 font-medium'>Avg. Task Value</span>
-              <span className='font-bold text-gray-900'>
-                {formatCurrency(stats.financials.averageTaskValue)}
-              </span>
+            <div>
+              <p className='text-xs text-gray-400 mb-0.5'>Last Updated</p>
+              <p className='text-sm font-bold text-gray-900'>
+                {account?.lastUpdated
+                  ? new Date(account.lastUpdated).toLocaleString()
+                  : "—"}
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Service Categories */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
-        <CardHeader className='pb-4'>
-          <CardTitle className='text-sm md:text-base font-bold text-gray-900'>
-            Service Categories
+      {/* ── Service Category ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <CardHeader className='pb-3'>
+          <CardTitle className='text-sm font-bold text-gray-900'>
+            Service Category
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className='flex flex-wrap gap-3'>
-            {tasker.categories.map((cat) => (
+            {tasker?.categories?.map((cat: any, idx: number) => (
               <span
-                key={cat._id}
-                className='px-5 py-2.5 bg-gray-50 text-gray-700 text-xs font-bold rounded-xl border border-gray-100 shadow-sm'
+                key={typeof cat === "string" ? idx : cat._id}
+                className='px-4 py-2 bg-white text-gray-700 text-xs font-semibold rounded-xl border border-gray-200 shadow-sm'
               >
-                {cat.displayName}
+                {typeof cat === "string" ? cat : cat.displayName}
               </span>
             ))}
-            {tasker.categories.length === 0 && (
+            {(!tasker?.categories || tasker.categories.length === 0) && (
               <span className='text-sm text-gray-400'>
                 No categories assigned
               </span>
@@ -481,133 +311,132 @@ export default function TaskerDetailsPage({
         </CardContent>
       </Card>
 
-      {/* Recent Tasks & Reviews */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] overflow-hidden'>
-          <CardHeader className='flex flex-row items-center justify-between p-6 md:p-8 pb-4'>
-            <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Recent Tasks ({recentTasks.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='p-0'>
-            <div className='overflow-x-auto'>
-              <table className='w-full text-left text-sm whitespace-nowrap'>
-                <thead>
-                  <tr className='border-b border-gray-50 text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider'>
-                    <th className='py-4 px-6 md:px-8 font-medium'>TITLE</th>
-                    <th className='py-4 px-6 font-medium'>PRICE</th>
-                    <th className='py-4 px-6 font-medium text-right'>STATUS</th>
-                  </tr>
-                </thead>
-                <tbody className='divide-y divide-gray-50 text-xs md:text-sm'>
-                  {recentTasks.map((task) => (
-                    <tr
-                      key={task._id}
-                      className='group hover:bg-gray-50/50 transition-colors'
-                    >
-                      <td className='py-5 px-6 md:px-8 font-semibold text-gray-900 max-w-[200px] truncate'>
-                        {task.title}
-                      </td>
-                      <td className='py-5 px-6 font-bold text-gray-900'>
-                        {formatCurrency(task.agreedPrice)}
-                      </td>
-                      <td className='py-5 px-6 text-right'>
-                        <span
-                          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                            task.status === "completed"
-                              ? "bg-green-50 text-green-600"
-                              : task.status === "in_progress"
-                                ? "bg-blue-50 text-blue-600"
-                                : "bg-gray-50 text-gray-500"
-                          }`}
-                        >
-                          {task.status.replace("_", " ")}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {recentTasks.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={3}
-                        className='py-8 text-center text-gray-400 font-medium'
-                      >
-                        No tasks yet
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+      {/* ── Recent Reviews ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+        <CardHeader className='flex flex-row items-center justify-between p-6 pb-4'>
+          <CardTitle className='text-base font-bold text-gray-900'>
+            Recent Reviews
+          </CardTitle>
+          <button className='text-xs text-gray-400 hover:text-gray-600 font-medium'>
+            See all
+          </button>
+        </CardHeader>
+        <CardContent className='p-6 pt-0 space-y-4'>
+          {reviews.map((review: any) => (
+            <div
+              key={review._id}
+              className='flex items-start gap-4 p-4 border border-gray-100 rounded-2xl hover:shadow-sm transition-shadow'
+            >
+              {/* Avatar */}
+              <div className='w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold shrink-0'>
+                {review.reviewer
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .substring(0, 2)}
+              </div>
 
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] overflow-hidden'>
-          <CardHeader className='flex flex-row items-center justify-between p-6 md:p-8 pb-4'>
-            <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
-              Recent Reviews ({reviews.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='p-6 md:p-8 pt-0 space-y-4'>
-            {reviews.map((review) => (
-              <div
-                key={review._id}
-                className='p-5 border border-gray-100 rounded-2xl space-y-4 shadow-sm hover:shadow-md transition-shadow'
-              >
-                <div className='flex items-center justify-between gap-4'>
-                  <div className='flex items-center gap-3'>
-                    <div className='w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm font-bold'>
-                      {review.reviewer
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .toUpperCase()
-                        .substring(0, 2)}
-                    </div>
-                    <div>
-                      <div className='text-sm font-bold text-gray-900'>
-                        {review.reviewer}
-                      </div>
-                      <div className='text-[10px] text-gray-400 font-medium mt-0.5'>
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                  <div className='flex gap-0.5 text-[#F59E0B]'>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        size={14}
-                        className={
-                          i < review.rating
-                            ? "fill-[#F59E0B] text-[#F59E0B]"
-                            : "text-gray-200"
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-                <p className='text-sm text-gray-600 leading-relaxed'>
+              {/* Content */}
+              <div className='flex-1 min-w-0'>
+                <p className='text-sm font-bold text-gray-900'>
+                  {review.reviewer}
+                </p>
+                <p className='text-sm text-gray-600 mt-0.5 leading-relaxed'>
                   {review.comment}
                 </p>
-                <div className='text-[10px] text-gray-400 font-medium'>
-                  Task: {review.task}
+                <p className='text-xs text-gray-400 mt-1'>
+                  {new Date(review.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
+
+              {/* Stars */}
+              <div className='flex gap-0.5 text-amber-400 shrink-0'>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    size={14}
+                    className={
+                      i < review.rating
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-gray-200"
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+          {reviews.length === 0 && (
+            <div className='py-8 text-center text-gray-400 font-medium'>
+              No reviews yet
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Activity Log ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+        <CardHeader className='flex flex-row items-center justify-between p-6 pb-4'>
+          <CardTitle className='text-base font-bold text-gray-900'>
+            Activity Log
+          </CardTitle>
+          <button className='text-xs text-gray-400 hover:text-gray-600 font-medium'>
+            See all
+          </button>
+        </CardHeader>
+        <CardContent className='p-6 pt-0 space-y-5'>
+          {activityLog.length > 0 ? (
+            activityLog.map((entry: any, idx: number) => (
+              <div key={idx} className='flex items-start gap-4'>
+                {/* Dot */}
+                <div className='mt-1 w-2.5 h-2.5 rounded-full bg-[#6B46C1] shrink-0' />
+                <div>
+                  <p className='text-sm font-bold text-gray-900'>
+                    {entry.title}
+                  </p>
+                  <p className='text-xs text-gray-500'>{entry.description}</p>
+                  <p className='text-xs text-gray-400 mt-0.5'>
+                    {entry.createdAt
+                      ? new Date(entry.createdAt).toLocaleString()
+                      : "—"}
+                  </p>
                 </div>
               </div>
-            ))}
-            {reviews.length === 0 && (
-              <div className='py-8 text-center text-gray-400 font-medium'>
-                No reviews yet
+            ))
+          ) : /* Fallback: show recentTasks as activity */
+          recentTasks?.length > 0 ? (
+            recentTasks.map((task: any) => (
+              <div key={task._id} className='flex items-start gap-4'>
+                <div className='mt-1 w-2.5 h-2.5 rounded-full bg-[#6B46C1] shrink-0' />
+                <div>
+                  <p className='text-sm font-bold text-gray-900'>
+                    Task {task.status.replace("_", " ")}
+                  </p>
+                  <p className='text-xs text-gray-500'>{task.title}</p>
+                  <p className='text-xs text-gray-400 mt-0.5'>
+                    {task.updatedAt
+                      ? new Date(task.updatedAt).toLocaleString()
+                      : "—"}
+                  </p>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            ))
+          ) : (
+            <div className='py-6 text-center text-gray-400 font-medium text-sm'>
+              No activity recorded
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Suspend Tasker Modal */}
+      {/* ── Suspend Tasker Modal ── */}
       {isSuspendModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl animate-in fade-in zoom-in duration-200'>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-gray-900'>
@@ -619,7 +448,7 @@ export default function TaskerDetailsPage({
               </div>
               <button
                 onClick={() => setIsSuspendModalOpen(false)}
-                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
+                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400'
               >
                 <X size={20} />
               </button>
@@ -681,10 +510,10 @@ export default function TaskerDetailsPage({
         </div>
       )}
 
-      {/* Verify Tasker Modal */}
+      {/* ── Verify Tasker Modal ── */}
       {isVerifyModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl animate-in fade-in zoom-in duration-200'>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-[#3B82F6]'>
@@ -696,7 +525,7 @@ export default function TaskerDetailsPage({
               </div>
               <button
                 onClick={() => setIsVerifyModalOpen(false)}
-                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
+                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400'
               >
                 <X size={20} />
               </button>

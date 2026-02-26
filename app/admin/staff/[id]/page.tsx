@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import {
   ArrowLeft,
   Mail,
@@ -16,14 +17,16 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { useStaffDetails, useUpdateStaffStatus } from "@/hooks/useAdmin";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 
-export default function StaffDetailsPage() {
-  const { id } = useParams();
-  const staffId = id as string;
+export default function StaffDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id: staffId } = use(params);
 
   const { data: detailData, isLoading, error } = useStaffDetails(staffId);
   const { mutate: updateStatus, isPending: isUpdating } =
@@ -138,13 +141,13 @@ export default function StaffDetailsPage() {
         <CardContent className='p-6 md:p-8'>
           <div className='flex flex-col md:flex-row items-center gap-6'>
             <div className='w-20 h-20 md:w-24 md:h-24 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-3xl md:text-4xl shrink-0'>
-              {staff.fullName.charAt(0)}
+              {staff.name.charAt(0)}
             </div>
             <div className='flex-1 text-center md:text-left space-y-4 md:space-y-6 w-full'>
               <div className='flex flex-col md:flex-row items-center justify-between gap-4'>
                 <div className='flex flex-wrap items-center justify-center md:justify-start gap-3'>
                   <h2 className='text-xl md:text-2xl font-bold text-gray-900'>
-                    {staff.fullName}
+                    {staff.name}
                   </h2>
                   <span
                     className={`text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide ${getRoleBadgeColor(staff.role)}`}
@@ -166,7 +169,7 @@ export default function StaffDetailsPage() {
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-4 gap-x-8 text-sm'>
                 <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
                   <Mail size={16} className='text-gray-400' />
-                  <span>{staff.emailAddress}</span>
+                  <span>{staff.email}</span>
                 </div>
                 <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
                   <Calendar size={16} className='text-gray-400' />

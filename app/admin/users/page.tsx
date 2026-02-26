@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MoreVertical,
   Search,
@@ -14,10 +14,23 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
-import { useAdminUsers, useUserStats, useExportUsers } from "@/hooks/useAdmin";
+import {
+  useAdminUsers,
+  useUserStats,
+  useExportUsers,
+  useLockUser,
+  useUnlockUser,
+} from "@/hooks/useAdmin";
 import { formatCurrency } from "@/lib/utils";
+import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 
 export default function UsersManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -37,30 +50,46 @@ export default function UsersManagementPage() {
     page,
     limit,
     search: searchQuery,
-    status: activeFilter === "All" ? undefined : activeFilter.toLowerCase(),
+    status:
+      activeFilter === "All" ||
+      activeFilter === "Suspended" ||
+      activeFilter === "Verified"
+        ? undefined
+        : activeFilter.toLowerCase(),
     verified: activeFilter === "Verified" ? true : undefined,
   });
 
   // Update visible users when new data comes in
   useEffect(() => {
     if (usersData?.users) {
+      // client-side filter for "Suspended" until backend is updated
+      const processedUsers =
+        activeFilter === "Suspended"
+          ? usersData.users.filter((user) => {
+              if (!user.lockUntil) return false;
+              return new Date(user.lockUntil) > new Date();
+            })
+          : usersData.users;
+
       if (page === 1) {
-        setVisibleUsers(usersData.users);
+        setVisibleUsers(processedUsers);
       } else {
         setVisibleUsers((prev) => {
           // Prevent duplicates
           const existingIds = new Set(prev.map((u) => u._id));
-          const newUsers = usersData.users.filter(
+          const newUsers = processedUsers.filter(
             (u) => !existingIds.has(u._id),
           );
           return [...prev, ...newUsers];
         });
       }
-      setHasMore(usersData.pagination.hasNext);
+      setHasMore(usersData.pagination?.hasNext ?? false);
     }
-  }, [usersData, page]);
+  }, [usersData, page, activeFilter]);
 
   const { mutate: exportUsers, isPending: isExporting } = useExportUsers();
+  const { mutate: lockUser } = useLockUser();
+  const { mutate: unlockUser } = useUnlockUser();
 
   const handleExport = () => {
     exportUsers(undefined, {
@@ -85,46 +114,45 @@ export default function UsersManagementPage() {
   };
 
   const summaryMetrics = [
-    { label: "Total Users", value: stats?.total.toLocaleString() || "0" },
+    { label: "Total Users", value: stats?.totalUsers?.toLocaleString() || "0" },
     {
       label: "Active",
-      value: stats?.active.toLocaleString() || "0",
+      value: stats?.active?.toLocaleString() || "0",
       color: "text-green-500",
     },
-    { label: "Inactive", value: stats?.inactive.toLocaleString() || "0" },
+    { label: "Inactive", value: stats?.inactive?.toLocaleString() || "0" },
     {
       label: "Verified",
-      value: stats?.verified.toLocaleString() || "0",
+      value: stats?.verified?.toLocaleString() || "0",
       color: "text-blue-500",
     },
     {
       label: "Suspended",
-      value: stats?.locked.toLocaleString() || "0",
+      value: stats?.suspended?.toLocaleString() || "0",
       color: "text-red-500",
     },
     {
-      label: "KYC Verified",
-      value: stats?.kyc_verified.toLocaleString() || "0",
-      color: "text-emerald-500",
+      label: "Pending KYC",
+      value: stats?.kyc_verified?.toLocaleString() || "0",
+      color: "text-yellow-500",
+    },
+    {
+      label: "Total Tasks Posted",
+      value: stats?.totalTasksPosted?.toLocaleString() || "0",
+      color: "text-green-500",
+    },
+    {
+      label: "Completed Tasks",
+      value: stats?.completedTasks?.toLocaleString() || "0",
     },
     {
       label: "Unverified",
-      value: stats?.unverified.toLocaleString() || "0",
-      color: "text-gray-400",
-    },
-    {
-      label: "Growth (Week)",
-      value: `+${stats?.growth.this_week || 0}`,
-      color: "text-indigo-500",
-    },
-    {
-      label: "Growth (Month)",
-      value: `+${stats?.growth.this_month || 0}`,
-      color: "text-indigo-600",
+      value: stats?.unverified?.toLocaleString() || "0",
+      color: "text-blue-400",
     },
     {
       label: "Deleted",
-      value: stats?.deleted.toLocaleString() || "0",
+      value: stats?.deleted?.toLocaleString() || "0",
       color: "text-red-400",
     },
   ];
@@ -183,10 +211,12 @@ export default function UsersManagementPage() {
         {summaryMetrics.map((metric, idx) => (
           <Card key={idx} className='border-none shadow-sm'>
             <CardContent className='p-4'>
-              <div className='text-xl font-bold'>{metric.value}</div>
               <div
-                className={`text-[10px] mt-1 font-semibold uppercase tracking-wider ${metric.color || "text-gray-500"}`}
+                className={`text-xl font-bold ${metric.color || "text-gray-500"}`}
               >
+                {metric.value}
+              </div>
+              <div className='text-[10px] mt-1 font-semibold uppercase tracking-wider'>
                 {metric.label}
               </div>
             </CardContent>
@@ -199,7 +229,13 @@ export default function UsersManagementPage() {
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
               searchPlaceholder='Search name or email...'
-              filterOptions={["All", "Active", "Locked", "Verified"]}
+              filterOptions={[
+                "All",
+                "Active",
+                // "Inactive",
+                "Suspended",
+                "Verified",
+              ]}
               activeFilter={activeFilter}
               onFilterChange={handleFilterChange}
               onSearch={handleSearch}
@@ -217,10 +253,10 @@ export default function UsersManagementPage() {
                 <thead>
                   <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
                     <th className='px-6 py-4'>USER</th>
-                    <th className='px-6 py-4'>STATS</th>
-                    <th className='px-6 py-4'>WALLET</th>
+                    <th className='px-6 py-4'>CONTACT</th>
                     <th className='px-6 py-4'>STATUS</th>
                     <th className='px-6 py-4'>VERIFICATION</th>
+                    <th className='px-6 py-4'>LAST ACTIVE</th>
                     <th className='px-6 py-4 text-right'>ACTION</th>
                   </tr>
                 </thead>
@@ -253,37 +289,22 @@ export default function UsersManagementPage() {
                           </div>
                         </div>
                       </td>
-                      <td className='px-6 py-4'>
-                        <div className='text-[10px] space-y-0.5'>
-                          <div className='text-gray-500 flex justify-between gap-4'>
-                            Tasks:{" "}
-                            <span className='font-bold text-gray-900'>
-                              {user.stats?.totalTasks || 0}
-                            </span>
-                          </div>
-                          <div className='text-gray-500 flex justify-between gap-4'>
-                            Spent:{" "}
-                            <span className='font-bold text-gray-900'>
-                              {formatCurrency(user.stats?.totalSpent || 0)}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className='px-6 py-4 text-xs font-bold text-gray-900'>
-                        {formatCurrency(user.wallet || 0)}
-                      </td>
+                      <td className='px-6 py-4'>{user.phoneNumber || "N/A"}</td>
+
                       <td className='px-6 py-4'>
                         <span
                           className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                            user.isLocked
+                            user.lockUntil &&
+                            new Date(user.lockUntil) > new Date()
                               ? "bg-red-50 text-red-500"
                               : user.isActive
                                 ? "bg-green-50 text-green-500"
                                 : "bg-gray-50 text-gray-500"
                           }`}
                         >
-                          {user.isLocked
-                            ? "Locked"
+                          {user.lockUntil &&
+                          new Date(user.lockUntil) > new Date()
+                            ? "Suspended"
                             : user.isActive
                               ? "Active"
                               : "Inactive"}
@@ -311,16 +332,48 @@ export default function UsersManagementPage() {
                           </span>
                         </div>
                       </td>
+                      <td className='px-6 py-4 text-xs font-bold text-gray-900'>
+                        <div className='flex justify-center items-center'>
+                          {user.lastLogin
+                            ? new Date(user.lastLogin).toLocaleDateString()
+                            : "—"}
+                        </div>
+                      </td>
                       <td className='px-6 py-4 text-right'>
-                        <Link href={`/admin/users/${user._id}`}>
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            className='h-8 px-3 text-[#6B46C1] hover:text-[#553C9A] hover:bg-purple-50 font-bold text-xs gap-2'
-                          >
-                            <ExternalLink size={14} /> View
-                          </Button>
-                        </Link>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='h-8 w-8 text-gray-400'
+                            >
+                              <MoreVertical size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end' className='w-40'>
+                            <Link href={`/admin/users/${user._id}`}>
+                              <DropdownMenuItem className='gap-2 cursor-pointer font-bold text-xs'>
+                                <ExternalLink size={14} /> View Details
+                              </DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuItem
+                              className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'
+                              onClick={() => {
+                                if (user.lockUntil) {
+                                  unlockUser(user._id);
+                                } else {
+                                  lockUser({
+                                    id: user._id,
+                                    reason: "Suspended by admin",
+                                  });
+                                }
+                              }}
+                            >
+                              <Ban size={14} />{" "}
+                              {user.lockUntil ? "Unlock" : "Lock Account"}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </td>
                     </tr>
                   ))}

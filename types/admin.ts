@@ -1,65 +1,33 @@
 import { User } from "./auth";
 
-export interface AdminDashboardStats {
-  users: {
-    total: number;
-    active: number;
-    new_this_month: number;
-    verified: number;
-    locked: number;
-  };
-  taskers: {
-    total: number;
-    active: number;
-    verified: number;
-    suspended: number;
-    pending_verification: number;
-  };
-  tasks: {
-    total: number;
-    open: number;
-    in_progress: number;
-    completed: number;
-    cancelled: number;
-    this_month: number;
-  };
-  financials: {
-    total_revenue: number;
-    escrow_held: number;
-    pending_withdrawals: number;
-    total_transactions: number;
-    this_month_revenue: number;
-  };
-  kyc: {
-    total: number;
-    pending: number;
-    approved: number;
-    rejected: number;
-    pending_review: number;
-  };
-  reports: {
-    total: number;
-    pending: number;
-    resolved: number;
-    dismissed: number;
-  };
-  support: {
-    open_tickets: number;
-    unread_messages: number;
-    avg_response_time: string;
-  };
-}
+// ============================================================================
+// Authentication & Profile Types
+// ============================================================================
 
 export interface AdminProfile {
   _id: string;
   fullName: string;
   emailAddress: string;
-  role: string;
-  permissions: string[];
+  role: "super_admin" | "operations" | "trust_safety" | "support";
   isActive: boolean;
+  permissions: string[];
   profilePicture?: string;
   lastLogin?: string;
-  createdAt: string;
+  createdAt?: string;
+}
+
+export interface AdminLoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AdminLoginResponse {
+  status: string;
+  message: string;
+  data: {
+    admin: AdminProfile;
+    token: string;
+  };
 }
 
 export interface SystemHealthStats {
@@ -86,31 +54,51 @@ export interface SystemHealthStats {
   };
 }
 
-export interface AdminLoginRequest {
-  emailAddress: string;
-  password: string;
-}
+// ============================================================================
+// Dashboard Statistics Types
+// ============================================================================
 
-export interface AdminLoginResponse {
-  status: string;
-  message: string;
-  data: {
-    admin: AdminProfile;
-    token: string;
+export interface AdminDashboardStats {
+  cards: {
+    totalUsers: number;
+    totalTaskers: number;
+    totalTasks: number;
+    activeTasks: number;
+    completedTasks: number;
+    cancelledTasks: number;
+    pendingKyc: number;
+    totalRevenue: number;
   };
+  quickStats: {
+    userToTaskerRatio: string;
+    completionRate: string;
+    avgTaskValue: number;
+  };
+  growth: number;
+  recentTasks: any[];
+  recentActivity: any[];
 }
 
-// --- User Management Types ---
+export interface AdminDashboardStatsResponse {
+  status: string;
+  data: AdminDashboardStats;
+}
+
+// ============================================================================
+// User Management Types
+// ============================================================================
 
 export interface UserStats {
-  total: number;
+  totalUsers: number;
   active: number;
   inactive: number;
   verified: number;
   unverified: number;
-  locked: number;
+  suspended: number;
   deleted: number;
   kyc_verified: number;
+  totalTasksPosted: number;
+  completedTasks: number;
   growth: {
     this_week: number;
     this_month: number;
@@ -122,9 +110,26 @@ export interface UserStats {
   };
 }
 
-export interface AdminUserListItem extends User {
+export interface UserStatsResponse {
+  status: string;
+  data: UserStats;
+}
+
+export interface AdminUserListItem {
+  _id: string;
+  fullName: string;
+  emailAddress: string;
+  phoneNumber?: string;
+  country?: string;
+  residentState?: string;
+  wallet: number;
+  isEmailVerified: boolean;
+  isKYCVerified: boolean;
+  isActive: boolean;
   isLocked: boolean;
   lockReason: string | null;
+  lockUntil: string | null;
+  lastLogin?: string;
   createdAt: string;
   stats: {
     totalTasks: number;
@@ -148,17 +153,64 @@ export interface AdminUserListResponse {
   };
 }
 
+export interface AdminUserDetail {
+  _id: string;
+  fullName: string;
+  emailAddress: string;
+  phoneNumber?: string;
+  country?: string;
+  residentState?: string;
+  address?: string;
+  profilePicture?: string;
+  dateOfBirth?: string;
+  wallet: number;
+  isAdmin: boolean;
+  isEmailVerified: boolean;
+  isKYCVerified: boolean;
+  isActive: boolean;
+  isDeleted: boolean;
+  isLocked: boolean;
+  lockReason: string | null;
+  lockUntil: string | null;
+  loginAttempts?: number;
+  lastLogin?: string;
+  notificationId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AdminUserDetailResponse {
   status: string;
   data: {
-    user: User & {
-      isLocked: boolean;
-      lockReason: string | null;
-      lockUntil: string | null;
-      createdAt: string;
-      updatedAt: string;
+    user: AdminUserDetail;
+    wallet: {
+      balance: number;
+      escrow: number;
     };
-    stats: {
+    verification: {
+      status: string;
+      type: string;
+    };
+    tasks: Array<{
+      _id: string;
+      title: string;
+      budget: number;
+      status: string;
+      createdAt: string;
+    }>;
+    transactions: Array<{
+      _id: string;
+      type: string;
+      amount: number;
+      description: string;
+      createdAt: string;
+    }>;
+    activityLog: Array<{
+      action: string;
+      date: string;
+      details: string;
+    }>;
+    stats?: {
       tasks: {
         total: number;
         open: number;
@@ -177,14 +229,14 @@ export interface AdminUserDetailResponse {
         averageSessionDuration: string;
       };
     };
-    recentTasks: Array<{
+    recentTasks?: Array<{
       _id: string;
       title: string;
       status: string;
       budget: number;
       createdAt: string;
     }>;
-    recentTransactions: Array<{
+    recentTransactions?: Array<{
       _id: string;
       type: string;
       amount: number;
@@ -194,8 +246,30 @@ export interface AdminUserDetailResponse {
   };
 }
 
+export interface ActivateUserResponse {
+  status: string;
+  message: string;
+  data: {
+    userId: string;
+    isActive: boolean;
+    updatedAt: string;
+  };
+}
+
 export interface DeactivateUserInput {
   reason?: string;
+}
+
+export interface DeactivateUserResponse {
+  status: string;
+  message: string;
+  data: {
+    userId: string;
+    isActive: boolean;
+    deactivationReason?: string;
+    deactivatedBy: string;
+    deactivatedAt: string;
+  };
 }
 
 export interface LockUserInput {
@@ -203,16 +277,70 @@ export interface LockUserInput {
   duration?: number;
 }
 
+export interface LockUserResponse {
+  status: string;
+  message: string;
+  data: {
+    userId: string;
+    isLocked: boolean;
+    lockReason: string;
+    lockUntil: string;
+    lockedBy: string;
+    lockedAt: string;
+  };
+}
+
+export interface UnlockUserResponse {
+  status: string;
+  message: string;
+  data: {
+    userId: string;
+    isLocked: boolean;
+    lockReason: null;
+    lockUntil: null;
+    unlockedBy: string;
+    unlockedAt: string;
+  };
+}
+
 export interface SoftDeleteUserInput {
   reason?: string;
 }
 
-// --- Tasker Management Types ---
+export interface SoftDeleteUserResponse {
+  status: string;
+  message: string;
+  data: {
+    userId: string;
+    isDeleted: boolean;
+    deletionReason?: string;
+    deletedBy: string;
+    deletedAt: string;
+    canRestore: boolean;
+    restoreBefore: string;
+  };
+}
+
+export interface RestoreUserResponse {
+  status: string;
+  message: string;
+  data: {
+    userId: string;
+    isDeleted: boolean;
+    isActive: boolean;
+    restoredBy: string;
+    restoredAt: string;
+  };
+}
+
+// ============================================================================
+// Tasker Management Types
+// ============================================================================
 
 export interface TaskerCategory {
   _id: string;
-  name?: string;
   displayName: string;
+  name?: string;
 }
 
 export interface AdminTaskerListItem {
@@ -226,14 +354,14 @@ export interface AdminTaskerListItem {
   isActive: boolean;
   isSuspended: boolean;
   wallet: number;
-  rating: number;
+  averageRating: number;
   completedTasks: number;
   location?: {
     latitude: number;
     longitude: number;
     address?: string;
   };
-  lastActive?: string;
+  lastLogin?: string;
   createdAt: string;
 }
 
@@ -251,43 +379,81 @@ export interface AdminTaskerListResponse {
   };
 }
 
+export interface AdminTaskerDetail {
+  _id: string;
+
+  emailAddress: string;
+  phoneNumber?: string;
+  country?: string;
+  residentState?: string;
+  address?: string;
+  profilePicture?: string;
+  categories: TaskerCategory[];
+  location?: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+  };
+  verifyIdentity: boolean;
+  wallet: number;
+  isEmailVerified: boolean;
+  isActive: boolean;
+  isSuspended: boolean;
+  suspensionReason: string | null;
+  rating: number;
+  completedTasks: number;
+  lastActive?: string;
+  createdAt: string;
+}
+
 export interface AdminTaskerDetailResponse {
   status: string;
   data: {
-    tasker: AdminTaskerListItem & {
-      country?: string;
-      residentState?: string;
-      address?: string;
-      profilePicture?: string;
-      isEmailVerified?: boolean;
-      suspensionReason?: string | null;
+    tasker?: AdminTaskerDetail;
+    account?: {
+      userId?: string;
+      fullName: string;
+      role: string;
+      lastUpdated?: string;
+    };
+    kyc: {
+      type: string;
+      number: string;
+      status: string;
     };
     stats: {
-      bids: {
+      rating: number;
+      completionRate: string;
+      completedTasks: number;
+      totalTransaction: number;
+      currentBalance: number;
+      reviews_count?: number;
+      bids?: {
         total: number;
         accepted: number;
         rejected: number;
         pending: number;
         acceptanceRate: number;
       };
-      tasks: {
+      tasks?: {
         total: number;
         completed: number;
         cancelled: number;
         completionRate: number;
       };
-      financials: {
+      financials?: {
         totalEarnings: number;
         averageTaskValue: number;
         pendingPayments: number;
       };
-      performance: {
+      performance?: {
         averageRating: number;
         totalReviews: number;
         responseTime: string;
         completionTime: string;
       };
     };
+    categories: string[] | TaskerCategory[];
     recentTasks: Array<{
       _id: string;
       title: string;
@@ -304,6 +470,27 @@ export interface AdminTaskerDetailResponse {
       task: string;
       createdAt: string;
     }>;
+    activityLog: Array<{
+      action: string;
+      details: string;
+      date: string;
+    }>;
+  };
+}
+
+export interface VerifyTaskerInput {
+  verificationNotes?: string;
+}
+
+export interface VerifyTaskerResponse {
+  status: string;
+  message: string;
+  data: {
+    taskerId: string;
+    verifyIdentity: boolean;
+    verifiedBy: string;
+    verificationNotes?: string;
+    verifiedAt: string;
   };
 }
 
@@ -312,11 +499,67 @@ export interface SuspendTaskerInput {
   duration?: number;
 }
 
-export interface VerifyTaskerInput {
-  verificationNotes?: string;
+export interface SuspendTaskerResponse {
+  status: string;
+  message: string;
+  data: {
+    taskerId: string;
+    isSuspended: boolean;
+    suspensionReason: string;
+    suspendedUntil?: string;
+    suspendedBy: string;
+    suspendedAt: string;
+  };
 }
 
-// --- KYC / Verification Types (Enhanced) ---
+export interface ActivateTaskerResponse {
+  status: string;
+  message: string;
+  data: {
+    taskerId: string;
+    isSuspended: boolean;
+    suspensionReason: null;
+    suspendedUntil: null;
+    activatedBy: string;
+    activatedAt: string;
+  };
+}
+
+// ============================================================================
+// KYC Verification Types
+// ============================================================================
+
+export interface KYCStats {
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  pending_review: number;
+  approval_rate: number;
+  average_review_time: string;
+  this_week: {
+    submitted: number;
+    approved: number;
+    rejected: number;
+    pending: number;
+  };
+  this_month: {
+    submitted: number;
+    approved: number;
+    rejected: number;
+    pending: number;
+  };
+}
+
+export interface KYCStatsResponse {
+  status: string;
+  data: KYCStats;
+}
+
+export interface KYCDocument {
+  type: string;
+  url: string;
+}
 
 export interface KYCRecord {
   _id: string;
@@ -326,18 +569,19 @@ export interface KYCRecord {
     emailAddress: string;
     phoneNumber?: string;
   };
-  nin: string;
+  nin: string; // Always masked as "***********"
   status: "pending" | "approved" | "rejected";
-  submittedDocuments?: Array<{
-    type: string;
-    url: string;
-  }>;
+  submittedDocuments?: KYCDocument[];
   approvedBy?: {
     _id: string;
     fullName: string;
   };
   approvedAt?: string;
   rejectionReason?: string;
+  rejectedBy?: {
+    _id: string;
+    fullName: string;
+  };
   rejectedAt?: string;
   createdAt: string;
   updatedAt?: string;
@@ -355,29 +599,81 @@ export interface KYCListResponse {
   };
 }
 
-export interface KYCStats {
-  total: number;
-  pending: number;
-  approved: number;
-  rejected: number;
-  pending_review?: number;
-  approval_rate?: number;
-  average_review_time?: string;
-  this_week?: {
-    submitted: number;
-    approved: number;
-    rejected: number;
-    pending: number;
-  };
-  this_month?: {
-    submitted: number;
-    approved: number;
-    rejected: number;
-    pending: number;
+export interface ApproveKYCInput {
+  notes?: string;
+}
+
+export interface ApproveKYCResponse {
+  status: string;
+  message: string;
+  data: {
+    kycId: string;
+    userId: string;
+    status: "approved";
+    approvedBy: string;
+    approvalNotes?: string;
+    approvedAt: string;
   };
 }
 
-// --- Task Management Types ---
+export interface RejectKYCInput {
+  reason: string;
+}
+
+export interface RejectKYCResponse {
+  status: string;
+  message: string;
+  data: {
+    kycId: string;
+    userId: string;
+    status: "rejected";
+    rejectionReason: string;
+    rejectedBy: string;
+    rejectedAt: string;
+  };
+}
+
+// ============================================================================
+// Task Management Types
+// ============================================================================
+
+export interface TaskStats {
+  total: number;
+  open: number;
+  inProgress: number;
+  completed: number;
+  cancelled: number;
+  this_week: {
+    created: number;
+    completed: number;
+    cancelled: number;
+  };
+  this_month: {
+    created: number;
+    completed: number;
+    cancelled: number;
+  };
+  by_category: Array<{
+    category: string;
+    count: number;
+    percentage: number;
+  }>;
+  financials: {
+    total_value: number;
+    average_budget: number;
+    escrow_held: number;
+  };
+  performance: {
+    average_completion_time: string;
+    completion_rate: number;
+    cancellation_rate: number;
+  };
+}
+
+export interface TaskStatsResponse {
+  status: string;
+  data: TaskStats;
+}
 
 export interface AdminTaskCategory {
   _id: string;
@@ -426,85 +722,81 @@ export interface AdminTaskListResponse {
   };
 }
 
+export interface AdminTaskDetail {
+  _id: string;
+  title: string;
+  description: string;
+  status: string;
+  budget: number;
+  agreedPrice?: number;
+  negotiable?: string;
+  category?: string;
+  categories: AdminTaskCategory[];
+  postedBy?: {
+    _id: string;
+    fullName: string;
+    emailAddress: string;
+    profilePicture?: string;
+    taskerEmail?: string;
+  };
+  user: {
+    _id: string;
+    fullName: string;
+    emailAddress: string;
+    phoneNumber?: string;
+  };
+  assignedTasker?: {
+    _id: string;
+    taskerName?: string;
+    emailAddress?: string;
+    phoneNumber?: string;
+    rating?: number;
+    verifyIdentity?: boolean;
+  };
+  location?: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+  };
+  images?: string[];
+  isBiddingEnabled: boolean;
+  bidCount?: number;
+  deadline?: string;
+  createdAt: string;
+  lastUpdated?: string;
+  acceptedAt?: string;
+  completedAt?: string;
+}
+
+export interface AdminTaskBid {
+  _id: string;
+  taskerName: string;
+  taskerImage: string;
+  amount: number;
+  status: string;
+  date: string;
+}
+
+export interface TaskTimelineEvent {
+  event: string;
+  timestamp: string;
+  actor?: string;
+}
+
+export interface TaskPayment {
+  type: string;
+  amount: number;
+  status: string;
+  timestamp: string;
+}
+
 export interface AdminTaskDetailResponse {
   status: string;
   data: {
-    task: AdminTaskListItem & {
-      images?: string[];
-      deadline?: string;
-      acceptedAt?: string;
-      assignedTasker?: {
-        _id: string;
-        firstName: string;
-        lastName: string;
-        emailAddress?: string;
-        phoneNumber?: string;
-        rating?: number;
-        verifyIdentity?: boolean;
-      };
-      user: {
-        _id: string;
-        fullName: string;
-        emailAddress: string;
-        phoneNumber?: string;
-      };
-    };
-    bids: Array<{
-      _id: string;
-      tasker: {
-        firstName: string;
-        lastName: string;
-      };
-      amount: number;
-      status: string;
-      createdAt: string;
-    }>;
-    timeline: Array<{
-      event: string;
-      timestamp: string;
-      actor?: string;
-    }>;
-    payments: Array<{
-      type: string;
-      amount: number;
-      status: string;
-      timestamp: string;
-    }>;
-  };
-}
-
-export interface TaskStats {
-  total: number;
-  by_status: {
-    open: number;
-    in_progress: number;
-    completed: number;
-    cancelled: number;
-  };
-  this_week?: {
-    created: number;
-    completed: number;
-    cancelled: number;
-  };
-  this_month?: {
-    created: number;
-    completed: number;
-    cancelled: number;
-  };
-  by_category?: Array<{
-    category: string;
-    count: number;
-    percentage: number;
-  }>;
-  financials?: {
-    total_value: number;
-    average_budget: number;
-    escrow_held: number;
-  };
-  performance?: {
-    average_completion_time: string;
-    completion_rate: number;
-    cancellation_rate: number;
+    task: AdminTaskDetail;
+    bids: AdminTaskBid[];
+    timeline: TaskTimelineEvent[];
+    payments: TaskPayment[];
   };
 }
 
@@ -513,13 +805,45 @@ export interface ForceCancelTaskInput {
   refundUser?: boolean;
 }
 
+export interface ForceCancelTaskResponse {
+  status: string;
+  message: string;
+  data: {
+    taskId: string;
+    status: "cancelled";
+    cancellationReason: string;
+    cancelledBy: string;
+    refundIssued: boolean;
+    refundAmount?: number;
+    cancelledAt: string;
+  };
+}
+
 export interface ForceCompleteTaskInput {
   reason: string;
   releaseToTasker?: boolean;
   adjustedAmount?: number;
 }
 
-// --- Financials & Payments Types ---
+export interface ForceCompleteTaskResponse {
+  status: string;
+  message: string;
+  data: {
+    taskId: string;
+    status: "completed";
+    completionReason: string;
+    completedBy: string;
+    paymentReleased: boolean;
+    releasedAmount?: number;
+    taskerReceived?: number;
+    platformFee?: number;
+    completedAt: string;
+  };
+}
+
+// ============================================================================
+// Financials & Payments Types
+// ============================================================================
 
 export interface PaymentStats {
   overview: {
@@ -537,7 +861,12 @@ export interface PaymentStats {
   };
   success_rate: number;
   average_transaction_value: number;
-  payment_methods?: Record<string, number>;
+  payment_methods: Record<string, number>;
+}
+
+export interface PaymentStatsResponse {
+  status: string;
+  data: PaymentStats;
 }
 
 export interface TransactionListItem {
@@ -586,25 +915,31 @@ export interface TransactionListResponse {
   };
 }
 
+export interface TransactionDetail extends TransactionListItem {
+  paymentGateway?: string;
+  gatewayReference?: string;
+  gatewayFee?: number;
+  metadata?: Record<string, string>;
+  processedAt?: string;
+}
+
+export interface TransactionTimelineEvent {
+  event: string;
+  timestamp: string;
+}
+
 export interface TransactionDetailResponse {
   status: string;
   data: {
-    transaction: TransactionListItem & {
-      paymentGateway?: string;
-      gatewayReference?: string;
-      gatewayFee?: number;
-      metadata?: Record<string, string>;
-      processedAt?: string;
-    };
+    transaction: TransactionDetail;
     relatedTransactions: TransactionListItem[];
-    timeline: Array<{
-      event: string;
-      timestamp: string;
-    }>;
+    timeline: TransactionTimelineEvent[];
   };
 }
 
-// --- Reports & Moderation Types ---
+// ============================================================================
+// Moderation & Reports Types
+// ============================================================================
 
 export interface ReportEvidence {
   type: string;
@@ -617,7 +952,7 @@ export interface Report {
   _id: string;
   type: string;
   status: "pending" | "resolved" | "dismissed";
-  priority?: "low" | "medium" | "high";
+  priority: "low" | "medium" | "high";
   reporter: {
     _id: string;
     fullName?: string;
@@ -664,10 +999,18 @@ export interface ReportListResponse {
   };
 }
 
+export interface ChatMessage {
+  from: string;
+  message: string;
+  timestamp: string;
+}
+
 export interface ReportDetailResponse {
   status: string;
   data: {
-    report: Report;
+    report: Report & {
+      detailedDescription: string;
+    };
     timeline: Array<{
       event: string;
       actor?: string;
@@ -677,11 +1020,7 @@ export interface ReportDetailResponse {
       event: string;
       timestamp: string;
     }>;
-    chatMessages?: Array<{
-      from: string;
-      message: string;
-      timestamp: string;
-    }>;
+    chatMessages?: ChatMessage[];
   };
 }
 
@@ -693,17 +1032,41 @@ export interface ResolveReportInput {
   notes?: string;
 }
 
-// --- Activity Logs Types ---
+export interface ResolveReportResponse {
+  status: string;
+  message: string;
+  data: {
+    reportId: string;
+    status: "resolved";
+    resolution: string;
+    action_taken: string;
+    refund_amount?: number;
+    warning_issued?: boolean;
+    resolvedBy: string;
+    resolvedAt: string;
+  };
+}
+
+// ============================================================================
+// Activity Logs Types
+// ============================================================================
 
 export interface ActivityLogItem {
   _id: string;
-  type: string;
+  /** Actual API field — use `resourceType` (e.g. "System", "User") */
+  resourceType: string;
+  /** Kept for backwards-compat if ever returned by a different endpoint */
+  type?: string;
   action: string;
   admin: {
     _id: string;
-    fullName: string;
+    /** API returns email, not fullName */
+    email: string;
+    fullName?: string;
     role?: string;
   };
+  resourceId: string;
+  /** Legacy / future shape: a resolved target object */
   target?: {
     type: string;
     id: string;
@@ -711,24 +1074,26 @@ export interface ActivityLogItem {
   };
   details?: Record<string, any>;
   ipAddress?: string;
-  timestamp: string;
+  userAgent?: string;
+  /** API uses createdAt, not timestamp */
+  createdAt: string;
+  updatedAt?: string;
+  /** Kept for backwards-compat */
+  timestamp?: string;
 }
 
 export interface ActivityLogResponse {
   status: string;
-  data: {
-    activities: ActivityLogItem[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalActivities: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
-  };
+  /** Flat pagination fields returned at root level */
+  totalRecords: number;
+  totalPages: number;
+  currentPage: number;
+  logs: ActivityLogItem[];
 }
 
-// --- Messages & Support Types ---
+// ============================================================================
+// Messages & Support Types
+// ============================================================================
 
 export interface MessageStats {
   overview: {
@@ -737,17 +1102,28 @@ export interface MessageStats {
     unread_messages: number;
     flagged_conversations: number;
   };
-  this_week?: {
+  this_week: {
     new_conversations: number;
     messages_sent: number;
     avg_response_time: string;
   };
-  support_tickets?: {
+  support_tickets: {
     open: number;
     pending_admin_response: number;
     resolved_this_week: number;
   };
-  categories?: Record<string, number>;
+  categories: Record<string, number>;
+}
+
+export interface MessageStatsResponse {
+  status: string;
+  data: MessageStats;
+}
+
+export interface ConversationLastMessage {
+  from: string;
+  text: string;
+  timestamp: string;
 }
 
 export interface ConversationListItem {
@@ -772,13 +1148,11 @@ export interface ConversationListItem {
   };
   subject?: string;
   flagReason?: string;
-  lastMessage?: {
-    from: string;
-    text: string;
-    timestamp: string;
-  };
+  lastMessage?: ConversationLastMessage;
   unreadCount: number;
   messageCount: number;
+  assignedTo?: null | string;
+  reviewedBy?: null | string;
   createdAt: string;
   lastActivity: string;
 }
@@ -809,94 +1183,130 @@ export interface ConversationMessage {
   read: boolean;
 }
 
+export interface ConversationDetail extends ConversationListItem {
+  subject?: string;
+}
+
 export interface ConversationDetailResponse {
   status: string;
   data: {
-    conversation: ConversationListItem & {
-      subject?: string;
-    };
+    conversation: ConversationDetail;
     messages: ConversationMessage[];
     metadata: {
       totalMessages: number;
       unreadCount: number;
       averageResponseTime?: string;
-      assignedTo?: string | null;
+      assignedTo: string | null;
     };
   };
 }
 
-// --- System Settings Types ---
+export interface SendAdminMessageInput {
+  text: string;
+  priority?: string;
+  category?: string;
+}
+
+export interface SendAdminMessageResponse {
+  status: string;
+  message: string;
+  data: {
+    messageId: string;
+    conversationId: string;
+    from: {
+      id: string;
+      name: string;
+      type: string;
+    };
+    text: string;
+    timestamp: string;
+  };
+}
+
+// ============================================================================
+// System Settings Types
+// ============================================================================
 
 export interface SystemSettings {
   system: {
     maintenanceMode: boolean;
-    maintenanceMessage?: string;
-    registrationEnabled: boolean;
-    taskCreationEnabled: boolean;
-    biddingEnabled: boolean;
-    paymentsEnabled: boolean;
+    newUserRegistrations: boolean;
+    taskPostingEnabled: boolean;
   };
-  features: {
-    ninVerification: boolean;
-    kycVerification: boolean;
-    pushNotifications: boolean;
+  security: {
+    twoFactorAuthRequired: boolean;
+    sessionTimeout: number;
+    ipWhitelistEnabled: boolean;
+  };
+  notifications: {
     emailNotifications: boolean;
-    smsNotifications: boolean;
+    reportAlerts: boolean;
+    kycSubmissionAlerts: boolean;
   };
-  limits: {
-    max_task_budget: number;
-    min_task_budget: number;
-    max_withdrawal: number;
-    min_withdrawal: number;
-    max_images_per_task: number;
-    max_categories_per_task: number;
+  systemInfo: {
+    version: string;
+    lastBackup: string;
   };
-  fees: {
-    platform_fee_percentage: number;
-    withdrawal_fee: number;
-    payment_gateway_fee_percentage: number;
-  };
-  notifications?: {
-    new_task_radius_miles: number;
-    task_expiry_days: number;
-    bid_expiry_hours: number;
-  };
-  security?: {
-    max_login_attempts: number;
-    account_lock_duration_hours: number;
-    session_timeout_minutes: number;
-    password_min_length: number;
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SystemSettingsResponse {
+  status: string;
+  data: SystemSettings;
+}
+
+export interface UpdateSystemSettingsInput {
+  [key: string]: any; // Dot notation updates like "system.maintenanceMode": true
+}
+
+export interface UpdateSystemSettingsResponse {
+  status: string;
+  message: string;
+  data: {
+    updated: Record<string, any>;
+    updatedBy: string;
+    updatedAt: string;
   };
 }
 
-// --- Staff Management Types ---
+// ============================================================================
+// Staff Management Types
+// ============================================================================
 
 export interface StaffStats {
-  total: number;
-  active: number;
+  totalAdmin: number;
+  activeToday: number;
+  superAdmin: number;
   inactive: number;
   by_role: {
     super_admin: number;
     operations: number;
     trust_safety: number;
-    support: number;
+    support?: number;
   };
-  recent_activity: {
+  recent_activity?: {
     last_24h: number;
     last_7d: number;
   };
 }
 
+export interface StaffStatsResponse {
+  status: string;
+  data: StaffStats;
+}
+
 export interface StaffMember {
   _id: string;
-  fullName: string;
-  emailAddress: string;
+  name: string;
+  email: string;
   role: "super_admin" | "operations" | "trust_safety" | "support";
   permissions: string[];
   isActive: boolean;
   lastLogin?: string;
   createdAt: string;
-  createdBy: string | { _id: string; fullName: string };
+  createdBy: string;
   mustChangePassword?: boolean;
 }
 
@@ -914,10 +1324,31 @@ export interface StaffListResponse {
   };
 }
 
+export interface CreateStaffInput {
+  fullName: string;
+  emailAddress: string;
+  password?: string;
+  role: "super_admin" | "operations" | "trust_safety" | "support";
+  permissions?: string[];
+}
+
+export interface CreateStaffResponse {
+  status: string;
+  message: string;
+  data: {
+    staff: StaffMember;
+  };
+}
+
 export interface StaffDetailResponse {
   status: string;
   data: {
-    staff: StaffMember;
+    staff: StaffMember & {
+      createdBy: {
+        _id: string;
+        fullName: string;
+      };
+    };
     activity: {
       login_count: number;
       last_30_days: {
@@ -935,33 +1366,39 @@ export interface StaffDetailResponse {
   };
 }
 
-export interface CreateStaffInput {
-  fullName: string;
-  emailAddress: string;
-  password?: string;
-  role: "super_admin" | "operations" | "trust_safety" | "support";
-  permissions?: string[];
-}
-
 export interface UpdateStaffStatusInput {
   isActive: boolean;
   reason?: string;
 }
 
-// --- Data Export Types ---
+export interface UpdateStaffStatusResponse {
+  status: string;
+  message: string;
+  data: {
+    staffId: string;
+    isActive: boolean;
+    reason?: string;
+    updatedBy: string;
+    updatedAt: string;
+  };
+}
+
+// ============================================================================
+// Data Export Types
+// ============================================================================
 
 export interface ExportResponse<T = any> {
   status: string;
   data: {
     export_type: string;
     generated_at: string;
-    downloadUrl?: string;
     date_range?: {
       start: string;
       end: string;
     };
     records: T[];
     summary: Record<string, any>;
+    downloadUrl?: string;
   };
 }
 
@@ -1045,4 +1482,183 @@ export interface TaskerExportRecord {
   total_earned: number;
   created_at: string;
   last_active: string;
+}
+
+// ============================================================================
+// Common API Response Types
+// ============================================================================
+
+export interface SuccessResponse {
+  status: "success";
+  message: string;
+}
+
+export interface ErrorResponse {
+  status: "error";
+  message: string;
+  details?: any;
+}
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  order?: "asc" | "desc";
+}
+
+export interface DateRangeParams {
+  startDate?: string;
+  endDate?: string;
+}
+
+// ============================================================================
+// Query Parameter Types
+// ============================================================================
+
+export interface UserListQueryParams extends PaginationParams {
+  search?: string;
+  status?: "active" | "inactive" | "locked";
+  verified?: boolean;
+  kycVerified?: boolean;
+}
+
+export interface TaskerListQueryParams extends PaginationParams {
+  search?: string;
+  status?: "active" | "suspended" | "inactive";
+  verified?: boolean;
+  categories?: string;
+}
+
+export interface TaskListQueryParams extends PaginationParams {
+  status?: string;
+  category?: string;
+  userId?: string;
+  taskerId?: string;
+  search?: string;
+}
+
+export interface TransactionListQueryParams
+  extends PaginationParams, DateRangeParams {
+  type?: string;
+  status?: string;
+  userId?: string;
+  taskerId?: string;
+}
+
+export interface ReportListQueryParams extends PaginationParams {
+  status?: "pending" | "resolved" | "dismissed";
+  type?: string;
+}
+
+export interface ActivityLogQueryParams
+  extends PaginationParams, DateRangeParams {
+  type?: string;
+  adminId?: string;
+}
+
+export interface ConversationListQueryParams extends PaginationParams {
+  status?: string;
+  category?: string;
+  unread?: boolean;
+}
+
+export interface KYCListQueryParams extends PaginationParams {
+  status?: "pending" | "approved" | "rejected";
+}
+
+export interface StaffListQueryParams extends PaginationParams {
+  role?: "super_admin" | "operations" | "trust_safety" | "support";
+  status?: "active" | "inactive";
+}
+
+export interface ExportQueryParams extends DateRangeParams {
+  status?: string;
+  category?: string;
+}
+
+// ============================================================================
+// Categories Types
+// ============================================================================
+
+export interface AdminCategory {
+  _id: string;
+  name: string;
+  description: string;
+  minPrice: number;
+  status: "Active" | "Closed";
+  serviceCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CategoryStats {
+  activeCategories: number;
+  closedCategories: number;
+  totalServices: number;
+}
+
+export interface CategoryTask {
+  _id: string;
+  title: string;
+  postedBy: string;
+  category: string;
+  budget: number;
+  status: string;
+  date: string;
+}
+
+export interface CategoryTasker {
+  _id: string;
+  fullName: string;
+  email: string;
+  profilePicture?: string;
+  category: string;
+  status: "Active" | "Suspended";
+  verification: "Verified" | "Pending" | "Not verified";
+  lastActive: string;
+}
+
+export interface AdminCategoryListResponse {
+  status: string;
+  message: string;
+  data: {
+    categories: AdminCategory[];
+    stats: CategoryStats;
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      pages: number;
+    };
+  };
+}
+
+export interface AdminCategoryDetailResponse {
+  status: string;
+  message: string;
+  data: {
+    category: AdminCategory;
+    stats: {
+      totalServices: number;
+      activeServices: number;
+      taskers: number;
+      revenue: number;
+    };
+    tasks: CategoryTask[];
+    taskers: CategoryTasker[];
+  };
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  description: string;
+  minPrice: number;
+  status: "Active" | "Closed";
+}
+
+export interface UpdateCategoryRequest {
+  name?: string;
+  description?: string;
+  minPrice?: number;
+  status?: "Active" | "Closed";
 }

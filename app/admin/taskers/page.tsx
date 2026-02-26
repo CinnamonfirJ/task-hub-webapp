@@ -81,29 +81,30 @@ export default function TaskersManagementPage() {
 
   const taskers = taskersData?.taskers ?? [];
   const pagination = taskersData?.pagination;
-  const tStats = dashboardStats?.taskers;
-
   const summaryMetrics = [
-    { label: "Total Taskers", value: String(tStats?.total ?? "—") },
     {
-      label: "Active",
-      value: String(tStats?.active ?? "—"),
+      label: "Total Taskers",
+      value: dashboardStats?.cards?.totalTaskers?.toLocaleString() || "0",
+    },
+    {
+      label: "Active Tasks",
+      value: dashboardStats?.cards?.activeTasks?.toLocaleString() || "0",
       color: "text-green-500",
     },
     {
-      label: "Verified",
-      value: String(tStats?.verified ?? "—"),
-      color: "text-blue-500",
-    },
-    {
-      label: "Suspended",
-      value: String(tStats?.suspended ?? "—"),
-      color: "text-red-500",
-    },
-    {
       label: "Pending KYC",
-      value: String(tStats?.pending_verification ?? "—"),
+      value: dashboardStats?.cards?.pendingKyc?.toLocaleString() || "0",
       color: "text-yellow-500",
+    },
+    {
+      label: "Growth",
+      value: dashboardStats?.growth ? `+${dashboardStats.growth}%` : "0%",
+      color: "text-purple-500",
+    },
+    {
+      label: "Revenue",
+      value: formatCurrency(dashboardStats?.cards?.totalRevenue || 0),
+      color: "text-emerald-500",
     },
   ];
 
@@ -147,10 +148,12 @@ export default function TaskersManagementPage() {
         {summaryMetrics.map((metric, idx) => (
           <Card key={idx} className='border-none shadow-sm'>
             <CardContent className='p-4'>
-              <div className='text-xl font-bold'>{metric.value}</div>
               <div
-                className={`text-[10px] mt-1 font-semibold uppercase tracking-wider ${metric.color || "text-gray-500"}`}
+                className={`text-xl font-bold ${metric.color || "text-gray-900"}`}
               >
+                {metric.value}
+              </div>
+              <div className='text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-500'>
                 {metric.label}
               </div>
             </CardContent>
@@ -235,7 +238,7 @@ export default function TaskersManagementPage() {
                             size={14}
                             className='fill-[#F59E0B] text-[#F59E0B]'
                           />
-                          {tasker.rating?.toFixed(1) ?? "—"}
+                          {tasker.averageRating?.toFixed(1) ?? "—"}
                         </span>
                       </td>
                       <td className='px-6 py-4'>
@@ -267,8 +270,8 @@ export default function TaskersManagementPage() {
                         </span>
                       </td>
                       <td className='px-6 py-4 text-xs text-gray-500'>
-                        {tasker.lastActive
-                          ? new Date(tasker.lastActive).toLocaleDateString()
+                        {tasker.lastLogin
+                          ? new Date(tasker.lastLogin).toLocaleDateString()
                           : "—"}
                       </td>
                       <td className='px-6 py-4 text-right'>

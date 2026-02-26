@@ -1,9 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Search, UserPlus, X, Filter, Loader2 } from "lucide-react";
+import {
+  Search,
+  UserPlus,
+  X,
+  Filter,
+  Loader2,
+  MoreVertical,
+  ExternalLink,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
@@ -67,15 +81,15 @@ export default function StaffPage() {
   };
 
   const displayStats = [
-    { label: "Total Admin", value: stats?.total?.toString() || "0" },
+    { label: "Total Admin", value: stats?.totalAdmin?.toString() || "0" },
     {
       label: "Active Today",
-      value: stats?.recent_activity.last_24h?.toString() || "0",
+      value: stats?.activeToday?.toString() || "0",
       color: "text-green-600",
     },
     {
       label: "Super Admin",
-      value: stats?.by_role.super_admin?.toString() || "0",
+      value: stats?.superAdmin?.toString() || "0",
     },
   ];
 
@@ -108,11 +122,13 @@ export default function StaffPage() {
           : displayStats.map((stat, idx) => (
               <Card key={idx} className='border shadow-sm'>
                 <CardContent className='p-6'>
-                  <div className='text-3xl font-bold text-gray-900'>
+                  <div
+                    className={`text-3xl font-bold ${stat.color || "text-gray-900"}`}
+                  >
                     {stat.value}
                   </div>
                   <div
-                    className={`text-sm mt-1 ${stat.color || "text-gray-500"}`}
+                    className={`text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-500`}
                   >
                     {stat.label}
                   </div>
@@ -144,48 +160,73 @@ export default function StaffPage() {
               </div>
             ) : (
               staffData?.staff.map((user) => (
-                <Link href={`/admin/staff/${user._id}`} key={user._id}>
-                  <Card className='hover:shadow-md transition-shadow cursor-pointer border-gray-100'>
-                    <CardContent className='p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
-                      <div className='flex items-center gap-4'>
-                        <div className='h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold shrink-0'>
-                          {user.fullName.charAt(0)}
+                <div key={user._id} className='relative group'>
+                  <Link href={`/admin/staff/${user._id}`}>
+                    <Card className='hover:shadow-md transition-shadow cursor-pointer border-gray-100'>
+                      <CardContent className='p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
+                        <div className='flex items-center gap-4'>
+                          <div className='h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold shrink-0'>
+                            {user.name?.charAt(0) || "?"}
+                          </div>
+                          <div className='space-y-1'>
+                            <div className='font-semibold text-gray-900'>
+                              {user.name}
+                            </div>
+                            <div className='text-sm text-gray-500'>
+                              {user.email}
+                            </div>
+                            <div className='flex flex-wrap items-center gap-2 text-xs'>
+                              <span
+                                className={`px-2 py-0.5 rounded-full uppercase tracking-wider font-bold text-[10px] ${getRoleBadgeColor(user.role)}`}
+                              >
+                                {user.role.replace("_", " ")}
+                              </span>
+                              <span className='text-gray-400'>
+                                Joined{" "}
+                                {format(new Date(user.createdAt), "MM/dd/yyyy")}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className='space-y-1'>
-                          <div className='font-semibold text-gray-900'>
-                            {user.fullName}
-                          </div>
-                          <div className='text-sm text-gray-500'>
-                            {user.emailAddress}
-                          </div>
-                          <div className='flex flex-wrap items-center gap-2 text-xs'>
-                            <span
-                              className={`px-2 py-0.5 rounded-full uppercase tracking-wider font-bold text-[10px] ${getRoleBadgeColor(user.role)}`}
-                            >
-                              {user.role.replace("_", " ")}
-                            </span>
-                            <span className='text-gray-400'>
-                              Joined{" "}
-                              {format(new Date(user.createdAt), "MM/dd/yyyy")}
-                            </span>
-                          </div>
+                        <div className='flex items-center gap-4'>
+                          <Badge
+                            variant='secondary'
+                            className={`${
+                              user.isActive
+                                ? "bg-green-100 text-green-700 hover:bg-green-100"
+                                : "bg-red-100 text-red-700 hover:bg-red-100"
+                            } font-medium mr-10 md:mr-0`}
+                          >
+                            {user.isActive ? "Active" : "Inactive"}
+                          </Badge>
                         </div>
-                      </div>
-                      <div>
-                        <Badge
-                          variant='secondary'
-                          className={`${
-                            user.isActive
-                              ? "bg-green-100 text-green-700 hover:bg-green-100"
-                              : "bg-red-100 text-red-700 hover:bg-red-100"
-                          } font-medium`}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                  <div className='absolute right-4 top-1/2 -translate-y-1/2'>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          className='h-8 w-8 text-gray-400 hover:text-gray-600'
                         >
-                          {user.isActive ? "Active" : "Inactive"}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                          <MoreVertical size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align='end' className='w-40'>
+                        <Link href={`/admin/staff/${user._id}`}>
+                          <DropdownMenuItem className='gap-2 cursor-pointer font-bold text-xs'>
+                            <ExternalLink size={14} /> View Details
+                          </DropdownMenuItem>
+                        </Link>
+                        <DropdownMenuItem className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'>
+                          {user.isActive ? "Deactivate" : "Activate"}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
               ))
             )}
           </div>

@@ -84,21 +84,25 @@ export default function PaymentsManagementPage() {
       label: "Total Transactions",
       value: String(paymentStats?.transactions?.total ?? "—"),
       trend: undefined,
+      color: undefined,
     },
     {
       label: "Total Revenue",
       value: overview ? formatCurrency(overview.total_revenue) : "—",
       trend: undefined,
+      color: "text-emerald-500",
     },
     {
       label: "Escrow Held",
       value: overview ? formatCurrency(overview.escrow_held) : "—",
       trend: undefined,
+      color: "text-blue-500",
     },
     {
       label: "Platform Fees",
       value: overview ? formatCurrency(overview.platform_fees_collected) : "—",
       trend: undefined,
+      color: "text-purple-500",
     },
   ];
 
@@ -155,10 +159,14 @@ export default function PaymentsManagementPage() {
         {paymentMetrics.map((metric, idx) => (
           <Card key={idx} className='border border-gray-100 shadow-sm'>
             <CardContent className='p-5'>
-              <div className='text-xs text-gray-400 font-medium'>
+              <div
+                className={`text-xl font-bold ${metric.color || "text-gray-900"}`}
+              >
+                {metric.value}
+              </div>
+              <div className='text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-400'>
                 {metric.label}
               </div>
-              <div className='text-xl font-bold mt-2'>{metric.value}</div>
             </CardContent>
           </Card>
         ))}

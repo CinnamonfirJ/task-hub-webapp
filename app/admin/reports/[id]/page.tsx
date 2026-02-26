@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import {
   ArrowLeft,
   Flag,
@@ -23,9 +23,9 @@ import { formatCurrency } from "@/lib/utils";
 export default function ReportDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = use(params);
   const { data: detailData, isLoading, isError } = useReportDetails(id);
 
   const [isResolveModalOpen, setIsResolveModalOpen] = useState(false);

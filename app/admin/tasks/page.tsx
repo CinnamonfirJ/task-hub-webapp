@@ -1,9 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import {
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  MoreVertical,
+  ExternalLink,
+  Ban,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
 import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
@@ -66,24 +80,21 @@ export default function TasksManagementPage() {
   const taskMetrics = [
     { label: "Total Tasks", value: String(taskStats?.total ?? "—") },
     {
-      label: "Open",
-      value: String(taskStats?.by_status?.open ?? "—"),
+      label: "Open Tasks",
+      value: String(taskStats?.open ?? "—"),
       color: "text-green-500",
     },
     {
       label: "In-Progress",
-      value: String(taskStats?.by_status?.in_progress ?? "—"),
-      color: "text-blue-500",
+      value: String(taskStats?.inProgress ?? "—"),
     },
     {
       label: "Completed",
-      value: String(taskStats?.by_status?.completed ?? "—"),
-      color: "text-emerald-500",
+      value: String(taskStats?.completed ?? "—"),
     },
     {
       label: "Cancelled",
-      value: String(taskStats?.by_status?.cancelled ?? "—"),
-      color: "text-red-500",
+      value: String(taskStats?.cancelled ?? "—"),
     },
   ];
 
@@ -130,10 +141,12 @@ export default function TasksManagementPage() {
         {taskMetrics.map((metric, idx) => (
           <Card key={idx} className='border border-gray-100 shadow-sm'>
             <CardContent className='p-4'>
-              <div className='text-xl font-bold'>{metric.value}</div>
               <div
-                className={`text-[10px] mt-1 font-semibold uppercase tracking-wider ${metric.color || "text-gray-400"}`}
+                className={`text-xl font-bold ${metric.color || "text-gray-900"}`}
               >
+                {metric.value}
+              </div>
+              <div className='text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-400'>
                 {metric.label}
               </div>
             </CardContent>
@@ -176,6 +189,7 @@ export default function TasksManagementPage() {
                     <th className='px-6 py-4'>BUDGET</th>
                     <th className='px-6 py-4'>STATUS</th>
                     <th className='px-6 py-4'>DATE</th>
+                    <th className='px-6 py-4 text-right'>ACTION</th>
                   </tr>
                 </thead>
                 <tbody className='divide-y'>
@@ -219,6 +233,32 @@ export default function TasksManagementPage() {
                       </td>
                       <td className='px-6 py-5 text-gray-500 font-medium text-xs'>
                         {new Date(task.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className='px-6 py-5 text-right'>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='h-8 w-8 text-gray-400'
+                            >
+                              <MoreVertical size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end' className='w-40'>
+                            <Link href={`/admin/tasks/${task._id}`}>
+                              <DropdownMenuItem className='gap-2 cursor-pointer font-bold text-xs'>
+                                <ExternalLink size={14} /> View Details
+                              </DropdownMenuItem>
+                            </Link>
+                            {task.status !== "cancelled" &&
+                              task.status !== "completed" && (
+                                <DropdownMenuItem className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'>
+                                  <Ban size={14} /> Force Cancel
+                                </DropdownMenuItem>
+                              )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </td>
                     </tr>
                   ))}
