@@ -37,7 +37,7 @@ export default function TaskDetailsPage() {
   });
 
   // Fetch current tasker's bids to check if they've applied
-  const { data: myBids } = useMyBids(undefined);
+  const { data: myBids } = useMyBids(undefined, { enabled: !!isTasker });
 
   const bids = bidsData?.bids || [];
 
@@ -205,18 +205,20 @@ export default function TaskDetailsPage() {
     .slice(0, 2);
 
   return (
-    <div className='flex flex-col space-y-8 mx-auto p-8 w-full max-w-5xl min-h-screen'>
+    <div className='flex flex-col space-y-4 md:space-y-8 mx-auto p-4 sm:p-6 md:p-8 w-full max-w-5xl min-h-screen'>
       {/* Header */}
-      <div className='flex items-center gap-4'>
+      <div className='flex items-center gap-3 md:gap-4'>
         <Button
           variant='ghost'
           size='icon'
           onClick={goBack}
-          className='hover:bg-purple-50 rounded-full w-12 h-12 text-gray-700'
+          className='hover:bg-purple-50 rounded-full w-10 h-10 md:w-12 md:h-12 text-gray-700'
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={20} className='md:w-6 md:h-6' />
         </Button>
-        <h1 className='font-bold text-gray-900 text-3xl'>Task Details</h1>
+        <h1 className='font-bold text-gray-900 text-2xl md:text-3xl'>
+          Task Details
+        </h1>
       </div>
 
       <div className='space-y-8'>
@@ -226,15 +228,19 @@ export default function TaskDetailsPage() {
             {/* Budget Badge (Top Right for Tasker) */}
             {
               <div className='flex justify-end'>
-                <span className='bg-[#4CAF50] text-white px-6 py-2.5 rounded-xl font-black text-lg shadow-sm'>
+                <span className='bg-[#4CAF50] text-white px-4 py-2 md:px-6 md:py-2.5 rounded-xl font-black text-base md:text-lg shadow-sm'>
                   ₦ {task.budget?.toLocaleString() || "0"}
                 </span>
               </div>
             }
             {/* Task Title */}
-            <div className='space-y-2'>
-              <h2 className='font-bold text-gray-900 text-2xl'>Task Title</h2>
-              <p className='text-gray-900 text-xl'>{task.title}</p>
+            <div className='space-y-1 md:space-y-2'>
+              <h2 className='font-bold text-gray-900 text-xl md:text-2xl'>
+                Task Title
+              </h2>
+              <p className='text-gray-900 text-lg md:text-xl wrap-break-words'>
+                {task.title}
+              </p>
             </div>
 
             {/* Deadline */}
@@ -331,17 +337,17 @@ export default function TaskDetailsPage() {
         {isTasker && (
           <>
             {/* Task Title with Posted By */}
-            <div className='bg-white border border-gray-100 p-8 rounded-[2rem] shadow-sm space-y-4'>
-              <div className='flex justify-between items-start'>
-                <div className='space-y-1'>
-                  <h3 className='text-gray-500 text-sm font-bold'>
+            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm space-y-4'>
+              <div className='flex flex-col sm:flex-row sm:justify-between items-start gap-4'>
+                <div className='space-y-1 w-full'>
+                  <h3 className='text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider'>
                     Task Title
                   </h3>
-                  <h2 className='font-bold text-gray-900 text-2xl'>
+                  <h2 className='font-bold text-gray-900 text-xl md:text-2xl wrap-break-words'>
                     {task.title}
                   </h2>
                 </div>
-                <span className='bg-[#4CAF50] text-white px-6 py-2.5 rounded-xl font-black text-lg shadow-sm'>
+                <span className='bg-[#4CAF50] text-white px-5 py-2 md:px-6 md:py-2.5 rounded-xl font-black text-base md:text-lg shadow-sm whitespace-nowrap self-start sm:self-auto'>
                   ₦ {task.budget?.toLocaleString() || "0"}
                 </span>
               </div>
@@ -357,17 +363,21 @@ export default function TaskDetailsPage() {
             </div>
 
             {/* Description */}
-            <div className='bg-white border border-gray-100 p-8 rounded-[2rem] shadow-sm space-y-4'>
-              <h3 className='font-bold text-gray-900 text-xl'>{task.title}</h3>
-              <p className='text-gray-600 leading-relaxed whitespace-pre-wrap text-base'>
+            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm space-y-4'>
+              <h3 className='font-bold text-gray-900 text-lg md:text-xl'>
+                {task.title}
+              </h3>
+              <p className='text-gray-600 leading-relaxed whitespace-pre-wrap text-sm md:text-base'>
                 {task.description}
               </p>
             </div>
 
             {/* Task Details Card */}
-            <div className='bg-white border border-gray-100 p-8 rounded-[2rem] shadow-sm space-y-6'>
-              <h3 className='font-bold text-gray-900 text-xl'>Task Details</h3>
-              <div className='space-y-5'>
+            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm space-y-6'>
+              <h3 className='font-bold text-gray-900 text-lg md:text-xl'>
+                Task Details
+              </h3>
+              <div className='space-y-4 md:space-y-5'>
                 <DetailRow label='Category' value={categoryName} />
                 <DetailRow
                   label='Deadline'
@@ -415,8 +425,8 @@ export default function TaskDetailsPage() {
             {isTasker && hasApplied && (
               <>
                 {!isEditingApplication ? (
-                  <div className='bg-purple-50 border border-purple-100 p-8 rounded-[2rem] space-y-4'>
-                    <div className='flex justify-between items-start'>
+                  <div className='bg-purple-50 border border-purple-100 p-6 md:p-8 rounded-2xl md:rounded-[2rem] space-y-4'>
+                    <div className='flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0'>
                       <div>
                         <h3 className='font-bold text-[#6B46C1] text-xl'>
                           Application Submitted

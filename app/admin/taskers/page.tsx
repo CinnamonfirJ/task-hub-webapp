@@ -1,102 +1,159 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  MoreVertical, 
-  Search, 
-  UserCircle2, 
-  ExternalLink, 
+import {
+  MoreVertical,
+  UserCircle2,
+  ExternalLink,
   Ban,
-  Download
+  Download,
+  Loader2,
+  Star,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const summaryMetrics = [
-  { label: "Total Taskers", value: "7" },
-  { label: "Active", value: "7", color: "text-green-500" },
-  { label: "Inactive", value: "30" },
-  { label: "Verified", value: "67", color: "text-blue-500" },
-  { label: "Suspended", value: "7", color: "text-red-500" },
-  { label: "Pending KYC", value: "7", color: "text-yellow-500" },
-  { label: "Total Tasks completed", value: "7" },
-  { label: "Categories", value: "30" },
-  { label: "Average Ratings", value: "4.7", color: "text-orange-500" },
-  { label: "Disputes", value: "7", color: "text-red-500" },
-];
-
-const taskers = [
-  { 
-    id: 1, 
-    name: "Adewale Thompson", 
-    email: "adewale.t@example.com", 
-    categories: ["Plumbing", "Electrical repairs"], 
-    status: "Active", 
-    verification: "Verified", 
-    lastActive: "7:25PM, 11/15/2025" 
-  },
-  { 
-    id: 2, 
-    name: "Adewale Thompson", 
-    email: "adewale.t@example.com", 
-    categories: ["Graphics Design", "Furniture"], 
-    status: "Suspended", 
-    verification: "Verified", 
-    lastActive: "7:25PM, 11/15/2025" 
-  },
-  { 
-    id: 3, 
-    name: "Ibrahim Yusuf", 
-    email: "ibrahim.y@example.com", 
-    categories: ["Plumbing", "Carpentry"], 
-    status: "Active", 
-    verification: "Not verified", 
-    lastActive: "7:25PM, 11/15/2025" 
-  },
-  { 
-    id: 4, 
-    name: "Ngozi Adekunle", 
-    email: "ngozi.a@example.com", 
-    categories: ["Graphics Design"], 
-    status: "Active", 
-    verification: "Pending", 
-    lastActive: "7:25PM, 11/15/2025" 
-  },
-];
+import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
+import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
+import Link from "next/link";
+import {
+  useAdminTaskers,
+  useAdminDashboard,
+  useExportTaskers,
+} from "@/hooks/useAdmin";
+import { formatCurrency } from "@/lib/utils";
 
 export default function TaskersManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
+  // Fetch dashboard stats for summary metrics
+  const { data: dashboardStats } = useAdminDashboard();
+
+  // Fetch taskers with filters
+  const { data: taskersData, isLoading: taskersLoading } = useAdminTaskers({
+    page,
+    limit,
+    search: searchQuery || undefined,
+    status:
+      activeFilter === "All"
+        ? undefined
+        : activeFilter === "Suspended"
+          ? "suspended"
+          : activeFilter === "Active"
+            ? "active"
+            : undefined,
+    verified: activeFilter === "Verified" ? true : undefined,
+  });
+
+  const { mutate: exportTaskers, isPending: isExporting } = useExportTaskers();
+
+  const handleExport = () => {
+    exportTaskers(undefined, {
+      onSuccess: (data) => {
+        if (data.downloadUrl) {
+          window.open(data.downloadUrl, "_blank");
+        } else {
+          const blob = new Blob([JSON.stringify(data, null, 2)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `taskers_export_${new Date().getTime()}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }
+      },
+    });
+  };
+
+  const taskers = taskersData?.taskers ?? [];
+  const pagination = taskersData?.pagination;
+  const summaryMetrics = [
+    {
+      label: "Total Taskers",
+      value: dashboardStats?.cards?.totalTaskers?.toLocaleString() || "0",
+    },
+    {
+      label: "Active Tasks",
+      value: dashboardStats?.cards?.activeTasks?.toLocaleString() || "0",
+      color: "text-green-500",
+    },
+    {
+      label: "Pending KYC",
+      value: dashboardStats?.cards?.pendingKyc?.toLocaleString() || "0",
+      color: "text-yellow-500",
+    },
+    {
+      label: "Growth",
+      value: dashboardStats?.growth ? `+${dashboardStats.growth}%` : "0%",
+      color: "text-purple-500",
+    },
+    {
+      label: "Revenue",
+      value: formatCurrency(dashboardStats?.cards?.totalRevenue || 0),
+      color: "text-emerald-500",
+    },
+  ];
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setPage(1);
+  };
+
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
+    setPage(1);
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className='space-y-6'>
+      <div className='flex flex-col md:flex-row gap-3 md:items-center justify-between'>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Taskers Management</h1>
-          <p className="text-sm text-gray-500">Manage all registered taskers</p>
+          <h1 className='text-2xl font-bold text-gray-900'>
+            Taskers Management
+          </h1>
+          <p className='text-sm text-gray-500'>Manage all registered taskers</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="text-sm h-10 px-4 gap-2">
-            <MoreVertical size={16} /> Default
-          </Button>
-          <Button variant="outline" className="text-sm h-10 px-4 gap-2">
-            <Download size={16} /> Export
+        <div className='flex gap-3'>
+          <Button
+            disabled={isExporting}
+            onClick={handleExport}
+            variant='outline'
+            className='text-sm h-10 px-4 gap-2'
+          >
+            {isExporting ? (
+              <Loader2 size={16} className='animate-spin' />
+            ) : (
+              <Download size={16} />
+            )}
+            Export
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
         {summaryMetrics.map((metric, idx) => (
-          <Card key={idx} className="border-none shadow-sm">
-            <CardContent className="p-4">
-              <div className="text-xl font-bold">{metric.value}</div>
-              <div className={`text-[10px] mt-1 ${metric.color || "text-gray-500"}`}>
+          <Card key={idx} className='border-none shadow-sm'>
+            <CardContent className='p-4'>
+              <div
+                className={`text-xl font-bold ${metric.color || "text-gray-900"}`}
+              >
+                {metric.value}
+              </div>
+              <div className='text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-500'>
                 {metric.label}
               </div>
             </CardContent>
@@ -104,105 +161,188 @@ export default function TaskersManagementPage() {
         ))}
       </div>
 
-      <Card className="border-none shadow-sm overflow-hidden">
-        <CardContent className="p-0">
-          <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <Input 
-                placeholder="Search name or email..." 
-                className="pl-10 h-10 bg-gray-50 border-none focus-visible:ring-1 focus-visible:ring-purple-200"
-              />
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
-              {["All", "Active", "Suspended", "Ratings", "Verified"].map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`px-4 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-colors ${
-                    activeFilter === filter 
-                      ? "bg-gray-900 text-white" 
-                      : "text-gray-500 hover:bg-gray-100"
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
+      <Card className='border-none shadow-sm overflow-hidden'>
+        <CardContent className='p-0'>
+          <div className='p-6 border-b border-gray-100'>
+            <AdminSearchFilter
+              searchPlaceholder='Search name or email...'
+              searchTerm={searchQuery}
+              onSearch={handleSearch}
+              filterOptions={["All", "Active", "Suspended", "Verified"]}
+              activeFilter={activeFilter}
+              onFilterChange={handleFilterChange}
+            />
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                  <th className="px-6 py-4">TASKERS</th>
-                  <th className="px-6 py-4">CATEGORIES</th>
-                  <th className="px-6 py-4">STATUS</th>
-                  <th className="px-6 py-4">VERIFICATION</th>
-                  <th className="px-6 py-4">LAST ACTIVE</th>
-                  <th className="px-6 py-4 text-right">ACTION</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {taskers.map((tasker) => (
-                  <tr key={tasker.id} className="group hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
-                          <UserCircle2 size={24} />
-                        </div>
-                        <div>
-                          <div className="font-bold text-gray-900">{tasker.name}</div>
-                          <div className="text-xs text-gray-500">{tasker.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col gap-1">
-                        {tasker.categories.map((cat, i) => (
-                          <span key={i} className="text-[10px] text-gray-500">{cat}</span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
-                        tasker.status === 'Active' ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'
-                      }`}>
-                        {tasker.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
-                        tasker.verification === 'Verified' ? 'bg-blue-50 text-blue-500' :
-                        tasker.verification === 'Pending' ? 'bg-yellow-50 text-yellow-500' :
-                        'bg-purple-100 text-purple-600'
-                      }`}>
-                        {tasker.verification}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-500">{tasker.lastActive}</td>
-                    <td className="px-6 py-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
-                            <MoreVertical size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem className="gap-2 cursor-pointer">
-                            <ExternalLink size={14} /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 cursor-pointer text-red-600 focus:text-red-600">
-                            <Ban size={14} /> Suspend User
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
+          <div className='overflow-x-auto min-h-[400px] relative'>
+            {taskersLoading && (
+              <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
+                <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+              </div>
+            )}
+
+            <ExpandableTableContainer>
+              <table className='w-full text-left text-sm'>
+                <thead>
+                  <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    <th className='px-6 py-4'>TASKERS</th>
+                    <th className='px-6 py-4'>CATEGORIES</th>
+                    <th className='px-6 py-4'>RATING</th>
+                    <th className='px-6 py-4'>STATUS</th>
+                    <th className='px-6 py-4'>VERIFICATION</th>
+                    <th className='px-6 py-4'>LAST ACTIVE</th>
+                    <th className='px-6 py-4 text-right'>ACTION</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className='divide-y'>
+                  {taskers.map((tasker) => (
+                    <tr
+                      key={tasker._id}
+                      className='group hover:bg-gray-50 transition-colors'
+                    >
+                      <td className='px-6 py-4'>
+                        <div className='flex items-center gap-3'>
+                          <div className='w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 shrink-0'>
+                            <UserCircle2 size={24} />
+                          </div>
+                          <div>
+                            <div className='font-bold text-gray-900'>
+                              {tasker.firstName} {tasker.lastName}
+                            </div>
+                            <div className='text-xs text-gray-500'>
+                              {tasker.emailAddress}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='flex flex-wrap gap-1'>
+                          {tasker.categories.slice(0, 2).map((cat) => (
+                            <span
+                              key={cat._id}
+                              className='px-2 py-0.5 bg-gray-50 text-gray-600 text-[10px] rounded-full font-medium border border-gray-100'
+                            >
+                              {cat.displayName}
+                            </span>
+                          ))}
+                          {tasker.categories.length > 2 && (
+                            <span className='px-2 py-0.5 bg-purple-50 text-purple-600 text-[10px] rounded-full font-medium'>
+                              +{tasker.categories.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span className='flex items-center gap-1 text-sm font-bold text-gray-900'>
+                          <Star
+                            size={14}
+                            className='fill-[#F59E0B] text-[#F59E0B]'
+                          />
+                          {tasker.averageRating?.toFixed(1) ?? "—"}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span
+                          className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
+                            tasker.isSuspended
+                              ? "bg-red-50 text-red-500"
+                              : tasker.isActive
+                                ? "bg-green-50 text-green-500"
+                                : "bg-gray-50 text-gray-500"
+                          }`}
+                        >
+                          {tasker.isSuspended
+                            ? "Suspended"
+                            : tasker.isActive
+                              ? "Active"
+                              : "Inactive"}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span
+                          className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
+                            tasker.verifyIdentity
+                              ? "bg-blue-50 text-blue-500"
+                              : "bg-purple-100 text-purple-600"
+                          }`}
+                        >
+                          {tasker.verifyIdentity ? "Verified" : "Not verified"}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 text-xs text-gray-500'>
+                        {tasker.lastLogin
+                          ? new Date(tasker.lastLogin).toLocaleDateString()
+                          : "—"}
+                      </td>
+                      <td className='px-6 py-4 text-right'>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='h-8 w-8 text-gray-400'
+                            >
+                              <MoreVertical size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end' className='w-40'>
+                            <Link href={`/admin/taskers/${tasker._id}`}>
+                              <DropdownMenuItem className='gap-2 cursor-pointer'>
+                                <ExternalLink size={14} /> View Details
+                              </DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuItem className='gap-2 cursor-pointer text-red-600 focus:text-red-600'>
+                              <Ban size={14} /> Suspend
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
+                  {!taskersLoading && taskers.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className='py-12 text-center text-gray-400 font-medium'
+                      >
+                        No taskers found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </ExpandableTableContainer>
           </div>
+
+          {/* Pagination */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className='flex items-center justify-between px-6 py-4 border-t border-gray-100'>
+              <p className='text-xs text-gray-500'>
+                Showing page {pagination.currentPage} of {pagination.totalPages}{" "}
+                ({pagination.totalTaskers} taskers)
+              </p>
+              <div className='flex gap-2'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={!pagination.hasPrev}
+                  className='h-8 w-8 p-0'
+                >
+                  <ChevronLeft size={16} />
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={!pagination.hasNext}
+                  className='h-8 w-8 p-0'
+                >
+                  <ChevronRight size={16} />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

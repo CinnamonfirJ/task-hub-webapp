@@ -20,7 +20,7 @@ export function FundWalletModal({
 }: FundWalletModalProps) {
   const [amount, setAmount] = useState("0.00");
   const [method, setMethod] = useState<"paystack" | "stellar">("paystack");
-  const isDev = process.env.NODE_ENV === "development";
+  const isDev = process.env.NEXT_PUBLIC_ENV === "development";
 
   if (!isOpen) return null;
 

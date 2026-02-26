@@ -462,7 +462,7 @@ function StatCard({
   color: string;
 }) {
   return (
-    <Card className='bg-white border border-gray-100 shadow-sm rounded-3xl p-6 transition-all hover:border-purple-100'>
+    <Card className='bg-white border border-gray-100 shadow-sm rounded-3xl p-4 md:p-6 transition-all hover:border-purple-100'>
       <div className='flex flex-col space-y-4'>
         <div className={`${color} p-2 rounded-xl w-fit`}>{icon}</div>
         <div className='space-y-1'>

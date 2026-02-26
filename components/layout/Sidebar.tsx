@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, History, MessageSquare, User, Plus, Rss } from "lucide-react";
+import {
+  Home,
+  History,
+  MessageSquare,
+  User,
+  Plus,
+  Rss,
+  LogOut,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,7 +18,7 @@ import { useConversations } from "@/hooks/useChat";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { data: convData } = useConversations();
   const isTasker = user?.role === "tasker";
 
@@ -69,7 +77,18 @@ export function Sidebar() {
         })}
       </nav>
 
-      {!isTasker && (
+      {isTasker ? (
+        <div className='p-4 border-t'>
+          <Button
+            onClick={() => logout()}
+            variant='outline'
+            className='w-full py-6 text-sm font-bold flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-100'
+          >
+            <LogOut size={18} />
+            Logout
+          </Button>
+        </div>
+      ) : (
         <div className='p-4 border-t'>
           <Link href='/post-task'>
             <Button className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-6 text-sm font-bold flex items-center justify-center gap-2'>

@@ -12,6 +12,7 @@ import {
   User,
   Plus,
   Rss,
+  LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,7 +23,7 @@ import { useConversations } from "@/hooks/useChat";
 export function MobileNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { data: convData } = useConversations();
 
   const isTasker = user?.role === "tasker";
@@ -154,7 +155,21 @@ export function MobileNavbar() {
                 })}
               </div>
 
-              {!isTasker && (
+              {isTasker ? (
+                <div className='p-6 border-t border-gray-50'>
+                  <Button
+                    onClick={() => {
+                      setIsOpen(false);
+                      logout();
+                    }}
+                    variant='outline'
+                    className='w-full py-7 rounded-2xl text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-100 transition-all active:scale-95'
+                  >
+                    <LogOut size={20} />
+                    Logout
+                  </Button>
+                </div>
+              ) : (
                 <div className='p-6 border-t border-gray-50'>
                   <Link href='/post-task'>
                     <Button className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-7 rounded-2xl text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg shadow-purple-100 transition-all active:scale-95'>

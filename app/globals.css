@@ -118,6 +118,25 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+
+  /* Responsive Typography Base */
+  h1 {
+    @apply text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight;
+  }
+  h2 {
+    @apply text-xl md:text-2xl lg:text-3xl font-bold tracking-tight;
+  }
+  h3 {
+    @apply text-lg md:text-xl font-bold;
+  }
+
+  /* Fluid text sizes for finer control if needed */
+  .text-responsive-base {
+    font-size: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  }
+  .text-responsive-lg {
+    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
   }
 }

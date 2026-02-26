@@ -140,12 +140,12 @@ export default function HomePage() {
 
       {/* Welcome Banner for Users (Incomplete Profile) */}
       {!isTasker && showWelcomeBanner && (
-        <div className='bg-[#F5EEFF] border border-[#E9D8FD] rounded-[2rem] p-10 flex flex-col items-center text-center space-y-6'>
+        <div className='bg-[#F5EEFF] border border-[#E9D8FD] rounded-2xl md:rounded-[2rem] p-6 md:p-10 flex flex-col items-center text-center space-y-4 md:space-y-6'>
           <div className='bg-[#6B46C1] p-4 rounded-full text-white'>
             <Stars size={32} />
           </div>
           <div className='space-y-2 max-w-lg'>
-            <h2 className='font-black text-3xl text-gray-900'>
+            <h2 className='font-black text-xl md:text-3xl text-gray-900'>
               Welcome! Let&apos;s get you started
             </h2>
             <p className='text-gray-500 font-medium'>
@@ -169,7 +169,7 @@ export default function HomePage() {
           </h3>
           {isTasker && (
             <Link
-              href='/tasks'
+              href='/feed'
               className='text-[#6B46C1] font-bold text-sm hover:underline'
             >
               See all
@@ -330,7 +330,7 @@ export default function HomePage() {
             <div className='bg-white/10 p-4 md:p-5 rounded-full mb-4 md:mb-6'>
               <Clock className='w-8 h-8 md:w-10 md:h-10' />
             </div>
-            <h2 className='mb-2 font-bold text-xl md:text-2xl'>
+            <h2 className='mb-2 font-bold text-lg md:text-2xl'>
               No Tasks Available
             </h2>
             <p className='mb-6 md:mb-8 text-white/70 text-sm md:text-base'>
@@ -414,7 +414,7 @@ export default function HomePage() {
             )
           ) : /* User Recent Activities: Show general tasks */
           recentTasks.length === 0 ? (
-            <div className='bg-white border border-gray-100 rounded-[2.5rem] py-20 flex flex-col items-center justify-center text-center space-y-4 shadow-sm'>
+            <div className='bg-white border border-gray-100 rounded-2xl md:rounded-[2.5rem] py-16 md:py-20 flex flex-col items-center justify-center text-center space-y-4 shadow-sm'>
               <div className='bg-purple-50 p-6 rounded-full'>
                 <Loader2 className='w-10 h-10 text-[#6B46C1] opacity-20' />
               </div>
