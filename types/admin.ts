@@ -1095,132 +1095,141 @@ export interface ActivityLogResponse {
 // Messages & Support Types
 // ============================================================================
 
+// ─── Message Stats ──────────────────────────────────────────────────────────────
+// GET /api/admin/messages/stats
+// admin.ts: return response.data ?? response
+// useMessageStats().data === MessageStats directly (no .data wrapper in component)
 export interface MessageStats {
-  overview: {
-    total_conversations: number;
-    active_conversations: number;
-    unread_messages: number;
-    flagged_conversations: number;
-  };
-  this_week: {
-    new_conversations: number;
-    messages_sent: number;
-    avg_response_time: string;
-  };
-  support_tickets: {
-    open: number;
-    pending_admin_response: number;
-    resolved_this_week: number;
-  };
-  categories: Record<string, number>;
+  totalConversations: number;
+  totalMessages: number;
+  totalUnread: number;
 }
 
-export interface MessageStatsResponse {
+// ─── Conversation List ───────────────────────────────────────────────────────────
+// GET /api/admin/messages
+// admin.ts: return response.data ?? response, typed Promise<ConversationListResponse>
+// useConversations().data === ConversationListResponse directly (no .data wrapper in component)
+
+export interface ConversationUnread {
+  user: number;
+  tasker: number;
+}
+
+export interface ConversationTask {
+  _id: string;
+  title: string;
+  budget?: number;
   status: string;
-  data: MessageStats;
 }
 
-export interface ConversationLastMessage {
-  from: string;
-  text: string;
-  timestamp: string;
+export interface ConversationUser {
+  _id: string;
+  fullName: string;
+  emailAddress?: string;
+  profilePicture?: string;
+}
+
+export interface ConversationTasker {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  emailAddress?: string;
+  profilePicture?: string;
 }
 
 export interface ConversationListItem {
   _id: string;
-  type: string;
+  task?: ConversationTask;
+  bid?: string;
+  user: ConversationUser;
+  tasker?: ConversationTasker;
   status: string;
+  // lastMessage is a plain string, NOT an object
+  lastMessage?: string;
+  lastMessageAt?: string;
+  // unread is per-role, NOT a single number
+  unread: ConversationUnread;
+  subject?: string;
   category?: string;
   priority?: string;
-  user: {
-    _id: string;
-    fullName: string;
-    emailAddress?: string;
-  };
-  tasker?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-  };
-  relatedTask?: {
-    _id: string;
-    title: string;
-  };
-  subject?: string;
-  flagReason?: string;
-  lastMessage?: ConversationLastMessage;
-  unreadCount: number;
-  messageCount: number;
-  assignedTo?: null | string;
-  reviewedBy?: null | string;
   createdAt: string;
-  lastActivity: string;
+  updatedAt: string;
 }
 
 export interface ConversationListResponse {
   status: string;
-  data: {
-    conversations: ConversationListItem[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalConversations: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
-  };
+  results?: number;
+  totalRecords?: number;
+  totalPages: number;
+  currentPage: number;
+  conversations: ConversationListItem[];
+}
+
+// ─── Conversation Detail ─────────────────────────────────────────────────────────
+// GET /api/admin/messages/:id
+// Actual response shape:
+// {
+//   status: "success",
+//   data: {
+//     details: { ...conversation fields... },
+//     messages: [ ...message items... ]
+//   }
+// }
+// admin.ts: return response.data ?? response, typed Promise<ConversationDetailResponse["data"]>
+// So useConversationDetails().data === { details, messages } directly (no .data wrapper in component)
+
+export interface ConversationReadBy {
+  who: string;
+  at: string;
+  _id: string;
 }
 
 export interface ConversationMessage {
   _id: string;
-  from: {
-    id: string;
-    name: string;
-    type: string;
+  conversation: string;
+  // Who sent this message
+  senderType: "user" | "tasker" | "admin" | "system" | string;
+  // Populated only when senderType === "user"
+  senderUser?: {
+    _id: string;
+    fullName: string;
+    profilePicture?: string;
+  };
+  // Populated only when senderType === "tasker"
+  senderTasker?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
   };
   text: string;
-  timestamp: string;
-  read: boolean;
+  attachments: string[];
+  status: string;
+  readBy: ConversationReadBy[];
+  // Use createdAt as the message timestamp — there is no "timestamp" field
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface ConversationDetail extends ConversationListItem {
-  subject?: string;
+// The object returned by useConversationDetails().data
+export interface ConversationDetailData {
+  // The conversation lives under "details", NOT "conversation"
+  details: ConversationListItem;
+  messages: ConversationMessage[];
+  // NOTE: there is no "metadata" object in the real API response
 }
 
+// Full raw response type (for reference / admin.ts typing)
 export interface ConversationDetailResponse {
   status: string;
-  data: {
-    conversation: ConversationDetail;
-    messages: ConversationMessage[];
-    metadata: {
-      totalMessages: number;
-      unreadCount: number;
-      averageResponseTime?: string;
-      assignedTo: string | null;
-    };
-  };
+  data: ConversationDetailData;
 }
 
+// ─── Send Admin Message ──────────────────────────────────────────────────────────
 export interface SendAdminMessageInput {
   text: string;
   priority?: string;
   category?: string;
-}
-
-export interface SendAdminMessageResponse {
-  status: string;
-  message: string;
-  data: {
-    messageId: string;
-    conversationId: string;
-    from: {
-      id: string;
-      name: string;
-      type: string;
-    };
-    text: string;
-    timestamp: string;
-  };
 }
 
 // ============================================================================
@@ -1340,29 +1349,37 @@ export interface CreateStaffResponse {
   };
 }
 
+export interface StaffRecentActivity {
+  id: string;
+  /** e.g. "ADMIN LOGIN", "LOCK USER ACCOUNT" */
+  action: string;
+  /** e.g. "Performed action on System" */
+  details: string;
+  date: string;
+}
+
 export interface StaffDetailResponse {
   status: string;
   data: {
-    staff: StaffMember & {
-      createdBy: {
-        _id: string;
-        fullName: string;
-      };
+    profile: {
+      id: string;
+      email: string;
+      role: "super_admin" | "operations" | "trust_safety" | "support";
+      phone?: string;
+      location?: string;
+      /** ISO date string — replaces the old createdAt */
+      joinedAt: string;
+      isActive: boolean;
     };
-    activity: {
-      login_count: number;
-      last_30_days: {
-        logins: number;
-        actions: number;
-        average_session: string;
-      };
-      actions_by_type: Record<string, number>;
+    permissions: string[];
+    accountInfo: {
+      adminId: string;
+      role: string;
+      /** ISO date of the last recorded update / action */
+      lastUpdated: string;
     };
-    recentActivity: Array<{
-      type: string;
-      target: string;
-      timestamp: string;
-    }>;
+    /** replaces old recentActivity array */
+    recentActivities: StaffRecentActivity[];
   };
 }
 
@@ -1580,85 +1597,243 @@ export interface ExportQueryParams extends DateRangeParams {
 // Categories Types
 // ============================================================================
 
-export interface AdminCategory {
+// ─── Message Stats ──────────────────────────────────────────────────────────────
+// GET /api/admin/messages/stats
+// admin.ts: return response.data ?? response
+// useMessageStats().data === MessageStats directly (no .data wrapper in component)
+export interface MessageStats {
+  totalConversations: number;
+  totalMessages: number;
+  totalUnread: number;
+}
+
+// ─── Conversation List ───────────────────────────────────────────────────────────
+// GET /api/admin/messages
+// admin.ts: return response.data ?? response, typed Promise<ConversationListResponse>
+// useConversations().data === ConversationListResponse directly (no .data wrapper in component)
+
+export interface ConversationUnread {
+  user: number;
+  tasker: number;
+}
+
+export interface ConversationTask {
   _id: string;
-  name: string;
-  description: string;
-  minPrice: number;
-  status: "Active" | "Closed";
-  serviceCount: number;
+  title: string;
+  budget?: number;
+  status: string;
+}
+
+export interface ConversationUser {
+  _id: string;
+  fullName: string;
+  emailAddress?: string;
+  profilePicture?: string;
+}
+
+export interface ConversationTasker {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  emailAddress?: string;
+  profilePicture?: string;
+}
+
+export interface ConversationListItem {
+  _id: string;
+  task?: ConversationTask;
+  bid?: string;
+  user: ConversationUser;
+  tasker?: ConversationTasker;
+  status: string;
+  // lastMessage is a plain string, NOT an object
+  lastMessage?: string;
+  lastMessageAt?: string;
+  // unread is per-role, NOT a single number
+  unread: ConversationUnread;
+  subject?: string;
+  category?: string;
+  priority?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface CategoryStats {
+export interface ConversationListResponse {
+  status: string;
+  results?: number;
+  totalRecords?: number;
+  totalPages: number;
+  currentPage: number;
+  conversations: ConversationListItem[];
+}
+
+// ─── Conversation Detail ─────────────────────────────────────────────────────────
+// GET /api/admin/messages/:id
+// Actual response shape:
+// {
+//   status: "success",
+//   data: {
+//     details: { ...conversation fields... },
+//     messages: [ ...message items... ]
+//   }
+// }
+// admin.ts: return response.data ?? response, typed Promise<ConversationDetailResponse["data"]>
+// So useConversationDetails().data === { details, messages } directly (no .data wrapper in component)
+
+export interface ConversationReadBy {
+  who: string;
+  at: string;
+  _id: string;
+}
+
+export interface ConversationMessage {
+  _id: string;
+  conversation: string;
+  // Who sent this message
+  senderType: "user" | "tasker" | "admin" | "system" | string;
+  // Populated only when senderType === "user"
+  senderUser?: {
+    _id: string;
+    fullName: string;
+    profilePicture?: string;
+  };
+  // Populated only when senderType === "tasker"
+  senderTasker?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+  };
+  text: string;
+  attachments: string[];
+  status: string;
+  readBy: ConversationReadBy[];
+  // Use createdAt as the message timestamp — there is no "timestamp" field
+  createdAt: string;
+  updatedAt: string;
+}
+
+// The object returned by useConversationDetails().data
+export interface ConversationDetailData {
+  // The conversation lives under "details", NOT "conversation"
+  details: ConversationListItem;
+  messages: ConversationMessage[];
+  // NOTE: there is no "metadata" object in the real API response
+}
+
+// Full raw response type (for reference / admin.ts typing)
+export interface ConversationDetailResponse {
+  status: string;
+  data: ConversationDetailData;
+}
+
+// ─── Send Admin Message ──────────────────────────────────────────────────────────
+export interface SendAdminMessageInput {
+  text: string;
+  priority?: string;
+  category?: string;
+}
+
+// ─── Categories ──────────────────────────────────────────────────────────────
+// These replace the old AdminCategory, AdminCategoryListResponse,
+// AdminCategoryDetailResponse, CreateCategoryRequest, UpdateCategoryRequest types
+
+// Single category as returned in the list
+export interface AdminCategory {
+  _id: string;
+  name: string;
+  displayName?: string;
+  description: string;
+  // Real API uses isActive boolean — NOT status: "Active"/"Closed"
+  isActive: boolean;
+  // Real API field is "minimumPrice" — NOT "minPrice"
+  minimumPrice: number;
+  // Real API field is "services" in list — NOT "serviceCount"
+  services?: number;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Stats block returned by GET /api/admin/categories
+export interface AdminCategoryStats {
   activeCategories: number;
   closedCategories: number;
   totalServices: number;
 }
 
-export interface CategoryTask {
+// GET /api/admin/categories
+// admin.ts: return response.data ?? response
+// useAdminCategories().data === { stats, categories } directly
+export interface AdminCategoryListResponse {
+  status: string;
+  data: {
+    stats: AdminCategoryStats;
+    categories: AdminCategory[];
+  };
+}
+
+// Stats block returned by GET /api/admin/categories/:id
+export interface AdminCategoryDetailStats {
+  totalServices: number;
+  // Real API returns activeTaskers + totalTaskers — NOT "taskers" or "activeServices"
+  activeTaskers: number;
+  totalTaskers: number;
+  revenue: number;
+}
+
+// Task shape in category detail (real API returns [] so typed from component usage)
+export interface AdminCategoryTask {
   _id: string;
   title: string;
   postedBy: string;
   category: string;
   budget: number;
   status: string;
-  date: string;
+  date?: string;
+  createdAt?: string;
 }
 
-export interface CategoryTasker {
+// Tasker shape in category detail (real API returns [] so typed from component usage)
+export interface AdminCategoryTasker {
   _id: string;
   fullName: string;
   email: string;
+  emailAddress?: string;
   profilePicture?: string;
-  category: string;
-  status: "Active" | "Suspended";
-  verification: "Verified" | "Pending" | "Not verified";
-  lastActive: string;
+  category?: string;
+  status: "Active" | "Suspended" | string;
+  verification: "Verified" | "Not verified" | "Pending" | string;
+  lastActive?: string;
 }
 
-export interface AdminCategoryListResponse {
-  status: string;
-  message: string;
-  data: {
-    categories: AdminCategory[];
-    stats: CategoryStats;
-    pagination: {
-      total: number;
-      page: number;
-      limit: number;
-      pages: number;
-    };
-  };
-}
-
+// GET /api/admin/categories/:id
+// admin.ts: return response.data ?? response
+// useAdminCategoryDetails().data === { category, stats, tasks, taskers } directly
 export interface AdminCategoryDetailResponse {
   status: string;
-  message: string;
   data: {
     category: AdminCategory;
-    stats: {
-      totalServices: number;
-      activeServices: number;
-      taskers: number;
-      revenue: number;
-    };
-    tasks: CategoryTask[];
-    taskers: CategoryTasker[];
+    stats: AdminCategoryDetailStats;
+    tasks: AdminCategoryTask[];
+    taskers: AdminCategoryTasker[];
   };
 }
 
+// POST /api/admin/categories payload
 export interface CreateCategoryRequest {
   name: string;
+  displayName: string;
   description: string;
-  minPrice: number;
-  status: "Active" | "Closed";
+  minimumPrice: number;
 }
 
+// PATCH /api/admin/categories/:id payload
 export interface UpdateCategoryRequest {
   name?: string;
+  displayName?: string;
   description?: string;
-  minPrice?: number;
-  status?: "Active" | "Closed";
+  minimumPrice?: number;
+  // Use isActive boolean — NOT status: "Active"/"Closed"
+  isActive?: boolean;
 }

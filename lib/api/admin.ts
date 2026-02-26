@@ -26,7 +26,7 @@ import {
   ActivityLogResponse,
   MessageStats,
   ConversationListResponse,
-  ConversationDetailResponse,
+  ConversationDetailData,
   SystemSettings,
   StaffStats,
   StaffListResponse,
@@ -311,7 +311,7 @@ export const adminApi = {
     status?: string;
     category?: string;
     unread?: boolean;
-  }): Promise<ConversationListResponse["data"]> => {
+  }): Promise<ConversationListResponse> => {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -327,7 +327,7 @@ export const adminApi = {
 
   getConversationDetails: async (
     id: string,
-  ): Promise<ConversationDetailResponse["data"]> => {
+  ): Promise<ConversationDetailData> => {
     const response = await apiData<any>(`/api/admin/messages/${id}`, {
       method: "GET",
     });
@@ -658,199 +658,50 @@ export const adminApi = {
   // ============================================================================
 
   getCategories: async (): Promise<AdminCategoryListResponse["data"]> => {
-    // Generate mock categories
-    const mockCategories = [
-      {
-        _id: "cat_1",
-        name: "Cleaning Services",
-        description: "Professional home and office cleaning",
-        minPrice: 15000,
-        status: "Active" as const,
-        serviceCount: 5,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        _id: "cat_2",
-        name: "Plumbing",
-        description: "Expert plumbing services and repairs",
-        minPrice: 20000,
-        status: "Active" as const,
-        serviceCount: 5,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        _id: "cat_3",
-        name: "Electrical Repairs",
-        description: "Licensed electricians for all electrical work",
-        minPrice: 25000,
-        status: "Active" as const,
-        serviceCount: 5,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        _id: "cat_4",
-        name: "Graphics design",
-        description: "Creative design services for businesses",
-        minPrice: 50000,
-        status: "Closed" as const,
-        serviceCount: 5,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        _id: "cat_5",
-        name: "Digital marketing",
-        description: "SEO, social media, and online marketing",
-        minPrice: 40000,
-        status: "Active" as const,
-        serviceCount: 5,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ];
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          categories: mockCategories,
-          stats: {
-            activeCategories: 4,
-            closedCategories: 1,
-            totalServices: 184,
-          },
-          pagination: {
-            total: mockCategories.length,
-            page: 1,
-            limit: 10,
-            pages: 1,
-          },
-        });
-      }, 500);
+    const response = await apiData<any>("/api/admin/categories", {
+      method: "GET",
     });
+    // Response: { status, data: { stats, categories } }
+    return response.data ?? response;
   },
 
   getCategoryDetails: async (
     id: string,
   ): Promise<AdminCategoryDetailResponse["data"]> => {
-    const mockCategory = {
-      _id: id,
-      name: "Cleaning Services",
-      description:
-        "Professional home and office cleaning services for all your needs",
-      minPrice: 15000,
-      status: "Active" as const,
-      serviceCount: 4,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    const mockTasks = Array(4)
-      .fill(null)
-      .map((_, i) => ({
-        _id: `task_${i}`,
-        title: "Fix Leaking Kitchen Sink",
-        postedBy: "aisha.musa@taskhubdemo.com",
-        category: "Cleaning services",
-        budget: 40000,
-        status:
-          i === 0
-            ? "In progress"
-            : i === 1
-              ? "Open"
-              : i === 2
-                ? "Completed"
-                : "Assigned",
-        date: "02/02/2025",
-      }));
-
-    const mockTaskers = Array(4)
-      .fill(null)
-      .map((_, i) => ({
-        _id: `tasker_${i}`,
-        fullName:
-          i === 2
-            ? "Ibrahim Yusuf"
-            : i === 3
-              ? "Ngozi Adekunle"
-              : "Adewale Thompson",
-        email:
-          i === 2
-            ? "ibrahim.y@example.com"
-            : i === 3
-              ? "ngozi.a@example.com"
-              : "adewale.t@example.com",
-        category: "Cleaning services",
-        status: i === 1 ? ("Suspended" as const) : ("Active" as const),
-        verification:
-          i === 0 || i === 1
-            ? ("Verified" as const)
-            : i === 2
-              ? ("Not verified" as const)
-              : ("Pending" as const),
-        lastActive: "7:25PM, 11/15/2025",
-      }));
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          category: mockCategory,
-          stats: {
-            totalServices: 4,
-            activeServices: 1,
-            taskers: 184,
-            revenue: 459045.1,
-          },
-          tasks: mockTasks,
-          taskers: mockTaskers,
-        });
-      }, 500);
+    const response = await apiData<any>(`/api/admin/categories/${id}`, {
+      method: "GET",
     });
+    // Response: { status, data: { category, stats, tasks, taskers } }
+    return response.data ?? response;
   },
 
   createCategory: async (
     data: CreateCategoryRequest,
   ): Promise<AdminCategory> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          _id: `cat_${Date.now()}`,
-          ...data,
-          serviceCount: 0,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }, 600);
+    const response = await apiData<any>("/api/admin/categories", {
+      method: "POST",
+      body: JSON.stringify(data),
     });
+    // Response: { status, category } — at root, NOT under data
+    return response.category ?? response;
   },
 
   updateCategory: async (
     id: string,
     data: UpdateCategoryRequest,
   ): Promise<AdminCategory> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          _id: id,
-          name: data.name || "Updated Category",
-          description: data.description || "Updated Description",
-          minPrice: data.minPrice || 0,
-          status: data.status || "Active",
-          serviceCount: 5,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }, 600);
+    const response = await apiData<any>(`/api/admin/categories/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
     });
+    // Response: { status, category } — at root, NOT under data
+    return response.category ?? response;
   },
 
   deleteCategory: async (id: string): Promise<{ success: boolean }> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ success: true });
-      }, 600);
+    const response = await apiData<any>(`/api/admin/categories/${id}`, {
+      method: "DELETE",
     });
+    return response ?? { success: true };
   },
 };
