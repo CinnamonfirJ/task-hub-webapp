@@ -12,6 +12,8 @@ import { ChatWindow } from "@/components/chat/ChatWindow";
 import { Suspense, useEffect } from "react";
 import Loading from "../loading";
 import { Button } from "@/components/ui/button";
+import { containsRestrictedContent } from "@/lib/utils/contentFilter";
+import { toast } from "sonner";
 
 export default function ChatPage() {
   const { user } = useAuth();
@@ -58,6 +60,15 @@ export default function ChatPage() {
   }, [id, allMessages.length, markRead, user?.role]);
 
   const handleSendMessage = (text: string) => {
+    const filterResult = containsRestrictedContent(text);
+
+    if (filterResult.restricted) {
+      toast.error(
+        filterResult.reason || "Message contains restricted content.",
+      );
+      return;
+    }
+
     sendMessage({
       conversationId: id,
       data: { text },

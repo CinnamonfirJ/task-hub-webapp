@@ -25,9 +25,12 @@ export const tasksApi = {
     if (filters.page) params.append("page", filters.page.toString());
     if (filters.status) params.append("status", filters.status);
 
-    const res = await apiData<any>(`/api/tasks?${params.toString()}`, {
-      method: "GET",
-    });
+    const res = await apiData<any>(
+      `/api/tasks/user/tasks?${params.toString()}`,
+      {
+        method: "GET",
+      },
+    );
 
     return (
       res?.tasks ||

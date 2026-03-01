@@ -275,6 +275,9 @@ export default function TaskDetailsPage() {
               </p>
             </div>
 
+            {/* Task Images (User View) */}
+            <TaskImages images={task.images} />
+
             {/* Tags */}
             {task.tags && task.tags.length > 0 && (
               <div className='space-y-2'>
@@ -412,6 +415,11 @@ export default function TaskDetailsPage() {
               </div>
             </div>
 
+            {/* Task Images (Tasker View) */}
+            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm'>
+              <TaskImages images={task.images} title='Task Images' />
+            </div>
+
             {/* Application Form Section */}
             {isTasker && !hasApplied && (
               <ApplicationForm
@@ -538,6 +546,41 @@ function DetailRow({ label, value }: { label: string; value: string }) {
     <div className='flex justify-between items-center text-sm font-medium'>
       <span className='text-gray-400'>{label}</span>
       <span className='text-gray-900'>{value}</span>
+    </div>
+  );
+}
+
+function TaskImages({
+  images,
+  title = "Images",
+}: {
+  images?: any[];
+  title?: string;
+}) {
+  if (!images || images.length === 0) return null;
+
+  return (
+    <div className='space-y-4 w-full'>
+      <h3 className='font-bold text-gray-900 text-lg md:text-xl'>{title}</h3>
+      <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4'>
+        {images.map((img, idx) => {
+          const url = typeof img === "string" ? img : img.url;
+          if (!url) return null;
+          return (
+            <div
+              key={idx}
+              className='aspect-square rounded-xl overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity'
+              onClick={() => window.open(url, "_blank")}
+            >
+              <img
+                src={url}
+                alt={`Task image ${idx + 1}`}
+                className='w-full h-full object-cover'
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
