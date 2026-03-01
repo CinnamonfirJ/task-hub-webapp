@@ -1837,3 +1837,27 @@ export interface UpdateCategoryRequest {
   // Use isActive boolean — NOT status: "Active"/"Closed"
   isActive?: boolean;
 }
+
+// ============================================================================
+// Waitlist Types
+// ============================================================================
+
+export interface AdminWaitlistListItem {
+  _id: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface AdminWaitlistResponse {
+  status: string;
+  data: {
+    waitlist: AdminWaitlistListItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      hasNext: boolean;
+      hasPrev: boolean;
+    };
+  };
+}

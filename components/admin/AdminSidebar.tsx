@@ -33,6 +33,7 @@ export const navItems = [
   { icon: CreditCard, label: "Payments", href: "/admin/payments" },
   { icon: UserCheck, label: "KYC/Verification", href: "/admin/verification" },
   { icon: MessageSquare, label: "Message", href: "/admin/messages" },
+  { icon: Users, label: "Waitlist", href: "/admin/waitlist" },
   { icon: FileText, label: "Report & Logs", href: "/admin/reports" },
   { icon: Settings, label: "Settings", href: "/admin/settings" },
 ];
