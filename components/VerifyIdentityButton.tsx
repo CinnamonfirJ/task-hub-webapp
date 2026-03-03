@@ -45,18 +45,15 @@ export function VerifyIdentityButton({
         throw new Error(data.error || "Failed to create verification session");
       }
 
-      if (VERIFICATION_URL) {
+      if (data.verification_url) {
         // Redirect to Didit's hosted verification page
+        window.location.href = data.verification_url;
+      } else if (VERIFICATION_URL) {
+        // Fallback to static URL if provided (not recommended for session tracking)
         window.location.href = VERIFICATION_URL;
       } else {
-        throw new Error("No verification URL received");
+        throw new Error("No verification URL received from Didit session");
       }
-      // if (data.verification_url) {
-      //   // Redirect to Didit's hosted verification page
-      //   window.location.href = data.verification_url;
-      // } else {
-      //   throw new Error("No verification URL received");
-      // }
     } catch (error: any) {
       console.error("Verification error:", error);
       toast.error(error.message || "An error occurred. Please try again.");

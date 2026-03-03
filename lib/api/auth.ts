@@ -361,15 +361,21 @@ export const authApi = {
     firstName: string;
     lastName: string;
     dateOfBirth: string;
-    gender: "male" | "female";
+    gender?: "male" | "female";
     phoneNumber?: string;
     email?: string;
-  }): Promise<{ isVerified: boolean; matchStatus: string }> => {
-    const res = await apiData<any>("/api/auth/verify-identity", {
+  }): Promise<{
+    status: string;
+    message: string;
+    isVerified: boolean;
+    kycId: string;
+    verificationUrl?: string;
+  }> => {
+    const res = await apiData<any>("/api/v1/verify-nin", {
       method: "POST",
       body: JSON.stringify(data),
     });
-    return res?.data || { isVerified: false, matchStatus: "error" };
+    return res;
   },
 
   getVerificationStatus: async (): Promise<{ isVerified: boolean }> => {

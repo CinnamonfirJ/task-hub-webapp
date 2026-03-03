@@ -85,20 +85,20 @@ export function ProfileCompletionStep2({
             <ShieldCheck size={48} className='text-[#6B46C1]' />
           </div>
 
-          <div className='space-y-4 w-full'>
+          <div className='space-y-6 w-full'>
             <div className='space-y-2'>
               <p className='font-bold text-gray-900'>
                 Official ID Verification
               </p>
-              <p className='text-sm text-gray-500'>
-                Please use your National Identification Card (NIN) for
-                verification.
+              <p className='text-sm text-gray-500 mb-6'>
+                Please enter your 11-digit National Identification Number (NIN)
+                for verification.
               </p>
             </div>
 
             <VerifyIdentityButton
               userId={userId}
-              className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-14 rounded-xl font-bold text-lg mt-6 shadow-sm shadow-purple-100'
+              className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-16 rounded-xl font-bold text-lg mt-6 shadow-lg shadow-purple-100 transition-all active:scale-[0.99]'
             />
           </div>
         </div>

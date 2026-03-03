@@ -43,9 +43,7 @@ export default function ProfilePage() {
     setStep,
     form,
     handleNext,
-    handleVerify,
     handlePictureUpload,
-    isVerifying,
   } = useCompleteProfile() as any;
 
   // --- Modal States ---

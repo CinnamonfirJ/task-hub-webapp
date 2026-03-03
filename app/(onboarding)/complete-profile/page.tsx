@@ -24,10 +24,8 @@ export default function CompleteProfilePage() {
     setStep,
     form,
     handleNext,
-    handleVerify,
     handlePictureUpload,
     isSubmitting,
-    isVerifying,
   } = useCompleteProfile();
 
   if (isLoadingUser) {
@@ -75,14 +73,8 @@ export default function CompleteProfilePage() {
         <div>
           <h1 className='font-bold text-gray-900 text-2xl'>Complete profile</h1>
           <p className='text-gray-400 text-sm'>
-            {user?.role === "tasker" ? (
-              <>
-                Step {step} of 2:{" "}
-                {step === 1 ? "Profile Information" : "Verification"}
-              </>
-            ) : (
-              "Profile Information"
-            )}
+            Step {step} of 2:{" "}
+            {step === 1 ? "Profile Information" : "Verification"}
           </p>
         </div>
       </div>
@@ -110,27 +102,25 @@ export default function CompleteProfilePage() {
             </div>
           </div>
 
-          {user?.role === "tasker" && (
-            <div className='flex lg:flex-row flex-col items-start lg:items-center gap-4'>
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 transition-all ${
-                  step >= 2
-                    ? "bg-[#6B46C1] border-[#6B46C1] text-white shadow-lg shadow-purple-100"
-                    : "bg-white border-gray-200 text-gray-400"
-                }`}
-              >
-                2
-              </div>
-              <div className='text-left'>
-                <p
-                  className={`font-bold text-sm ${step >= 2 ? "text-gray-900" : "text-gray-400"}`}
-                >
-                  Verification
-                </p>
-                <p className='text-gray-400 text-xs'>ID verification</p>
-              </div>
+          <div className='flex lg:flex-row flex-col items-start lg:items-center gap-4'>
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 transition-all ${
+                step >= 2
+                  ? "bg-[#6B46C1] border-[#6B46C1] text-white shadow-lg shadow-purple-100"
+                  : "bg-white border-gray-200 text-gray-400"
+              }`}
+            >
+              2
             </div>
-          )}
+            <div className='text-left'>
+              <p
+                className={`font-bold text-sm ${step >= 2 ? "text-gray-900" : "text-gray-400"}`}
+              >
+                Verification
+              </p>
+              <p className='text-gray-400 text-xs'>ID verification</p>
+            </div>
+          </div>
         </div>
 
         {/* Right Side: Form Content */}
@@ -381,9 +371,7 @@ export default function CompleteProfilePage() {
                   {isSubmitting ? (
                     <Loader2 className='mr-2 w-6 h-6 animate-spin' />
                   ) : null}
-                  {user?.role === "tasker"
-                    ? "Continue to Verification"
-                    : "Complete Profile"}
+                  Continue to Verification
                 </Button>
               </form>
             </div>
@@ -404,13 +392,12 @@ export default function CompleteProfilePage() {
                       Official ID Verification
                     </p>
                     <p className='text-sm text-gray-500 max-w-sm mx-auto'>
-                      Please use your National Identification Card (NIN) for
-                      verification. Click below to start the secure redirect
-                      flow.
+                      Please enter your 11-digit National Identification Number
+                      (NIN) below to start the secure verification flow.
                     </p>
                   </div>
 
-                  <div className='pt-4 w-full'>
+                  <div className='w-full max-w-sm space-y-4 pt-4'>
                     <VerifyIdentityButton
                       userId={user?._id}
                       className='bg-[#6B46C1] hover:bg-[#553C9A] shadow-lg shadow-purple-200 py-8 rounded-xl w-full font-bold text-xl active:scale-[0.99] transition-all'
