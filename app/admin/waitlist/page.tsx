@@ -5,7 +5,7 @@ import { Search, Users, Download, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
-import { useAdminWaitlist } from "@/hooks/useAdmin";
+import { useWaitlist } from "@/hooks/useWaitlist";
 import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 
 export default function WaitlistManagementPage() {
@@ -18,7 +18,7 @@ export default function WaitlistManagementPage() {
   const [hasMore, setHasMore] = useState(false);
 
   // Fetch waitlist with search
-  const { data: waitlistData, isLoading } = useAdminWaitlist({
+  const { data: waitlistData, isLoading } = useWaitlist({
     page,
     limit,
     search: searchQuery,

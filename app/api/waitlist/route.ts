@@ -11,10 +11,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const backendUrl = process.env.NEXT_BASE_API;
+    const backendUrl = process.env.NEXT_PUBLIC_BASE_API;
 
     if (!backendUrl) {
-      console.error("NEXT_BASE_API is not defined");
+      console.error("NEXT_PUBLIC_BASE_API is not defined");
       return NextResponse.json(
         { error: "Server configuration error. Please try again later." },
         { status: 500 },
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
     const limit = searchParams.get("limit") || "20";
     const search = searchParams.get("search") || "";
 
-    const backendUrl = process.env.NEXT_BASE_API;
+    const backendUrl = process.env.NEXT_PUBLIC_BASE_API;
 
     if (!backendUrl) {
       return NextResponse.json(
@@ -75,7 +75,7 @@ export async function GET(request: Request) {
     }
 
     const response = await fetch(
-      `${backendUrl}/api/admin/waitlist?page=${page}&limit=${limit}&search=${search}`,
+      `${backendUrl}/api/waitlist?page=${page}&limit=${limit}&search=${search}`,
       {
         method: "GET",
         headers: {

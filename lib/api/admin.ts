@@ -705,25 +705,4 @@ export const adminApi = {
     });
     return response ?? { success: true };
   },
-
-  // Waitlist Management
-  getWaitlist: async (params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-  }): Promise<AdminWaitlistResponse["data"]> => {
-    const query = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) query.append(key, String(value));
-      });
-    }
-    const response = await apiData<any>(
-      `/api/admin/waitlist?${query.toString()}`,
-      {
-        method: "GET",
-      },
-    );
-    return response.data ?? response;
-  },
 };

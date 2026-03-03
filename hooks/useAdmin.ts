@@ -665,14 +665,3 @@ export function useDeleteAdminCategory() {
     },
   });
 }
-
-// --- Waitlist Management Hooks ---
-
-export function useAdminWaitlist(
-  params?: Parameters<typeof adminApi.getWaitlist>[0],
-) {
-  return useQuery({
-    queryKey: ["admin", "waitlist", params],
-    queryFn: () => adminApi.getWaitlist(params),
-  });
-}
