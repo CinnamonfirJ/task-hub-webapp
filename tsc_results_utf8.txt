@@ -1,1 +1,0 @@
-﻿app/admin/dashboard/page.tsx(23,10): error TS2305: Module '"@/lib/utils"' has no exported member 'formatCurrency'.
