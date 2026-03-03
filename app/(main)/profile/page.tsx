@@ -72,6 +72,7 @@ export default function ProfilePage() {
           handleVerify={handleVerify}
           setStep={setStep}
           isVerifying={isVerifying}
+          userId={user?._id}
         />
       );
     }
