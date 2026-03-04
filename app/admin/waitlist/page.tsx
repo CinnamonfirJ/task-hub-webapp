@@ -5,7 +5,7 @@ import { Search, Users, Download, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
-import { useAdminWaitlist } from "@/hooks/useAdmin";
+import { useWaitlist } from "@/hooks/useWaitlist";
 import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 
 export default function WaitlistManagementPage() {
@@ -18,7 +18,7 @@ export default function WaitlistManagementPage() {
   const [hasMore, setHasMore] = useState(false);
 
   // Fetch waitlist with search
-  const { data: waitlistData, isLoading } = useAdminWaitlist({
+  const { data: waitlistData, isLoading } = useWaitlist({
     page,
     limit,
     search: searchQuery,
@@ -26,19 +26,23 @@ export default function WaitlistManagementPage() {
 
   // Update visible items when new data comes in
   useEffect(() => {
-    if (waitlistData?.waitlist) {
+    if (waitlistData?.data) {
+      const backendTotal = waitlistData.count || 0;
+
       if (page === 1) {
-        setVisibleItems(waitlistData.waitlist);
+        setVisibleItems(waitlistData.data);
+        setHasMore(waitlistData.data.length < backendTotal);
       } else {
         setVisibleItems((prev) => {
           const existingIds = new Set(prev.map((item) => item._id));
-          const newItems = waitlistData.waitlist.filter(
+          const newItems = waitlistData.data.filter(
             (item) => !existingIds.has(item._id),
           );
-          return [...prev, ...newItems];
+          const updated = [...prev, ...newItems];
+          setHasMore(updated.length < backendTotal);
+          return updated;
         });
       }
-      setHasMore(waitlistData.pagination?.hasNext ?? false);
     }
   }, [waitlistData, page]);
 
@@ -98,7 +102,7 @@ export default function WaitlistManagementPage() {
         <Card className='border-none shadow-sm'>
           <CardContent className='p-4 text-center'>
             <div className='text-xl font-bold text-[#6B46C1]'>
-              {waitlistData?.pagination?.totalItems || 0}
+              {waitlistData?.count || 0}
             </div>
             <div className='text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-500'>
               Total Waitlist Entries

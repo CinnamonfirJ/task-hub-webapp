@@ -1850,14 +1850,6 @@ export interface AdminWaitlistListItem {
 
 export interface AdminWaitlistResponse {
   status: string;
-  data: {
-    waitlist: AdminWaitlistListItem[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalItems: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
-  };
+  count: number;
+  data: AdminWaitlistListItem[];
 }

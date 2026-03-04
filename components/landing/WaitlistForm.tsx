@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowRight, Loader2, AlertCircle } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { scaleOnHover } from "@/utils/landing-animations"
+import { useJoinWaitlist } from "@/hooks/useWaitlist";
+import { scaleOnHover } from "@/utils/landing-animations";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, ArrowRight, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface WaitlistFormProps {
-  variant?: "hero" | "final-cta"
-  placeholder?: string
-  buttonText?: string
+  variant?: "hero" | "final-cta";
+  placeholder?: string;
+  buttonText?: string;
 }
 
 export default function WaitlistForm({
@@ -17,51 +17,31 @@ export default function WaitlistForm({
   placeholder = "Jessica@email.com",
   buttonText = "Get early access",
 }: WaitlistFormProps) {
-  const [email, setEmail] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const {
+    mutate: joinWaitlist,
+    isPending: isLoading,
+    error: joinError,
+  } = useJoinWaitlist();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    joinWaitlist(email);
+  };
 
-    try {
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      })
+  const error = joinError ? joinError.message : null;
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Something went wrong. Please try again.")
-      }
-
-      // Success! Redirect to the success page
-      router.push("/waitlist-success")
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const isHero = variant === "hero"
+  const isHero = variant === "hero";
 
   return (
-    <div className="w-full">
+    <div className='w-full'>
       <form
         onSubmit={handleSubmit}
         className={`flex flex-col sm:flex-row gap-3 ${isHero ? "mb-6" : "mb-4 max-w-xl mx-auto"}`}
       >
-        <div className="flex-1 relative">
+        <div className='flex-1 relative'>
           <input
-            type="email"
+            type='email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={placeholder}
@@ -76,11 +56,11 @@ export default function WaitlistForm({
         </div>
         <motion.button
           variants={scaleOnHover}
-          initial="initial"
+          initial='initial'
           whileHover={isLoading ? "initial" : "hover"}
           whileTap={isLoading ? "initial" : "tap"}
           disabled={isLoading}
-          type="submit"
+          type='submit'
           className={`px-8 py-4 rounded-full font-semibold transition-colors whitespace-nowrap flex items-center justify-center gap-2 text-[15px] shadow-lg disabled:opacity-80 ${
             isHero
               ? "bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-purple-200"
@@ -89,7 +69,7 @@ export default function WaitlistForm({
         >
           {isLoading ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className='w-5 h-5 animate-spin' />
               Joining...
             </>
           ) : (
@@ -107,13 +87,13 @@ export default function WaitlistForm({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="flex items-center gap-2 text-red-500 text-[14px] mt-2 px-2"
+            className='flex items-center gap-2 text-red-500 text-[14px] mt-2 px-2'
           >
-            <AlertCircle className="w-4 h-4" />
+            <AlertCircle className='w-4 h-4' />
             <span>{error}</span>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }
