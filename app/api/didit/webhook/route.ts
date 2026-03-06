@@ -53,7 +53,14 @@ export async function POST(req: Request) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${internalToken}`,
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            session_id,
+            status,
+            vendor_data,
+            decision,
+            // Include everything else just in case, but ensuring vendor_data is at the top level
+            ...payload,
+          }),
         });
 
         if (!forwardRes.ok) {
