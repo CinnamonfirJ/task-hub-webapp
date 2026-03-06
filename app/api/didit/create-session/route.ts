@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import fs from "fs";
 
 export async function POST(req: Request) {
   try {
@@ -83,6 +84,14 @@ export async function POST(req: Request) {
     };
 
     console.log("Creating Didit session with payload:", payloadToDidit);
+    try {
+      fs.appendFileSync(
+        "./didit_debug.log",
+        `[Session Create] ${new Date().toISOString()} | origin: ${origin} | vendor_data: ${payloadToDidit.vendor_data}\n`,
+      );
+    } catch (e) {
+      // ignore
+    }
 
     const diditRes = await fetch("https://verification.didit.me/v3/session/", {
       method: "POST",
