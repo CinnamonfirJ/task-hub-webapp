@@ -67,17 +67,21 @@ export async function POST(req: Request) {
       );
     }
 
+    const payloadToDidit = {
+      workflow_id: workflowId,
+      callback: `${appUrl}/verification-complete`,
+      vendor_data: String(userId),
+    };
+
+    console.log("Creating Didit session with payload:", payloadToDidit);
+
     const diditRes = await fetch("https://verification.didit.me/v3/session/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": diditApiKey,
       },
-      body: JSON.stringify({
-        workflow_id: workflowId,
-        callback: `${appUrl}/verification-complete`,
-        vendor_data: userId,
-      }),
+      body: JSON.stringify(payloadToDidit),
     });
 
     const diditData = await diditRes.json();
