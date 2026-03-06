@@ -56,7 +56,17 @@ export async function POST(req: Request) {
     // 2. Call Didit to create a verification session
     const diditApiKey = process.env.NEXT_PUBLIC_DIDIT_API_KEY;
     const workflowId = process.env.NEXT_PUBLIC_DIDIT_WORKFLOW_ID;
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+    // Dynamically resolve appUrl using the request origin to avoid production build caching issues
+    const origin = req.headers.get("origin") || req.headers.get("referer");
+    let appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    if (origin && origin.startsWith("https://")) {
+      try {
+        appUrl = new URL(origin).origin;
+      } catch (err) {
+        // Fallback to original appUrl if URL parsing fails
+      }
+    }
 
     if (!diditApiKey || !workflowId) {
       console.error("Didit API credentials missing in environment variables");
@@ -68,7 +78,7 @@ export async function POST(req: Request) {
 
     const payloadToDidit = {
       workflow_id: workflowId,
-      callback: `${appUrl}/verification-complete`,
+      callback_url: `${appUrl}/verification-complete`,
       vendor_data: String(userId),
     };
 
