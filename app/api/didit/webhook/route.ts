@@ -40,6 +40,11 @@ export async function POST(req: Request) {
     console.log(
       `${logPrefix} Valid webhook received for session ${session_id}, status: ${status}`,
     );
+    console.log(
+      `${logPrefix} Full webhook payload:`,
+      JSON.stringify(payload, null, 2),
+    );
+    console.log(`${logPrefix} Extracted vendor_data:`, vendor_data);
 
     // 4. Forward to Express backend
     const backendUrl = process.env.NEXT_PUBLIC_BASE_API;
