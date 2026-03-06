@@ -22,7 +22,6 @@ export async function POST(req: Request) {
     }
 
     // 1. Validate the user session against the backend
-    // We try common profile endpoints to get the userId securely
     const profileEndpoints = ["/api/auth/user", "/api/auth/tasker"];
     let userData = null;
 
@@ -84,7 +83,9 @@ export async function POST(req: Request) {
       body: JSON.stringify(payloadToDidit),
     });
 
+    console.log("Creating Didit session with payload:", payloadToDidit);
     const diditData = await diditRes.json();
+    console.log("Didit session response:", diditData);
 
     if (!diditRes.ok) {
       console.error("Didit session creation failed:", diditData);
