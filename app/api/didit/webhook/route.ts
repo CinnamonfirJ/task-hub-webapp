@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import fs from "fs";
 
 export async function POST(req: Request) {
   const logPrefix = "[Didit Webhook]";
@@ -45,6 +46,15 @@ export async function POST(req: Request) {
       JSON.stringify(payload, null, 2),
     );
     console.log(`${logPrefix} Extracted vendor_data:`, vendor_data);
+
+    try {
+      fs.appendFileSync(
+        "./didit_debug.log",
+        `[Webhook Received] ${new Date().toISOString()} | session_id: ${session_id} | status: ${status} | vendor_data: ${vendor_data}\n`,
+      );
+    } catch (e) {
+      // ignore
+    }
 
     // 4. Forward to Express backend
     const backendUrl = process.env.NEXT_PUBLIC_BASE_API;
