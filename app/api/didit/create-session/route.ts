@@ -122,7 +122,11 @@ export async function POST(req: Request) {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ sessionId: diditData.session_id }),
+        body: JSON.stringify({
+          sessionId: diditData.session_id,
+          vendor_data: "6999aad74d2e3e3c3910abb0",
+          vendorData: "6999aad74d2e3e3c3910abb0",
+        }),
       });
       console.log("Session registered with backend:", diditData.session_id);
     } catch (err) {
