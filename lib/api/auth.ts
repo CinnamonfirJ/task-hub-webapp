@@ -263,16 +263,35 @@ export const authApi = {
           }
 
           // Fetch verification status separately and merge it, as some endpoints miss these fields
-          try {
-            const vStatus = await this.getVerificationStatus();
-            if (vStatus && typeof vStatus.isVerified === "boolean") {
-              Object.assign(profileData as any, {
-                isKYCVerified: vStatus.isVerified,
-                verifyIdentity: vStatus.isVerified,
-              });
+          if (profileData) {
+            try {
+              const vStatus = await this.getVerificationStatus();
+              console.log(
+                "[authApi] Separate verification status response:",
+                vStatus,
+              );
+              if (vStatus && typeof vStatus.isVerified === "boolean") {
+                Object.assign(profileData as any, {
+                  isKYCVerified: vStatus.isVerified,
+                  verifyIdentity: vStatus.isVerified,
+                  // Also add common variations
+                  kycVerified: vStatus.isVerified,
+                  verified: vStatus.isVerified,
+                });
+                console.log(
+                  `[authApi] Merged verification: isVerified=${vStatus.isVerified}`,
+                );
+              }
+            } catch (vErr) {
+              console.warn(
+                "[authApi] Could not merge verification status",
+                vErr,
+              );
             }
-          } catch (vErr) {
-            console.warn("[authApi] Could not merge verification status", vErr);
+
+            if (process.env.NODE_ENV === "development") {
+              console.log("[authApi] Final profile structure:", profileData);
+            }
           }
 
           return profileData;
@@ -392,10 +411,30 @@ export const authApi = {
   },
 
   getVerificationStatus: async (): Promise<{ isVerified: boolean }> => {
-    const res = await apiData<any>("/api/auth/verification-status", {
-      method: "GET",
-    });
-    return res?.data || { isVerified: false };
+    try {
+      const res = await apiData<any>("/api/auth/verification-status", {
+        method: "GET",
+      });
+      console.log("[authApi] Verification status raw response:", res);
+
+      // Extremely greedy check to catch verification in almost any format
+      const isVerified =
+        res?.isVerified === true ||
+        res?.data?.isVerified === true ||
+        res?.user?.isKYCVerified === true ||
+        res?.user?.verifyIdentity === true ||
+        res?.tasker?.isKYCVerified === true ||
+        res?.tasker?.verifyIdentity === true ||
+        res?.data === true ||
+        res?.status === "verified" ||
+        (res?.status === "success" &&
+          (res?.isVerified || res?.data?.isVerified));
+
+      return { isVerified: !!isVerified };
+    } catch (err) {
+      console.error("[authApi] Error fetching verification status:", err);
+      return { isVerified: false };
+    }
   },
 
   // ── Session ────────────────────────────────────────────────────────────
