@@ -86,9 +86,7 @@ export async function POST(req: Request) {
       // Body might be empty
     }
 
-    const vendor_data_value = String(
-      body.vendor_data || "6999aad74d2e3e3c3910abb0",
-    ).trim();
+    const vendor_data_value = String(body.vendor_data || userId).trim();
 
     // Aligning strictly with Didit V3 OpenAPI spec provided by user
     const payloadToDidit = {

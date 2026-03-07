@@ -158,8 +158,13 @@ export function checkProfileCompleteness(user: any): boolean {
   if (!user.isEmailVerified) return false;
 
   // 3. Identity Verification Check
-  // Based on request: "dashboard should only show as normal after isEmailVerified is true and the verifyIdentity is true"
-  if (!user.verifyIdentity && !user.isKYCVerified) return false;
+  if (
+    !user.verifyIdentity &&
+    !user.isKYCVerified &&
+    !user.kycVerified &&
+    !user.verified
+  )
+    return false;
 
   // 4. Tasker Specific: Categories
   if (user.role === "tasker") {

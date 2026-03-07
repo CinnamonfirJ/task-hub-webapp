@@ -98,7 +98,10 @@ export function useHome() {
 
   // Tasker specific state
   const isVerified =
-    (user as any)?.isVerified || (user as any)?.verifyIdentity || false;
+    (user as any)?.isVerified ||
+    (user as any)?.verifyIdentity ||
+    (user as any)?.isKYCVerified ||
+    false;
 
   return {
     // User data
