@@ -36,9 +36,8 @@ export async function POST(req: Request) {
 
     // 3. Parse payload
     const payload = JSON.parse(rawBody);
-    // const { session_id, status, vendor_data, decision } = payload;
-    const { session_id, status, decision } = payload;
-    const vendor_data = "6999aad74d2e3e3c3910abb0";
+    const { session_id, status, vendor_data, decision } = payload;
+    // const vendor_data_mock = "6999aad74d2e3e3c3910abb0";
 
     console.log(
       `${logPrefix} Valid webhook received for session ${session_id}, status: ${status}`,

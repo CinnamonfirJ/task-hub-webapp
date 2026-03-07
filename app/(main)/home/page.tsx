@@ -115,7 +115,7 @@ export default function HomePage() {
       </div>
 
       {/* Verification Banner for Taskers */}
-      {isTasker && (!isVerified || !isProfileComplete) && (
+      {isTasker && !isVerified && (
         <div className='bg-[#FFF9EA] border border-[#FFE7A5] rounded-[2rem] p-6 md:p-8 flex flex-col md:flex-row items-center gap-4 md:gap-6 shadow-sm border-dashed'>
           <div className='bg-[#FBBC05] p-4 md:p-5 rounded-full text-white shadow-lg shrink-0'>
             <Clock size={24} className='md:w-8 md:h-8' />
@@ -138,8 +138,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Welcome Banner for Users (Incomplete Profile) */}
-      {!isTasker && showWelcomeBanner && (
+      {/* Welcome Banner for Users (Unverified) */}
+      {!isTasker && !isVerified && (
         <div className='bg-[#F5EEFF] border border-[#E9D8FD] rounded-2xl md:rounded-[2rem] p-6 md:p-10 flex flex-col items-center text-center space-y-4 md:space-y-6'>
           <div className='bg-[#6B46C1] p-4 rounded-full text-white'>
             <Stars size={32} />

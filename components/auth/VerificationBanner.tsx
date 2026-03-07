@@ -24,10 +24,14 @@ export function VerificationBanner() {
     pathname.startsWith(path),
   );
 
-  const isProfileComplete = user ? checkProfileCompleteness(user) : true;
+  const isVerified =
+    user.verifyIdentity ||
+    user.isKYCVerified ||
+    (user as any).kycVerified ||
+    (user as any).verified;
 
-  // Don't show if loading, no user, already complete, or on onboarding pages
-  if (isLoadingUser || !user || isProfileComplete || isOnOnboardingPage) {
+  // Don't show if loading, no user, already verified, or on onboarding pages
+  if (isLoadingUser || !user || isVerified || isOnOnboardingPage) {
     return null;
   }
 
