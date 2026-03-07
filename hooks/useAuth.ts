@@ -26,7 +26,7 @@ export function useAuth() {
     queryKey: USER_QUERY_KEY,
     queryFn: authApi.getProfile,
     retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000, // 30 seconds (down from 5m for better verification sync)
     enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
   });
 
