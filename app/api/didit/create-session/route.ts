@@ -8,6 +8,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 },
+        // { status: 401 },
       );
     }
 
