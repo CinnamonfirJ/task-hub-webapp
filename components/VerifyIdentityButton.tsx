@@ -39,6 +39,8 @@ export function VerifyIdentityButton({
         },
         body: JSON.stringify({
           vendor_data: userId || "6999aad74d2e3e3c3910abb0",
+          vendorData: userId || "6999aad74d2e3e3c3910abb0",
+          external_id: userId || "6999aad74d2e3e3c3910abb0",
           userId: userId,
         }),
       });
