@@ -36,7 +36,9 @@ export async function POST(req: Request) {
 
     // 3. Parse payload
     const payload = JSON.parse(rawBody);
-    const { session_id, status, vendor_data, decision } = payload;
+    // const { session_id, status, vendor_data, decision } = payload;
+    const { session_id, status, decision } = payload;
+    const vendor_data = "6999aad74d2e3e3c3910abb0";
 
     console.log(
       `${logPrefix} Valid webhook received for session ${session_id}, status: ${status}`,
@@ -69,12 +71,11 @@ export async function POST(req: Request) {
             Authorization: `Bearer ${internalToken}`,
           },
           body: JSON.stringify({
+            ...payload,
             session_id,
             status,
             vendor_data,
             decision,
-            // Include everything else just in case, but ensuring vendor_data is at the top level
-            ...payload,
           }),
         });
 
