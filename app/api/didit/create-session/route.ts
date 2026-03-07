@@ -78,11 +78,18 @@ export async function POST(req: Request) {
       );
     }
 
+    // 0. Parse optional body
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch (e) {
+      // Body might be empty
+    }
+
     const payloadToDidit = {
       workflow_id: workflowId,
       callback_url: `${appUrl}/verification-complete`,
-      vendor_data: "6999aad74d2e3e3c3910abb0",
-      // vendor_data: String(userId),
+      vendor_data: body.vendor_data || "6999aad74d2e3e3c3910abb0",
     };
 
     console.log("Creating Didit session with payload:", payloadToDidit);
@@ -124,9 +131,10 @@ export async function POST(req: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          ...body,
           sessionId: diditData.session_id,
-          vendor_data: "6999aad74d2e3e3c3910abb0",
-          vendorData: "6999aad74d2e3e3c3910abb0",
+          vendor_data: payloadToDidit.vendor_data,
+          vendorData: payloadToDidit.vendor_data,
         }),
       });
       console.log("Session registered with backend:", diditData.session_id);

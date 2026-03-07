@@ -37,6 +37,10 @@ export function VerifyIdentityButton({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          vendor_data: userId || "6999aad74d2e3e3c3910abb0",
+          userId: userId,
+        }),
       });
 
       const data = await response.json();
