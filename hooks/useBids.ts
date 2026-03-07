@@ -2,10 +2,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { bidsApi } from "@/lib/api/bids";
 import { CreateBidInput, UpdateBidInput } from "@/types/bid";
 
-export function useMyBids(status?: string) {
+export function useMyBids(status?: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["myBids", status],
     queryFn: () => bidsApi.getMyBids(status),
+    enabled: options?.enabled,
   });
 }
 
@@ -27,21 +28,23 @@ export function useBidDetails(id: string) {
 
 export function useCreateBid() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: CreateBidInput) => bidsApi.createBid(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["myBids"] });
-      queryClient.invalidateQueries({ queryKey: ["taskBids", variables.taskId] });
+      queryClient.invalidateQueries({
+        queryKey: ["taskBids", variables.taskId],
+      });
     },
   });
 }
 
 export function useUpdateBid() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateBidInput }) => 
+    mutationFn: ({ id, data }: { id: string; data: UpdateBidInput }) =>
       bidsApi.updateBid(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["myBids"] });
@@ -54,7 +57,7 @@ export function useUpdateBid() {
 
 export function useDeleteBid() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => bidsApi.deleteBid(id),
     onSuccess: () => {
@@ -66,7 +69,7 @@ export function useDeleteBid() {
 
 export function useAcceptBid() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => bidsApi.acceptBid(id),
     onSuccess: (data) => {
@@ -79,9 +82,9 @@ export function useAcceptBid() {
 
 export function useRejectBid() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason?: string }) => 
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
       bidsApi.rejectBid(id, reason),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["taskBids"] });

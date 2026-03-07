@@ -37,8 +37,7 @@ export default function HistoryPage() {
     queryFn: () => tasksApi.getUserTasks(),
   });
 
-  // Filter tasks based on active tabs
-  // API statuses might differ slightly, so we normalize
+  // Filter tasks based on active tab
   const currentTasks = (tasks || []).filter((task: Task) => {
     const status = task.status?.toLowerCase() || "";
 
@@ -61,20 +60,24 @@ export default function HistoryPage() {
   const isEmpty = !isLoading && currentTasks.length === 0;
 
   return (
-    <div className='p-8 space-y-8 max-w-6xl'>
+    <div className='p-4 md:p-8 space-y-6 md:space-y-8 max-w-6xl'>
       {/* Header */}
       <div>
-        <h1 className='text-3xl font-bold text-gray-900'>Task History</h1>
-        <p className='text-gray-600 mt-1'>View all your previous tasks</p>
+        <h1 className='text-2xl md:text-3xl font-bold text-gray-900'>
+          Task History
+        </h1>
+        <p className='text-sm md:text-base text-gray-600 mt-1'>
+          View all your previous tasks
+        </p>
       </div>
 
       {/* Filter Tabs */}
-      <div className='flex gap-3 flex-wrap'>
+      <div className='flex gap-2 overflow-x-auto pb-2 scrollbar-none'>
         {filters.map((filter) => (
           <button
             key={filter.key}
             onClick={() => setActiveFilter(filter.key)}
-            className={`px-6 py-2 rounded-full font-medium transition-all ${
+            className={`px-4 md:px-6 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
               activeFilter === filter.key
                 ? "bg-[#6B46C1] text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -126,14 +129,17 @@ export default function HistoryPage() {
           </Link>
         </div>
       ) : (
-        <div className='space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-          {currentTasks.map((task) => (
-            <Link href={`/tasks/${task._id}`}>
+        // FIX 1: Removed `space-y-4` — it was adding margin-top on every child,
+        //         fighting `gap-4` and making vertical spacing uneven.
+        // FIX 2: Changed gap-4 → gap-6 for consistent spacing on both axes.
+        // FIX 3: Added h-full to Link so it fills the grid cell height.
+        // FIX 4: Passed className="h-full" into ActivityItem so it stretches too.
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          {currentTasks.map((task: Task) => (
+            <Link key={task._id} href={`/tasks/${task._id}`} className='h-full'>
               <ActivityItem
-                key={task._id}
                 id={task._id}
                 title={task.title}
-                // Handle category object or string
                 category={
                   typeof task.categories?.[0] === "string"
                     ? task.categories[0]
@@ -145,6 +151,7 @@ export default function HistoryPage() {
                 date={task.createdAt}
                 status={task.status}
                 amount={task.budget}
+                className='h-full'
               />
             </Link>
           ))}

@@ -49,24 +49,21 @@ export const apiData = async <T>(
     if (!response.ok) {
       if (response.status === 401) {
         if (process.env.NODE_ENV === "development") {
-          console.error(
+          console.warn(
             `[API 401] Unauthorized response from ${endpoint}. Clearing token.`,
           );
         }
 
         // Clear invalid token and redirect to login
         if (typeof window !== "undefined") {
-          // localStorage.removeItem("token");
-          // localStorage.removeItem("userType");
+          localStorage.removeItem("token");
+          localStorage.removeItem("userType");
 
           // Only redirect if not already on login/register pages to avoid loops
-          // const path = window.location.pathname;
-          // if (!path.includes("/login") && !path.includes("/register")) {
-          //   window.location.href = "/login";
-          // }
-          console.error(
-            "401 Unauthorized received. Auto-logout disabled for debugging.",
-          );
+          const path = window.location.pathname;
+          if (!path.includes("/login") && !path.includes("/register")) {
+            window.location.href = "/login";
+          }
         }
         throw new Error("Unauthorized");
       }
@@ -111,7 +108,9 @@ export const apiData = async <T>(
 
     return data;
   } catch (error: any) {
-    console.error("API Request Failed:", error);
+    if (error?.message !== "Unauthorized") {
+      console.error("API Request Failed:", error);
+    }
     throw error;
   }
 };

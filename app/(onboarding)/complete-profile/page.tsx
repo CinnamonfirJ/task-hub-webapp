@@ -12,7 +12,9 @@ import {
   Upload,
   Link as LinkIcon,
   Loader2,
+  ShieldCheck,
 } from "lucide-react";
+import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
 
 export default function CompleteProfilePage() {
   const {
@@ -22,10 +24,8 @@ export default function CompleteProfilePage() {
     setStep,
     form,
     handleNext,
-    handleVerify,
     handlePictureUpload,
     isSubmitting,
-    isVerifying,
   } = useCompleteProfile();
 
   if (isLoadingUser) {
@@ -73,11 +73,8 @@ export default function CompleteProfilePage() {
         <div>
           <h1 className='font-bold text-gray-900 text-2xl'>Complete profile</h1>
           <p className='text-gray-400 text-sm'>
-            {user?.role === "tasker" ? (
-              <>Step {step} of 2: {step === 1 ? "Profile Information" : "Verification"}</>
-            ) : (
-              "Profile Information"
-            )}
+            Step {step} of 2:{" "}
+            {step === 1 ? "Profile Information" : "Verification"}
           </p>
         </div>
       </div>
@@ -105,27 +102,25 @@ export default function CompleteProfilePage() {
             </div>
           </div>
 
-          {user?.role === "tasker" && (
-            <div className='flex lg:flex-row flex-col items-start lg:items-center gap-4'>
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 transition-all ${
-                  step >= 2
-                    ? "bg-[#6B46C1] border-[#6B46C1] text-white shadow-lg shadow-purple-100"
-                    : "bg-white border-gray-200 text-gray-400"
-                }`}
-              >
-                2
-              </div>
-              <div className='text-left'>
-                <p
-                  className={`font-bold text-sm ${step >= 2 ? "text-gray-900" : "text-gray-400"}`}
-                >
-                  Verification
-                </p>
-                <p className='text-gray-400 text-xs'>ID verification</p>
-              </div>
+          <div className='flex lg:flex-row flex-col items-start lg:items-center gap-4'>
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 transition-all ${
+                step >= 2
+                  ? "bg-[#6B46C1] border-[#6B46C1] text-white shadow-lg shadow-purple-100"
+                  : "bg-white border-gray-200 text-gray-400"
+              }`}
+            >
+              2
             </div>
-          )}
+            <div className='text-left'>
+              <p
+                className={`font-bold text-sm ${step >= 2 ? "text-gray-900" : "text-gray-400"}`}
+              >
+                Verification
+              </p>
+              <p className='text-gray-400 text-xs'>ID verification</p>
+            </div>
+          </div>
         </div>
 
         {/* Right Side: Form Content */}
@@ -157,7 +152,7 @@ export default function CompleteProfilePage() {
                   </label>
                 </div>
                 <p className='font-medium text-gray-400 text-sm'>
-                   Upload profile image
+                  Upload profile image
                 </p>
               </div>
 
@@ -174,7 +169,7 @@ export default function CompleteProfilePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className='space-y-6 p-8'>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className='grid grid-cols-2 gap-4'>
                       <div className='space-y-2'>
                         <Label className='font-bold text-gray-700 text-sm'>
                           First name
@@ -207,7 +202,7 @@ export default function CompleteProfilePage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className='grid grid-cols-2 gap-4'>
                       <div className='space-y-2'>
                         <Label className='font-bold text-gray-700 text-sm'>
                           Gender
@@ -216,8 +211,8 @@ export default function CompleteProfilePage() {
                           {...form.register("gender")}
                           className='bg-gray-100/50 px-4 border-none rounded-xl outline-none focus:ring-2 focus:ring-purple-400 w-full h-14 text-sm appearance-none'
                         >
-                           <option value="male">Male</option>
-                           <option value="female">Female</option>
+                          <option value='male'>Male</option>
+                          <option value='female'>Female</option>
                         </select>
                         {form.formState.errors.gender && (
                           <p className='px-1 font-medium text-red-500 text-xs'>
@@ -247,11 +242,11 @@ export default function CompleteProfilePage() {
                       <Label className='font-bold text-gray-700 text-sm'>
                         Date of Birth
                       </Label>
-                      <div className="relative">
+                      <div className='relative'>
                         <Input
-                            type='date'
-                            {...form.register("dateOfBirth")}
-                            className='bg-gray-100/50 px-4 border-none rounded-xl focus-visible:ring-purple-400 h-14'
+                          type='date'
+                          {...form.register("dateOfBirth")}
+                          className='bg-gray-100/50 px-4 border-none rounded-xl focus-visible:ring-purple-400 h-14'
                         />
                       </div>
                       {form.formState.errors.dateOfBirth && (
@@ -291,10 +286,10 @@ export default function CompleteProfilePage() {
                         {...form.register("residentState")}
                         className='bg-gray-100/50 px-4 border-none rounded-xl outline-none focus:ring-2 focus:ring-purple-400 w-full h-14 text-sm appearance-none'
                       >
-                         <option value="">Select your state of residence</option>
-                         <option value="Lagos">Lagos</option>
-                         <option value="Abuja">Abuja</option>
-                         <option value="Rivers">Rivers</option>
+                        <option value=''>Select your state of residence</option>
+                        <option value='Lagos'>Lagos</option>
+                        <option value='Abuja'>Abuja</option>
+                        <option value='Rivers'>Rivers</option>
                       </select>
                       {form.formState.errors.residentState && (
                         <p className='px-1 font-medium text-red-500 text-xs'>
@@ -335,10 +330,13 @@ export default function CompleteProfilePage() {
                           Previous work
                         </Label>
                         <p className='mb-4 font-medium text-[11px] text-gray-400'>
-                           Upload images showcasing previous work
+                          Upload images showcasing previous work
                         </p>
                         <div className='group flex flex-col justify-center items-center space-y-3 hover:bg-gray-50 p-10 border-2 border-gray-100 border-dashed rounded-3xl transition-colors cursor-pointer'>
-                          <Upload size={20} className='text-gray-400 group-hover:text-[#6B46C1] transition-colors' />
+                          <Upload
+                            size={20}
+                            className='text-gray-400 group-hover:text-[#6B46C1] transition-colors'
+                          />
                           <span className='font-bold text-gray-400 text-xs tracking-tight'>
                             Upload Images
                           </span>
@@ -373,55 +371,45 @@ export default function CompleteProfilePage() {
                   {isSubmitting ? (
                     <Loader2 className='mr-2 w-6 h-6 animate-spin' />
                   ) : null}
-                  {user?.role === "tasker" ? "Continue to Verification" : "Complete Profile"}
+                  Continue to Verification
                 </Button>
               </form>
             </div>
           ) : (
             <div className='slide-in-from-right-4 space-y-8 animate-in duration-500 fade-in'>
-              <Card className='bg-white shadow-sm border-none rounded-3xl min-h-[400px] overflow-hidden'>
+              <Card className='bg-white shadow-sm border-none rounded-3xl min-h-[300px] overflow-hidden'>
                 <CardHeader className='bg-white px-8 py-6 border-gray-50 border-b'>
                   <CardTitle className='font-bold text-xl'>
-                    Verification
+                    Identity Verification
                   </CardTitle>
                 </CardHeader>
-                <CardContent className='space-y-8 p-8'>
-                  <div className='space-y-3'>
-                    <Label className='font-bold text-gray-700 text-sm'>
-                      NIN
-                    </Label>
-                    <Input
-                      {...form.register("nin")}
-                      placeholder='Enter NIN number'
-                      maxLength={11}
-                      className='bg-gray-50 px-5 border-none rounded-xl focus-visible:ring-purple-400 h-14 font-medium text-lg'
-                    />
-                    {form.formState.errors.nin && (
-                      <p className='px-1 font-medium text-red-500 text-xs'>
-                        {form.formState.errors.nin.message}
-                      </p>
-                    )}
+                <CardContent className='space-y-8 p-8 flex flex-col items-center justify-center text-center'>
+                  <div className='bg-purple-50 p-6 rounded-full mb-2'>
+                    <ShieldCheck size={48} className='text-[#6B46C1]' />
+                  </div>
+                  <div className='space-y-2'>
+                    <p className='font-bold text-gray-900'>
+                      Official ID Verification
+                    </p>
+                    <p className='text-sm text-gray-500 max-w-sm mx-auto'>
+                      Please enter your 11-digit National Identification Number
+                      (NIN) below to start the secure verification flow.
+                    </p>
                   </div>
 
-                  <div className='pt-4'>
-                    <Button
-                      onClick={handleVerify}
-                      disabled={isVerifying || form.watch("nin")?.length !== 11}
+                  <div className='w-full max-w-sm space-y-4 pt-4'>
+                    <VerifyIdentityButton
+                      userId={user?._id}
                       className='bg-[#6B46C1] hover:bg-[#553C9A] shadow-lg shadow-purple-200 py-8 rounded-xl w-full font-bold text-xl active:scale-[0.99] transition-all'
-                    >
-                      {isVerifying ? (
-                        <Loader2 className='mr-2 w-6 h-6 animate-spin' />
-                      ) : null}
-                      Verifiy
-                    </Button>
+                    />
                   </div>
                 </CardContent>
               </Card>
 
               <div className='bg-blue-50/30 p-8 border border-blue-100/50 rounded-[2rem]'>
                 <p className='font-medium text-blue-600/60 text-sm text-center leading-relaxed'>
-                  Your NIN is only used for identity verification purposes and
-                  is never shared publicly. We value your privacy and security.
+                  Your identity is verified securely using Didit. We value your
+                  privacy and security.
                 </p>
               </div>
             </div>

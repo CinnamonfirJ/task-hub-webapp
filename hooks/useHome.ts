@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { tasksApi } from "@/lib/api/tasks";
 import { useAuth } from "@/hooks/useAuth";
+import { checkProfileCompleteness } from "@/hooks/useCompleteProfile";
 import { Task } from "@/types/task";
 
 /**
@@ -18,28 +19,7 @@ export function useHome() {
   const { user, isLoadingUser, isUserError: isUserFetchError } = useAuth();
 
   // Profile Completeness Check
-  const isProfileComplete = (() => {
-    if (!user) return false;
-
-    // Basic fields required for everyone
-    const hasBasicInfo = !!(
-      (user.fullName || (user.firstName && user.lastName)) &&
-      user.phoneNumber &&
-      user.country &&
-      user.residentState
-    );
-
-    if (!hasBasicInfo) return false;
-
-    // Tasker specific requirements
-    if (user.role === "tasker") {
-      const hasCategories =
-        Array.isArray(user.categories) && user.categories.length > 0;
-      return hasCategories;
-    }
-
-    return true;
-  })();
+  const isProfileComplete = checkProfileCompleteness(user);
 
   // Determine if user is a tasker
   const isTasker = user?.role === "tasker";
