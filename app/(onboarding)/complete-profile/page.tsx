@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Camera,
@@ -26,7 +28,16 @@ export default function CompleteProfilePage() {
     handleNext,
     handlePictureUpload,
     isSubmitting,
+    isProfileComplete,
   } = useCompleteProfile();
+  const router = useRouter();
+
+  // Redirect if already complete
+  useEffect(() => {
+    if (isProfileComplete && !isLoadingUser) {
+      router.replace("/profile");
+    }
+  }, [isProfileComplete, isLoadingUser, router]);
 
   if (isLoadingUser) {
     return (

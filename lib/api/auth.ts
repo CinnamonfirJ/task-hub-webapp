@@ -262,6 +262,19 @@ export const authApi = {
               localStorage.setItem("userType", "user");
           }
 
+          // Fetch verification status separately and merge it, as some endpoints miss these fields
+          try {
+            const vStatus = await this.getVerificationStatus();
+            if (vStatus && typeof vStatus.isVerified === "boolean") {
+              Object.assign(profileData as any, {
+                isKYCVerified: vStatus.isVerified,
+                verifyIdentity: vStatus.isVerified,
+              });
+            }
+          } catch (vErr) {
+            console.warn("[authApi] Could not merge verification status", vErr);
+          }
+
           return profileData;
         }
       } catch (error: any) {
