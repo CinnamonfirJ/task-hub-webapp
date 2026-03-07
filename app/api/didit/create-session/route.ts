@@ -90,12 +90,16 @@ export async function POST(req: Request) {
       body.vendor_data || "6999aad74d2e3e3c3910abb0",
     ).trim();
 
+    // Aligning strictly with Didit V3 OpenAPI spec provided by user
     const payloadToDidit = {
       workflow_id: workflowId,
-      callback_url: `${appUrl}/verification-complete`,
+      callback: `${appUrl}/verification-complete`,
       vendor_data: vendor_data_value,
-      vendorData: vendor_data_value, // Some versions use camelCase
-      external_id: vendor_data_value, // Alternate field name
+      // Metadata as string per spec: "{"user_type": "premium", "account_id": "ABC123"}"
+      metadata: JSON.stringify({
+        vendor_id: vendor_data_value,
+        userId: body.userId || vendor_data_value,
+      }),
     };
 
     console.log("Creating Didit session with payload:", payloadToDidit);
