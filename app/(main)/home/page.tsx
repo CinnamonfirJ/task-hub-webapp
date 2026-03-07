@@ -153,7 +153,7 @@ export default function HomePage() {
               managing your projects.
             </p>
           </div>
-          <Link href='/profile'>
+          <Link href='/complete-profile'>
             <Button className='bg-[#6B46C1] hover:bg-[#553C9A] px-12 h-14 rounded-xl font-bold text-lg'>
               Complete profile
             </Button>
