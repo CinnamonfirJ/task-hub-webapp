@@ -46,15 +46,20 @@ export function VerifyIdentityButton({
       });
 
       const data = await response.json();
+      console.log("Session creation response:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to create verification session");
       }
 
-      if (data.verification_url) {
+      const redirectUrl = data.url || data.verification_url;
+
+      if (redirectUrl) {
+        console.log("Redirecting to:", redirectUrl);
         // Redirect to Didit's hosted verification page
-        window.location.href = data.verification_url;
+        window.location.href = redirectUrl;
       } else if (VERIFICATION_URL) {
+        console.warn("No session URL received, falling back to static URL");
         // Fallback to static URL if provided (not recommended for session tracking)
         window.location.href = VERIFICATION_URL;
       } else {

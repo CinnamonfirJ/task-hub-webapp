@@ -94,12 +94,13 @@ export async function POST(req: Request) {
     const payloadToDidit = {
       workflow_id: workflowId,
       callback: `${appUrl}/verification-complete`,
+      callback_method: "both", // Recommended for better reliability
       vendor_data: vendor_data_value,
-      // Metadata as string per spec: "{"user_type": "premium", "account_id": "ABC123"}"
-      metadata: JSON.stringify({
+      // Metadata as object (the spec says string but examples/logs show object)
+      metadata: {
         vendor_id: vendor_data_value,
         userId: body.userId || vendor_data_value,
-      }),
+      },
     };
 
     console.log("Creating Didit session with payload:", payloadToDidit);
@@ -141,6 +142,9 @@ export async function POST(req: Request) {
       );
     }
 
+    const sessionId = diditData.session_id;
+    const verificationUrl = diditData.url; // Correct field name is 'url' per V3 spec
+
     // 3. Register the session mapping on your backend
     try {
       await fetch(`${backendUrl}/api/v1/kyc/register-session`, {
@@ -151,12 +155,12 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify({
           ...body,
-          sessionId: diditData.session_id,
-          vendor_data: payloadToDidit.vendor_data,
-          vendorData: payloadToDidit.vendor_data,
+          sessionId: sessionId,
+          vendor_data: vendor_data_value,
+          vendorData: vendor_data_value,
         }),
       });
-      console.log("Session registered with backend:", diditData.session_id);
+      console.log("Session registered with backend:", sessionId);
     } catch (err) {
       console.error("Failed to register session with backend:", err);
       // We continue even if registration fails, but log it
@@ -164,8 +168,9 @@ export async function POST(req: Request) {
 
     // 4. Return the verification URL to the frontend
     return NextResponse.json({
-      verification_url: diditData.verification_url,
-      session_id: diditData.session_id,
+      verification_url: verificationUrl, // Keep for frontend compatibility
+      url: verificationUrl, // Add the correct spec-compliant field
+      session_id: sessionId,
     });
   } catch (error: any) {
     console.error("Didit create-session error:", error);
