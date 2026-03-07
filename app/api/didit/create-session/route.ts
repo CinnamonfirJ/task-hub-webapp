@@ -103,7 +103,6 @@ export async function POST(req: Request) {
       body: JSON.stringify(payloadToDidit),
     });
 
-    console.log("Creating Didit session with payload:", payloadToDidit);
     const diditData = await diditRes.json();
     console.log("Didit session response:", diditData);
 
@@ -115,7 +114,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Return the verification URL to the frontend
+    // 3. Register the session mapping on your backend
+    try {
+      await fetch(`${backendUrl}/api/v1/kyc/register-session`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sessionId: diditData.session_id }),
+      });
+      console.log("Session registered with backend:", diditData.session_id);
+    } catch (err) {
+      console.error("Failed to register session with backend:", err);
+      // We continue even if registration fails, but log it
+    }
+
+    // 4. Return the verification URL to the frontend
     return NextResponse.json({
       verification_url: diditData.verification_url,
       session_id: diditData.session_id,
