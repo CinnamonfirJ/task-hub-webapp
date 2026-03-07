@@ -86,17 +86,23 @@ export async function POST(req: Request) {
       // Body might be empty
     }
 
+    const vendor_data_value = String(
+      body.vendor_data || "6999aad74d2e3e3c3910abb0",
+    ).trim();
+
     const payloadToDidit = {
       workflow_id: workflowId,
       callback_url: `${appUrl}/verification-complete`,
-      vendor_data: body.vendor_data || "6999aad74d2e3e3c3910abb0",
+      vendor_data: vendor_data_value,
+      vendorData: vendor_data_value, // Some versions use camelCase
+      external_id: vendor_data_value, // Alternate field name
     };
 
     console.log("Creating Didit session with payload:", payloadToDidit);
     try {
       fs.appendFileSync(
         "./didit_debug.log",
-        `[Session Create] ${new Date().toISOString()} | origin: ${origin} | vendor_data: ${payloadToDidit.vendor_data}\n`,
+        `[Session Create Request] ${new Date().toISOString()} | payload: ${JSON.stringify(payloadToDidit)}\n`,
       );
     } catch (e) {
       // ignore
@@ -113,6 +119,15 @@ export async function POST(req: Request) {
 
     const diditData = await diditRes.json();
     console.log("Didit session response:", diditData);
+
+    try {
+      fs.appendFileSync(
+        "./didit_debug.log",
+        `[Session Create Response] ${new Date().toISOString()} | status: ${diditRes.status} | body: ${JSON.stringify(diditData)}\n`,
+      );
+    } catch (e) {
+      // ignore
+    }
 
     if (!diditRes.ok) {
       console.error("Didit session creation failed:", diditData);
