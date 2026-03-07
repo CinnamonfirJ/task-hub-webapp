@@ -80,7 +80,8 @@ export async function POST(req: Request) {
     const payloadToDidit = {
       workflow_id: workflowId,
       callback_url: `${appUrl}/verification-complete`,
-      vendor_data: String(userId),
+      vendor_data: "6999aad74d2e3e3c3910abb0",
+      // vendor_data: String(userId),
     };
 
     console.log("Creating Didit session with payload:", payloadToDidit);
