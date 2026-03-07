@@ -20,20 +20,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     if (isMounted && !isLoadingUser) {
       if (!isAuthenticated) {
         router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
-      } else if (user && !checkProfileCompleteness(user)) {
-        // Redirection logic to ensure user finishes verification
-        const onboardingPaths = [
-          "/complete-profile",
-          "/verify-email",
-          "/verification-complete",
-        ];
-        const isAlreadyOnOnboarding = onboardingPaths.some((path) =>
-          pathname.startsWith(path),
-        );
-
-        if (!isAlreadyOnOnboarding) {
-          router.replace("/complete-profile");
-        }
       }
     }
   }, [isMounted, isLoadingUser, isAuthenticated, user, router, pathname]);
