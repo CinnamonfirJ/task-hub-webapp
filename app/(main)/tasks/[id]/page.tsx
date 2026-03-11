@@ -7,12 +7,14 @@ import {
   useCreateBid,
   useUpdateBid,
   useMyBids,
+  useRejectBid,
 } from "@/hooks/useBids";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Edit2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { BidCard } from "@/components/dashboard/BidCard";
 import { ApplicationForm } from "@/components/dashboard/ApplicationForm";
+import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tasksApi } from "@/lib/api/tasks";
 import { useRouter } from "next/navigation";
@@ -66,6 +68,9 @@ export default function TaskDetailsPage() {
 
   // Accept bid mutation
   const { mutate: acceptBid, isPending: isAccepting } = useAcceptBid();
+
+  // Reject bid mutation
+  const { mutate: rejectBid, isPending: isRejecting } = useRejectBid();
 
   // Create conversation mutation
   const { mutate: createConv, isPending: isCreatingConv } =
@@ -123,6 +128,12 @@ export default function TaskDetailsPage() {
 
   const handleAcceptBid = (bidId: string) => {
     acceptBid(bidId);
+  };
+
+  const handleRejectBid = (bidId: string) => {
+    if (confirm("Are you sure you want to reject this bid?")) {
+      rejectBid({ id: bidId });
+    }
   };
 
   const handleMessageTasker = (bidId: string) => {
@@ -314,8 +325,10 @@ export default function TaskDetailsPage() {
                       key={bid._id}
                       bid={bid}
                       onAccept={handleAcceptBid}
+                      onReject={handleRejectBid}
                       onMessage={handleMessageTasker}
                       isAccepting={isAccepting}
+                      isRejecting={isRejecting}
                     />
                   ))}
                 </div>
@@ -436,11 +449,29 @@ export default function TaskDetailsPage() {
                   <div className='bg-purple-50 border border-purple-100 p-6 md:p-8 rounded-2xl md:rounded-[2rem] space-y-4'>
                     <div className='flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0'>
                       <div>
-                        <h3 className='font-bold text-[#6B46C1] text-xl'>
-                          Application Submitted
-                        </h3>
+                        <div className="flex items-center gap-3">
+                          <h3 className='font-bold text-[#6B46C1] text-xl'>
+                            Application {taskerBid.status === "accepted" ? "Accepted" : taskerBid.status === "rejected" ? "Rejected" : "Submitted"}
+                          </h3>
+                          <span
+                             className={cn(
+                               "px-3 py-1 rounded-full text-[10px] font-bold border",
+                               taskerBid.status === "accepted"
+                                 ? "bg-[#E6FFFA] text-[#38A169] border-[#B2F5EA]"
+                                 : taskerBid.status === "rejected"
+                                   ? "bg-[#FFF5F5] text-[#E53E3E] border-[#FED7D7]"
+                                   : "bg-[#FFF9EA] text-[#D69E2E] border-[#FFE7A5]"
+                             )}
+                           >
+                            {taskerBid.status?.charAt(0).toUpperCase() + taskerBid.status?.slice(1)}
+                          </span>
+                        </div>
                         <p className='text-gray-600 text-sm mt-1'>
-                          You have submitted an application for this task.
+                          {taskerBid.status === "accepted" 
+                            ? "Congratulations! Your application has been accepted." 
+                            : taskerBid.status === "rejected"
+                            ? "Your application for this task has been rejected."
+                            : "You have submitted an application for this task."}
                         </p>
                       </div>
                       <div className='flex items-center gap-2'>
@@ -456,15 +487,17 @@ export default function TaskDetailsPage() {
                           <MessageSquare size={14} />
                           Message Owner
                         </Button>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          onClick={() => setIsEditingApplication(true)}
-                          className='border-purple-200 text-purple-700 hover:bg-purple-100 gap-2'
-                        >
-                          <Edit2 size={14} />
-                          Edit
-                        </Button>
+                        {taskerBid.status === "pending" && (
+                          <Button
+                            variant='outline'
+                            size='sm'
+                            onClick={() => setIsEditingApplication(true)}
+                            className='border-purple-200 text-purple-700 hover:bg-purple-100 gap-2'
+                          >
+                            <Edit2 size={14} />
+                            Edit
+                          </Button>
+                        )}
                       </div>
                     </div>
 

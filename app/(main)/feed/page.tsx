@@ -136,15 +136,30 @@ export default function FeedPage() {
                 </div>
 
                 {/* Poster Info */}
-                <div className='flex items-center gap-2 md:gap-3 mb-4 md:mb-6'>
-                  <div className='flex justify-center items-center bg-[#6B46C1] rounded-full w-8 h-8 md:w-9 md:h-9 font-bold text-white text-[8px] md:text-[10px]'>
-                    {posterInitial}
+                <div className='flex items-center justify-between mb-4 md:mb-6'>
+                  <div className='flex items-center gap-2 md:gap-3'>
+                    <div className='flex justify-center items-center bg-[#6B46C1] rounded-full w-8 h-8 md:w-9 md:h-9 font-bold text-white text-[8px] md:text-[10px]'>
+                      {posterInitial}
+                    </div>
+                    <div className='flex flex-col'>
+                      <span className='font-medium text-gray-400 text-[8px] md:text-[10px]'>
+                        Posted by {posterName}
+                      </span>
+                    </div>
                   </div>
-                  <div className='flex flex-col'>
-                    <span className='font-medium text-gray-400 text-[8px] md:text-[10px]'>
-                      Posted by {posterName}
+                  
+                  {/* Bid Status Badge */}
+                  {task.taskerBidInfo?.hasBid && (
+                    <span className={`px-2 py-0.5 rounded-md font-bold text-[8px] md:text-[9px] uppercase tracking-wider ${
+                      task.taskerBidInfo.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                      task.taskerBidInfo.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                      'bg-[#F5EEFF] text-[#6B46C1]'
+                    }`}>
+                      {task.taskerBidInfo.status === 'accepted' ? 'Accepted' :
+                       task.taskerBidInfo.status === 'rejected' ? 'Rejected' :
+                       'Bid Pending'}
                     </span>
-                  </div>
+                  )}
                 </div>
 
                 {/* Title & Description — flex-1 pushes footer to the bottom */}
@@ -158,7 +173,7 @@ export default function FeedPage() {
                 </div>
 
                 {/* Footer: Date & Price — pinned to bottom */}
-                <div className='flex justify-between items-center  border-t border-gray-50'>
+                <div className='flex justify-between items-center  border-t border-gray-50 pt-4'>
                   <div className='flex items-center gap-1.5 md:gap-2 text-gray-400 text-[10px] md:text-xs font-bold'>
                     <Calendar size={14} className='md:w-4 md:h-4' />
                     <span>
@@ -172,7 +187,14 @@ export default function FeedPage() {
                     </span>
                   </div>
                   <div className='font-black text-[#4CAF50] text-lg md:text-xl'>
-                    ₦{task.budget?.toLocaleString() || "0"}
+                    {task.taskerBidInfo?.hasBid ? (
+                       <div className="text-right">
+                         <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tight leading-none mb-1">Your Bid</div>
+                         <div>₦{task.taskerBidInfo.amount?.toLocaleString()}</div>
+                       </div>
+                    ) : (
+                      `₦${task.budget?.toLocaleString() || "0"}`
+                    )}
                   </div>
                 </div>
 

@@ -25,8 +25,8 @@ export function VerificationBanner() {
   );
 
   const isVerified =
-    user.verifyIdentity ||
-    user.isKYCVerified ||
+    user?.verifyIdentity ||
+    user?.isKYCVerified ||
     (user as any).kycVerified ||
     (user as any).verified;
 

@@ -50,6 +50,7 @@ export interface Task {
     amount?: number;
     message?: string;
     bidType?: "custom" | "fixed";
+    status?: "pending" | "accepted" | "rejected";
   };
   applicationInfo?: {
     canApply: boolean;

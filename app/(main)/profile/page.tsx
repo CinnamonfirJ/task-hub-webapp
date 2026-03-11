@@ -215,7 +215,7 @@ export default function ProfilePage() {
                   />
                 }
                 label='Wallet Balance'
-                value='#0'
+                value={`₦${(user?.wallet ?? 0).toLocaleString()}`}
                 color='bg-green-50'
               />
               <Button
@@ -260,7 +260,8 @@ export default function ProfilePage() {
 
             <div className='space-y-0.5 md:space-y-1'>
               <div className='text-3xl md:text-5xl font-black'>
-                <span className='text-xl md:text-3xl mr-1'>₦</span>0.00
+                <span className='text-xl md:text-3xl mr-1'>₦</span>
+                {(user?.wallet ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
               <p className='text-xs md:text-sm text-white/60 font-medium'>
                 Available balance
@@ -370,7 +371,7 @@ export default function ProfilePage() {
       <FundWalletModal
         isOpen={isFundOpen}
         onClose={() => setIsFundOpen(false)}
-        balance='0.00'
+        balance={(user?.wallet ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         onSwitchToStellar={(amount) => {
           setTxAmount(amount);
           setIsFundOpen(false);

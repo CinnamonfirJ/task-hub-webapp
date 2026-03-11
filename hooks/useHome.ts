@@ -35,12 +35,12 @@ export function useHome() {
     isRefetching: isRefetchingTasks,
   } = useQuery({
     queryKey: isTasker
-      ? ["taskerFeed", { maxDistance: 200, status: "open" }]
+      ? ["taskerFeed", { maxDistance: 200 }]
       : ["recentTasks"],
     queryFn: () =>
       isTasker
-        ? tasksApi.getTaskerFeed({ maxDistance: 200, status: "open" })
-        : tasksApi.getTasks({ limit: 6, status: "open" }),
+        ? tasksApi.getTaskerFeed({ maxDistance: 200 })
+        : tasksApi.getTasks({ limit: 6 }),
     enabled: !!user, // Fetch if user exists, even if profile is incomplete
   });
 

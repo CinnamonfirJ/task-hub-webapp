@@ -49,8 +49,6 @@ export function useUpdateBid() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["myBids"] });
       queryClient.invalidateQueries({ queryKey: ["bid", data._id] });
-      // Note: We might not have taskId easily available here to invalidate taskBids
-      // but the details and list will be updated.
     },
   });
 }
@@ -73,9 +71,12 @@ export function useAcceptBid() {
   return useMutation({
     mutationFn: (id: string) => bidsApi.acceptBid(id),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["taskBids", data.task._id] });
-      queryClient.invalidateQueries({ queryKey: ["task", data.task._id] });
+      const taskId = data.task?._id || data.task;
+      queryClient.invalidateQueries({ queryKey: ["taskBids", taskId] });
+      queryClient.invalidateQueries({ queryKey: ["task", taskId] });
       queryClient.invalidateQueries({ queryKey: ["myBids"] });
+      queryClient.invalidateQueries({ queryKey: ["userTasks"] });
+      queryClient.invalidateQueries({ queryKey: ["bid", data.bid?._id] });
     },
   });
 }
@@ -87,8 +88,16 @@ export function useRejectBid() {
     mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
       bidsApi.rejectBid(id, reason),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["taskBids"] });
-      queryClient.invalidateQueries({ queryKey: ["bid", data._id] });
+      const bidId = data?._id;
+      const taskId = typeof data?.task === "object" ? data.task?._id : data?.task;
+
+      queryClient.invalidateQueries({ queryKey: ["taskBids", taskId] });
+      queryClient.invalidateQueries({ queryKey: ["bid", bidId] });
+      queryClient.invalidateQueries({ queryKey: ["myBids"] });
+      queryClient.invalidateQueries({ queryKey: ["userTasks"] });
+      if (taskId) {
+        queryClient.invalidateQueries({ queryKey: ["task", taskId] });
+      }
     },
   });
 }

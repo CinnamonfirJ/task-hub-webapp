@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { X, Wallet, CreditCard, Coins } from "lucide-react";
+import { X, Wallet, CreditCard, Coins, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useInitializeFunding } from "@/hooks/useWallet";
+import { toast } from "sonner";
 
 interface FundWalletModalProps {
   isOpen: boolean;
@@ -18,20 +20,35 @@ export function FundWalletModal({
   onSwitchToStellar,
   balance = "0.00",
 }: FundWalletModalProps) {
-  const [amount, setAmount] = useState("0.00");
+  const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<"paystack" | "stellar">("paystack");
   const isDev = process.env.NEXT_PUBLIC_ENV === "development";
+
+  const { mutate: initializeFunding, isPending } = useInitializeFunding();
 
   if (!isOpen) return null;
 
   const handleFund = () => {
     if (method === "stellar") {
       onSwitchToStellar(amount);
-    } else {
-      console.log("Funding wallet with Paystack:", amount);
-      // Implement Paystack logic here or via callback
-      onClose();
+      return;
     }
+
+    const nairaAmount = parseFloat(amount);
+    if (!nairaAmount || nairaAmount < 100) {
+      toast.error("Minimum funding amount is ₦100");
+      return;
+    }
+
+    initializeFunding(nairaAmount, {
+      onError: (err: any) => {
+        const message =
+          err?.response?.data?.message ||
+          err?.message ||
+          "Could not initialize payment. Please try again.";
+        toast.error(message);
+      },
+    });
   };
 
   return (
@@ -41,7 +58,8 @@ export function FundWalletModal({
           <h2 className='text-2xl font-bold text-gray-900'>Fund wallet</h2>
           <button
             onClick={onClose}
-            className='text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full'
+            disabled={isPending}
+            className='text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full disabled:opacity-50'
           >
             <X className='h-6 w-6' />
           </button>
@@ -70,10 +88,12 @@ export function FundWalletModal({
             <input
               type='number'
               value={amount}
+              min={100}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder='0.00'
+              placeholder='e.g. 5000'
               className='w-full px-6 py-4 bg-purple-50/50 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 border-none font-semibold text-lg'
             />
+            <p className='text-xs text-gray-400 px-1'>Minimum: ₦100</p>
           </div>
 
           <div className='space-y-3'>
@@ -172,16 +192,27 @@ export function FundWalletModal({
         <div className='flex gap-4 mt-8'>
           <Button
             onClick={onClose}
+            disabled={isPending}
             variant='outline'
-            className='flex-1 py-6 rounded-2xl border-none bg-purple-50 text-purple-600 hover:bg-purple-100 font-bold text-base transition-all'
+            className='flex-1 py-6 rounded-2xl border-none bg-purple-50 text-purple-600 hover:bg-purple-100 font-bold text-base transition-all disabled:opacity-50'
           >
             Cancel
           </Button>
           <Button
             onClick={handleFund}
-            className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base shadow-lg shadow-purple-200 transition-all'
+            disabled={isPending}
+            className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base shadow-lg shadow-purple-200 transition-all disabled:opacity-70'
           >
-            {method === "stellar" ? "Continue" : "Fund"}
+            {isPending ? (
+              <span className='flex items-center gap-2'>
+                <Loader2 size={18} className='animate-spin' />
+                Redirecting...
+              </span>
+            ) : method === "stellar" ? (
+              "Continue"
+            ) : (
+              "Fund"
+            )}
           </Button>
         </div>
       </div>

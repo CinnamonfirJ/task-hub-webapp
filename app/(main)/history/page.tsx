@@ -9,55 +9,77 @@ import { tasksApi } from "@/lib/api/tasks";
 import { Task } from "@/types/task";
 import Link from "next/link";
 
+import { useAuth } from "@/hooks/useAuth";
+import { bidsApi } from "@/lib/api/bids";
+
 type StatusFilter =
+  | "all"
   | "open"
   | "assigned"
   | "inProgress"
   | "completed"
-  | "canceled";
+  | "canceled"
+  | "rejected";
 
 export default function HistoryPage() {
-  const [activeFilter, setActiveFilter] = useState<StatusFilter>("open");
+  const { user } = useAuth();
+  const isTasker = user?.role === "tasker";
+  const [activeFilter, setActiveFilter] = useState<StatusFilter>("all");
 
   const filters: { key: StatusFilter; label: string }[] = [
+    { key: "all", label: "All" },
     { key: "open", label: "Open" },
     { key: "assigned", label: "Assigned" },
     { key: "inProgress", label: "In progress" },
     { key: "completed", label: "Completed" },
     { key: "canceled", label: "Canceled" },
   ];
+  
+  // Add Rejected filter for taskers
+  if (isTasker) {
+    filters.push({ key: "rejected", label: "Rejected" });
+  }
 
-  // Fetch all user tasks
+  // Fetch all user tasks or tasker bids
   const {
-    data: tasks,
+    data: items,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["userTasks"],
-    queryFn: () => tasksApi.getUserTasks(),
+    queryKey: isTasker ? ["taskerBids"] : ["userTasks"],
+    queryFn: () => (isTasker ? bidsApi.getMyBids() : tasksApi.getUserTasks()) as Promise<any[]>,
   });
 
-  // Filter tasks based on active tab
-  const currentTasks = (tasks || []).filter((task: Task) => {
-    const status = task.status?.toLowerCase() || "";
+  // Normalize items to a common format (or handle separately)
+  const currentItems = (items as any[] || []).filter((item: any) => {
+    // If Tasker, item is a Bid. If User, item is a Task.
+    const status = (isTasker ? (item.status || 'pending') : (item.status || "")).toLowerCase();
+    const taskStatus = (isTasker && item.task && typeof item.task === 'object' ? item.task.status : item.status || "").toLowerCase();
+
+    if (activeFilter === "all") return true;
 
     switch (activeFilter) {
       case "open":
-        return status === "open";
+        return isTasker ? status === "pending" : (status === "open" || status === "pending");
       case "assigned":
-        return status === "assigned";
+        return isTasker ? status === "accepted" : (status === "assigned");
       case "inProgress":
-        return status === "in_progress" || status === "inprogress";
+        // For tasker, check task status if bid was accepted
+        return isTasker 
+          ? (status === "accepted" && (taskStatus === "in_progress" || taskStatus === "inprogress"))
+          : (status === "in_progress" || status === "inprogress");
       case "completed":
-        return status === "completed";
+        return isTasker ? (status === "accepted" && taskStatus === "completed") : (status === "completed");
       case "canceled":
-        return status === "canceled" || status === "cancelled";
+        return isTasker ? taskStatus === "cancelled" : (status === "canceled" || status === "cancelled");
+      case "rejected":
+        return isTasker && status === "rejected";
       default:
         return false;
     }
   });
 
-  const isEmpty = !isLoading && currentTasks.length === 0;
+  const isEmpty = !isLoading && currentItems.length === 0;
 
   return (
     <div className='p-4 md:p-8 space-y-6 md:space-y-8 max-w-6xl'>
@@ -135,26 +157,32 @@ export default function HistoryPage() {
         // FIX 3: Added h-full to Link so it fills the grid cell height.
         // FIX 4: Passed className="h-full" into ActivityItem so it stretches too.
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {currentTasks.map((task: Task) => (
-            <Link key={task._id} href={`/tasks/${task._id}`} className='h-full'>
-              <ActivityItem
-                id={task._id}
-                title={task.title}
-                category={
-                  typeof task.categories?.[0] === "string"
-                    ? task.categories[0]
-                    : task.categories?.[0]?.displayName ||
-                      task.categories?.[0]?.name ||
-                      "General"
-                }
-                description={task.description}
-                date={task.createdAt}
-                status={task.status}
-                amount={task.budget}
-                className='h-full'
-              />
-            </Link>
-          ))}
+          {currentItems.map((item: any) => {
+            const isBid = isTasker;
+            const task = isBid ? (typeof item.task === 'object' ? item.task : null) : item;
+            const displayTitle = task?.title || (isBid ? "Task" : "Untitled Task");
+            const displayCategory = isBid 
+              ? (task?.categories?.[0]?.name || "General")
+              : (typeof task.categories?.[0] === "string" 
+                  ? task.categories[0] 
+                  : task.categories?.[0]?.displayName || task.categories?.[0]?.name || "General");
+            const displayStatus = isBid ? (item.status || "Applied") : task.status;
+            
+            return (
+              <Link key={item._id} href={`/tasks/${task?._id || item._id}`} className='h-full'>
+                <ActivityItem
+                  id={item._id}
+                  title={displayTitle}
+                  category={displayCategory}
+                  description={task?.description || ""}
+                  date={item.createdAt}
+                  status={displayStatus}
+                  amount={isBid ? item.amount : task.budget}
+                  className='h-full'
+                />
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
