@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCategories } from "@/hooks/useCategories";
 import { tasksApi } from "@/lib/api/tasks";
 import { authApi } from "@/lib/api/auth";
@@ -14,14 +14,30 @@ import { useAuth } from "@/hooks/useAuth";
 export default function BecomeTaskerPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const { data: categories, isLoading } = useCategories();
+
+  // Initialize selected categories from user profile
+  useEffect(() => {
+    if (user?.categories && !isInitialized) {
+      const categoryIds = user.categories.map((cat: any) => 
+        typeof cat === 'string' ? cat : cat._id
+      );
+      setSelectedIds(categoryIds);
+      setIsInitialized(true);
+    }
+  }, [user, isInitialized]);
 
   const updateCategoriesMutation = useMutation({
     mutationFn: (ids: string[]) => authApi.updateCategories(ids),
     onSuccess: () => {
+      // Invalidate queries to refresh UI and tasker feed
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      queryClient.invalidateQueries({ queryKey: ["taskerFeed"] });
       router.push("/home");
     },
   });
@@ -50,11 +66,19 @@ export default function BecomeTaskerPage() {
     );
   }
 
+  const isAlreadyTasker = user?.role === "tasker";
+
   return (
     <div className="max-w-3xl mx-auto p-8 space-y-10 pb-20">
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Select Categories</h1>
-        <p className="text-gray-500 font-medium">Choose the categories you want to work in</p>
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+          {isAlreadyTasker ? "Update Categories" : "Select Categories"}
+        </h1>
+        <p className="text-gray-500 font-medium">
+          {isAlreadyTasker 
+            ? "Modify the categories you work in to adjust your task feed" 
+            : "Choose the categories you want to work in"}
+        </p>
         <p className="text-gray-400 text-xs mt-2">Select at least one category to begin</p>
       </div>
 
@@ -99,11 +123,13 @@ export default function BecomeTaskerPage() {
         <Button
           disabled={selectedIds.length === 0 || updateCategoriesMutation.isPending}
           onClick={handleContinue}
-          className="w-full bg-[#D6BCFA] hover:bg-[#B794F4] disabled:bg-purple-100/50 text-white h-16 rounded-[1.25rem] font-black text-lg shadow-sm transition-all"
+          className="w-full bg-[#6B46C1] hover:bg-[#553C9A] disabled:bg-purple-100/50 text-white h-16 rounded-[1.25rem] font-black text-lg shadow-sm transition-all"
         >
           {updateCategoriesMutation.isPending ? (
             <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-          ) : `Continue (${selectedIds.length} selected)`}
+          ) : isAlreadyTasker 
+            ? `Update Categories (${selectedIds.length})` 
+            : `Continue (${selectedIds.length} selected)`}
         </Button>
       </div>
     </div>

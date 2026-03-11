@@ -1,21 +1,25 @@
 import { Bid } from "@/types/bid";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
+import { Calendar, CheckCircle, XCircle } from "lucide-react";
 import { useState } from "react";
 import { TaskerProfileModal } from "./TaskerProfileModal";
 
 interface BidCardProps {
   bid: Bid;
   onAccept: (bidId: string) => void;
+  onReject: (bidId: string) => void;
   onMessage: (bidId: string) => void;
   isAccepting?: boolean;
+  isRejecting?: boolean;
 }
 
 export function BidCard({
   bid,
   onAccept,
+  onReject,
   onMessage,
   isAccepting,
+  isRejecting,
 }: BidCardProps) {
   const tasker = typeof bid.tasker === "object" ? bid.tasker : null;
   const taskerInitial = tasker?.fullName?.[0] || tasker?.firstName?.[0] || "E";
@@ -35,6 +39,8 @@ export function BidCard({
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const isBusy = isAccepting || isRejecting;
 
   return (
     <>
@@ -90,7 +96,7 @@ export function BidCard({
             </div>
           </div>
 
-          {/* Right: Amount */}
+          {/* Right: Amount + actions */}
           <div className='w-full md:w-auto text-left md:text-right space-y-4 shrink-0 mt-4 md:mt-0'>
             <div className='flex items-center justify-between md:block'>
               <span className='md:hidden text-gray-400 font-bold text-sm'>
@@ -107,18 +113,55 @@ export function BidCard({
                   variant='outline'
                   size='sm'
                   onClick={() => onMessage(bid._id)}
+                  disabled={isBusy}
                   className='flex-1 md:flex-none rounded-xl font-bold text-xs h-10 px-4'
                 >
                   Message
                 </Button>
                 <Button
                   size='sm'
+                  onClick={() => onReject(bid._id)}
+                  disabled={isBusy}
+                  className='flex-1 md:flex-none bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 rounded-xl font-bold text-xs h-10 px-4 shadow-none'
+                >
+                  {isRejecting ? (
+                    "Rejecting..."
+                  ) : (
+                    <span className='flex items-center gap-1.5'>
+                      <XCircle size={14} /> Reject
+                    </span>
+                  )}
+                </Button>
+                <Button
+                  size='sm'
                   onClick={() => onAccept(bid._id)}
-                  disabled={isAccepting}
+                  disabled={isBusy}
                   className='flex-1 md:flex-none bg-[#6B46C1] hover:bg-[#553C9A] rounded-xl font-bold text-xs h-10 px-6'
                 >
-                  {isAccepting ? "Accepting..." : "Accept"}
+                  {isAccepting ? (
+                    "Accepting..."
+                  ) : (
+                    <span className='flex items-center gap-1.5'>
+                      <CheckCircle size={14} /> Accept
+                    </span>
+                  )}
                 </Button>
+              </div>
+            )}
+
+            {bid.status === "accepted" && (
+              <div className='flex justify-end'>
+                <span className='text-xs font-bold text-green-600 bg-green-50 border border-green-100 px-3 py-1.5 rounded-xl flex items-center gap-1.5'>
+                  <CheckCircle size={13} /> Accepted
+                </span>
+              </div>
+            )}
+
+            {bid.status === "rejected" && (
+              <div className='flex justify-end'>
+                <span className='text-xs font-bold text-red-500 bg-red-50 border border-red-100 px-3 py-1.5 rounded-xl flex items-center gap-1.5'>
+                  <XCircle size={13} /> Rejected
+                </span>
               </div>
             )}
           </div>
