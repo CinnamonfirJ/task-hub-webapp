@@ -9,6 +9,7 @@ import {
   useMyBids,
   useRejectBid,
 } from "@/hooks/useBids";
+import { useUpdateTaskStatusTasker, useCompletionCode } from "@/hooks/useTaskDetails";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Edit2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,7 +21,8 @@ import { tasksApi } from "@/lib/api/tasks";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreateConversation } from "@/hooks/useChat";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, ShieldCheck, AlertCircle } from "lucide-react";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 export default function TaskDetailsPage() {
   const router = useRouter();
@@ -124,16 +126,47 @@ export default function TaskDetailsPage() {
     },
   });
 
+  // Tasker status update mutation
+  const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateTaskStatusTasker();
+
+  // Completion code query
+  const { data: completionCodeData } = useCompletionCode(
+    isOwner && task?.status === "in-progress" ? task._id : ""
+  );
+  const completionCode = completionCodeData;
+
+  const [inputCode, setInputCode] = useState("");
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+
   const [messageTaskerId, setMessageTaskerId] = useState<string | null>(null);
 
+  // Modal states
+  const [confirmAccept, setConfirmAccept] = useState<{ isOpen: boolean; bidId: string }>({ 
+    isOpen: false, 
+    bidId: "" 
+  });
+  const [confirmReject, setConfirmReject] = useState<{ isOpen: boolean; bidId: string }>({ 
+    isOpen: false, 
+    bidId: "" 
+  });
+  const [confirmCancelTask, setConfirmCancelTask] = useState(false);
+
   const handleAcceptBid = (bidId: string) => {
-    acceptBid(bidId);
+    setConfirmAccept({ isOpen: true, bidId });
+  };
+
+  const handleConfirmAccept = () => {
+    acceptBid(confirmAccept.bidId);
+    setConfirmAccept({ isOpen: false, bidId: "" });
   };
 
   const handleRejectBid = (bidId: string) => {
-    if (confirm("Are you sure you want to reject this bid?")) {
-      rejectBid({ id: bidId });
-    }
+    setConfirmReject({ isOpen: true, bidId });
+  };
+
+  const handleConfirmReject = () => {
+    rejectBid({ id: confirmReject.bidId });
+    setConfirmReject({ isOpen: false, bidId: "" });
   };
 
   const handleMessageTasker = (bidId: string) => {
@@ -167,9 +200,12 @@ export default function TaskDetailsPage() {
   };
 
   const handleCancelTask = () => {
-    if (confirm("Are you sure you want to cancel this task?")) {
-      cancelTask();
-    }
+    setConfirmCancelTask(true);
+  };
+
+  const handleConfirmCancelTask = () => {
+    cancelTask();
+    setConfirmCancelTask(false);
   };
 
   if (isLoading) {
@@ -346,6 +382,26 @@ export default function TaskDetailsPage() {
                 {isCancelling ? "Cancelling..." : "Cancel task"} ✕
               </Button>
             )}
+
+            {/* Completion Code Display for Owner */}
+            {task.status === "in-progress" && (
+              <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl space-y-3">
+                <h3 className="font-bold text-emerald-800 text-lg">Task In Progress</h3>
+                <p className="text-emerald-700 text-sm">
+                  Share this 6-digit completion code with the tasker ONLY when you are satisfied with the work.
+                </p>
+                <div className="flex justify-center py-4 text-4xl font-black tracking-[0.5em] text-emerald-900 bg-white rounded-xl border border-emerald-200">
+                  {completionCode || "------"}
+                </div>
+              </div>
+            )}
+            
+            {task.status === "completed" && (
+              <div className="bg-blue-50 border border-blue-100 p-6 rounded-2xl">
+                <h3 className="font-bold text-blue-800 text-lg">Task Completed</h3>
+                <p className="text-blue-700 text-sm">This task has been verified and completed.</p>
+              </div>
+            )}
           </>
         )}
 
@@ -474,31 +530,6 @@ export default function TaskDetailsPage() {
                             : "You have submitted an application for this task."}
                         </p>
                       </div>
-                      <div className='flex items-center gap-2'>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          onClick={() =>
-                            handleOpenChat(undefined, taskerBid?._id)
-                          }
-                          disabled={isCreatingConv}
-                          className='border-purple-200 text-purple-700 hover:bg-purple-100 gap-2'
-                        >
-                          <MessageSquare size={14} />
-                          Message Owner
-                        </Button>
-                        {taskerBid.status === "pending" && (
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            onClick={() => setIsEditingApplication(true)}
-                            className='border-purple-200 text-purple-700 hover:bg-purple-100 gap-2'
-                          >
-                            <Edit2 size={14} />
-                            Edit
-                          </Button>
-                        )}
-                      </div>
                     </div>
 
                     <div className='bg-white/50 rounded-xl p-4 space-y-3'>
@@ -523,6 +554,43 @@ export default function TaskDetailsPage() {
                         </div>
                       )}
                     </div>
+
+                    {/* Tasker Actions (Start/Complete) */}
+                    {taskerBid.status === "accepted" && task.status === "assigned" && (
+                      <Button
+                        className="w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold"
+                        onClick={() => updateStatus({ taskId: task._id, payload: { status: "in-progress" } })}
+                        disabled={isUpdatingStatus}
+                      >
+                        {isUpdatingStatus ? "Starting..." : "Start Task"}
+                      </Button>
+                    )}
+
+                    {taskerBid.status === "accepted" && task.status === "in-progress" && (
+                      <div className="space-y-4">
+                        <div className="p-4 bg-white rounded-xl border border-purple-100 flex flex-col gap-3">
+                          <label className="text-sm font-bold text-gray-700">Enter Completion Code</label>
+                          <input 
+                            type="text" 
+                            maxLength={6}
+                            placeholder="6-digit code from user"
+                            className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-center text-2xl font-black tracking-widest outline-none focus:ring-2 focus:ring-purple-200"
+                            value={inputCode}
+                            onChange={(e) => setInputCode(e.target.value.replace(/\D/g, ""))}
+                          />
+                          <Button
+                            className="w-full bg-[#4CAF50] hover:bg-[#388E3C] py-6 font-bold"
+                            onClick={() => updateStatus({ 
+                              taskId: task._id, 
+                              payload: { status: "completed", completionCode: inputCode } 
+                            })}
+                            disabled={isUpdatingStatus || inputCode.length !== 6}
+                          >
+                            {isUpdatingStatus ? "Verifying..." : "Complete Task & Release Payment"}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className='space-y-4'>
@@ -570,6 +638,43 @@ export default function TaskDetailsPage() {
           </>
         )}
       </div>
+
+      {/* Confirmation Modals */}
+      <ConfirmationModal
+        isOpen={confirmAccept.isOpen}
+        onClose={() => setConfirmAccept({ isOpen: false, bidId: "" })}
+        onConfirm={handleConfirmAccept}
+        isLoading={isAccepting}
+        title="Accept Bid?"
+        message="By accepting this bid, the task amount will be deducted from your wallet and held securely in escrow. The funds will only be released to the tasker once you provide them with the completion code after the task is finished."
+        confirmLabel="Accept & Secure Funds"
+        icon="shield"
+        variant="success"
+      />
+
+      <ConfirmationModal
+        isOpen={confirmReject.isOpen}
+        onClose={() => setConfirmReject({ isOpen: false, bidId: "" })}
+        onConfirm={handleConfirmReject}
+        isLoading={isRejecting}
+        title="Reject Bid?"
+        message="Are you sure you want to reject this bid? This action cannot be undone, and the tasker will be notified."
+        confirmLabel="Reject Bid"
+        icon="warning"
+        variant="danger"
+      />
+
+      <ConfirmationModal
+        isOpen={confirmCancelTask}
+        onClose={() => setConfirmCancelTask(false)}
+        onConfirm={handleConfirmCancelTask}
+        isLoading={isCancelling}
+        title="Cancel Task?"
+        message="Are you sure you want to cancel this task? If a tasker has already been assigned, any escrowed funds will be returned to your wallet. This action cannot be undone."
+        confirmLabel="Cancel Task"
+        icon="warning"
+        variant="danger"
+      />
     </div>
   );
 }

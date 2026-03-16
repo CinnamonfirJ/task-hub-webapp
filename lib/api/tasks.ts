@@ -106,4 +106,22 @@ export const tasksApi = {
       method: "DELETE",
     });
   },
+
+  getCompletionCode: async (taskId: string): Promise<string> => {
+    const res = await apiData<any>(`/api/tasks/${taskId}/completion-code`, {
+      method: "GET",
+    });
+    return res?.data?.completionCode || res?.completionCode;
+  },
+
+  updateTaskStatusTasker: async (
+    taskId: string,
+    payload: { status: "in-progress" | "completed"; completionCode?: string },
+  ): Promise<any> => {
+    const res = await apiData<any>(`/api/tasks/${taskId}/status/tasker`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+    return res?.task || res?.data?.task || res;
+  },
 };

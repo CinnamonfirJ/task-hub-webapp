@@ -1,5 +1,5 @@
 "use client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { walletApi } from "@/lib/api/wallet";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -33,5 +33,15 @@ export function useInitializeFunding() {
           window.location.href = data.authorizationUrl;
       }
     },
+  });
+}
+
+/**
+ * Hook to get detailed tasker wallet information.
+ */
+export function useTaskerWallet() {
+  return useQuery({
+    queryKey: ["taskerWallet"],
+    queryFn: () => walletApi.getTaskerBalance(),
   });
 }
