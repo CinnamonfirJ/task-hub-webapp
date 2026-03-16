@@ -149,6 +149,31 @@ export function ProfileCompletionStep1({ form, handleNext, handlePictureUpload, 
                 />
               </div>
               {errors.dateOfBirth && <p className="text-red-500 text-xs">{errors.dateOfBirth.message}</p>}
+              
+              {/* Age Warning */}
+              {(() => {
+                const dob = form.watch("dateOfBirth");
+                if (dob) {
+                  const birthDate = new Date(dob);
+                  const today = new Date();
+                  let age = today.getFullYear() - birthDate.getFullYear();
+                  const m = today.getMonth() - birthDate.getMonth();
+                  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                  }
+                  if (age < 16) {
+                    return (
+                        <div className="flex items-center gap-2 p-3 bg-orange-50 border border-orange-100 rounded-xl mt-2 animate-in fade-in slide-in-from-top-1 duration-300">
+                            <Calendar className="h-4 w-4 text-orange-500 shrink-0" />
+                            <p className="text-[11px] text-orange-700 font-bold leading-tight">
+                                Note: You must be at least 16 years old to register as a tasker. Please ensure your date of birth is correct.
+                            </p>
+                        </div>
+                    );
+                  }
+                }
+                return null;
+              })()}
             </div>
           </div>
         </div>

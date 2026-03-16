@@ -9,24 +9,59 @@ export function useWithdrawal() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: walletApi.requestWithdrawal,
+    mutationFn: (amount: number) => walletApi.requestWithdrawal(amount),
     onSuccess: () => {
       // Refresh balance and transactions
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["taskerWallet"] });
+      queryClient.invalidateQueries({ queryKey: ["withdrawals"] });
     },
   });
 }
 
 /**
- * Hook to verify bank account details before withdrawal.
+ * Hook to get the list of supported banks.
  */
-export function useVerifyBank(accountNumber: string, bankCode: string) {
+export function useBanks() {
   return useQuery({
-    queryKey: ["wallet", "verify-bank", accountNumber, bankCode],
-    queryFn: () => walletApi.verifyBankAccount(accountNumber, bankCode),
-    enabled: accountNumber.length === 10 && !!bankCode,
-    retry: false,
-    staleTime: 5 * 60 * 1000, // Cache for 5 mins
+    queryKey: ["banks"],
+    queryFn: () => walletApi.getBanks(),
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+  });
+}
+
+/**
+ * Hook to get tasker's saved bank account.
+ */
+export function useTaskerBankAccount() {
+  return useQuery({
+    queryKey: ["bankAccount"],
+    queryFn: () => walletApi.getBankAccount(),
+  });
+}
+
+/**
+ * Hook to set/update tasker's bank account.
+ */
+export function useSetBankAccount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ accountNumber, bankCode }: { accountNumber: string; bankCode: string }) =>
+      walletApi.setBankAccount(accountNumber, bankCode),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bankAccount"] });
+      queryClient.invalidateQueries({ queryKey: ["taskerWallet"] });
+    },
+  });
+}
+
+/**
+ * Hook to get withdrawal history.
+ */
+export function useWithdrawalHistory(params: { page?: number; limit?: number } = {}) {
+  return useQuery({
+    queryKey: ["withdrawals", params],
+    queryFn: () => walletApi.getWithdrawalHistory(params),
   });
 }

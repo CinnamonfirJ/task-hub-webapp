@@ -17,6 +17,7 @@ import {
   Bell,
   LogOut,
   X,
+  Banknote,
 } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
 import { useAdminProfile } from "@/hooks/useAdmin";
@@ -31,6 +32,7 @@ export const navItems = [
   { icon: Briefcase, label: "Tasks", href: "/admin/tasks" },
   { icon: Folder, label: "Categories", href: "/admin/categories" },
   { icon: CreditCard, label: "Payments", href: "/admin/payments" },
+  { icon: Banknote, label: "Withdrawals", href: "/admin/withdrawals" },
   { icon: UserCheck, label: "KYC/Verification", href: "/admin/verification" },
   { icon: MessageSquare, label: "Message", href: "/admin/messages" },
   { icon: Users, label: "Waitlist", href: "/admin/waitlist" },

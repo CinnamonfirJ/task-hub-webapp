@@ -705,4 +705,42 @@ export const adminApi = {
     });
     return response ?? { success: true };
   },
+
+  // Withdrawal Management
+  getWithdrawals: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+  }): Promise<any> => {
+    const query = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) query.append(key, String(value));
+      });
+    }
+    const response = await apiData<any>(
+      `/api/admin/withdrawals?${query.toString()}`,
+      { method: "GET" },
+    );
+    return response.data ?? response;
+  },
+
+  approveWithdrawal: async (id: string): Promise<any> => {
+    return apiData<any>(`/api/admin/withdrawals/${id}/approve`, {
+      method: "PATCH",
+    });
+  },
+
+  rejectWithdrawal: async (id: string, reason: string): Promise<any> => {
+    return apiData<any>(`/api/admin/withdrawals/${id}/reject`, {
+      method: "PATCH",
+      body: JSON.stringify({ reason }),
+    });
+  },
+
+  completeWithdrawal: async (id: string): Promise<any> => {
+    return apiData<any>(`/api/admin/withdrawals/${id}/complete`, {
+      method: "PATCH",
+    });
+  },
 };

@@ -47,6 +47,58 @@ export const walletApi = {
     return res?.data?.transactions || res?.transactions || [];
   },
 
+  getTaskerBalance: async (): Promise<{
+    walletBalance: number;
+    withdrawableAmount: number;
+    canWithdraw: boolean;
+    nextWithdrawableAt: string | null;
+    minimumWithdrawal: number;
+    hasBankAccount: boolean;
+    hasPendingWithdrawal: boolean;
+    pendingWithdrawalAmount: number;
+  }> => {
+    const res = await apiData<any>("/api/wallet/tasker/balance", { method: "GET" });
+    return res?.data || res;
+  },
+
+  getBanks: async (): Promise<any[]> => {
+    const res = await apiData<any>("/api/wallet/banks", { method: "GET" });
+    return res?.data || res || [];
+  },
+
+  getBankAccount: async (): Promise<any> => {
+    const res = await apiData<any>("/api/wallet/tasker/bank-account", { method: "GET" });
+    return res?.data || res;
+  },
+
+  setBankAccount: async (accountNumber: string, bankCode: string): Promise<any> => {
+    const res = await apiData<any>("/api/wallet/tasker/bank-account", {
+      method: "POST",
+      body: JSON.stringify({ accountNumber, bankCode }),
+    });
+    return res?.data || res;
+  },
+
+  requestWithdrawal: async (amount: number): Promise<any> => {
+    const res = await apiData<any>("/api/wallet/tasker/withdraw", {
+      method: "POST",
+      body: JSON.stringify({ amount }),
+    });
+    return res?.data || res;
+  },
+
+  getWithdrawalHistory: async (params: { page?: number; limit?: number } = {}): Promise<any> => {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.append("page", params.page.toString());
+    if (params.limit) searchParams.append("limit", params.limit.toString());
+    
+    const res = await apiData<any>(`/api/wallet/tasker/withdrawals?${searchParams.toString()}`, {
+      method: "GET",
+    });
+    return res;
+  },
+
+  // Legacy/Internal - Escrow is handled automatically by the backend status transitions
   holdEscrow: async (payload: {
     taskId: string;
     taskerId: string;
@@ -72,25 +124,6 @@ export const walletApi = {
       method: "POST",
       body: JSON.stringify({ taskId }),
     });
-    return res?.data || res;
-  },
-
-  requestWithdrawal: async (payload: WithdrawalPayload): Promise<any> => {
-    const res = await apiData<any>("/api/wallet/withdraw", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-    return res?.data || res;
-  },
-
-  verifyBankAccount: async (accountNumber: string, bankCode: string): Promise<{
-    accountName: string;
-    accountNumber: string;
-  }> => {
-    const res = await apiData<any>(
-      `/api/wallet/verify-account?accountNumber=${accountNumber}&bankCode=${bankCode}`,
-      { method: "GET" }
-    );
     return res?.data || res;
   },
 };
