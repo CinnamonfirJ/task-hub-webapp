@@ -24,6 +24,7 @@ import {
   TransactionListResponse,
   TransactionDetailResponse,
   ActivityLogResponse,
+  AdminPaymentFilters,
   MessageStats,
   ConversationListResponse,
   ConversationDetailData,
@@ -508,6 +509,7 @@ export const adminApi = {
     status?: string;
     userId?: string;
     taskerId?: string;
+    search?: string;
     startDate?: string;
     endDate?: string;
   }): Promise<TransactionListResponse["data"]> => {

@@ -6,8 +6,8 @@ import { ProfileCompletionStep1 } from "@/components/profile/ProfileCompletionSt
 import { ProfileCompletionStep2 } from "@/components/profile/ProfileCompletionStep2";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
-  Loader2,
   ChevronRight,
   Wallet,
   Plus,
@@ -15,15 +15,16 @@ import {
   ShieldCheck,
   HelpCircle,
   Lock,
+  RectangleEllipsis,
   FileQuestion,
   LogOut,
   User as UserIcon,
   Star,
-  Activity,
-  History,
   TrendingUp,
   Briefcase,
   DollarSign,
+  CreditCard,
+  CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,6 +32,7 @@ import { FundWalletModal } from "@/components/FundWalletModal";
 import { StellarPaymentModal } from "@/components/StellarPaymentModal";
 import { WithdrawFundsModal } from "@/components/WithdrawFundsModal";
 import { StellarWithdrawalModal } from "@/components/StellarWithdrawalModal";
+import { useBanks, useTaskerBankAccount } from "@/hooks/useWithdrawal";
 import { useState } from "react";
 
 export default function ProfilePage() {
@@ -44,7 +46,9 @@ export default function ProfilePage() {
     form,
     handleNext,
     handlePictureUpload,
-  } = useCompleteProfile() as any;
+  } = useCompleteProfile();
+
+  const { data: bankData } = useTaskerBankAccount();
 
   // --- Modal States ---
   const [isFundOpen, setIsFundOpen] = useState(false);
@@ -66,10 +70,7 @@ export default function ProfilePage() {
     if (step === 2) {
       return (
         <ProfileCompletionStep2
-          form={form}
-          handleVerify={handleVerify}
           setStep={setStep}
-          isVerifying={isVerifying}
           userId={user?._id}
         />
       );
@@ -157,7 +158,79 @@ export default function ProfilePage() {
         </div>
       </Link>
 
-      {/* Switch to Users Banner (For Taskers) */}
+      {/* Wallet balance Card (Universal) */}
+      <Card className='bg-linear-to-br from-[#673AB7] to-[#512DA8] border-none shadow-xl rounded-[2rem] md:rounded-[2.5rem] overflow-hidden text-white'>
+        <CardContent className='p-6 md:p-8 space-y-6 md:space-y-8'>
+          <div className='flex justify-between items-center'>
+            <div className='flex items-center gap-2 opacity-90'>
+              <Wallet size={16} className='md:w-[18px] md:h-[18px]' />
+              <span className='text-xs md:text-sm font-medium'>
+                Wallet balance
+              </span>
+            </div>
+            {user?.role === "tasker" ? (
+              <Button
+                variant='secondary'
+                onClick={() => setIsWithdrawOpen(true)}
+                className='bg-white/20 hover:bg-white/30 text-white border-none rounded-xl px-4 md:px-6 h-9 md:h-11 text-xs md:text-base flex items-center gap-2'
+              >
+                Withdraw
+              </Button>
+            ) : (
+              <Button
+                variant='secondary'
+                onClick={() => setIsFundOpen(true)}
+                className='bg-white/20 hover:bg-white/30 text-white border-none rounded-xl px-4 md:px-6 h-9 md:h-11 text-xs md:text-base flex items-center gap-2'
+              >
+                <Plus size={16} className='md:w-[18px] md:h-[18px]' /> Fund
+              </Button>
+            )}
+          </div>
+
+          <div className='space-y-0.5 md:space-y-1'>
+            <div className='text-3xl md:text-5xl font-black'>
+              <span className='text-xl md:text-3xl mr-1'>₦</span>
+              {(user?.wallet ?? 0).toLocaleString("en-NG", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </div>
+            <p className='text-xs md:text-sm text-white/60 font-medium'>
+              Available balance
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bank Account Information (For Taskers with saved bank) */}
+      {user?.role === "tasker" && bankData && (
+        <div className='bg-white border-2 border-dashed border-purple-200 p-5 md:p-6 rounded-[2rem] space-y-4'>
+           <div className="flex items-center justify-between border-b border-purple-50 pb-3">
+              <h3 className='text-[10px] md:text-xs font-black text-purple-900 uppercase tracking-widest flex items-center gap-2'>
+                <CreditCard size={14} className="text-[#6B46C1]" />
+                SAVED SETTLEMENT BANK
+              </h3>
+              <CheckCircle2 size={16} className="text-green-500" />
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Account Name</p>
+                <p className="text-sm font-black text-gray-900 leading-tight">{bankData.accountName}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Bank / Number</p>
+                <div className="flex items-center gap-2">
+                   <p className="text-sm font-black text-gray-900">{bankData.bankName}</p>
+                   <span className="w-1 h-1 bg-gray-300 rounded-full" />
+                   <p className="text-sm font-black text-gray-600 tracking-widest">{bankData.accountNumber}</p>
+                </div>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* Switch to Users Banner (For Taskers) - Moved below Wallet Card */}
       {user?.role === "tasker" && (
         <div className='bg-[#F5F3FF] border border-purple-100 p-4 md:p-5 rounded-3xl flex items-center justify-between group cursor-pointer shadow-sm'>
           <div className='flex items-center gap-3 md:gap-4'>
@@ -168,7 +241,7 @@ export default function ProfilePage() {
               <h3 className='font-bold text-sm md:text-base text-gray-900'>
                 Switch to Users
               </h3>
-              <p className='text-[10px] md:text-xs text-purple-400'>
+              <p className='text-[10px] md:text-xs text-[#6B46C1]'>
                 Post task and hire taskers
               </p>
             </div>
@@ -177,8 +250,8 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Wallet balance or Tasker Stats */}
-      {user?.role === "tasker" ? (
+      {/* Tasker Stats Section */}
+      {user?.role === "tasker" && (
         <div className='space-y-4 md:space-y-6'>
           <h3 className='text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest'>
             TASKER STATISTICS
@@ -206,31 +279,22 @@ export default function ProfilePage() {
               value='0'
               color='bg-orange-50'
             />
-            <div className='relative group'>
-              <StatCard
-                icon={
-                  <Wallet
-                    size={16}
-                    className='text-green-500 md:w-[18px] md:h-[18px]'
-                  />
-                }
-                label='Wallet Balance'
-                value={`₦${(user?.wallet ?? 0).toLocaleString()}`}
-                color='bg-green-50'
-              />
-              <Button
-                onClick={() => setIsWithdrawOpen(true)}
-                size='sm'
-                className='absolute top-3 right-3 md:top-4 md:right-4 bg-green-500 hover:bg-green-600 text-white rounded-full px-3 md:px-4 h-7 md:h-8 text-[8px] md:text-[10px] font-bold uppercase tracking-wider shadow-sm md:opacity-0 md:group-hover:opacity-100 transition-opacity'
-              >
-                Withdraw
-              </Button>
-            </div>
+            <StatCard
+              icon={
+                <Wallet
+                  size={16}
+                  className='text-green-500 md:w-[18px] md:h-[18px]'
+                />
+              }
+              label='Wallet Balance'
+              value={`#${(user?.wallet ?? 0).toLocaleString()}`}
+              color='bg-green-50'
+            />
             <StatCard
               icon={
                 <TrendingUp
                   size={16}
-                  className='text-blue-500 md:w-[18px] md:h-[18px]'
+                  className='text-blue-600 md:w-[18px] md:h-[18px]'
                 />
               }
               label='Success Rate'
@@ -239,36 +303,6 @@ export default function ProfilePage() {
             />
           </div>
         </div>
-      ) : (
-        <Card className='bg-linear-to-br from-[#673AB7] to-[#512DA8] border-none shadow-xl rounded-[2rem] md:rounded-[2.5rem] overflow-hidden text-white'>
-          <CardContent className='p-6 md:p-8 space-y-6 md:space-y-8'>
-            <div className='flex justify-between items-center'>
-              <div className='flex items-center gap-2 opacity-90'>
-                <Wallet size={16} className='md:w-[18px] md:h-[18px]' />
-                <span className='text-xs md:text-sm font-medium'>
-                  Wallet balance
-                </span>
-              </div>
-              <Button
-                variant='secondary'
-                onClick={() => setIsFundOpen(true)}
-                className='bg-white/20 hover:bg-white/30 text-white border-none rounded-xl px-4 md:px-6 h-9 md:h-11 text-xs md:text-base flex items-center gap-2'
-              >
-                <Plus size={16} className='md:w-[18px] md:h-[18px]' /> Fund
-              </Button>
-            </div>
-
-            <div className='space-y-0.5 md:space-y-1'>
-              <div className='text-3xl md:text-5xl font-black'>
-                <span className='text-xl md:text-3xl mr-1'>₦</span>
-                {(user?.wallet ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </div>
-              <p className='text-xs md:text-sm text-white/60 font-medium'>
-                Available balance
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       )}
 
       {/* Actions List */}
@@ -311,7 +345,9 @@ export default function ProfilePage() {
               }
               label='Earnings'
               href='/profile/earnings'
-              amount='#0'
+              amount={`#${(user?.wallet ?? 0).toLocaleString()}`}
+              iconColor="text-green-600"
+              iconBg="bg-green-50"
             />
           )}
           {user?.role === "tasker" && (
@@ -319,10 +355,17 @@ export default function ProfilePage() {
               icon={<Briefcase size={20} className='md:w-[22px] md:h-[22px]' />}
               label='Service categories'
               href='/profile/become-tasker'
+              iconColor="text-[#6B46C1]"
+              iconBg="bg-purple-50"
             />
           )}
           <ProfileMenuItem
             icon={<Lock size={20} className='md:w-[22px] md:h-[22px]' />}
+            label='Transaction Pin'
+            href='/profile/transaction-pin'
+          />
+          <ProfileMenuItem
+            icon={<RectangleEllipsis size={20} className='md:w-[22px] md:h-[22px]' />}
             label='Change password'
             href='/profile/change-password'
           />
@@ -349,10 +392,10 @@ export default function ProfilePage() {
         <div className='bg-white border border-gray-50 rounded-[2rem] shadow-sm overflow-hidden mt-6'>
           <button
             onClick={logout}
-            className='w-full flex items-center justify-between p-4 md:p-5 hover:bg-red-50 transition-colors group'
+            className='w-full flex items-center justify-between p-5 md:p-6 hover:bg-red-50 transition-colors group'
           >
-            <div className='flex items-center gap-3 md:gap-4'>
-              <div className='bg-red-50 p-2.5 md:p-3 rounded-xl text-red-500'>
+            <div className='flex items-center gap-4 md:gap-5'>
+              <div className='bg-red-50 p-2.5 rounded-xl text-red-500'>
                 <LogOut size={20} className='md:w-[22px] md:h-[22px]' />
               </div>
               <span className='font-bold text-sm md:text-base text-red-500'>
@@ -395,7 +438,7 @@ export default function ProfilePage() {
       <WithdrawFundsModal
         isOpen={isWithdrawOpen}
         onClose={() => setIsWithdrawOpen(false)}
-        balance='0.00'
+        balance={(user?.wallet ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         onSwitchToStellar={(amount) => {
           setTxAmount(amount);
           setIsWithdrawOpen(false);
@@ -421,28 +464,36 @@ function ProfileMenuItem({
   label,
   href,
   amount,
+  iconColor = "text-gray-400",
+  iconBg = "bg-gray-50",
 }: {
   icon: React.ReactNode;
   label: string;
   href: string;
   amount?: string;
+  iconColor?: string;
+  iconBg?: string;
 }) {
   return (
     <Link
       href={href}
-      className='flex items-center justify-between p-6 hover:bg-gray-50 transition-colors group'
+      className='flex items-center justify-between p-5 md:p-6 hover:bg-gray-50 transition-colors group'
     >
-      <div className='flex items-center gap-5'>
-        <div className='bg-gray-50 p-2.5 rounded-xl text-gray-400 group-hover:bg-purple-50 group-hover:text-[#6B46C1] transition-colors'>
+      <div className='flex items-center gap-4 md:gap-5'>
+        <div className={cn(
+          "p-2.5 rounded-xl transition-colors",
+          iconBg,
+          iconColor
+        )}>
           {icon}
         </div>
-        <span className='font-bold text-gray-700'>{label}</span>
+        <span className='font-bold text-sm md:text-base text-gray-700'>{label}</span>
       </div>
       <div className='flex items-center gap-3'>
-        {amount && <span className='text-gray-900 font-bold'>{amount}</span>}
+        {amount && <span className='text-gray-900 font-bold text-sm md:text-base'>{amount}</span>}
         <ChevronRight
           size={20}
-          className='text-gray-300 group-hover:text-[#6B46C1] transition-colors'
+          className='text-gray-300 group-hover:text-[#6B46C1] transition-colors w-4 h-4 md:w-5 md:h-5'
         />
       </div>
     </Link>

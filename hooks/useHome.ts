@@ -141,6 +141,7 @@ export function useTaskerFeed(
     queryKey: ["taskerFeed", params],
     queryFn: () => tasksApi.getTaskerFeed(params),
     enabled: !!user && user.role === "tasker",
+    refetchInterval: params.status?.includes("assigned") ? 5000 : false, // Poll only if looking at status tab
   });
 }
 

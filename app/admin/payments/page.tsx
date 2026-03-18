@@ -29,6 +29,7 @@ import { formatCurrency } from "@/lib/utils";
 
 export default function PaymentsManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const limit = 30;
 
@@ -41,13 +42,16 @@ export default function PaymentsManagementPage() {
           ? "escrow_debit"
           : activeFilter === "Payout"
             ? "tasker_payout"
-            : undefined;
+            : activeFilter === "Tasks"
+              ? "escrow_debit,tasker_payout,platform_fee"
+              : undefined;
 
   const { data: paymentStats } = usePaymentStats();
   const { data: txData, isLoading } = useTransactions({
     page,
     limit,
     type: typeParam,
+    search: searchTerm,
   });
 
   const { mutate: exportPayments, isPending: isExporting } =
@@ -75,7 +79,9 @@ export default function PaymentsManagementPage() {
     });
   };
 
-  const transactions = txData?.transactions ?? [];
+  const transactions = Array.isArray(txData)
+    ? txData
+    : txData?.transactions ?? [];
   const pagination = txData?.pagination;
   const overview = paymentStats?.overview;
 
@@ -111,13 +117,24 @@ export default function PaymentsManagementPage() {
     setPage(1);
   };
 
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setPage(1);
+  };
+
   const typeLabel = (type: string) => {
     const labels: Record<string, { label: string; color: string }> = {
       wallet_funding: { label: "Credit", color: "bg-green-50 text-green-500" },
       escrow_debit: { label: "Debit", color: "bg-red-50 text-red-400" },
       escrow_credit: { label: "Credit", color: "bg-green-50 text-green-500" },
+      escrow_release: { label: "Release", color: "bg-blue-50 text-blue-500" },
+      escrow_refund: { label: "Refund", color: "bg-orange-50 text-orange-500" },
       tasker_payout: { label: "Payout", color: "bg-blue-50 text-blue-500" },
       platform_fee: { label: "Fee", color: "bg-purple-50 text-purple-500" },
+      wallet_withdrawal: {
+        label: "Withdrawal",
+        color: "bg-red-50 text-red-500",
+      },
     };
     return (
       labels[type] || {
@@ -177,7 +194,9 @@ export default function PaymentsManagementPage() {
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
               searchPlaceholder='Search transactions...'
-              filterOptions={["All", "Credit", "Debit", "Payout"]}
+              searchTerm={searchTerm}
+              onSearch={handleSearch}
+              filterOptions={["All", "Credit", "Debit", "Payout", "Tasks"]}
               activeFilter={activeFilter}
               onFilterChange={handleFilterChange}
             />
@@ -199,6 +218,7 @@ export default function PaymentsManagementPage() {
                   <th className='px-6 py-4'>USER</th>
                   <th className='px-6 py-4'>DESCRIPTION</th>
                   <th className='px-6 py-4'>TYPE</th>
+                  <th className='px-6 py-4'>TASK</th>
                   <th className='px-6 py-4'>AMOUNT</th>
                   <th className='px-6 py-4'>DATE</th>
                   <th className='px-6 py-4 text-right'>ACTION</th>
@@ -229,6 +249,9 @@ export default function PaymentsManagementPage() {
                         >
                           {tl.label}
                         </span>
+                      </td>
+                      <td className='px-6 py-5 text-gray-900 font-bold text-[10px] max-w-[150px] truncate'>
+                        {tx.task?.title || "—"}
                       </td>
                       <td className='px-6 py-5 font-bold text-gray-900'>
                         {formatCurrency(tx.amount)}

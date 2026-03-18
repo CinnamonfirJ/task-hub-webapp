@@ -11,7 +11,7 @@ import {
 } from "@/hooks/useBids";
 import { useUpdateTaskStatusTasker, useCompletionCode } from "@/hooks/useTaskDetails";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, Edit2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { BidCard } from "@/components/dashboard/BidCard";
 import { ApplicationForm } from "@/components/dashboard/ApplicationForm";
@@ -428,9 +428,27 @@ export default function TaskDetailsPage() {
                 <div className='w-10 h-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold text-sm shadow-sm'>
                   {posterInitial}
                 </div>
-                <span className='text-gray-400 text-sm font-semibold'>
-                  Posted by {posterName}
-                </span>
+                <div className="flex flex-col">
+                  <span className='text-gray-400 text-sm font-semibold'>
+                    Posted by {posterName}
+                  </span>
+                  
+                  {/* Assignment Status Message */}
+                  {(task.status === 'assigned' || task.status === 'in-progress') && (
+                    <div className="mt-1">
+                      {task.taskerBidInfo?.status === 'accepted' ? (
+                        <span className="text-green-600 text-xs font-bold uppercase tracking-tight">✓ Assigned to you</span>
+                      ) : (
+                        <span className="text-red-500 text-xs font-bold uppercase tracking-tight">⚠ Assigned to someone else</span>
+                      )}
+                    </div>
+                  )}
+                  {task.status === 'completed' && (
+                    <div className="mt-1">
+                       <span className="text-blue-500 text-xs font-bold uppercase tracking-tight">✓ Completed</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -625,7 +643,7 @@ export default function TaskDetailsPage() {
             {/* Cannot Apply State */}
             {task.applicationInfo &&
               !task.applicationInfo.canApply &&
-              !hasApplied && (
+              !hasApplied && task.status === 'open' && (
                 <div className='bg-gray-50 border border-gray-200 p-8 rounded-[2rem] text-center space-y-2'>
                   <h3 className='font-bold text-gray-600 text-xl'>
                     Cannot Apply
@@ -635,6 +653,18 @@ export default function TaskDetailsPage() {
                   </p>
                 </div>
               )}
+
+            {/* Assigned to someone else banner */}
+            {(task.status === 'assigned' || task.status === 'in-progress') && !isOwner && task.taskerBidInfo?.status !== 'accepted' && (
+               <div className='bg-gray-50 border border-red-100 p-8 rounded-[2rem] text-center space-y-2 opacity-80'>
+               <h3 className='font-bold text-red-500 text-xl'>
+                 Assigned to someone else
+               </h3>
+               <p className='text-gray-500 text-sm'>
+                 This task has already been assigned to another tasker and is no longer available.
+               </p>
+             </div>
+            )}
           </>
         )}
       </div>

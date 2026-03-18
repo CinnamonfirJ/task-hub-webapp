@@ -62,8 +62,9 @@ export function WithdrawFundsModal({
         toast.success("Withdrawal request submitted successfully!");
         onClose();
       },
-      onError: (err: any) => {
-        toast.error(err.message || "Failed to submit withdrawal request");
+      onError: (err: unknown) => {
+        const error = err as { message?: string };
+        toast.error(error.message || "Failed to submit withdrawal request");
       }
     });
   };
@@ -132,7 +133,27 @@ export function WithdrawFundsModal({
               {walletData?.hasBankAccount && <CheckCircle2 size={16} className="text-green-500" />}
             </h3>
             
+            {savedBank && (
+              <div className="bg-white p-3 rounded-2xl border border-purple-100 space-y-1 mb-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Account Name</span>
+                  <span className="text-xs font-black text-gray-900">{savedBank.accountName}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Account Number</span>
+                  <span className="text-xs font-black text-gray-900 tracking-widest">{savedBank.accountNumber}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Bank</span>
+                  <span className="text-xs font-black text-gray-900 italic">{savedBank.bankName}</span>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">
+                {savedBank ? "Update Bank Details" : "Enter Bank Details"}
+              </p>
                 <select 
                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-purple-200"
                     value={selectedBank}

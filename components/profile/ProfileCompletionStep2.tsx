@@ -1,39 +1,22 @@
 "use client";
 
-import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   ArrowLeft,
-  CheckCircle,
   Shield,
   ShieldCheck,
-  Loader2,
 } from "lucide-react";
-import { ProfileValues } from "@/hooks/useCompleteProfile";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
 
 interface ProfileCompletionStep2Props {
-  form: UseFormReturn<ProfileValues>;
-  handleVerify: () => void;
   setStep: (step: number) => void;
-  isVerifying: boolean;
   userId?: string;
 }
 
 export function ProfileCompletionStep2({
-  form,
-  handleVerify,
   setStep,
-  isVerifying,
   userId,
 }: ProfileCompletionStep2Props) {
-  const {
-    register,
-    formState: { errors },
-  } = form;
-
   return (
     <div className='max-w-2xl mx-auto p-4 md:p-0'>
       {/* Header */}

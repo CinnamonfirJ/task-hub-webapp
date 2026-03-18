@@ -1,6 +1,7 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { walletApi } from "@/lib/api/wallet";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * Hook for taskers to request a withdrawal.
@@ -24,10 +25,12 @@ export function useWithdrawal() {
  * Hook to get the list of supported banks.
  */
 export function useBanks() {
+  const { user } = useAuth();
   return useQuery({
     queryKey: ["banks"],
     queryFn: () => walletApi.getBanks(),
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    enabled: user?.role === "tasker",
   });
 }
 
@@ -35,9 +38,11 @@ export function useBanks() {
  * Hook to get tasker's saved bank account.
  */
 export function useTaskerBankAccount() {
+  const { user } = useAuth();
   return useQuery({
     queryKey: ["bankAccount"],
     queryFn: () => walletApi.getBankAccount(),
+    enabled: user?.role === "tasker",
   });
 }
 
@@ -60,8 +65,10 @@ export function useSetBankAccount() {
  * Hook to get withdrawal history.
  */
 export function useWithdrawalHistory(params: { page?: number; limit?: number } = {}) {
+  const { user } = useAuth();
   return useQuery({
     queryKey: ["withdrawals", params],
     queryFn: () => walletApi.getWithdrawalHistory(params),
+    enabled: user?.role === "tasker",
   });
 }

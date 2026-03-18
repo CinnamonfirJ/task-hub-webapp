@@ -1560,7 +1560,10 @@ export interface TransactionListQueryParams
   status?: string;
   userId?: string;
   taskerId?: string;
+  search?: string;
 }
+
+export interface AdminPaymentFilters extends TransactionListQueryParams {}
 
 export interface ReportListQueryParams extends PaginationParams {
   status?: "pending" | "resolved" | "dismissed";

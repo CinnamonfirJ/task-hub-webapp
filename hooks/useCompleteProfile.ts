@@ -49,31 +49,28 @@ export function useCompleteProfile() {
     if (user && !isLoadingUser && !isInitialized) {
       if (checkProfileCompleteness(user)) {
         setIsInitialized(true);
-        // If complete, no step changes needed
-        return;
-      }
+      } else {
+        const hasBasicInfo = !!(
+          (user.firstName || user.fullName) &&
+          user.phoneNumber &&
+          user.country &&
+          user.residentState &&
+          user.address &&
+          (user as { dateOfBirth?: string }).dateOfBirth
+        );
 
-      const isTasker = user.role === "tasker";
-      const hasBasicInfo = !!(
-        (user.firstName || user.fullName) &&
-        user.phoneNumber &&
-        user.country &&
-        user.residentState &&
-        user.address &&
-        (user as any).dateOfBirth
-      );
-
-      if (hasBasicInfo) {
-        setStep(2);
+        if (hasBasicInfo) {
+          setStep(2);
+        }
+        setIsInitialized(true);
       }
-      setIsInitialized(true);
     }
   }, [user, isLoadingUser, isInitialized]);
 
   // Mutation for updating profile info (Step 1)
   const updateProfileMutation = useMutation({
     mutationFn: (data: Partial<ProfileValues>) =>
-      authApi.updateProfile(data as any),
+      authApi.updateProfile(data as Record<string, unknown>),
     onSuccess: (updatedUser) => {
       // We need to optimistically update the user data
       const optimisticUser = { ...user, ...updatedUser };
@@ -91,12 +88,12 @@ export function useCompleteProfile() {
       firstName: user?.firstName || user?.fullName?.split(" ")[0] || "",
       lastName:
         user?.lastName || user?.fullName?.split(" ").slice(1).join(" ") || "",
-      gender: (user as any)?.gender || "male",
+      gender: (user as { gender?: "male" | "female" })?.gender || "male",
       phoneNumber: user?.phoneNumber || "",
-      dateOfBirth: formatDateForInput((user as any)?.dateOfBirth),
+      dateOfBirth: formatDateForInput((user as { dateOfBirth?: string })?.dateOfBirth),
       country: user?.country || "Nigeria",
       residentState: user?.residentState || "",
-      address: (user as any)?.address || "",
+      address: (user as { address?: string })?.address || "",
       category: "",
       portfolioLink: "",
     },
@@ -104,13 +101,15 @@ export function useCompleteProfile() {
       firstName: user?.firstName || user?.fullName?.split(" ")[0] || "",
       lastName:
         user?.lastName || user?.fullName?.split(" ").slice(1).join(" ") || "",
-      gender: (user as any)?.gender || "male",
+      gender: (user as { gender?: "male" | "female" })?.gender || "male",
       phoneNumber: user?.phoneNumber || "",
-      dateOfBirth: formatDateForInput((user as any)?.dateOfBirth),
+      dateOfBirth: formatDateForInput((user as { dateOfBirth?: string })?.dateOfBirth),
       country: user?.country || "Nigeria",
       residentState: user?.residentState || "",
-      address: (user as any)?.address || "",
-    } as any,
+      address: (user as { address?: string })?.address || "",
+      category: "",
+      portfolioLink: "",
+    } as ProfileValues,
   });
 
   const handleNext = (data: ProfileValues) => {
@@ -139,7 +138,23 @@ export function useCompleteProfile() {
   };
 }
 
-export function checkProfileCompleteness(user: any): boolean {
+export function checkProfileCompleteness(user: {
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  country?: string;
+  residentState?: string;
+  address?: string;
+  dateOfBirth?: string;
+  isEmailVerified?: boolean;
+  verifyIdentity?: boolean;
+  isKYCVerified?: boolean;
+  kycVerified?: boolean;
+  verified?: boolean;
+  role?: string;
+  categories?: unknown[];
+}): boolean {
   if (!user) return false;
 
   // 1. Basic Information Check
@@ -167,7 +182,14 @@ export function checkProfileCompleteness(user: any): boolean {
     return false;
 
   // 4. Tasker Specific: Categories
-  if (user.role === "tasker") {
+  // If they have verified identity, they should see their profile even without categories
+  if (
+    user.role === "tasker" &&
+    !user.verifyIdentity &&
+    !user.isKYCVerified &&
+    !user.kycVerified &&
+    !user.verified
+  ) {
     const hasCategories =
       Array.isArray(user.categories) && user.categories.length > 0;
     if (!hasCategories) return false;

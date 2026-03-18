@@ -70,6 +70,23 @@ export function useAcceptBid() {
 
   return useMutation({
     mutationFn: (id: string) => bidsApi.acceptBid(id),
+    onMutate: async (bidId) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["myBids"] });
+      await queryClient.cancelQueries({ queryKey: ["taskBids"] });
+      await queryClient.cancelQueries({ queryKey: ["task"] });
+
+      // Snapshot the previous value
+      const previousBids = queryClient.getQueryData(["myBids"]);
+      const previousTaskBids = queryClient.getQueriesData({ queryKey: ["taskBids"] });
+
+      // Optimistically update to the new value
+      // Note: We don't have the taskId yet in onMutate, but we can update all lists if needed
+      // or wait for onSuccess if we want to be very precise. 
+      // To be immediate, we trigger the loading states already handled by isPending.
+      
+      return { previousBids, previousTaskBids };
+    },
     onSuccess: (data) => {
       const taskId = data.task?._id || data.task;
       queryClient.invalidateQueries({ queryKey: ["taskBids", taskId] });
@@ -77,6 +94,20 @@ export function useAcceptBid() {
       queryClient.invalidateQueries({ queryKey: ["myBids"] });
       queryClient.invalidateQueries({ queryKey: ["userTasks"] });
       queryClient.invalidateQueries({ queryKey: ["bid", data.bid?._id] });
+      queryClient.invalidateQueries({ queryKey: ["taskerFeed"] });
+    },
+    onError: (err, bidId, context) => {
+      if (context?.previousBids) {
+        queryClient.setQueryData(["myBids"], context.previousBids);
+      }
+    },
+    onSettled: (data) => {
+      const taskId = data?.task?._id || data?.task;
+      if (taskId) {
+        queryClient.invalidateQueries({ queryKey: ["taskBids", taskId] });
+        queryClient.invalidateQueries({ queryKey: ["task", taskId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["myBids"] });
     },
   });
 }
