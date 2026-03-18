@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { ArrowLeft, CheckCircle2, Loader2, XCircle, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2, XCircle, Clock, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -167,6 +167,20 @@ export default function TransactionDetailsPage({
                 <div className='text-sm font-bold mt-1 capitalize'>
                   {tx.paymentGateway}
                 </div>
+              </div>
+            )}
+            {tx.task && (
+              <div>
+                <div className='text-xs text-gray-400 font-medium'>
+                  Related Task
+                </div>
+                <Link
+                  href={`/admin/tasks/${tx.task._id}`}
+                  className='text-sm font-bold mt-1 text-[#6B46C1] hover:underline flex items-center gap-1'
+                >
+                  {tx.task.title}
+                  <ExternalLink size={12} />
+                </Link>
               </div>
             )}
           </CardContent>

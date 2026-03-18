@@ -14,6 +14,7 @@ export default function FeedPage() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [activeTab, setActiveTab] = useState<"Explore" | "Status">("Explore");
 
   // Fetch categories for filter
   const { data: categoriesData } = useCategories();
@@ -25,7 +26,10 @@ export default function FeedPage() {
     isLoading,
     isError,
     refetch: refetchTasks,
-  } = useTaskerFeed({ maxDistance: 200 });
+  } = useTaskerFeed({ 
+    maxDistance: 200,
+    status: activeTab === "Status" ? "assigned,in-progress,completed" : "open"
+  });
 
   // Client-side filtering
   const filteredTasks = (tasks || []).filter((task) => {
@@ -54,8 +58,32 @@ export default function FeedPage() {
     <div className='flex flex-col space-y-6 md:space-y-8 mx-auto p-4 md:p-8 w-full max-w-7xl min-h-screen'>
       {/* Header */}
       <h1 className='font-bold text-gray-900 text-2xl md:text-3xl'>
-        Explore Tasks
+        {activeTab === "Explore" ? "Explore Tasks" : "Tasks Status"}
       </h1>
+
+      {/* Tab Switcher */}
+      <div className="flex p-1 bg-gray-100 rounded-2xl w-fit">
+        <button
+          onClick={() => setActiveTab("Explore")}
+          className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            activeTab === "Explore"
+              ? "bg-white text-[#6B46C1] shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Explore
+        </button>
+        <button
+          onClick={() => setActiveTab("Status")}
+          className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            activeTab === "Status"
+              ? "bg-white text-[#6B46C1] shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Tasks Status
+        </button>
+      </div>
 
       {/* Search Bar */}
       <div className='relative w-full'>
@@ -122,17 +150,39 @@ export default function FeedPage() {
               .join("")
               .slice(0, 2);
 
+            const isAssignedToMe = task.taskerBidInfo?.status === 'accepted';
+            const isAssignedToOther = (task.status === 'assigned' || task.status === 'in-progress') && !isAssignedToMe;
+            const isCompleted = task.status === 'completed';
+
             return (
               // h-full fills the grid cell so every card in a row matches the tallest one
               <div
                 key={task._id}
-                className='relative flex flex-col h-full bg-white hover:bg-gray-50/50 p-5 md:p-8 border border-gray-100 rounded-3xl md:rounded-[2.5rem] shadow-sm transition-all group'
+                className={`relative flex flex-col h-full bg-white hover:bg-gray-50/50 p-5 md:p-8 border border-gray-100 rounded-3xl md:rounded-[2.5rem] shadow-sm transition-all group ${
+                  isAssignedToOther ? 'opacity-60 grayscale-[0.5]' : ''
+                }`}
               >
-                {/* Card Top: Category Badge */}
-                <div className='mb-4 md:mb-6'>
+                {/* Card Top: Category Badge & Assignment Info */}
+                <div className='flex justify-between items-start mb-4 md:mb-6'>
                   <span className='bg-purple-100/60 px-3 py-1 md:px-4 md:py-1.5 rounded-lg font-bold text-[#6B46C1] text-[8px] md:text-[10px] uppercase tracking-wider'>
                     {categoryName}
                   </span>
+                  
+                  {isAssignedToMe && (
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-lg font-bold text-[8px] md:text-[10px] uppercase tracking-wider">
+                      Assigned to you
+                    </span>
+                  )}
+                  {isAssignedToOther && (
+                    <span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg font-bold text-[8px] md:text-[10px] uppercase tracking-wider">
+                      Assigned to someone else
+                    </span>
+                  )}
+                  {isCompleted && (
+                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg font-bold text-[8px] md:text-[10px] uppercase tracking-wider">
+                      Completed
+                    </span>
+                  )}
                 </div>
 
                 {/* Poster Info */}

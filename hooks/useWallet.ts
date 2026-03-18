@@ -36,12 +36,11 @@ export function useInitializeFunding() {
   });
 }
 
-/**
- * Hook to get detailed tasker wallet information.
- */
 export function useTaskerWallet() {
+  const { user } = useAuth();
   return useQuery({
     queryKey: ["taskerWallet"],
     queryFn: () => walletApi.getTaskerBalance(),
+    enabled: user?.role === "tasker",
   });
 }
