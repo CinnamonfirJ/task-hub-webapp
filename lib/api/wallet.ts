@@ -47,6 +47,23 @@ export const walletApi = {
     return res?.data?.transactions || res?.transactions || [];
   },
 
+  getUserTransactions: async (filters: TransactionFilters = {}): Promise<Transaction[]> => {
+    const params = new URLSearchParams();
+    if (filters.page) params.append("page", filters.page.toString());
+    if (filters.limit) params.append("limit", filters.limit.toString());
+    if (filters.type) params.append("type", filters.type);
+    if (filters.status) params.append("status", filters.status);
+    if (filters.paymentPurpose) params.append("paymentPurpose", filters.paymentPurpose);
+
+    const res = await apiData<any>(
+      `/api/wallet/user/transactions?${params.toString()}`,
+      { method: "GET" }
+    );
+    
+    const txs = res?.data?.transactions || res?.transactions || (Array.isArray(res?.data) ? res.data : null);
+    return txs || [];
+  },
+
   getTaskerBalance: async (): Promise<{
     walletBalance: number;
     withdrawableAmount: number;
@@ -87,7 +104,7 @@ export const walletApi = {
     return res?.data || res;
   },
 
-  getWithdrawalHistory: async (params: { page?: number; limit?: number } = {}): Promise<any> => {
+  getWithdrawalHistory: async (params: { page?: number; limit?: number } = {}): Promise<any[]> => {
     const searchParams = new URLSearchParams();
     if (params.page) searchParams.append("page", params.page.toString());
     if (params.limit) searchParams.append("limit", params.limit.toString());
@@ -95,7 +112,9 @@ export const walletApi = {
     const res = await apiData<any>(`/api/wallet/tasker/withdrawals?${searchParams.toString()}`, {
       method: "GET",
     });
-    return res;
+    
+    const withdrawals = res?.data?.withdrawals || res?.withdrawals || (Array.isArray(res?.data) ? res.data : null);
+    return withdrawals || [];
   },
 
   // Legacy/Internal - Escrow is handled automatically by the backend status transitions

@@ -68,12 +68,7 @@ export default function ProfilePage() {
   // If profile is NOT complete, show the setup flow (only if we're not loading and there's no error)
   if (!isLoadingUser && !isUserError && !isProfileComplete) {
     if (step === 2) {
-      return (
-        <ProfileCompletionStep2
-          setStep={setStep}
-          userId={user?._id}
-        />
-      );
+      return <ProfileCompletionStep2 setStep={setStep} userId={user?._id} />;
     }
     return (
       <ProfileCompletionStep1
@@ -205,28 +200,38 @@ export default function ProfilePage() {
       {/* Bank Account Information (For Taskers with saved bank) */}
       {user?.role === "tasker" && bankData && (
         <div className='bg-white border-2 border-dashed border-purple-200 p-5 md:p-6 rounded-[2rem] space-y-4'>
-           <div className="flex items-center justify-between border-b border-purple-50 pb-3">
-              <h3 className='text-[10px] md:text-xs font-black text-purple-900 uppercase tracking-widest flex items-center gap-2'>
-                <CreditCard size={14} className="text-[#6B46C1]" />
-                SAVED SETTLEMENT BANK
-              </h3>
-              <CheckCircle2 size={16} className="text-green-500" />
-           </div>
-           
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Account Name</p>
-                <p className="text-sm font-black text-gray-900 leading-tight">{bankData.accountName}</p>
+          <div className='flex items-center justify-between border-b border-purple-50 pb-3'>
+            <h3 className='text-[10px] md:text-xs font-black text-purple-900 uppercase tracking-widest flex items-center gap-2'>
+              <CreditCard size={14} className='text-[#6B46C1]' />
+              SAVED SETTLEMENT BANK
+            </h3>
+            <CheckCircle2 size={16} className='text-green-500' />
+          </div>
+
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <div className='space-y-1'>
+              <p className='text-[9px] text-gray-400 font-bold uppercase tracking-tighter'>
+                Account Name
+              </p>
+              <p className='text-sm font-black text-gray-900 leading-tight'>
+                {bankData.accountName}
+              </p>
+            </div>
+            <div className='space-y-1'>
+              <p className='text-[9px] text-gray-400 font-bold uppercase tracking-tighter'>
+                Bank / Number
+              </p>
+              <div className='flex items-center gap-2'>
+                <p className='text-sm font-black text-gray-900'>
+                  {bankData.bankName}
+                </p>
+                <span className='w-1 h-1 bg-gray-300 rounded-full' />
+                <p className='text-sm font-black text-gray-600 tracking-widest'>
+                  {bankData.accountNumber}
+                </p>
               </div>
-              <div className="space-y-1">
-                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Bank / Number</p>
-                <div className="flex items-center gap-2">
-                   <p className="text-sm font-black text-gray-900">{bankData.bankName}</p>
-                   <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                   <p className="text-sm font-black text-gray-600 tracking-widest">{bankData.accountNumber}</p>
-                </div>
-              </div>
-           </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -346,8 +351,8 @@ export default function ProfilePage() {
               label='Earnings'
               href='/profile/earnings'
               amount={`#${(user?.wallet ?? 0).toLocaleString()}`}
-              iconColor="text-green-600"
-              iconBg="bg-green-50"
+              iconColor='text-green-600'
+              iconBg='bg-green-50'
             />
           )}
           {user?.role === "tasker" && (
@@ -355,8 +360,8 @@ export default function ProfilePage() {
               icon={<Briefcase size={20} className='md:w-[22px] md:h-[22px]' />}
               label='Service categories'
               href='/profile/become-tasker'
-              iconColor="text-[#6B46C1]"
-              iconBg="bg-purple-50"
+              iconColor='text-[#6B46C1]'
+              iconBg='bg-purple-50'
             />
           )}
           <ProfileMenuItem
@@ -365,7 +370,12 @@ export default function ProfilePage() {
             href='/profile/transaction-pin'
           />
           <ProfileMenuItem
-            icon={<RectangleEllipsis size={20} className='md:w-[22px] md:h-[22px]' />}
+            icon={
+              <RectangleEllipsis
+                size={20}
+                className='md:w-[22px] md:h-[22px]'
+              />
+            }
             label='Change password'
             href='/profile/change-password'
           />
@@ -414,7 +424,10 @@ export default function ProfilePage() {
       <FundWalletModal
         isOpen={isFundOpen}
         onClose={() => setIsFundOpen(false)}
-        balance={(user?.wallet ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        balance={(user?.wallet ?? 0).toLocaleString("en-NG", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
         onSwitchToStellar={(amount) => {
           setTxAmount(amount);
           setIsFundOpen(false);
@@ -438,7 +451,10 @@ export default function ProfilePage() {
       <WithdrawFundsModal
         isOpen={isWithdrawOpen}
         onClose={() => setIsWithdrawOpen(false)}
-        balance={(user?.wallet ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        balance={(user?.wallet ?? 0).toLocaleString("en-NG", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
         onSwitchToStellar={(amount) => {
           setTxAmount(amount);
           setIsWithdrawOpen(false);
@@ -480,17 +496,25 @@ function ProfileMenuItem({
       className='flex items-center justify-between p-5 md:p-6 hover:bg-gray-50 transition-colors group'
     >
       <div className='flex items-center gap-4 md:gap-5'>
-        <div className={cn(
-          "p-2.5 rounded-xl transition-colors",
-          iconBg,
-          iconColor
-        )}>
+        <div
+          className={cn(
+            "p-2.5 rounded-xl transition-colors",
+            iconBg,
+            iconColor,
+          )}
+        >
           {icon}
         </div>
-        <span className='font-bold text-sm md:text-base text-gray-700'>{label}</span>
+        <span className='font-bold text-sm md:text-base text-gray-700'>
+          {label}
+        </span>
       </div>
       <div className='flex items-center gap-3'>
-        {amount && <span className='text-gray-900 font-bold text-sm md:text-base'>{amount}</span>}
+        {amount && (
+          <span className='text-gray-900 font-bold text-sm md:text-base'>
+            {amount}
+          </span>
+        )}
         <ChevronRight
           size={20}
           className='text-gray-300 group-hover:text-[#6B46C1] transition-colors w-4 h-4 md:w-5 md:h-5'
@@ -513,7 +537,7 @@ function StatCard({
   color: string;
 }) {
   return (
-    <Card className='bg-white border border-gray-100 shadow-sm rounded-3xl p-4 md:p-6 transition-all hover:border-purple-100'>
+    <Card className='bg-white border border-gray-100 shadow-sm rounded-xl p-4 md:p-6 transition-all hover:border-purple-100'>
       <div className='flex flex-col space-y-4'>
         <div className={`${color} p-2 rounded-xl w-fit`}>{icon}</div>
         <div className='space-y-1'>

@@ -99,6 +99,26 @@ export const tasksApi = {
     );
   },
 
+  getUserDashboardTasks: async (
+    filters: { status?: string; page?: number; limit?: number } = {},
+  ): Promise<Task[]> => {
+    const params = new URLSearchParams();
+    if (filters.status) params.append("status", filters.status);
+    if (filters.page) params.append("page", filters.page.toString());
+    if (filters.limit) params.append("limit", filters.limit.toString());
+
+    const res = await apiData<any>(
+      `/api/tasks/user/tasks?${params.toString()}`,
+      { method: "GET" },
+    );
+
+    return (
+      res?.tasks ||
+      (Array.isArray(res?.data) ? res.data : res?.data?.tasks) ||
+      (Array.isArray(res) ? res : [])
+    );
+  },
+
   cancelTask: async (
     id: string,
   ): Promise<{ status: string; message: string }> => {

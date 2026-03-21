@@ -183,7 +183,7 @@ export default function HomePage() {
           </div>
         ) : isError ? (
           <div className='relative bg-[#6B46C1] shadow-xl p-8 rounded-[2rem] w-full overflow-hidden text-white text-center'>
-            <p>Failed to load tasks. Please try again.</p>
+            <p>Can't load tasks. Try again later.</p>
           </div>
         ) : isTasker ? (
           /* Tasker Available Tasks Feed */

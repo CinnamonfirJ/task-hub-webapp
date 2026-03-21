@@ -13,6 +13,7 @@ import {
   Plus,
   Rss,
   LogOut,
+  Wallet,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,6 +41,7 @@ export function MobileNavbar() {
       label: isTasker ? "Feed" : "History",
       href: isTasker ? "/feed" : "/history",
     },
+    { icon: Wallet, label: "Payment History", href: "/payment-history" },
     {
       icon: MessageSquare,
       label: "Message",
