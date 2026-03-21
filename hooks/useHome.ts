@@ -36,11 +36,11 @@ export function useHome() {
   } = useQuery({
     queryKey: isTasker
       ? ["taskerFeed", { maxDistance: 200 }]
-      : ["recentTasks"],
+      : ["userDashboardTasks"],
     queryFn: () =>
       isTasker
         ? tasksApi.getTaskerFeed({ maxDistance: 200 })
-        : tasksApi.getTasks({ limit: 6 }),
+        : tasksApi.getUserDashboardTasks({ limit: 6 }),
     enabled: !!user, // Fetch if user exists, even if profile is incomplete
   });
 

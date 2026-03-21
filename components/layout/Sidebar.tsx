@@ -10,6 +10,7 @@ import {
   Plus,
   Rss,
   LogOut,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
@@ -35,6 +36,7 @@ export function Sidebar() {
       label: isTasker ? "Feed" : "History",
       href: isTasker ? "/feed" : "/history",
     },
+    { icon: Wallet, label: "Payment History", href: "/payment-history" },
     { icon: MessageSquare, label: "Message", href: "/messages" },
     { icon: User, label: "Profile", href: "/profile" },
   ];
