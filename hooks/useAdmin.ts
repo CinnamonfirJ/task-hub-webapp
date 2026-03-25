@@ -64,12 +64,20 @@ export function useAdminLogin() {
 }
 
 export function useAdminProfile() {
+  // Only fire this query if the user is identified as an admin.
+  // Prevents /api/admin/me being called for regular users/taskers (which causes 401 → logout).
+  const isAdmin =
+    typeof window !== "undefined" &&
+    localStorage.getItem("userType") === "admin";
+
   return useQuery({
     queryKey: ["admin", "me"],
     queryFn: () => adminApi.getMe(),
+    enabled: isAdmin,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
+
 
 export function useSystemStats() {
   return useQuery({

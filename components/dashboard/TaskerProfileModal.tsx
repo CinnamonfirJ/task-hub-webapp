@@ -64,7 +64,7 @@ export function TaskerProfileModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='max-w-3xl rounded-[2rem] p-0 overflow-hidden border-0 gap-0 max-h-[90vh] overflow-y-auto'>
+      <DialogContent className='max-w-3xl rounded-lg p-0 overflow-hidden border-0 gap-0 max-h-[90vh] overflow-y-auto'>
         <DialogHeader className='sr-only'>
           <DialogTitle>Tasker Profile</DialogTitle>
         </DialogHeader>
@@ -105,8 +105,8 @@ export function TaskerProfileModal({
             </h3>
             <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
               {/* Stat Card 1 */}
-              <div className='border border-gray-100 rounded-2xl p-5 shadow-sm space-y-4 bg-white'>
-                <div className='w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-[#6B46C1]'>
+              <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
+                <div className='w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-[#6B46C1]'>
                   <Briefcase size={20} strokeWidth={2.5} />
                 </div>
                 <div className='space-y-1'>
@@ -120,8 +120,8 @@ export function TaskerProfileModal({
               </div>
 
               {/* Stat Card 2 */}
-              <div className='border border-gray-100 rounded-2xl p-5 shadow-sm space-y-4 bg-white'>
-                <div className='w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500'>
+              <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
+                <div className='w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500'>
                   <TrendingUp size={20} strokeWidth={2.5} />
                 </div>
                 <div className='space-y-1'>
@@ -135,8 +135,8 @@ export function TaskerProfileModal({
               </div>
 
               {/* Stat Card 3 */}
-              <div className='border border-gray-100 rounded-2xl p-5 shadow-sm space-y-4 bg-white'>
-                <div className='w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-500'>
+              <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
+                <div className='w-10 h-10 rounded-lg bg-yellow-50 flex items-center justify-center text-yellow-500'>
                   <Star size={20} strokeWidth={2.5} />
                 </div>
                 <div className='space-y-1'>
@@ -160,7 +160,7 @@ export function TaskerProfileModal({
               {works.map((workImg: string, idx: number) => (
                 <div
                   key={idx}
-                  className='aspect-square rounded-2xl overflow-hidden bg-gray-100 border border-gray-50'
+                  className='aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-50'
                 >
                   <img
                     src={workImg}
