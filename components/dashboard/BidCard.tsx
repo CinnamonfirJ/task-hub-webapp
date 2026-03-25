@@ -44,7 +44,7 @@ export function BidCard({
 
   return (
     <>
-      <div className='bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm'>
+      <div className='bg-white border border-gray-100 rounded-lg p-6 shadow-sm'>
         <div className='flex md:flex-row flex-col items-start justify-between gap-6'>
           <div className='flex items-start gap-4 flex-1'>
             <div
@@ -114,7 +114,7 @@ export function BidCard({
                   size='sm'
                   onClick={() => onMessage(bid._id)}
                   disabled={isBusy}
-                  className='flex-1 md:flex-none rounded-xl font-bold text-xs h-10 px-4'
+                  className='flex-1 md:flex-none rounded-lg font-bold text-xs h-10 px-4'
                 >
                   Message
                 </Button>
@@ -122,7 +122,7 @@ export function BidCard({
                   size='sm'
                   onClick={() => onReject(bid._id)}
                   disabled={isBusy}
-                  className='flex-1 md:flex-none bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 rounded-xl font-bold text-xs h-10 px-4 shadow-none'
+                  className='flex-1 md:flex-none bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 rounded-lg font-bold text-xs h-10 px-4 shadow-none'
                 >
                   {isRejecting ? (
                     "Rejecting..."
@@ -136,7 +136,7 @@ export function BidCard({
                   size='sm'
                   onClick={() => onAccept(bid._id)}
                   disabled={isBusy}
-                  className='flex-1 md:flex-none bg-[#6B46C1] hover:bg-[#553C9A] rounded-xl font-bold text-xs h-10 px-6'
+                  className='flex-1 md:flex-none bg-[#6B46C1] hover:bg-[#553C9A] rounded-lg font-bold text-xs h-10 px-6'
                 >
                   {isAccepting ? (
                     "Accepting..."
@@ -151,7 +151,7 @@ export function BidCard({
 
             {bid.status === "accepted" && (
               <div className='flex justify-end'>
-                <span className='text-xs font-bold text-green-600 bg-green-50 border border-green-100 px-3 py-1.5 rounded-xl flex items-center gap-1.5'>
+                <span className='text-xs font-bold text-green-600 bg-green-50 border border-green-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5'>
                   <CheckCircle size={13} /> Accepted
                 </span>
               </div>
@@ -159,7 +159,7 @@ export function BidCard({
 
             {bid.status === "rejected" && (
               <div className='flex justify-end'>
-                <span className='text-xs font-bold text-red-500 bg-red-50 border border-red-100 px-3 py-1.5 rounded-xl flex items-center gap-1.5'>
+                <span className='text-xs font-bold text-red-500 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5'>
                   <XCircle size={13} /> Rejected
                 </span>
               </div>
