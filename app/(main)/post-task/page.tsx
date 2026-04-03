@@ -8,39 +8,37 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
-  Plus,
   X,
-  ChevronDown,
   CalendarDays,
   Upload,
   Loader2,
-  Image as ImageIcon,
+  ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useCategories, useUniversities } from "@/hooks/useCategories";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function PostTaskPage() {
-  const { form, onSubmit, categories, isLoadingCategories, isSubmitting } =
-    usePostTask();
+function PostTaskForm() {
+  const { form, onSubmit, isSubmitting } = usePostTask();
+  const searchParams = useSearchParams();
 
   const [tagInput, setTagInput] = useState("");
   const [showImages, setShowImages] = useState(false);
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Close dropdown when clicking outside
+  // Category selection state
+  const { data: allCategories, isLoading: isLoadingCategories } = useCategories();
+  const { data: universities, isLoading: isLoadingUni } = useUniversities();
+
+  // Prefill main category from URL
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsCategoryOpen(false);
-      }
+    const mainCatId = searchParams.get("mainCategory");
+    if (mainCatId && !form.getValues("mainCategory")) {
+      form.setValue("mainCategory", mainCatId);
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [searchParams, form]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -56,71 +54,80 @@ export default function PostTaskPage() {
       reader.readAsDataURL(file);
     });
 
-    // Reset input value to allow selecting the same file again
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleAddTag = () => {
     if (!tagInput.trim()) return;
-
-    // Split by commas and trim each tag
-    const newTags = tagInput
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag !== "");
-
+    const newTags = tagInput.split(",").map((tag) => tag.trim()).filter(Boolean);
     if (newTags.length === 0) return;
 
     const currentTags = form.getValues("tags") || [];
     const updatedTags = [...currentTags];
-
     newTags.forEach((tag) => {
-      if (!updatedTags.includes(tag)) {
-        updatedTags.push(tag);
-      }
+      if (!updatedTags.includes(tag)) updatedTags.push(tag);
     });
-
     form.setValue("tags", updatedTags);
     setTagInput("");
   };
 
   const removeTag = (tag: string) => {
     const currentTags = form.getValues("tags") || [];
-    form.setValue(
-      "tags",
-      currentTags.filter((t) => t !== tag),
-    );
+    form.setValue("tags", currentTags.filter((t) => t !== tag));
   };
 
-  const toggleCategory = (catId: string) => {
-    const currentCats = form.getValues("categories") || [];
-    if (currentCats.includes(catId)) {
-      form.setValue(
-        "categories",
-        currentCats.filter((id) => id !== catId),
-      );
-    } else if (currentCats.length < 3) {
-      form.setValue("categories", [...currentCats, catId]);
+  const selectedMainId = form.watch("mainCategory");
+  const selectedSubIds = form.watch("categories") || [];
+  const selectedUniId = form.watch("university");
+
+  const toggleSubcategory = (id: string) => {
+    const current = form.getValues("categories") || [];
+    if (current.includes(id)) {
+      form.setValue("categories", current.filter(i => i !== id));
+    } else {
+      form.setValue("categories", [...current, id]);
     }
   };
 
+  const isCampusSelected = useMemo(() => {
+    if (!selectedMainId || !allCategories) return false;
+    const main = allCategories.find(m => m._id === selectedMainId);
+    return main?.name?.toLowerCase().includes("campus");
+  }, [selectedMainId, allCategories]);
+
+  const canProceedToDetails = () => {
+    if (!selectedMainId) return false;
+    if (selectedSubIds.length === 0) return false;
+    if (isCampusSelected && !selectedUniId) return false;
+    return true;
+  };
+
+  // RESOLVE DISPLAY CATEGORIES
+  const displayMainCategories = allCategories?.filter(c => !c.parentCategory) || [];
+  const displaySubcategories = allCategories?.filter(s => {
+    if (!s.parentCategory) return false;
+    const parentId = typeof s.parentCategory === 'string' ? s.parentCategory : s.parentCategory?._id;
+    return parentId === selectedMainId;
+  }) || [];
+
+  // SINGLE STEP LAYOUT
   return (
-    <div className='flex flex-col mx-auto p-4 md:p-8 w-full max-w-4xl min-h-screen'>
-      <div className='mb-10 text-left'>
-        <h1 className='text-2xl font-bold text-gray-900'>Post task</h1>
-        <p className='text-sm text-gray-400'>
-          Create a task of your choice and post for taskers to be up to the task
+    <div className='flex flex-col mx-auto p-4 md:p-8 w-full max-w-4xl min-h-screen slide-in-from-right-8 animate-in duration-300'>
+      <div className='mb-10'>
+        <h1 className='text-3xl font-black text-gray-900'>Post a Task</h1>
+        <p className='text-sm text-gray-400 font-medium'>
+           Fill in the details below to find the right tasker for your needs.
         </p>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8 pb-20'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-10 pb-20 max-w-4xl'>
         {/* Task Title */}
         <div className='space-y-3'>
           <Label className='text-sm font-bold text-gray-700'>Task title</Label>
           <Input
             {...form.register("title")}
             placeholder='e.g interior decoration'
-            className='bg-gray-100/60 border-none h-14 rounded-xl px-5 focus-visible:ring-purple-400 placeholder:text-gray-300'
+            className='bg-gray-100/60 border-none h-14 rounded-xl px-5 focus-visible:ring-purple-400 placeholder:text-gray-300 font-medium'
           />
           {form.formState.errors.title && (
             <p className='text-xs text-red-500 font-medium px-1'>
@@ -129,168 +136,176 @@ export default function PostTaskPage() {
           )}
         </div>
 
-        {/* Task Category */}
-        <div className='space-y-3'>
-          <Label className='text-sm font-bold text-gray-700'>
-            Task Category
-          </Label>
-          <div className='relative' ref={dropdownRef}>
-            <div
-              tabIndex={0}
-              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-              onKeyDown={(e) =>
-                e.key === "Enter" && setIsCategoryOpen(!isCategoryOpen)
-              }
-              className={`min-h-14 w-full bg-gray-100/60 rounded-xl px-5 py-3 flex flex-wrap gap-2 items-center cursor-pointer transition-all border-2 ${
-                isCategoryOpen
-                  ? "border-purple-200 bg-white shadow-sm"
-                  : "border-transparent"
-              }`}
-            >
-              {form.watch("categories")?.length > 0 ? (
-                form.watch("categories").map((catId: string) => {
-                  const cat = categories?.find((c) => c._id === catId);
-                  return (
-                    <span
-                      key={catId}
-                      className='bg-purple-100 text-[#6B46C1] text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5'
-                    >
-                      {cat?.displayName || cat?.name || "Category"}
-                      <X
-                        size={14}
-                        className='cursor-pointer'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleCategory(catId);
-                        }}
-                      />
-                    </span>
-                  );
-                })
-              ) : (
-                <span className='text-sm text-gray-300'>
-                  Select category (Max 3)
+        {/* SECTION 1: CATEGORY SELECTION */}
+        <div className="space-y-8">
+           {/* Main Category */}
+           <div className="space-y-3">
+             <Label className='text-sm font-bold text-gray-700'>Category</Label>
+             <div className="relative">
+               <select 
+                 className='w-full h-14 bg-gray-100/60 border-none rounded-xl px-5 focus-visible:ring-purple-400 font-medium appearance-none outline-none cursor-pointer'
+                 value={selectedMainId || ""}
+                 onChange={(e) => {
+                   form.setValue("mainCategory", e.target.value);
+                   form.setValue("categories", []);
+                   form.setValue("university", "");
+                 }}
+               >
+                 <option value="" disabled>{isLoadingCategories ? "Loading categories..." : "Select a category"}</option>
+                 {displayMainCategories.map(cat => (
+                   <option key={cat._id} value={cat._id}>{cat.displayName}</option>
+                 ))}
+               </select>
+               <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+               </div>
+             </div>
+             {form.formState.errors.mainCategory && (
+               <p className='text-xs text-red-500 font-medium px-1'>
+                 {form.formState.errors.mainCategory.message}
+               </p>
+             )}
+           </div>
+
+           {/* Subcategory */}
+           <div className="space-y-3">
+             <Label className='text-sm font-bold text-gray-700'>Subcategory</Label>
+             <div className="relative">
+               <select 
+                 disabled={!selectedMainId}
+                 className='w-full h-14 bg-gray-100/60 border-none rounded-xl px-5 focus-visible:ring-purple-400 font-medium appearance-none outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+                 value=""
+                 onChange={(e) => {
+                   if (e.target.value) toggleSubcategory(e.target.value);
+                 }}
+               >
+                 <option value="" disabled>
+                   {!selectedMainId ? "Choose category first" : "Select a subcategory"}
+                 </option>
+                 {displaySubcategories.map(sub => (
+                   <option key={sub._id} value={sub._id}>{sub.displayName}</option>
+                 ))}
+               </select>
+               <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+               </div>
+             </div>
+             
+              {/* Selected Subcategories Tags */}
+             {selectedSubIds.length > 0 && (
+               <div className="flex flex-wrap gap-2 mt-2">
+                  {selectedSubIds.map(id => {
+                    const sub = allCategories?.find(s => s._id === id);
+                    if (!sub) return null;
+                    return (
+                      <span key={id} className="bg-purple-100 text-[#6B46C1] text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 border border-purple-200">
+                        {sub.displayName}
+                        <X size={12} className="cursor-pointer hover:text-red-500" onClick={() => toggleSubcategory(id)} />
+                      </span>
+                    );
+                  })}
+               </div>
+             ) || selectedMainId && displaySubcategories.length === 0 && (
+                <p className="text-[11px] text-gray-500 italic">No subcategories available for this category yet.</p>
+             )}
+
+             {form.formState.errors.categories && (
+               <p className='text-xs text-red-500 font-medium px-1'>
+                 {form.formState.errors.categories.message}
+               </p>
+             )}
+           </div>
+
+           {/* University (if campus) */}
+           {isCampusSelected && (
+             <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                <Label className='text-sm font-bold text-gray-700'>University</Label>
+                <div className="relative">
+                  <select 
+                    className='w-full h-14 bg-[#6B46C1]/5 border border-purple-100 rounded-xl px-5 outline-none focus:ring-2 focus:ring-purple-400 font-medium appearance-none cursor-pointer'
+                    value={selectedUniId || ""}
+                    onChange={(e) => form.setValue("university", e.target.value)}
+                  >
+                    <option value="" disabled>{isLoadingUni ? "Loading universities..." : "Select your university"}</option>
+                    {universities?.map(u => (
+                      <option key={u._id} value={u._id}>{u.name} ({u.abbreviation})</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-purple-400">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </div>
+               </div>
+             </div>
+           )}
+        </div>
+
+        {/* Dual Column */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Payment offer */}
+          <div className='space-y-3'>
+            <div className='flex justify-between items-center'>
+              <Label className='text-sm font-bold text-gray-700'>
+                Payment offer (#)
+              </Label>
+              <div className='flex items-center gap-3'>
+                <span className='text-[10px] font-bold text-gray-400 uppercase tracking-tight'>
+                  Bargain
                 </span>
-              )}
-              <ChevronDown
-                className='absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-gray-600 transition-colors'
+                <Switch
+                  checked={form.watch("isBiddingEnabled")}
+                  onCheckedChange={(val: boolean) =>
+                    form.setValue("isBiddingEnabled", val)
+                  }
+                  className='data-[state=checked]:bg-[#6B46C1] scale-75'
+                />
+              </div>
+            </div>
+            <Input
+              {...form.register("budget")}
+              placeholder='4000.00'
+              type="number"
+              className='bg-gray-100/60 border-none h-14 rounded-xl px-4 focus-visible:ring-purple-400 placeholder:text-gray-300 font-medium font-mono text-lg'
+            />
+            {form.formState.errors.budget && (
+              <p className='text-xs text-red-500 font-medium px-1'>
+                {form.formState.errors.budget.message}
+              </p>
+            )}
+          </div>
+
+          {/* Deadline */}
+          <div className='space-y-3'>
+            <Label className='text-sm font-bold text-gray-700'>
+              Due Date
+            </Label>
+            <div className='relative'>
+              <Input
+                type='date'
+                {...form.register("dueDate")}
+                className='bg-gray-100/60 border-none h-14 rounded-xl px-5 focus-visible:ring-purple-400 placeholder:text-gray-300 appearance-none inline-flex items-center font-medium'
+              />
+              <CalendarDays
+                className='absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'
                 size={20}
               />
             </div>
-
-            {/* Dropdown */}
-            {isCategoryOpen && (
-              <div className='absolute z-20 w-full mt-2 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200'>
-                <div className='max-h-60 overflow-y-auto p-2'>
-                  {isLoadingCategories ? (
-                    <div className='p-4 text-center'>
-                      <Loader2 className='animate-spin mx-auto text-purple-400' />
-                    </div>
-                  ) : categories?.length === 0 ? (
-                    <div className='p-4 text-center text-sm text-gray-400'>
-                      No categories found
-                    </div>
-                  ) : (
-                    categories?.map((cat) => {
-                      const isSelected = form
-                        .watch("categories")
-                        ?.includes(cat._id);
-                      return (
-                        <div
-                          key={cat._id}
-                          onClick={() => {
-                            toggleCategory(cat._id);
-                            if (form.getValues("categories")?.length >= 2) {
-                              // Optional: don't close if they can select more?
-                              // But for simplicity let's keep it open or closed based on preference
-                            }
-                          }}
-                          className={`p-3 rounded-xl cursor-pointer text-sm font-medium transition-colors flex items-center justify-between ${
-                            isSelected
-                              ? "bg-[#6B46C1] text-white"
-                              : "hover:bg-gray-50 text-gray-600"
-                          }`}
-                        >
-                          <span>{cat.displayName || cat.name}</span>
-                          {isSelected && <X size={14} className='opacity-60' />}
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
+            {form.formState.errors.dueDate && (
+              <p className='text-xs text-red-500 font-medium px-1'>
+                {form.formState.errors.dueDate.message}
+              </p>
             )}
           </div>
-          {form.formState.errors.categories && (
-            <p className='text-xs text-red-500 font-medium px-1'>
-              {form.formState.errors.categories.message}
-            </p>
-          )}
-        </div>
-
-        {/* Payment offer */}
-        <div className='space-y-3'>
-          <div className='flex justify-between items-center'>
-            <Label className='text-sm font-bold text-gray-700'>
-              Payment offer (#)
-            </Label>
-            <div className='flex items-center gap-3'>
-              <span className='text-xs font-bold text-gray-400 uppercase tracking-tight italic'>
-                Bargain
-              </span>
-              <Switch
-                checked={form.watch("isBiddingEnabled")}
-                onCheckedChange={(val: boolean) =>
-                  form.setValue("isBiddingEnabled", val)
-                }
-                className='data-[state=checked]:bg-[#6B46C1]'
-              />
-            </div>
-          </div>
-          <Input
-            {...form.register("budget")}
-            placeholder='e.g 400.00'
-            className='bg-gray-100/60 border-none h-14 rounded-xl px-4 focus-visible:ring-purple-400 placeholder:text-gray-300'
-          />
-          {form.formState.errors.budget && (
-            <p className='text-xs text-red-500 font-medium px-1'>
-              {form.formState.errors.budget.message}
-            </p>
-          )}
-        </div>
-
-        {/* Deadline */}
-        <div className='space-y-3'>
-          <Label className='text-sm font-bold text-gray-700'>
-            Due Date ( End date )
-          </Label>
-          <div className='relative'>
-            <Input
-              type='date'
-              {...form.register("dueDate")}
-              className='bg-gray-100/60 border-none h-14 rounded-xl px-5 focus-visible:ring-purple-400 placeholder:text-gray-300 appearance-none inline-flex items-center'
-            />
-            <CalendarDays
-              className='absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'
-              size={20}
-            />
-          </div>
-          {form.formState.errors.dueDate && (
-            <p className='text-xs text-red-500 font-medium px-1'>
-              {form.formState.errors.dueDate.message}
-            </p>
-          )}
         </div>
 
         {/* Task Description */}
         <div className='space-y-3'>
           <Label className='text-sm font-bold text-gray-700'>
-            Task Description
+            Description
           </Label>
           <Textarea
             {...form.register("description")}
-            placeholder='Write a brief description about the task you are about posting'
-            className='bg-gray-100/60 border-none rounded-xl px-5 py-5 min-h-[160px] focus-visible:ring-purple-400 placeholder:text-gray-300 resize-none ring-0 focus-within:ring-0 ring-offset-0'
+            placeholder='Write a brief description about the task you are posting...'
+            className='bg-gray-100/60 border-none rounded-xl px-5 py-5 min-h-[160px] focus-visible:ring-purple-400 placeholder:text-gray-300 resize-none ring-0 focus-within:ring-0 ring-offset-0 font-medium'
           />
           {form.formState.errors.description && (
             <p className='text-xs text-red-500 font-medium px-1'>
@@ -300,11 +315,11 @@ export default function PostTaskPage() {
         </div>
 
         {/* Task images */}
-        <Card className='border border-gray-100 shadow-none rounded-xl overflow-hidden'>
+        <Card className='border border-gray-100 shadow-none rounded-2xl overflow-hidden'>
           <CardContent className='p-6 space-y-4'>
             <div className='flex justify-between items-center'>
               <span className='text-sm font-bold text-gray-700'>
-                Task images
+                Reference Images
               </span>
               <Switch
                 checked={showImages}
@@ -312,18 +327,18 @@ export default function PostTaskPage() {
                   setShowImages(val);
                   if (!val) form.setValue("images", []);
                 }}
-                className='data-[state=checked]:bg-[#6B46C1]'
+                className='data-[state=checked]:bg-[#6B46C1] scale-90'
               />
             </div>
-            <p className='text-xs text-gray-400 font-medium tracking-tight'>
+            <p className='text-[13px] text-gray-400 font-medium tracking-tight'>
               Upload task images to help find taskers faster
             </p>
 
             {showImages && (
-              <div className='space-y-4'>
+              <div className='space-y-4 mt-2'>
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className='border border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center space-y-2 cursor-pointer hover:bg-gray-50 transition-colors bg-gray-50/30'
+                  className='border border-dashed border-purple-200 rounded-xl p-8 flex flex-col items-center justify-center space-y-2 cursor-pointer hover:bg-purple-50 transition-colors bg-gray-50/50'
                 >
                   <input
                     type='file'
@@ -333,18 +348,18 @@ export default function PostTaskPage() {
                     accept='image/*'
                     onChange={handleImageSelect}
                   />
-                  <Upload className='text-gray-400 mb-1' size={24} />
-                  <span className='text-xs font-bold text-gray-500 bg-gray-100 px-10 py-4 rounded-xl'>
-                    Upload files
+                  <Upload className='text-purple-400 mb-1' size={24} />
+                  <span className='text-xs font-bold text-[#6B46C1] bg-purple-100 px-6 py-2 rounded-full'>
+                    Upload photos
                   </span>
                 </div>
 
                 {form.watch("images") && form.watch("images")!.length > 0 && (
-                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4'>
+                  <div className='grid grid-cols-3 md:grid-cols-4 gap-3'>
                     {form.watch("images")?.map((img: any, index: number) => (
                       <div
                         key={index}
-                        className='relative group aspect-square rounded-xl overflow-hidden border border-gray-100'
+                        className='relative group aspect-square rounded-xl overflow-hidden border border-gray-200'
                       >
                         <img
                           src={img.url}
@@ -354,14 +369,10 @@ export default function PostTaskPage() {
                         <button
                           type='button'
                           onClick={() => {
-                            const currentImages =
-                              form.getValues("images") || [];
-                            form.setValue(
-                              "images",
-                              currentImages.filter((_, i) => i !== index),
-                            );
+                            const currentImages = form.getValues("images") || [];
+                            form.setValue("images", currentImages.filter((_, i) => i !== index));
                           }}
-                          className='absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-red-500 text-white rounded-full transition-colors opacity-0 group-hover:opacity-100'
+                          className='absolute top-2 right-2 p-1 bg-black/50 hover:bg-red-500 text-white rounded-full transition-colors opacity-0 group-hover:opacity-100'
                         >
                           <X size={14} />
                         </button>
@@ -377,12 +388,12 @@ export default function PostTaskPage() {
         {/* Tags */}
         <div className='space-y-3'>
           <Label className='text-sm font-bold text-gray-700'>Tags</Label>
-          <div className='flex gap-2'>
+          <div className='flex gap-2 relative'>
             <Input
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
-              placeholder='Add tags (e.g, urgent , indoor)'
-              className='bg-white border-gray-200 h-14 rounded-xl px-5 focus-visible:ring-purple-400'
+              placeholder='e.g urgent, indoor'
+              className='bg-gray-100/60 border-none h-14 rounded-xl px-5 focus-visible:ring-purple-400 flex-1 font-medium'
               onKeyDown={(e) =>
                 e.key === "Enter" && (e.preventDefault(), handleAddTag())
               }
@@ -390,22 +401,23 @@ export default function PostTaskPage() {
             <Button
               type='button'
               onClick={handleAddTag}
-              className='bg-[#6B46C1] hover:bg-[#553C9A] h-14 px-8 rounded-xl font-bold'
+              variant="outline"
+              className='border-purple-200 text-[#6B46C1] hover:bg-purple-50 h-14 px-6 rounded-xl font-bold'
             >
               Add
             </Button>
           </div>
 
-          <div className='flex flex-wrap gap-2 mt-2'>
+          <div className='flex flex-wrap gap-2 mt-3'>
             {form.watch("tags")?.map((tag: string) => (
               <span
                 key={tag}
-                className='bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5'
+                className='bg-[#F5EEFF] text-[#6B46C1] text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-purple-100'
               >
                 {tag}
                 <X
                   size={14}
-                  className='cursor-pointer hover:text-red-500'
+                  className='cursor-pointer text-purple-400 hover:text-red-500'
                   onClick={() => removeTag(tag)}
                 />
               </span>
@@ -416,14 +428,27 @@ export default function PostTaskPage() {
         <Button
           type='submit'
           disabled={isSubmitting}
-          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-sm font-bold rounded-xl shadow-lg shadow-purple-200 transition-all active:scale-[0.99]'
+          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-[60px] text-lg font-black rounded-2xl shadow-xl shadow-purple-500/20 transition-all active:scale-[0.99] mt-6'
         >
           {isSubmitting ? (
-            <Loader2 className='w-5 h-5 animate-spin mr-2' />
+            <Loader2 className='w-6 h-6 animate-spin mr-2' />
           ) : null}
           Post Task
         </Button>
       </form>
     </div>
+  );
+}
+
+export default function PostTaskPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Loader2 className="w-10 h-10 animate-spin text-[#6B46C1]" />
+        <p className="mt-4 text-gray-500 font-medium">Loading form...</p>
+      </div>
+    }>
+      <PostTaskForm />
+    </Suspense>
   );
 }

@@ -11,6 +11,7 @@ import Link from "next/link";
 
 import { useAuth } from "@/hooks/useAuth";
 import { bidsApi } from "@/lib/api/bids";
+import { getCategoryName } from "@/hooks/useHome";
 
 type StatusFilter =
   | "all"
@@ -161,11 +162,7 @@ export default function HistoryPage() {
             const isBid = isTasker;
             const task = isBid ? (typeof item.task === 'object' ? item.task : null) : item;
             const displayTitle = task?.title || (isBid ? "Task" : "Untitled Task");
-            const displayCategory = isBid 
-              ? (task?.categories?.[0]?.name || "General")
-              : (typeof task.categories?.[0] === "string" 
-                  ? task.categories[0] 
-                  : task.categories?.[0]?.displayName || task.categories?.[0]?.name || "General");
+            const displayCategory = getCategoryName(task);
             const displayStatus = isBid ? (item.status || "Applied") : task.status;
             
             return (

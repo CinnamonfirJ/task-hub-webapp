@@ -551,6 +551,13 @@ export function useCreateStaff() {
   });
 }
 
+export function useSetupAdmin() {
+  return useMutation({
+    mutationFn: (data: Parameters<typeof adminApi.setupAdminAccount>[0]) =>
+      adminApi.setupAdminAccount(data),
+  });
+}
+
 export function useStaffDetails(id: string) {
   return useQuery({
     queryKey: ["admin", "staff", "details", id],
@@ -670,6 +677,113 @@ export function useDeleteAdminCategory() {
     mutationFn: (id: string) => adminApi.deleteCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "categories"] });
+    },
+  });
+}
+
+// --- Main Categories Hooks ---
+
+export function useAdminMainCategories() {
+  return useQuery({
+    queryKey: ["admin", "main-categories"],
+    queryFn: () => adminApi.getAdminMainCategories(),
+  });
+}
+
+export function useCreateMainCategory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: any) => adminApi.createMainCategory(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "main-categories"] });
+    },
+  });
+}
+
+export function useUpdateMainCategory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => adminApi.updateMainCategory(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "main-categories"] });
+    },
+  });
+}
+
+export function useDeleteMainCategory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.deleteMainCategory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "main-categories"] });
+    },
+  });
+}
+
+// --- Universities Hooks ---
+
+export function useAdminUniversities() {
+  return useQuery({
+    queryKey: ["admin", "universities"],
+    queryFn: () => adminApi.getAdminUniversities(),
+  });
+}
+
+export function useCreateUniversity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: any) => adminApi.createUniversity(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "universities"] });
+    },
+  });
+}
+
+export function useUpdateUniversity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => adminApi.updateUniversity(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "universities"] });
+    },
+  });
+}
+
+export function useDeleteUniversity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.deleteUniversity(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "universities"] });
+    },
+  });
+}
+
+// ============================================================================
+// Notification Management Hooks
+// ============================================================================
+
+export function useNotificationStats() {
+  return useQuery({
+    queryKey: ["admin", "notifications", "stats"],
+    queryFn: () => adminApi.getNotificationStats(),
+  });
+}
+
+export function useNotifications() {
+  return useQuery({
+    queryKey: ["admin", "notifications", "list"],
+    queryFn: () => adminApi.getNotifications(),
+  });
+}
+
+export function useSendNotification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Parameters<typeof adminApi.sendNotification>[0]) =>
+      adminApi.sendNotification(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "notifications"] });
     },
   });
 }

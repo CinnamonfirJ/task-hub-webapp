@@ -1,6 +1,7 @@
 "use client";
 
-import { useTaskDetails } from "@/hooks/useTaskDetails";
+import { useTaskDetails, useUpdateTaskStatusTasker, useCompletionCode } from "@/hooks/useTaskDetails";
+import { getCategoryName } from "@/hooks/useHome";
 import {
   useTaskBids,
   useAcceptBid,
@@ -9,7 +10,6 @@ import {
   useMyBids,
   useRejectBid,
 } from "@/hooks/useBids";
-import { useUpdateTaskStatusTasker, useCompletionCode } from "@/hooks/useTaskDetails";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -229,12 +229,7 @@ export default function TaskDetailsPage() {
     );
   }
 
-  const categories = task.categories || [];
-  const primaryCategory = categories.length > 0 ? categories[0] : null;
-  const categoryName =
-    primaryCategory && typeof primaryCategory === "object"
-      ? primaryCategory.displayName || primaryCategory.name
-      : "Uncategorized";
+  const categoryName = getCategoryName(task);
 
   const displayLocation =
     typeof task.location === "object" && task.location.address

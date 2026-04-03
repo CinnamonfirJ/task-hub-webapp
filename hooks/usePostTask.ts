@@ -12,7 +12,9 @@ import { useRouter } from "next/navigation";
 const postTaskSchema = z.object({
   title: z.string().min(5, "Title is too short"),
   description: z.string().min(20, "Description is too short"),
-  categories: z.array(z.string()).min(1, "Please select at least one category").max(3, "Max 3 categories allowed"),
+  mainCategory: z.string().min(1, "Please select a main category"),
+  categories: z.array(z.string()).min(1, "Please select at least one subcategory"),
+  university: z.string().optional(),
   budget: z.string().min(1, "Budget is required"),
   location: z.any().optional(),
   dueDate: z.string().min(1, "Due date is required"),
@@ -47,7 +49,9 @@ export function usePostTask() {
       title: "",
       description: "",
       budget: "",
+      mainCategory: "",
       categories: [],
+      university: "",
       isBiddingEnabled: true,
       dueDate: "",
       tags: [],
@@ -62,6 +66,7 @@ export function usePostTask() {
 
     createTaskMutation.mutate({
       ...data,
+      university: data.university || undefined, // Drop empty strings
       deadline, // Map dueDate to deadline
       budget: Number(data.budget),
       // Ensure location matches spec

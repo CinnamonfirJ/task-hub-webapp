@@ -98,9 +98,12 @@ export function useHome() {
 
   // Tasker specific state
   const isVerified =
-    (user as any)?.isVerified ||
-    (user as any)?.verifyIdentity ||
-    (user as any)?.isKYCVerified ||
+    !!(user as any)?.isVerified ||
+    !!(user as any)?.verifyIdentity ||
+    !!(user as any)?.isKYCVerified ||
+    !!(user as any)?.kycVerified ||
+    !!(user as any)?.verified ||
+    user?.role === "admin" ||
     false;
 
   return {
@@ -160,9 +163,27 @@ export function formatDeadline(deadline?: string): string {
 /**
  * Helper function to get category name from task
  */
-export function getCategoryName(categories: Task["categories"]): string {
-  if (!categories || categories.length === 0) return "Uncategorized";
-  const category = categories[0];
-  if (typeof category === "string") return category;
-  return category?.displayName || category?.name || "Uncategorized";
+export function getCategoryName(task?: Partial<Task>): string {
+  if (!task) return "Uncategorized";
+
+  const sub = task.subCategory;
+  if (sub) {
+    if (typeof sub === "object") return sub.displayName || sub.name;
+    return sub;
+  }
+
+  const main = task.mainCategory;
+  if (main) {
+    if (typeof main === "object") return main.displayName || main.name;
+    return main;
+  }
+
+  const categories = task.categories || [];
+  if (categories.length > 0) {
+    const category = categories[0];
+    if (typeof category === "object") return category.displayName || category.name;
+    return category;
+  }
+
+  return "Uncategorized";
 }

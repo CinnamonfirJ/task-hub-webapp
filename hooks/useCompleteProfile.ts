@@ -138,7 +138,7 @@ export function useCompleteProfile() {
   };
 }
 
-export function checkProfileCompleteness(user: {
+export function checkProfileCompleteness(user?: {
   fullName?: string;
   firstName?: string;
   lastName?: string;
@@ -154,7 +154,7 @@ export function checkProfileCompleteness(user: {
   verified?: boolean;
   role?: string;
   categories?: unknown[];
-}): boolean {
+} | null): boolean {
   if (!user) return false;
 
   // 1. Basic Information Check

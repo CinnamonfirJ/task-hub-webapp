@@ -34,6 +34,7 @@ import {
   StaffDetailResponse,
   CreateStaffInput,
   UpdateStaffStatusInput,
+  SetupAdminInput,
   ExportResponse,
   DashboardExportRecord,
   TaskExportRecord,
@@ -46,6 +47,11 @@ import {
   AdminCategory,
   UpdateCategoryRequest,
   AdminWaitlistResponse,
+  AdminNotification,
+  AdminNotificationStats,
+  AdminNotificationListResponse,
+  AdminNotificationStatsResponse,
+  SendNotificationRequest,
 } from "@/types/admin";
 
 export const adminApi = {
@@ -571,7 +577,14 @@ export const adminApi = {
   },
 
   createStaffAccount: async (data: CreateStaffInput): Promise<any> => {
-    return apiData<any>("/api/admin/staff", {
+    return apiData<any>("/api/admin/staff/invite", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  setupAdminAccount: async (data: SetupAdminInput): Promise<any> => {
+    return apiData<any>("/api/admin/staff/setup", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -743,6 +756,99 @@ export const adminApi = {
   completeWithdrawal: async (id: string): Promise<any> => {
     return apiData<any>(`/api/admin/withdrawals/${id}/complete`, {
       method: "PATCH",
+    });
+  },
+
+  // ============================================================================
+  // Main Categories
+  // ============================================================================
+
+  getAdminMainCategories: async (): Promise<any> => {
+    const response = await apiData<any>("/api/admin/main-categories", {
+      method: "GET",
+    });
+    return response.data ?? response;
+  },
+
+  createMainCategory: async (data: any): Promise<any> => {
+    const response = await apiData<any>("/api/admin/main-categories", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    return response.mainCategory ?? response;
+  },
+
+  updateMainCategory: async (id: string, data: any): Promise<any> => {
+    const response = await apiData<any>(`/api/admin/main-categories/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+    return response.mainCategory ?? response;
+  },
+
+  deleteMainCategory: async (id: string): Promise<any> => {
+    return apiData<any>(`/api/admin/main-categories/${id}`, {
+      method: "DELETE",
+    });
+  },
+
+  // ============================================================================
+  // Universities
+  // ============================================================================
+
+  getAdminUniversities: async (): Promise<any> => {
+    const response = await apiData<any>("/api/admin/universities", {
+      method: "GET",
+    });
+    return response.data ?? response;
+  },
+
+  createUniversity: async (data: any): Promise<any> => {
+    const response = await apiData<any>("/api/admin/universities", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    return response.university ?? response;
+  },
+
+  updateUniversity: async (id: string, data: any): Promise<any> => {
+    const response = await apiData<any>(`/api/admin/universities/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+    return response.university ?? response;
+  },
+
+  deleteUniversity: async (id: string): Promise<any> => {
+    return apiData<any>(`/api/admin/universities/${id}`, {
+      method: "DELETE",
+    });
+  },
+
+  // ============================================================================
+  // Notification Management
+  // ============================================================================
+
+  getNotificationStats: async (): Promise<AdminNotificationStats> => {
+    const response = await apiData<AdminNotificationStatsResponse>(
+      "/api/admin/notifications/stats",
+      { method: "GET" },
+    );
+    return response.data;
+  },
+
+  getNotifications: async (): Promise<AdminNotification[]> => {
+    const response = await apiData<AdminNotificationListResponse>(
+      "/api/admin/notifications",
+      { method: "GET" },
+    );
+    return response.data;
+  },
+
+  sendNotification: async (data: SendNotificationRequest): Promise<any> => {
+    return apiData<any>("/api/admin/notifications/send", {
+      method: "POST",
+      body: JSON.stringify(data),
     });
   },
 };

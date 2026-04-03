@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTaskerFeed } from "@/hooks/useHome";
+import { useTaskerFeed, getCategoryName } from "@/hooks/useHome";
 import { useCategories } from "@/hooks/useCategories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -133,14 +133,7 @@ export default function FeedPage() {
       ) : filteredTasks.length > 0 ? (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {filteredTasks.map((task) => {
-            const primaryCategory =
-              Array.isArray(task.categories) && task.categories.length > 0
-                ? task.categories[0]
-                : null;
-            const categoryName =
-              primaryCategory && typeof primaryCategory === "object"
-                ? primaryCategory.displayName || primaryCategory.name
-                : "Uncategorized";
+            const categoryName = getCategoryName(task);
 
             const posterName = task.user?.fullName || "Task NG";
             const posterInitial = posterName

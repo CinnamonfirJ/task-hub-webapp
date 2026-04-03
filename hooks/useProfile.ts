@@ -85,7 +85,7 @@ export function useProfile() {
   };
 
   const handleCategoriesSubmit = (categories: string[]) => {
-    updateCategoriesMutation.mutate(categories);
+    updateCategoriesMutation.mutate({ categories });
   };
 
   const handlePictureUpload = (base64: string) => {

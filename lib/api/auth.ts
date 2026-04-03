@@ -265,22 +265,35 @@ export const authApi = {
           // Fetch verification status separately and merge it, as some endpoints miss these fields
           if (profileData) {
             try {
-              const vStatus = await this.getVerificationStatus();
-              console.log(
-                "[authApi] Separate verification status response:",
-                vStatus,
-              );
-              if (vStatus && typeof vStatus.isVerified === "boolean") {
+              // If it's an admin or already shows as verified in the profile, we can skip the extra check
+              // or at least ensure we don't call it if we don't need to.
+              const isAlreadyVerified = 
+                !!profileData.isKYCVerified || 
+                !!profileData.verifyIdentity || 
+                !!profileData.kycVerified || 
+                !!profileData.verified;
+
+              if (userType !== "admin" && !isAlreadyVerified) {
+                const vStatus = await authApi.getVerificationStatus();
+                if (process.env.NODE_ENV === "development") {
+                  console.log("[authApi] Separate verification status response:", vStatus);
+                }
+                
+                if (vStatus && vStatus.isVerified === true) {
+                  Object.assign(profileData as any, {
+                    isKYCVerified: true,
+                    verifyIdentity: true,
+                    kycVerified: true,
+                    verified: true,
+                  });
+                }
+              } else if (userType === "admin") {
+                // Admins are always considered verified
                 Object.assign(profileData as any, {
-                  isKYCVerified: vStatus.isVerified,
-                  verifyIdentity: vStatus.isVerified,
-                  // Also add common variations
-                  kycVerified: vStatus.isVerified,
-                  verified: vStatus.isVerified,
+                  isKYCVerified: true,
+                  verifyIdentity: true,
+                  role: "admin"
                 });
-                console.log(
-                  `[authApi] Merged verification: isVerified=${vStatus.isVerified}`,
-                );
               }
             } catch (vErr) {
               console.warn(
@@ -350,10 +363,10 @@ export const authApi = {
     });
   },
 
-  updateCategories: async (categories: string[]): Promise<{ tasker: User }> => {
+  updateCategories: async (data: { mainCategories: string[]; subCategories: string[]; university?: string | null }): Promise<{ tasker: User }> => {
     return apiData<{ tasker: User }>("/api/auth/categories", {
       method: "PUT",
-      body: JSON.stringify({ categories }),
+      body: JSON.stringify(data),
     });
   },
 
@@ -412,8 +425,16 @@ export const authApi = {
 
   getVerificationStatus: async (): Promise<{ isVerified: boolean }> => {
     try {
+      // Admins don't have a verification status in this endpoint (causes 401)
+      const userType =
+        typeof window !== "undefined" ? localStorage.getItem("userType") : null;
+      if (userType === "admin") {
+        return { isVerified: true };
+      }
+
       const res = await apiData<any>("/api/auth/verification-status", {
         method: "GET",
+        skipAuthError: true,
       });
       console.log("[authApi] Verification status raw response:", res);
 

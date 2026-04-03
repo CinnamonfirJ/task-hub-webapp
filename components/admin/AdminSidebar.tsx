@@ -37,6 +37,7 @@ export const navItems = [
   { icon: MessageSquare, label: "Message", href: "/admin/messages" },
   { icon: Users, label: "Waitlist", href: "/admin/waitlist" },
   { icon: FileText, label: "Report & Logs", href: "/admin/reports" },
+  { icon: Bell, label: "Notifications", href: "/admin/notifications" },
   { icon: Settings, label: "Settings", href: "/admin/settings" },
 ];
 

@@ -8,6 +8,8 @@ export interface Category {
   icon?: string;
   description: string;
   isActive: boolean;
+  mainCategory?: any;
+  parentCategory?: any;
   count?: number;
   createdBy?:
     | string
@@ -24,6 +26,8 @@ export interface Task {
   _id: string;
   title: string;
   description: string;
+  mainCategory?: Category | string;
+  subCategory?: Category | string;
   categories: Category[] | string[]; // Populated or IDs
   budget: number;
   location?:

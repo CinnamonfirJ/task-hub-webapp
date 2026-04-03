@@ -1,5 +1,6 @@
 import { apiData } from "@/lib/api";
 import { Category } from "@/types/task";
+import { MainCategory, Subcategory, University } from "@/types/category";
 
 export interface CategoryStats {
   category: {
@@ -71,6 +72,40 @@ export const categoriesApi = {
       return categories || [];
     } catch (error) {
       console.error("Failed to fetch categories:", error);
+      return [];
+    }
+  },
+
+  // New Spec: Get Main Categories (Public)
+  getMainCategories: async (): Promise<MainCategory[]> => {
+    try {
+      const response = await apiData<any>("/api/main-categories", {
+        method: "GET",
+      });
+      let mains = response.data?.mainCategories || response.mainCategories || [];
+      
+      // Fallback: If no explicit main categories exist, derive them from top-level generic categories
+      if (mains.length === 0) {
+        const allCats = await categoriesApi.getCategories();
+        mains = allCats.filter((c: any) => !c.parentCategory && !c.mainCategory);
+      }
+      
+      return mains;
+    } catch (error) {
+      console.error("Failed to fetch main categories:", error);
+      return [];
+    }
+  },
+
+  // New Spec: Get Universities (Public)
+  getUniversities: async (): Promise<University[]> => {
+    try {
+      const response = await apiData<any>("/api/universities", {
+        method: "GET",
+      });
+      return response.data?.universities || response.universities || [];
+    } catch (error) {
+      console.error("Failed to fetch universities:", error);
       return [];
     }
   },

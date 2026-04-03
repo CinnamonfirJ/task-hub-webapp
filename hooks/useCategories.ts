@@ -17,3 +17,19 @@ export function useCategory(id: string) {
     staleTime: 1000 * 60 * 60, // 1 hour
   });
 }
+
+export function useMainCategories() {
+  return useQuery({
+    queryKey: ["main-categories"],
+    queryFn: () => categoriesApi.getMainCategories(),
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
+}
+
+export function useUniversities() {
+  return useQuery({
+    queryKey: ["universities"],
+    queryFn: () => categoriesApi.getUniversities(),
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
+}

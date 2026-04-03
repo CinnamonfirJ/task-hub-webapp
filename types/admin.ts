@@ -6,14 +6,16 @@ import { User } from "./auth";
 
 export interface AdminProfile {
   _id: string;
-  fullName: string;
-  emailAddress: string;
-  role: "super_admin" | "operations" | "trust_safety" | "support";
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  role: "super_admin" | "operations" | "trust_safety" | "finance";
   isActive: boolean;
-  permissions: string[];
-  profilePicture?: string;
+  phoneNumber?: string;
+  location?: string;
   lastLogin?: string;
-  createdAt?: string;
+  createdAt: string;
 }
 
 export interface AdminLoginRequest {
@@ -1310,7 +1312,7 @@ export interface StaffMember {
   _id: string;
   name: string;
   email: string;
-  role: "super_admin" | "operations" | "trust_safety" | "support";
+  role: "super_admin" | "operations" | "trust_safety" | "finance";
   permissions: string[];
   isActive: boolean;
   lastLogin?: string;
@@ -1334,11 +1336,15 @@ export interface StaffListResponse {
 }
 
 export interface CreateStaffInput {
-  fullName: string;
-  emailAddress: string;
-  password?: string;
-  role: "super_admin" | "operations" | "trust_safety" | "support";
-  permissions?: string[];
+  email: string;
+  role: "super_admin" | "operations" | "trust_safety" | "finance";
+}
+
+export interface SetupAdminInput {
+  token: string;
+  firstName: string;
+  lastName: string;
+  password: string;
 }
 
 export interface CreateStaffResponse {
@@ -1364,7 +1370,7 @@ export interface StaffDetailResponse {
     profile: {
       id: string;
       email: string;
-      role: "super_admin" | "operations" | "trust_safety" | "support";
+      role: "super_admin" | "operations" | "trust_safety" | "finance";
       phone?: string;
       location?: string;
       /** ISO date string — replaces the old createdAt */
@@ -1587,7 +1593,7 @@ export interface KYCListQueryParams extends PaginationParams {
 }
 
 export interface StaffListQueryParams extends PaginationParams {
-  role?: "super_admin" | "operations" | "trust_safety" | "support";
+  role?: "super_admin" | "operations" | "trust_safety" | "finance";
   status?: "active" | "inactive";
 }
 
@@ -1753,6 +1759,9 @@ export interface AdminCategory {
   minimumPrice: number;
   // Real API field is "services" in list — NOT "serviceCount"
   services?: number;
+  // Add support for subcategory hierarchy
+  parentCategory?: string | any;
+  subCategoryCount?: number;
   createdBy?: string;
   createdAt: string;
   updatedAt: string;
@@ -1763,6 +1772,7 @@ export interface AdminCategoryStats {
   activeCategories: number;
   closedCategories: number;
   totalServices: number;
+  totalTasks: number; // Added from redesign
 }
 
 // GET /api/admin/categories
@@ -1779,6 +1789,8 @@ export interface AdminCategoryListResponse {
 // Stats block returned by GET /api/admin/categories/:id
 export interface AdminCategoryDetailStats {
   totalServices: number;
+  subCategoryCount: number; // Added from redesign
+  activeServices: number; // Added from redesign
   // Real API returns activeTaskers + totalTaskers — NOT "taskers" or "activeServices"
   activeTaskers: number;
   totalTaskers: number;
@@ -1820,6 +1832,7 @@ export interface AdminCategoryDetailResponse {
     stats: AdminCategoryDetailStats;
     tasks: AdminCategoryTask[];
     taskers: AdminCategoryTasker[];
+    subcategories?: AdminCategory[]; // Added for hierarchy drill-down
   };
 }
 
@@ -1829,6 +1842,7 @@ export interface CreateCategoryRequest {
   displayName: string;
   description: string;
   minimumPrice: number;
+  parentCategory?: string; // For creating subcategories
 }
 
 // PATCH /api/admin/categories/:id payload
@@ -1839,6 +1853,7 @@ export interface UpdateCategoryRequest {
   minimumPrice?: number;
   // Use isActive boolean — NOT status: "Active"/"Closed"
   isActive?: boolean;
+  parentCategory?: string;
 }
 
 // ============================================================================
@@ -1855,4 +1870,121 @@ export interface AdminWaitlistResponse {
   status: string;
   count: number;
   data: AdminWaitlistListItem[];
+}
+// ─── Main Categories ──────────────────────────────────────────────────────────
+export interface AdminMainCategory {
+  _id: string;
+  name: string;
+  displayName: string;
+  description: string;
+  icon: string;
+  isActive: boolean;
+  subcategories: number;
+  createdAt: string;
+}
+
+export interface AdminMainCategoryListResponse {
+  status: string;
+  data: {
+    mainCategories: AdminMainCategory[];
+  };
+}
+
+export interface CreateMainCategoryRequest {
+  name: string;
+  displayName: string;
+  description?: string;
+  icon?: string;
+}
+
+export interface UpdateMainCategoryRequest {
+  name?: string;
+  displayName?: string;
+  description?: string;
+  icon?: string;
+  isActive?: boolean;
+}
+
+// ─── Universities ──────────────────────────────────────────────────────────────
+export interface AdminUniversity {
+  _id: string;
+  name: string;
+  abbreviation: string;
+  state: string;
+  location: string;
+  logo: string;
+  isActive: boolean;
+  createdBy?: string;
+  createdAt: string;
+}
+
+export interface AdminUniversityListResponse {
+  status: string;
+  data: {
+    universities: AdminUniversity[];
+  };
+}
+
+export interface CreateUniversityRequest {
+  name: string;
+  abbreviation?: string;
+  state?: string;
+  location?: string;
+  logo?: string;
+}
+
+export interface UpdateUniversityRequest {
+  name?: string;
+  abbreviation?: string;
+  state?: string;
+  location?: string;
+  logo?: string;
+  isActive?: boolean;
+}
+
+// ============================================================================
+// Notification Management Types
+// ============================================================================
+
+export interface AdminNotification {
+  _id: string;
+  title: string;
+  message: string;
+  type: "Announcement" | "Alert" | "Warning" | "Update";
+  audience: "All Users" | "All Taskers" | "Selected Users" | "Everyone";
+  recipientsCount: number;
+  openedCount: number;
+  sentBy: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminNotificationStats {
+  totalUsers: number;
+  totalTaskers: number;
+  totalSent: number;
+  openRate: string;
+}
+
+export interface SendNotificationRequest {
+  title: string;
+  message: string;
+  type?: "Announcement" | "Alert" | "Warning" | "Update";
+  audience: "All Users" | "All Taskers" | "Selected Users" | "Everyone";
+  selectedUserIds?: string[];
+}
+
+export interface AdminNotificationListResponse {
+  status: string;
+  results: number;
+  data: AdminNotification[];
+}
+
+export interface AdminNotificationStatsResponse {
+  status: string;
+  data: AdminNotificationStats;
 }
