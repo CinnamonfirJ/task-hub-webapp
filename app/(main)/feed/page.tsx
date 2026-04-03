@@ -143,8 +143,16 @@ export default function FeedPage() {
               .join("")
               .slice(0, 2);
 
-            const isAssignedToMe = task.taskerBidInfo?.status === 'accepted';
-            const isAssignedToOther = (task.status === 'assigned' || task.status === 'in-progress') && !isAssignedToMe;
+            // A tasker is assigned to this task if:
+            // 1. The API explicitly says their bid status is 'accepted', OR
+            // 2. They have a bid on this task that wasn't rejected, AND the task is now assigned/in-progress
+            //    (The feed API may not always return status='accepted' for the winning tasker)
+            const taskIsAssigned = task.status === 'assigned' || task.status === 'in-progress';
+            const isAssignedToMe = task.taskerBidInfo?.status === 'accepted' || 
+              (task.taskerBidInfo?.hasBid === true && 
+               task.taskerBidInfo?.status !== 'rejected' && 
+               taskIsAssigned);
+            const isAssignedToOther = taskIsAssigned && !isAssignedToMe;
             const isCompleted = task.status === 'completed';
 
             return (

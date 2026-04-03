@@ -70,6 +70,8 @@ export default function TaskDetailsPage() {
 
   // Accept bid mutation
   const { mutate: acceptBid, isPending: isAccepting } = useAcceptBid();
+  // Track which specific bid is being accepted for per-card loading state
+  const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
 
   // Reject bid mutation
   const { mutate: rejectBid, isPending: isRejecting } = useRejectBid();
@@ -156,8 +158,14 @@ export default function TaskDetailsPage() {
   };
 
   const handleConfirmAccept = () => {
-    acceptBid(confirmAccept.bidId);
-    setConfirmAccept({ isOpen: false, bidId: "" });
+    const bidId = confirmAccept.bidId;
+    setAcceptingBidId(bidId);
+    acceptBid(bidId, {
+      onSettled: () => {
+        setAcceptingBidId(null);
+        setConfirmAccept({ isOpen: false, bidId: "" });
+      },
+    });
   };
 
   const handleRejectBid = (bidId: string) => {
@@ -358,7 +366,7 @@ export default function TaskDetailsPage() {
                       onAccept={handleAcceptBid}
                       onReject={handleRejectBid}
                       onMessage={handleMessageTasker}
-                      isAccepting={isAccepting}
+                      isAccepting={acceptingBidId === bid._id}
                       isRejecting={isRejecting}
                     />
                   ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -35,11 +35,12 @@ const setupAdminSchema = z.object({
 
 type SetupAdminValues = z.infer<typeof setupAdminSchema>;
 
-export default function AdminSetupPage() {
+// Inner component uses useSearchParams — must be wrapped in Suspense
+function AdminSetupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { mutate: setupAccount, isPending, error } = useSetupAdmin();
@@ -56,8 +57,7 @@ export default function AdminSetupPage() {
 
   useEffect(() => {
     if (!token) {
-      // If no token is provided, we might want to redirect or show a specific error
-      // For now, the API will fail anyway if they try to submit
+      // If no token is provided, the API will reject submission anyway
     }
   }, [token]);
 
@@ -297,5 +297,26 @@ export default function AdminSetupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function SetupPageFallback() {
+  return (
+    <div className='min-h-screen w-full flex flex-col items-center justify-center bg-[#F9FAFB] p-4'>
+      <div className='flex flex-col items-center gap-4'>
+        <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+        <p className='text-gray-500 text-sm font-medium'>Loading setup page...</p>
+      </div>
+    </div>
+  );
+}
+
+// Outer page wraps the content (which uses useSearchParams) in Suspense
+// Required by Next.js for SSG builds
+export default function AdminSetupPage() {
+  return (
+    <Suspense fallback={<SetupPageFallback />}>
+      <AdminSetupContent />
+    </Suspense>
   );
 }
