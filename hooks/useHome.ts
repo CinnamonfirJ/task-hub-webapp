@@ -1,7 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { tasksApi } from "@/lib/api/tasks";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { tasksApi, TaskerFeedResponse } from "@/lib/api/tasks";
 import { useAuth } from "@/hooks/useAuth";
 import { checkProfileCompleteness } from "@/hooks/useCompleteProfile";
 import { Task } from "@/types/task";
@@ -37,10 +37,13 @@ export function useHome() {
     queryKey: isTasker
       ? ["taskerFeed", { maxDistance: 200 }]
       : ["userDashboardTasks"],
-    queryFn: () =>
-      isTasker
-        ? tasksApi.getTaskerFeed({ maxDistance: 200 })
-        : tasksApi.getUserDashboardTasks({ limit: 6 }),
+    queryFn: async () => {
+      const res = isTasker
+        ? await tasksApi.getTaskerFeed({ maxDistance: 200 })
+        : await tasksApi.getUserDashboardTasks({ limit: 6 });
+      
+      return Array.isArray(res) ? res : (res as any).tasks || [];
+    },
     enabled: !!user, // Fetch if user exists, even if profile is incomplete
   });
 
@@ -142,9 +145,38 @@ export function useTaskerFeed(
 
   return useQuery({
     queryKey: ["taskerFeed", params],
-    queryFn: () => tasksApi.getTaskerFeed(params),
+    queryFn: async () => {
+      const res = await tasksApi.getTaskerFeed(params);
+      return res.tasks;
+    },
     enabled: !!user && user.role === "tasker",
     refetchInterval: params.status?.includes("assigned") ? 5000 : false, // Poll only if looking at status tab
+  });
+}
+
+/**
+ * Infinite scroll hook for Tasker Feed
+ */
+export function useInfiniteTaskerFeed(
+  params: { 
+    maxDistance?: number; 
+    status?: string; 
+    limit?: number;
+    biddingOnly?: boolean;
+    budget_min?: number;
+    budget_max?: number;
+  } = {},
+) {
+  const { user } = useAuth();
+
+  return useInfiniteQuery({
+    queryKey: ["infiniteTaskerFeed", params],
+    queryFn: ({ pageParam }) => 
+      tasksApi.getTaskerFeed({ ...params, cursor: pageParam as string }),
+    initialPageParam: undefined as (string | undefined),
+    getNextPageParam: (lastPage) => lastPage.pagination.nextCursor || undefined,
+    enabled: !!user && user.role === "tasker",
+    refetchInterval: params.status?.includes("assigned") ? 5000 : false,
   });
 }
 

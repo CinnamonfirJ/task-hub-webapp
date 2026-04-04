@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useTaskerFeed, getCategoryName } from "@/hooks/useHome";
+import { useState, useMemo, useEffect } from "react";
+import { useInfiniteTaskerFeed, getCategoryName } from "@/hooks/useHome";
 import { useCategories } from "@/hooks/useCategories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,20 +16,41 @@ export default function FeedPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [activeTab, setActiveTab] = useState<"Explore" | "Status">("Explore");
 
+  const [activeSpecialFilter, setActiveSpecialFilter] = useState("All");
+
   // Fetch categories for filter
   const { data: categoriesData } = useCategories();
   const categories = categoriesData || [];
 
-  // Fetch tasker feed
+  // Functional filters logic
+  const feedParams = useMemo(() => {
+    const params: any = {
+      maxDistance: 200,
+      status: activeTab === "Status" ? "assigned,in-progress,completed" : "open"
+    };
+
+    if (activeSpecialFilter === "Bidding") params.biddingOnly = true;
+    if (activeSpecialFilter === "HighBudget") params.budget_min = 10000;
+    if (activeSpecialFilter === "Nearby") params.maxDistance = 50;
+
+    return params;
+  }, [activeTab, activeSpecialFilter]);
+
+  // Fetch tasker feed with infinite scroll
   const {
-    data: tasks,
+    data,
     isLoading,
     isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     refetch: refetchTasks,
-  } = useTaskerFeed({ 
-    maxDistance: 200,
-    status: activeTab === "Status" ? "assigned,in-progress,completed" : "open"
-  });
+  } = useInfiniteTaskerFeed(feedParams);
+
+  // Flatten tasks from all pages
+  const tasks = useMemo(() => {
+    return data?.pages.flatMap((page) => page.tasks) || [];
+  }, [data]);
 
   // Client-side filtering
   const filteredTasks = (tasks || []).filter((task) => {
@@ -49,8 +70,16 @@ export default function FeedPage() {
     return matchesSearch && matchesCategory;
   });
 
+  // Special Functional Filters
+  const specialFilters = [
+    { id: "All", label: "All Tasks" },
+    { id: "Bidding", label: "Bidding Only" },
+    { id: "HighBudget", label: "High Budget (₦10k+)" },
+    { id: "Nearby", label: "Nearby (50mi)" },
+  ];
+
   const categoryFilters = [
-    { _id: "All", displayName: "All" },
+    { _id: "All", displayName: "All Categories" },
     ...categories.filter((cat) => cat.isActive),
   ];
 
@@ -97,21 +126,41 @@ export default function FeedPage() {
         />
       </div>
 
-      {/* Category Filters */}
-      <div className='flex gap-2 overflow-x-auto pb-2 scrollbar-none'>
-        {categoryFilters.map((cat) => (
-          <button
-            key={cat._id}
-            onClick={() => setSelectedCategory(cat._id)}
-            className={`px-4 md:px-6 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
-              selectedCategory === cat._id
-                ? "bg-[#6B46C1] text-white shadow-md shadow-purple-100"
-                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-            }`}
-          >
-            {cat.displayName}
-          </button>
-        ))}
+      {/* Special & Category Filters */}
+      <div className='flex flex-col space-y-4'>
+        {/* Special Functional Filters */}
+        <div className='flex gap-2 overflow-x-auto pb-1 scrollbar-none'>
+          {specialFilters.map((filter) => (
+            <button
+              key={filter.id}
+              onClick={() => setActiveSpecialFilter(filter.id)}
+              className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap border ${
+                activeSpecialFilter === filter.id
+                  ? "bg-[#6B46C1] text-white border-[#6B46C1] shadow-sm"
+                  : "bg-white text-gray-500 border-gray-200 hover:border-[#6B46C1]/30"
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Category Filters */}
+        <div className='flex gap-2 overflow-x-auto pb-2 scrollbar-none'>
+          {categoryFilters.map((cat) => (
+            <button
+              key={cat._id}
+              onClick={() => setSelectedCategory(cat._id)}
+              className={`px-4 md:px-6 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
+                selectedCategory === cat._id
+                  ? "bg-purple-50 text-[#6B46C1] border border-[#6B46C1] shadow-none"
+                  : "bg-gray-50 text-gray-400 hover:bg-gray-100 border border-transparent"
+              }`}
+            >
+              {cat.displayName}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Task Grid */}
@@ -132,14 +181,14 @@ export default function FeedPage() {
         </div>
       ) : filteredTasks.length > 0 ? (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {filteredTasks.map((task) => {
+          {filteredTasks.map((task: any) => {
             const categoryName = getCategoryName(task);
 
             const posterName = task.user?.fullName || "Task NG";
             const posterInitial = posterName
               .trim()
               .split(/\s+/)
-              .map((word) => word[0].toUpperCase())
+              .map((word: string) => word[0].toUpperCase())
               .join("")
               .slice(0, 2);
 
@@ -281,6 +330,26 @@ export default function FeedPage() {
               No tasks matching your categories right now. Check back soon!
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Load More Button */}
+      {hasNextPage && (
+        <div className='flex justify-center pt-8'>
+          <Button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className='bg-white hover:bg-gray-50 px-8 border border-gray-200 rounded-2xl h-14 font-bold text-[#6B46C1] transition-all overflow-hidden'
+          >
+            {isFetchingNextPage ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Loading more...</span>
+              </div>
+            ) : (
+              "Load More Tasks"
+            )}
+          </Button>
         </div>
       )}
     </div>

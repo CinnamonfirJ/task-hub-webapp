@@ -10,6 +10,21 @@ interface TasksResponse {
   tasks: Task[];
 }
 
+export interface TaskerFeedResponse {
+  status: string;
+  message: string;
+  tasks: Task[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalTasks: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    tasksPerPage: number;
+    nextCursor: string | null;
+  };
+}
+
 export const tasksApi = {
   getTasks: async (filters: TaskFilters = {}): Promise<Task[]> => {
     const params = new URLSearchParams();
@@ -55,22 +70,50 @@ export const tasksApi = {
   },
 
   getTaskerFeed: async (
-    params: { maxDistance?: number; status?: string } = {},
-  ): Promise<Task[]> => {
+    params: { 
+      maxDistance?: number; 
+      status?: string;
+      cursor?: string;
+      limit?: number;
+      biddingOnly?: boolean;
+      budget_min?: number;
+      budget_max?: number;
+    } = {},
+  ): Promise<TaskerFeedResponse> => {
     const searchParams = new URLSearchParams();
     if (params.maxDistance)
       searchParams.append("maxDistance", params.maxDistance.toString());
     if (params.status) searchParams.append("status", params.status);
+    if (params.cursor) searchParams.append("cursor", params.cursor);
+    if (params.limit) searchParams.append("limit", params.limit.toString());
+    if (params.biddingOnly) searchParams.append("biddingOnly", "true");
+    if (params.budget_min) searchParams.append("budget_min", params.budget_min.toString());
+    if (params.budget_max) searchParams.append("budget_max", params.budget_max.toString());
 
     const res = await apiData<any>(
       `/api/tasks/tasker/feed?${searchParams.toString()}`,
       { method: "GET" },
     );
-    return (
-      res?.tasks ||
-      (Array.isArray(res?.data) ? res.data : res?.data?.tasks) ||
-      (Array.isArray(res) ? res : [])
-    );
+    
+    // Maintain fallback for legacy compatibility if API returns just array
+    if (Array.isArray(res)) {
+      return {
+        status: "success",
+        message: "Retrieved",
+        tasks: res,
+        pagination: {
+          currentPage: 1,
+          totalPages: 1,
+          totalTasks: res.length,
+          hasNextPage: false,
+          hasPrevPage: false,
+          tasksPerPage: res.length,
+          nextCursor: null
+        }
+      };
+    }
+
+    return res;
   },
 
   getUserTasks: async (
