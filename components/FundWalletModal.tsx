@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { X, Wallet, CreditCard, Coins, Loader2, ShieldCheck, Info } from "lucide-react";
+import {
+  X,
+  Wallet,
+  CreditCard,
+  Coins,
+  Loader2,
+  ShieldCheck,
+  Info,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useInitializeFunding } from "@/hooks/useWallet";
@@ -66,7 +74,7 @@ export function FundWalletModal({
         </div>
 
         {/* Wallet Balance Card */}
-        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-3xl p-6 text-white mb-8 shadow-lg shadow-purple-100 relative overflow-hidden'>
+        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-lg p-6 text-white mb-8 shadow-lg shadow-purple-100 relative overflow-hidden'>
           <div className='relative z-10 flex items-center gap-3 mb-4 opacity-90'>
             <Wallet size={18} />
             <span className='text-sm font-medium'>Wallet balance</span>
@@ -190,12 +198,16 @@ export function FundWalletModal({
         </div>
 
         {/* Security and Info Alert */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-start gap-3">
-          <ShieldCheck className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="text-[11px] text-blue-800 font-bold leading-tight">Secure Payment Integration</p>
-            <p className="text-[10px] text-blue-600 leading-normal font-medium">
-              Your payments are processed securely via Paystack. Funds added to your wallet are held for task payments and can be withdrawn according to our policy.
+        <div className='mt-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-start gap-3'>
+          <ShieldCheck className='h-5 w-5 text-blue-500 shrink-0 mt-0.5' />
+          <div className='space-y-1'>
+            <p className='text-[11px] text-blue-800 font-bold leading-tight'>
+              Secure Payment Integration
+            </p>
+            <p className='text-[10px] text-blue-600 leading-normal font-medium'>
+              Your payments are processed securely via Paystack. Funds added to
+              your wallet are held for task payments and can be withdrawn
+              according to our policy.
             </p>
           </div>
         </div>

@@ -31,11 +31,8 @@ export function Sidebar() {
 
   const navItems = [
     { icon: Home, label: "Home", href: "/home" },
-    {
-      icon: isTasker ? Rss : History,
-      label: isTasker ? "Feed" : "History",
-      href: isTasker ? "/feed" : "/history",
-    },
+    ...(isTasker ? [{ icon: Rss, label: "Feed", href: "/feed" }] : []),
+    { icon: History, label: "History", href: "/history" },
     { icon: Wallet, label: "Payment History", href: "/payment-history" },
     { icon: MessageSquare, label: "Message", href: "/messages" },
     { icon: User, label: "Profile", href: "/profile" },

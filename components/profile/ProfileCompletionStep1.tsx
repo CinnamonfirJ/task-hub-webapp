@@ -10,14 +10,23 @@ import { useState } from "react";
 import { ProfileValues } from "@/hooks/useCompleteProfile";
 
 interface ProfileCompletionStep1Props {
-    form: UseFormReturn<ProfileValues>;
-    handleNext: (data: ProfileValues) => void;
-    handlePictureUpload: (base64: string) => void;
-    user: any;
+  form: UseFormReturn<ProfileValues>;
+  handleNext: (data: ProfileValues) => void;
+  handlePictureUpload: (base64: string) => void;
+  user: any;
 }
 
-export function ProfileCompletionStep1({ form, handleNext, handlePictureUpload, user }: ProfileCompletionStep1Props) {
-  const { register, handleSubmit, formState: { errors, isValid } } = form;
+export function ProfileCompletionStep1({
+  form,
+  handleNext,
+  handlePictureUpload,
+  user,
+}: ProfileCompletionStep1Props) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = form;
   const [activeField, setActiveField] = useState<string | null>(null);
 
   const onSubmit = (data: ProfileValues) => {
@@ -37,119 +46,154 @@ export function ProfileCompletionStep1({ form, handleNext, handlePictureUpload, 
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4 md:p-0">
+    <div className='max-w-2xl mx-auto p-4 md:p-0'>
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl" onClick={() => window.history.back()}>
+      <div className='flex items-center gap-4 mb-8'>
+        <Button
+          variant='outline'
+          size='icon'
+          className='h-10 w-10 rounded-xl'
+          onClick={() => window.history.back()}
+        >
           <ArrowLeft size={20} />
         </Button>
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Complete profile</h1>
-          <p className="text-gray-500 text-sm">Step 1 of 2: Profile Information</p>
+          <h1 className='text-xl font-bold text-gray-900'>Complete profile</h1>
+          <p className='text-gray-500 text-sm'>
+            Step 1 of 2: Profile Information
+          </p>
         </div>
       </div>
 
       {/* Stepper */}
-      <div className="flex justify-between items-center mb-10 px-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#6B46C1] text-white flex items-center justify-center font-bold">1</div>
+      <div className='flex justify-between items-center mb-10 px-4'>
+        <div className='flex items-center gap-3'>
+          <div className='w-10 h-10 rounded-full bg-[#6B46C1] text-white flex items-center justify-center font-bold'>
+            1
+          </div>
           <div>
-            <p className="text-sm font-bold text-gray-900">Profile Info</p>
-            <p className="text-xs text-gray-500">Basic details</p>
+            <p className='text-sm font-bold text-gray-900'>Profile Info</p>
+            <p className='text-xs text-gray-500'>Basic details</p>
           </div>
         </div>
-        <div className="flex-1 border-t-2 border-gray-100 mx-4 border-dashed" />
-        <div className="flex items-center gap-3 opacity-50">
-          <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center font-bold">2</div>
+        <div className='flex-1 border-t-2 border-gray-100 mx-4 border-dashed' />
+        <div className='flex items-center gap-3 opacity-50'>
+          <div className='w-10 h-10 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center font-bold'>
+            2
+          </div>
           <div>
-            <p className="text-sm font-bold text-gray-900">Verification</p>
-            <p className="text-xs text-gray-500">ID verification</p>
+            <p className='text-sm font-bold text-gray-900'>Verification</p>
+            <p className='text-xs text-gray-500'>ID verification</p>
           </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
         {/* Profile Image */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="relative group cursor-pointer">
-            <div className="w-24 h-24 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-3xl font-bold overflow-hidden border-4 border-white shadow-lg">
+        <div className='flex flex-col items-center gap-3'>
+          <div className='relative group cursor-pointer'>
+            <div className='w-24 h-24 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-3xl font-bold overflow-hidden border-4 border-white shadow-lg'>
               {user?.profilePicture ? (
-                <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                <img
+                  src={user.profilePicture}
+                  alt='Profile'
+                  className='w-full h-full object-cover'
+                />
               ) : (
                 user?.fullName?.[0] || "U"
               )}
             </div>
-            <label htmlFor="profile-upload" className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md text-[#6B46C1] cursor-pointer hover:bg-gray-50 transition-colors">
+            <label
+              htmlFor='profile-upload'
+              className='absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md text-[#6B46C1] cursor-pointer hover:bg-gray-50 transition-colors'
+            >
               <Camera size={16} />
-              <input 
-                id="profile-upload" 
-                type="file" 
-                accept="image/*" 
-                className="hidden" 
+              <input
+                id='profile-upload'
+                type='file'
+                accept='image/*'
+                className='hidden'
                 onChange={handleImageChange}
               />
             </label>
           </div>
-          <p className="text-sm font-medium text-gray-500">Upload profile image</p>
+          <p className='text-sm font-medium text-gray-500'>
+            Upload profile image
+          </p>
         </div>
 
         {/* Basic Information */}
-        <div className="bg-white p-6 rounded-3xl space-y-6 shadow-sm border border-gray-50">
-          <h3 className="font-bold text-gray-900">Basic Information</h3>
-          
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First name</Label>
-                <div className="relative">
+        <div className='bg-white p-6 rounded-lg space-y-6 shadow-sm border border-gray-50'>
+          <h3 className='font-bold text-gray-900'>Basic Information</h3>
+
+          <div className='space-y-4'>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='firstName'>First name</Label>
+                <div className='relative'>
                   <Input
-                    id="firstName"
+                    id='firstName'
                     {...register("firstName")}
-                    className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]"
-                    placeholder="e.g shola"
+                    className='bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]'
+                    placeholder='e.g shola'
                   />
                 </div>
-                {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName.message}</p>}
+                {errors.firstName && (
+                  <p className='text-red-500 text-xs'>
+                    {errors.firstName.message}
+                  </p>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last name</Label>
-                <div className="relative">
+              <div className='space-y-2'>
+                <Label htmlFor='lastName'>Last name</Label>
+                <div className='relative'>
                   <Input
-                    id="lastName"
+                    id='lastName'
                     {...register("lastName")}
-                    className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]"
-                    placeholder="e.g davies"
+                    className='bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]'
+                    placeholder='e.g davies'
                   />
                 </div>
-                {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName.message}</p>}
+                {errors.lastName && (
+                  <p className='text-red-500 text-xs'>
+                    {errors.lastName.message}
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Phone number</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='phoneNumber'>Phone number</Label>
               <Input
-                id="phoneNumber"
-                 {...register("phoneNumber")}
-                className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]"
-                placeholder="Enter phone number"
+                id='phoneNumber'
+                {...register("phoneNumber")}
+                className='bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]'
+                placeholder='Enter phone number'
               />
-              {errors.phoneNumber && <p className="text-red-500 text-xs">{errors.phoneNumber.message}</p>}
+              {errors.phoneNumber && (
+                <p className='text-red-500 text-xs'>
+                  {errors.phoneNumber.message}
+                </p>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="dateOfBirth">Date of Birth</Label>
-              <div className="relative">
+            <div className='space-y-2'>
+              <Label htmlFor='dateOfBirth'>Date of Birth</Label>
+              <div className='relative'>
                 <Input
-                  id="dateOfBirth"
-                  type="date"
+                  id='dateOfBirth'
+                  type='date'
                   {...register("dateOfBirth")}
-                  className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] pr-10"
+                  className='bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] pr-10'
                 />
               </div>
-              {errors.dateOfBirth && <p className="text-red-500 text-xs">{errors.dateOfBirth.message}</p>}
-              
+              {errors.dateOfBirth && (
+                <p className='text-red-500 text-xs'>
+                  {errors.dateOfBirth.message}
+                </p>
+              )}
+
               {/* Age Warning */}
               {(() => {
                 const dob = form.watch("dateOfBirth");
@@ -158,17 +202,21 @@ export function ProfileCompletionStep1({ form, handleNext, handlePictureUpload, 
                   const today = new Date();
                   let age = today.getFullYear() - birthDate.getFullYear();
                   const m = today.getMonth() - birthDate.getMonth();
-                  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                  if (
+                    m < 0 ||
+                    (m === 0 && today.getDate() < birthDate.getDate())
+                  ) {
                     age--;
                   }
                   if (age < 16) {
                     return (
-                        <div className="flex items-center gap-2 p-3 bg-orange-50 border border-orange-100 rounded-xl mt-2 animate-in fade-in slide-in-from-top-1 duration-300">
-                            <Calendar className="h-4 w-4 text-orange-500 shrink-0" />
-                            <p className="text-[11px] text-orange-700 font-bold leading-tight">
-                                Note: You must be at least 16 years old to register as a tasker. Please ensure your date of birth is correct.
-                            </p>
-                        </div>
+                      <div className='flex items-center gap-2 p-3 bg-orange-50 border border-orange-100 rounded-xl mt-2 animate-in fade-in slide-in-from-top-1 duration-300'>
+                        <Calendar className='h-4 w-4 text-orange-500 shrink-0' />
+                        <p className='text-[11px] text-orange-700 font-bold leading-tight'>
+                          Note: You must be at least 16 years old to register as
+                          a tasker. Please ensure your date of birth is correct.
+                        </p>
+                      </div>
                     );
                   }
                 }
@@ -179,49 +227,57 @@ export function ProfileCompletionStep1({ form, handleNext, handlePictureUpload, 
         </div>
 
         {/* Location */}
-        <div className="bg-white p-6 rounded-3xl space-y-6 shadow-sm border border-gray-50">
-          <h3 className="font-bold text-gray-900">Location</h3>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
+        <div className='bg-white p-6 rounded-lg space-y-6 shadow-sm border border-gray-50'>
+          <h3 className='font-bold text-gray-900'>Location</h3>
+
+          <div className='space-y-4'>
+            <div className='space-y-2'>
+              <Label htmlFor='country'>Country</Label>
               <Input
-                id="country"
+                id='country'
                 {...register("country")}
-                className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]"
-                placeholder="Select country"
+                className='bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]'
+                placeholder='Select country'
                 readOnly // Simulating select for now or keep text if not strict
               />
-              {errors.country && <p className="text-red-500 text-xs">{errors.country.message}</p>}
+              {errors.country && (
+                <p className='text-red-500 text-xs'>{errors.country.message}</p>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="residentState">State of residence</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='residentState'>State of residence</Label>
               <Input
-                id="residentState"
+                id='residentState'
                 {...register("residentState")}
-                className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]"
-                placeholder="Select your state of residence"
+                className='bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]'
+                placeholder='Select your state of residence'
               />
-              {errors.residentState && <p className="text-red-500 text-xs">{errors.residentState.message}</p>}
+              {errors.residentState && (
+                <p className='text-red-500 text-xs'>
+                  {errors.residentState.message}
+                </p>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address">Home Address</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='address'>Home Address</Label>
               <Input
-                id="address"
+                id='address'
                 {...register("address")}
-                className="bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]"
-                placeholder="Enter your full address"
+                className='bg-gray-100/50 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]'
+                placeholder='Enter your full address'
               />
-              {errors.address && <p className="text-red-500 text-xs">{errors.address.message}</p>}
+              {errors.address && (
+                <p className='text-red-500 text-xs'>{errors.address.message}</p>
+              )}
             </div>
           </div>
         </div>
 
-        <Button 
-            type="submit" 
-            className="w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-14 rounded-xl font-bold text-lg shadow-lg shadow-purple-200"
+        <Button
+          type='submit'
+          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-14 rounded-xl font-bold text-lg shadow-lg shadow-purple-200'
         >
           Continue to Verification
         </Button>

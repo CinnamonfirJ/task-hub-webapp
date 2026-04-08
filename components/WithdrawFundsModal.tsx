@@ -1,9 +1,24 @@
 import { useState, useEffect } from "react";
-import { X, Wallet, CreditCard, Coins, AlertCircle, Loader2, CheckCircle2, Info, ShieldCheck } from "lucide-react";
+import {
+  X,
+  Wallet,
+  CreditCard,
+  Coins,
+  AlertCircle,
+  Loader2,
+  CheckCircle2,
+  Info,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTaskerWallet } from "@/hooks/useWallet";
-import { useBanks, useSetBankAccount, useWithdrawal, useTaskerBankAccount } from "@/hooks/useWithdrawal";
+import {
+  useBanks,
+  useSetBankAccount,
+  useWithdrawal,
+  useTaskerBankAccount,
+} from "@/hooks/useWithdrawal";
 import { toast } from "sonner";
 
 interface WithdrawFundsModalProps {
@@ -21,7 +36,8 @@ export function WithdrawFundsModal({
 }: WithdrawFundsModalProps) {
   const { data: walletData, isLoading: isLoadingWallet } = useTaskerWallet();
   const { data: banks, isLoading: isLoadingBanks } = useBanks();
-  const { data: savedBank, isLoading: isLoadingSavedBank } = useTaskerBankAccount();
+  const { data: savedBank, isLoading: isLoadingSavedBank } =
+    useTaskerBankAccount();
   const { mutate: setBank, isPending: isSettingBank } = useSetBankAccount();
   const { mutate: withdraw, isPending: isWithdrawing } = useWithdrawal();
 
@@ -65,7 +81,7 @@ export function WithdrawFundsModal({
       onError: (err: unknown) => {
         const error = err as { message?: string };
         toast.error(error.message || "Failed to submit withdrawal request");
-      }
+      },
     });
   };
 
@@ -79,11 +95,14 @@ export function WithdrawFundsModal({
       return;
     }
 
-    setBank({ accountNumber, bankCode: selectedBank }, {
-      onSuccess: () => {
-        toast.success("Bank account updated successfully");
-      }
-    });
+    setBank(
+      { accountNumber, bankCode: selectedBank },
+      {
+        onSuccess: () => {
+          toast.success("Bank account updated successfully");
+        },
+      },
+    );
   };
 
   const canWithdraw = walletData?.canWithdraw && walletData?.hasBankAccount;
@@ -103,19 +122,22 @@ export function WithdrawFundsModal({
 
         {/* Withdrawal Info Alert */}
         {!walletData?.canWithdraw && walletData?.nextWithdrawableAt && (
-           <div className='bg-orange-50 border border-orange-100 p-4 rounded-2xl flex items-center gap-3 mb-6'>
-             <AlertCircle size={20} className="text-orange-500 shrink-0" />
-             <p className='text-[11px] text-orange-700 font-bold leading-relaxed'>
-               Cooldown active. You can withdraw again after {new Date(walletData.nextWithdrawableAt).toLocaleString()}
-             </p>
-           </div>
+          <div className='bg-orange-50 border border-orange-100 p-4 rounded-2xl flex items-center gap-3 mb-6'>
+            <AlertCircle size={20} className='text-orange-500 shrink-0' />
+            <p className='text-[11px] text-orange-700 font-bold leading-relaxed'>
+              Cooldown active. You can withdraw again after{" "}
+              {new Date(walletData.nextWithdrawableAt).toLocaleString()}
+            </p>
+          </div>
         )}
 
-        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-3xl p-6 text-white mb-6 shadow-lg relative overflow-hidden'>
+        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-lg p-6 text-white mb-6 shadow-lg relative overflow-hidden'>
           <div className='relative z-10 flex items-center justify-between mb-4'>
-            <div className="flex items-center gap-2 opacity-90">
-                <Wallet size={16} />
-                <span className='text-xs font-medium uppercase tracking-wider'>Withdrawable Balance</span>
+            <div className='flex items-center gap-2 opacity-90'>
+              <Wallet size={16} />
+              <span className='text-xs font-medium uppercase tracking-wider'>
+                Withdrawable Balance
+              </span>
             </div>
           </div>
           <div className='relative z-10 text-3xl font-black flex items-baseline gap-1'>
@@ -127,69 +149,92 @@ export function WithdrawFundsModal({
 
         <div className='space-y-6'>
           {/* Bank Account Setup */}
-          <div className="space-y-3 p-4 bg-gray-50 border border-gray-100 rounded-3xl">
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-tight flex items-center justify-between">
+          <div className='space-y-3 p-4 bg-gray-50 border border-gray-100 rounded-lg'>
+            <h3 className='text-sm font-bold text-gray-900 uppercase tracking-tight flex items-center justify-between'>
               Bank Details
-              {walletData?.hasBankAccount && <CheckCircle2 size={16} className="text-green-500" />}
+              {walletData?.hasBankAccount && (
+                <CheckCircle2 size={16} className='text-green-500' />
+              )}
             </h3>
-            
+
             {savedBank && (
-              <div className="bg-white p-3 rounded-2xl border border-purple-100 space-y-1 mb-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Account Name</span>
-                  <span className="text-xs font-black text-gray-900">{savedBank.accountName}</span>
+              <div className='bg-white p-3 rounded-2xl border border-purple-100 space-y-1 mb-2'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    Account Name
+                  </span>
+                  <span className='text-xs font-black text-gray-900'>
+                    {savedBank.accountName}
+                  </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Account Number</span>
-                  <span className="text-xs font-black text-gray-900 tracking-widest">{savedBank.accountNumber}</span>
+                <div className='flex justify-between items-center'>
+                  <span className='text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    Account Number
+                  </span>
+                  <span className='text-xs font-black text-gray-900 tracking-widest'>
+                    {savedBank.accountNumber}
+                  </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Bank</span>
-                  <span className="text-xs font-black text-gray-900 italic">{savedBank.bankName}</span>
+                <div className='flex justify-between items-center'>
+                  <span className='text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    Bank
+                  </span>
+                  <span className='text-xs font-black text-gray-900 italic'>
+                    {savedBank.bankName}
+                  </span>
                 </div>
               </div>
             )}
 
-            <div className="space-y-2">
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">
+            <div className='space-y-2'>
+              <p className='text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1'>
                 {savedBank ? "Update Bank Details" : "Enter Bank Details"}
               </p>
-                <select 
-                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-purple-200"
-                    value={selectedBank}
-                    onChange={(e) => setSelectedBank(e.target.value)}
-                    disabled={isLoadingBanks}
-                >
-                    <option value="">Select Bank</option>
-                    {banks?.map((bank: any) => (
-                        <option key={bank.code} value={bank.code}>{bank.name}</option>
-                    ))}
-                </select>
+              <select
+                className='w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-purple-200'
+                value={selectedBank}
+                onChange={(e) => setSelectedBank(e.target.value)}
+                disabled={isLoadingBanks}
+              >
+                <option value=''>Select Bank</option>
+                {banks?.map((bank: any) => (
+                  <option key={bank.code} value={bank.code}>
+                    {bank.name}
+                  </option>
+                ))}
+              </select>
 
-                <div className="flex gap-2">
-                    <input
-                        type='text'
-                        maxLength={10}
-                        placeholder='Account Number'
-                        value={accountNumber}
-                        onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ""))}
-                        className='flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-purple-200'
-                    />
-                    <Button 
-                        size="sm" 
-                        onClick={handleSaveBank}
-                        disabled={isSettingBank}
-                        className="bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl px-4"
-                    >
-                        {isSettingBank ? <Loader2 size={16} className="animate-spin" /> : "Save"}
-                    </Button>
-                </div>
+              <div className='flex gap-2'>
+                <input
+                  type='text'
+                  maxLength={10}
+                  placeholder='Account Number'
+                  value={accountNumber}
+                  onChange={(e) =>
+                    setAccountNumber(e.target.value.replace(/\D/g, ""))
+                  }
+                  className='flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-purple-200'
+                />
+                <Button
+                  size='sm'
+                  onClick={handleSaveBank}
+                  disabled={isSettingBank}
+                  className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl px-4'
+                >
+                  {isSettingBank ? (
+                    <Loader2 size={16} className='animate-spin' />
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2 p-2 px-3 bg-purple-50/50 rounded-xl mt-2">
-                <Info size={12} className="text-purple-500 shrink-0 mt-0.5" />
-                <p className="text-[9px] text-purple-700 font-semibold leading-tight">
-                    Ensure the account name matches your profile name to avoid delays.
-                </p>
+            <div className='flex gap-2 p-2 px-3 bg-purple-50/50 rounded-xl mt-2'>
+              <Info size={12} className='text-purple-500 shrink-0 mt-0.5' />
+              <p className='text-[9px] text-purple-700 font-semibold leading-tight'>
+                Ensure the account name matches your profile name to avoid
+                delays.
+              </p>
             </div>
           </div>
 
@@ -197,15 +242,17 @@ export function WithdrawFundsModal({
             <p className='text-gray-400 text-[10px] font-bold tracking-widest px-1 uppercase'>
               Amount to withdraw (Min ₦5,000)
             </p>
-            <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₦</span>
-                <input
-                    type='number'
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder='0.00'
-                    className='w-full pl-10 pr-6 py-4 bg-purple-50/50 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 border-none font-bold text-xl'
-                />
+            <div className='relative'>
+              <span className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold'>
+                ₦
+              </span>
+              <input
+                type='number'
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder='0.00'
+                className='w-full pl-10 pr-6 py-4 bg-purple-50/50 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 border-none font-bold text-xl'
+              />
             </div>
           </div>
 
@@ -235,7 +282,9 @@ export function WithdrawFundsModal({
                   <CreditCard size={22} />
                 </div>
                 <div className='text-left'>
-                  <p className='font-bold text-gray-900'>Direct Bank Transfer</p>
+                  <p className='font-bold text-gray-900'>
+                    Direct Bank Transfer
+                  </p>
                   <p className='text-[10px] text-gray-400 font-medium tracking-tight'>
                     24-48 hours processing
                   </p>
@@ -301,14 +350,17 @@ export function WithdrawFundsModal({
         </div>
 
         {/* Withdrawal Info Alert */}
-        <div className="mt-4 p-4 bg-gray-50 border border-gray-100 rounded-2xl flex items-start gap-3">
-            <ShieldCheck className="h-5 w-5 text-[#6B46C1] shrink-0 mt-0.5" />
-            <div className="space-y-1">
-                <p className="text-[11px] text-gray-900 font-extrabold leading-tight">Anti-Fraud Protection</p>
-                <p className="text-[10px] text-gray-600 leading-normal font-medium">
-                    Withdrawals are audited for security. Please allow up to 48 hours for processing to your bank account.
-                </p>
-            </div>
+        <div className='mt-4 p-4 bg-gray-50 border border-gray-100 rounded-2xl flex items-start gap-3'>
+          <ShieldCheck className='h-5 w-5 text-[#6B46C1] shrink-0 mt-0.5' />
+          <div className='space-y-1'>
+            <p className='text-[11px] text-gray-900 font-extrabold leading-tight'>
+              Anti-Fraud Protection
+            </p>
+            <p className='text-[10px] text-gray-600 leading-normal font-medium'>
+              Withdrawals are audited for security. Please allow up to 48 hours
+              for processing to your bank account.
+            </p>
+          </div>
         </div>
 
         <div className='flex flex-col md:flex-row gap-4 mt-6'>
@@ -324,7 +376,7 @@ export function WithdrawFundsModal({
             disabled={!canWithdraw || isWithdrawing || !amount}
             className='flex-1 py-4 md:py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold shadow-lg transition-all uppercase tracking-wider'
           >
-            {isWithdrawing ? <Loader2 className="animate-spin" /> : "Withdraw"}
+            {isWithdrawing ? <Loader2 className='animate-spin' /> : "Withdraw"}
           </Button>
         </div>
       </div>

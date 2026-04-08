@@ -77,7 +77,7 @@ export function TransactionDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='max-w-md rounded-3xl p-0 overflow-hidden bg-white gap-0 border-none shadow-2xl'>
+      <DialogContent className='max-w-md rounded-lg p-0 overflow-hidden bg-white gap-0 border-none shadow-2xl'>
         {/* Header */}
         <div className='flex items-center justify-between p-6 pb-2'>
           <DialogTitle className='text-xl font-bold text-gray-900'>

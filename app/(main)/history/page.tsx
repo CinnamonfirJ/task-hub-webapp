@@ -41,12 +41,14 @@ export default function HistoryPage() {
     data: taskerData,
     isLoading: isTaskerLoading,
     isError: isTaskerError,
-  } = useTaskerTasks({
-    status: activeFilter,
-    page,
-    limit,
-    enabled: isTasker,
-  });
+  } = useTaskerTasks(
+    {
+      status: activeFilter,
+      page,
+      limit,
+    },
+    { enabled: isTasker }
+  );
 
   // Keep legacy fetch for users (poster)
   const {
