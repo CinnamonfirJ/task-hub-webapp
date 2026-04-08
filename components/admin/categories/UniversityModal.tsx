@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, GraduationCap, MapPin, Building, Image as ImageIcon } from "lucide-react";
+import { X, GraduationCap, MapPin, Building, Image as ImageIcon, Unlock, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";

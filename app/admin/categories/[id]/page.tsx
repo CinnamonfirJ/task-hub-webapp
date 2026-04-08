@@ -52,8 +52,10 @@ export default function CategoryDetailsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddSubModalOpen, setIsAddSubModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
-  
-  const [activeTab, setActiveTab] = useState<"tasks" | "taskers" | "subcategories">("tasks");
+
+  const [activeTab, setActiveTab] = useState<
+    "tasks" | "taskers" | "subcategories"
+  >("tasks");
   const [taskSearch, setTaskSearch] = useState("");
   const [taskFilter, setTaskFilter] = useState("All");
   const [taskerSearch, setTaskerSearch] = useState("");
@@ -93,18 +95,29 @@ export default function CategoryDetailsPage() {
   }
 
   const { category, stats, tasks, taskers } = data;
-  
+
   // If the backend doesn't return subcategories, filter them from all categories
-  const subcategories = data.subcategories || (allCategoriesData?.categories || []).filter(
-    (c: any) => c.parentCategory === categoryId || (c.parentCategory?._id === categoryId)
-  );
+  const subcategories =
+    (data as any).subCategories ||
+    (data as any).subcategories ||
+    (allCategoriesData?.categories || []).filter(
+      (c: any) =>
+        c.parentCategory === categoryId ||
+        c.parentCategory?._id === categoryId ||
+        c.mainCategory === categoryId ||
+        c.mainCategory?._id === categoryId,
+    );
 
   const parentCategory = allCategoriesData?.categories?.find(
-    (c: any) => c._id === category.parentCategory || c._id === (category.parentCategory as any)?._id
+    (c: any) =>
+      c._id === category.parentCategory ||
+      c._id === (category.parentCategory as any)?._id,
   );
 
   const filteredTasks = tasks.filter((task) => {
-    const matchesSearch = task.title.toLowerCase().includes(taskSearch.toLowerCase());
+    const matchesSearch = task.title
+      .toLowerCase()
+      .includes(taskSearch.toLowerCase());
     const matchesFilter = taskFilter === "All" || task.status === taskFilter;
     return matchesSearch && matchesFilter;
   });
@@ -180,20 +193,29 @@ export default function CategoryDetailsPage() {
       {/* Breadcrumbs & Header */}
       <div className='space-y-4'>
         <div className='flex items-center gap-2 text-sm text-gray-500'>
-          <button onClick={() => router.push("/admin/categories")} className="hover:text-gray-900 transition-colors">Categories</button>
+          <button
+            onClick={() => router.push("/admin/categories")}
+            className='hover:text-gray-900 transition-colors'
+          >
+            Categories
+          </button>
           {parentCategory && (
             <>
               <ChevronRight size={14} />
-              <button 
-                onClick={() => router.push(`/admin/categories/${parentCategory._id}`)} 
-                className="hover:text-gray-900 transition-colors"
+              <button
+                onClick={() =>
+                  router.push(`/admin/categories/${parentCategory._id}`)
+                }
+                className='hover:text-gray-900 transition-colors'
               >
                 {parentCategory.displayName || parentCategory.name}
               </button>
             </>
           )}
           <ChevronRight size={14} />
-          <span className="font-medium text-gray-900">{category.displayName || category.name}</span>
+          <span className='font-medium text-gray-900'>
+            {category.displayName || category.name}
+          </span>
         </div>
 
         <div className='flex flex-col md:flex-row md:items-start justify-between gap-6'>
@@ -207,7 +229,7 @@ export default function CategoryDetailsPage() {
               <ArrowLeft size={22} className='text-gray-600' />
             </Button>
             <div>
-              <div className="flex items-center gap-3">
+              <div className='flex items-center gap-3'>
                 <h1 className='text-2xl md:text-3xl font-bold text-gray-900'>
                   {category.displayName || category.name}
                 </h1>
@@ -222,7 +244,8 @@ export default function CategoryDetailsPage() {
                 </span>
               </div>
               <p className='text-sm text-gray-500 mt-2 max-w-2xl leading-relaxed'>
-                {category.description || "Manage settings and view metrics for this category."}
+                {category.description ||
+                  "Manage settings and view metrics for this category."}
               </p>
             </div>
           </div>
@@ -249,16 +272,23 @@ export default function CategoryDetailsPage() {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl border-gray-200">
+                <Button
+                  variant='outline'
+                  size='icon'
+                  className='h-11 w-11 rounded-xl border-gray-200'
+                >
                   <MoreVertical size={20} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-xl p-1.5 shadow-xl border-gray-100">
-                <DropdownMenuItem 
-                  className="text-red-600 focus:text-red-700 focus:bg-red-50 py-2.5 rounded-lg cursor-pointer"
+              <DropdownMenuContent
+                align='end'
+                className='w-48 rounded-xl p-1.5 shadow-xl border-gray-100'
+              >
+                <DropdownMenuItem
+                  className='text-red-600 focus:text-red-700 focus:bg-red-50 py-2.5 rounded-lg cursor-pointer'
                   onClick={() => setConfirmAction({ type: "delete-category" })}
                 >
-                  <Trash2 size={16} className="mr-3" /> Delete Category
+                  <Trash2 size={16} className='mr-3' /> Delete Category
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -270,12 +300,18 @@ export default function CategoryDetailsPage() {
       <div className='grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6'>
         {[
           { label: "Total services", value: stats.totalServices },
-          { label: "Sub categories", value: stats.subCategoryCount || subcategories.length },
+          {
+            label: "Sub categories",
+            value: stats.subCategoryCount || subcategories.length,
+          },
           { label: "Active services", value: stats.activeServices || 0 },
           { label: "Taskers", value: stats.totalTaskers },
           { label: "Revenue", value: formatCurrency(stats.revenue) },
         ].map((stat, idx) => (
-          <Card key={idx} className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+          <Card
+            key={idx}
+            className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'
+          >
             <CardContent className='p-6'>
               <div className='text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-2'>
                 {stat.label}
@@ -289,13 +325,21 @@ export default function CategoryDetailsPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="space-y-6">
+      <div className='space-y-6'>
         {/* Tabs Selection */}
-        <div className="flex border-b border-gray-100 overflow-x-auto">
+        <div className='flex border-b border-gray-100 overflow-x-auto'>
           {[
             { id: "tasks", label: "Tasks", count: filteredTasks.length },
             { id: "taskers", label: "Taskers", count: filteredTaskers.length },
-            ...(category.parentCategory ? [] : [{ id: "subcategories", label: "Sub-categories", count: subcategories.length }]),
+            ...(category.parentCategory
+              ? []
+              : [
+                  {
+                    id: "subcategories",
+                    label: "Sub-categories",
+                    count: subcategories.length,
+                  },
+                ]),
           ].map((tab) => (
             <button
               key={tab.id}
@@ -307,9 +351,13 @@ export default function CategoryDetailsPage() {
               }`}
             >
               {tab.label}
-              <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] ${
-                activeTab === tab.id ? "bg-black text-white" : "bg-gray-100 text-gray-500"
-              }`}>
+              <span
+                className={`ml-2 px-2 py-0.5 rounded-full text-[10px] ${
+                  activeTab === tab.id
+                    ? "bg-black text-white"
+                    : "bg-gray-100 text-gray-500"
+                }`}
+              >
                 {tab.count}
               </span>
             </button>
@@ -317,63 +365,104 @@ export default function CategoryDetailsPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="pt-2">
+        <div className='pt-2'>
           {activeTab === "tasks" && (
-            <Card className="border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
-              <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="relative w-full md:max-w-xs">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <Input 
-                    placeholder="Search tasks..." 
+            <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+              <div className='p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4'>
+                <div className='relative w-full md:max-w-xs'>
+                  <Search
+                    className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
+                    size={16}
+                  />
+                  <Input
+                    placeholder='Search tasks...'
                     value={taskSearch}
                     onChange={(e) => setTaskSearch(e.target.value)}
-                    className="pl-9 h-10 bg-gray-50/50 border-gray-100 rounded-xl text-sm"
+                    className='pl-9 h-10 bg-gray-50/50 border-gray-100 rounded-xl text-sm'
                   />
                 </div>
-                <div className="flex gap-1 p-1 bg-gray-50 rounded-xl overflow-x-auto">
-                  {["All", "In-progress", "Open", "Completed", "Cancelled"].map((f) => (
-                    <button
-                      key={f}
-                      onClick={() => setTaskFilter(f)}
-                      className={`px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
-                        taskFilter === f ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-gray-700"
-                      }`}
-                    >
-                      {f}
-                    </button>
-                  ))}
+                <div className='flex gap-1 p-1 bg-gray-50 rounded-xl overflow-x-auto'>
+                  {["All", "In-progress", "Open", "Completed", "Cancelled"].map(
+                    (f) => (
+                      <button
+                        key={f}
+                        onClick={() => setTaskFilter(f)}
+                        className={`px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                          taskFilter === f
+                            ? "bg-white text-black shadow-sm"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        {f}
+                      </button>
+                    ),
+                  )}
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className='overflow-x-auto'>
+                <table className='w-full text-sm'>
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50/30">
-                      <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Task</th>
-                      <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Posted By</th>
-                      <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Budget</th>
-                      <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Status</th>
-                      <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Date</th>
+                    <tr className='border-b border-gray-100 bg-gray-50/30'>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Task
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Posted By
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Budget
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Status
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Date
+                      </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className='divide-y divide-gray-50'>
                     {filteredTasks.length === 0 ? (
-                      <tr><td colSpan={5} className="py-12 text-center text-gray-400">No tasks found</td></tr>
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className='py-12 text-center text-gray-400'
+                        >
+                          No tasks found
+                        </td>
+                      </tr>
                     ) : (
                       filteredTasks.map((task) => (
-                        <tr key={task._id} className="hover:bg-gray-50/50 transition-colors">
-                          <td className="py-5 px-6 font-bold text-gray-900">{task.title}</td>
-                          <td className="py-5 px-6 text-gray-500">{task.postedBy}</td>
-                          <td className="py-5 px-6 font-medium">{formatCurrency(task.budget)}</td>
-                          <td className="py-5 px-6">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                              task.status === "Completed" ? "bg-green-50 text-green-600" :
-                              task.status === "In progress" ? "bg-blue-50 text-blue-600" :
-                              "bg-gray-100 text-gray-600"
-                            }`}>
+                        <tr
+                          key={task._id}
+                          className='hover:bg-gray-50/50 transition-colors'
+                        >
+                          <td className='py-5 px-6 font-bold text-gray-900'>
+                            {task.title}
+                          </td>
+                          <td className='py-5 px-6 text-gray-500'>
+                            {task.postedBy}
+                          </td>
+                          <td className='py-5 px-6 font-medium'>
+                            {formatCurrency(task.budget)}
+                          </td>
+                          <td className='py-5 px-6'>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                task.status === "Completed"
+                                  ? "bg-green-50 text-green-600"
+                                  : task.status === "In progress"
+                                    ? "bg-blue-50 text-blue-600"
+                                    : "bg-gray-100 text-gray-600"
+                              }`}
+                            >
                               {task.status}
                             </span>
                           </td>
-                          <td className="py-5 px-6 text-gray-400">{new Date(task.createdAt || Date.now()).toLocaleDateString()}</td>
+                          <td className='py-5 px-6 text-gray-400'>
+                            {new Date(
+                              task.createdAt || Date.now(),
+                            ).toLocaleDateString()}
+                          </td>
                         </tr>
                       ))
                     )}
@@ -384,67 +473,115 @@ export default function CategoryDetailsPage() {
           )}
 
           {activeTab === "taskers" && (
-            <Card className="border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
-              <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="relative w-full md:max-w-xs">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <Input 
-                    placeholder="Search taskers..." 
+            <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+              <div className='p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4'>
+                <div className='relative w-full md:max-w-xs'>
+                  <Search
+                    className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
+                    size={16}
+                  />
+                  <Input
+                    placeholder='Search taskers...'
                     value={taskerSearch}
                     onChange={(e) => setTaskerSearch(e.target.value)}
-                    className="pl-9 h-10 bg-gray-50/50 border-gray-100 rounded-xl text-sm"
+                    className='pl-9 h-10 bg-gray-50/50 border-gray-100 rounded-xl text-sm'
                   />
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className='overflow-x-auto'>
+                <table className='w-full text-sm'>
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50/30">
-                      <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Tasker</th>
-                      <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Status</th>
-                      <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Verification</th>
-                      <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Last Active</th>
-                      <th className="py-4 px-6 text-right font-bold text-gray-500 uppercase tracking-wider text-[10px]">Action</th>
+                    <tr className='border-b border-gray-100 bg-gray-50/30'>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Tasker
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Status
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Verification
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Last Active
+                      </th>
+                      <th className='py-4 px-6 text-right font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Action
+                      </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className='divide-y divide-gray-50'>
                     {filteredTaskers.length === 0 ? (
-                      <tr><td colSpan={5} className="py-12 text-center text-gray-400">No taskers found</td></tr>
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className='py-12 text-center text-gray-400'
+                        >
+                          No taskers found
+                        </td>
+                      </tr>
                     ) : (
                       filteredTaskers.map((tasker) => (
-                        <tr key={tasker._id} className="hover:bg-gray-50/50 transition-colors group">
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden shrink-0 border border-gray-50">
+                        <tr
+                          key={tasker._id}
+                          className='hover:bg-gray-50/50 transition-colors group'
+                        >
+                          <td className='py-4 px-6'>
+                            <div className='flex items-center gap-3'>
+                              <div className='w-10 h-10 rounded-xl bg-gray-100 overflow-hidden shrink-0 border border-gray-50'>
                                 {tasker.profilePicture && (
-                                  <img src={tasker.profilePicture} alt="" className="w-full h-full object-cover" />
+                                  <img
+                                    src={tasker.profilePicture}
+                                    alt=''
+                                    className='w-full h-full object-cover'
+                                  />
                                 )}
                               </div>
                               <div>
-                                <div className="font-bold text-gray-900">{tasker.fullName}</div>
-                                <div className="text-[11px] text-gray-500">{tasker.email || tasker.emailAddress}</div>
+                                <div className='font-bold text-gray-900'>
+                                  {tasker.fullName}
+                                </div>
+                                <div className='text-[11px] text-gray-500'>
+                                  {tasker.email || tasker.emailAddress}
+                                </div>
                               </div>
                             </div>
                           </td>
-                          <td className="py-4 px-6">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                              tasker.status === "Active" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
-                            }`}>
+                          <td className='py-4 px-6'>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                tasker.status === "Active"
+                                  ? "bg-green-50 text-green-600"
+                                  : "bg-red-50 text-red-600"
+                              }`}
+                            >
                               {tasker.status}
                             </span>
                           </td>
-                          <td className="py-4 px-6">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                              tasker.verification === "Verified" ? "bg-blue-50 text-blue-600" : "bg-purple-50 text-purple-600"
-                            }`}>
+                          <td className='py-4 px-6'>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                tasker.verification === "Verified"
+                                  ? "bg-blue-50 text-blue-600"
+                                  : "bg-purple-50 text-purple-600"
+                              }`}
+                            >
                               {tasker.verification}
                             </span>
                           </td>
-                          <td className="py-4 px-6 text-gray-400 text-xs">{tasker.lastActive || "Recently active"}</td>
-                          <td className="py-4 px-6 text-right">
-                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => router.push(`/admin/taskers/${tasker._id}`)}>
-                               <Eye size={16} className="text-gray-400" />
-                             </Button>
+                          <td className='py-4 px-6 text-gray-400 text-xs'>
+                            {tasker.lastActive || "Recently active"}
+                          </td>
+                          <td className='py-4 px-6 text-right'>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity'
+                              onClick={() =>
+                                router.push(`/admin/taskers/${tasker._id}`)
+                              }
+                            >
+                              <Eye size={16} className='text-gray-400' />
+                            </Button>
                           </td>
                         </tr>
                       ))
@@ -456,52 +593,87 @@ export default function CategoryDetailsPage() {
           )}
 
           {activeTab === "subcategories" && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center px-2">
-                <h3 className="font-bold text-gray-900">Sub-categories in this group</h3>
-                <Button 
+            <div className='space-y-4'>
+              <div className='flex justify-between items-center px-2'>
+                <h3 className='font-bold text-gray-900'>
+                  Sub-categories in this group
+                </h3>
+                <Button
                   onClick={() => setIsAddSubModalOpen(true)}
-                  className="bg-black hover:bg-black/80 text-white rounded-xl h-10 px-4 text-xs font-bold"
+                  className='bg-black hover:bg-black/80 text-white rounded-xl h-10 px-4 text-xs font-bold'
                 >
-                  <Plus size={16} className="mr-2" /> Add sub-category
+                  <Plus size={16} className='mr-2' /> Add sub-category
                 </Button>
               </div>
-              <Card className="border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+              <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+                <div className='overflow-x-auto'>
+                  <table className='w-full text-sm'>
                     <thead>
-                      <tr className="border-b border-gray-100 bg-gray-50/30">
-                        <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Category</th>
-                        <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Description</th>
-                        <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Min Price</th>
-                        <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Status</th>
-                        <th className="py-4 px-6 text-right font-bold text-gray-500 uppercase tracking-wider text-[10px]">Action</th>
+                      <tr className='border-b border-gray-100 bg-gray-50/30'>
+                        <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                          Category
+                        </th>
+                        {/* <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Description</th> */}
+                        {/* <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Min Price</th> */}
+                        <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                          Status
+                        </th>
+                        <th className='py-4 px-6 text-right font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                          Action
+                        </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className='divide-y divide-gray-50'>
                       {subcategories.length === 0 ? (
-                        <tr><td colSpan={5} className="py-12 text-center text-gray-400">No sub-categories found. Create one from the button above.</td></tr>
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className='py-12 text-center text-gray-400'
+                          >
+                            No sub-categories found. Create one from the button
+                            above.
+                          </td>
+                        </tr>
                       ) : (
                         subcategories.map((sub: any) => (
-                          <tr 
-                            key={sub._id} 
-                            onClick={() => router.push(`/admin/categories/${sub._id}`)}
-                            className="hover:bg-gray-50/50 transition-colors cursor-pointer group"
+                          <tr
+                            key={sub._id}
+                            onClick={() =>
+                              router.push(`/admin/categories/${sub._id}`)
+                            }
+                            className='hover:bg-gray-50/50 transition-colors cursor-pointer group'
                           >
-                            <td className="py-5 px-6 font-bold text-gray-900">{sub.displayName || sub.name}</td>
-                            <td className="py-5 px-6 text-gray-500 line-clamp-1">{sub.description}</td>
-                            <td className="py-5 px-6 font-medium">{formatCurrency(sub.minimumPrice || 0)}</td>
-                            <td className="py-5 px-6">
-                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                sub.isActive ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
-                              }`}>
+                            <td className='py-5 px-6 font-bold text-gray-900'>
+                              {sub.displayName || sub.name}
+                            </td>
+                            {/* <td className="py-5 px-6 text-gray-500 line-clamp-1">{sub.description}</td> */}
+                            {/* <td className="py-5 px-6 font-medium">{formatCurrency(sub.minimumPrice || 0)}</td> */}
+                            <td className='py-5 px-6'>
+                              <span
+                                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                  sub.isActive
+                                    ? "bg-green-50 text-green-600"
+                                    : "bg-red-50 text-red-600"
+                                }`}
+                              >
                                 {sub.isActive ? "Active" : "Closed"}
                               </span>
                             </td>
-                            <td className="py-5 px-6 text-right">
-                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg group-hover:bg-white" onClick={(e) => { e.stopPropagation(); router.push(`/admin/categories/${sub._id}`); }}>
-                                 <ChevronRight size={16} className="text-gray-400" />
-                               </Button>
+                            <td className='py-5 px-6 text-right'>
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                className='h-8 w-8 rounded-lg group-hover:bg-white'
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/admin/categories/${sub._id}`);
+                                }}
+                              >
+                                <ChevronRight
+                                  size={16}
+                                  className='text-gray-400'
+                                />
+                              </Button>
                             </td>
                           </tr>
                         ))
@@ -558,7 +730,9 @@ export default function CategoryDetailsPage() {
                 ? "Close category"
                 : "Activate"
           }
-          variant={confirmAction.type === "delete-category" ? "danger" : "warning"}
+          variant={
+            confirmAction.type === "delete-category" ? "danger" : "warning"
+          }
           isLoading={isConfirmLoading}
         />
       )}

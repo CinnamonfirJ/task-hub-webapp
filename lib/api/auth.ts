@@ -256,10 +256,19 @@ export const authApi = {
             profileData.role = "tasker";
             if (typeof window !== "undefined")
               localStorage.setItem("userType", "tasker");
+            
+            // Normalize fullName for taskers/users who might only have firstName/lastName
+            if (!profileData.fullName && (profileData.firstName || profileData.lastName)) {
+              profileData.fullName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
+            }
           } else if (endpoint === "/api/auth/user") {
             profileData.role = "user";
             if (typeof window !== "undefined")
               localStorage.setItem("userType", "user");
+              
+            if (!profileData.fullName && (profileData.firstName || profileData.lastName)) {
+              profileData.fullName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
+            }
           }
 
           // Fetch verification status separately and merge it, as some endpoints miss these fields

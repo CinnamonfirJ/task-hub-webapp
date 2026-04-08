@@ -800,7 +800,7 @@ export const adminApi = {
     const response = await apiData<any>("/api/admin/universities", {
       method: "GET",
     });
-    return response.data ?? response;
+    return response?.data?.universities || response?.universities || (Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []));
   },
 
   createUniversity: async (data: any): Promise<any> => {

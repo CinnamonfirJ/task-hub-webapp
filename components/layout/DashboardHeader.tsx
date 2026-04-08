@@ -22,11 +22,11 @@ export function DashboardHeader() {
   const { data: admin } = useAdminProfile();
   const activeUser = isAdminRoute ? admin : user;
 
-  const userName = activeUser?.fullName || "Welcome";
-
-  const userInitial = activeUser?.fullName
-    ? activeUser.fullName[0].toUpperCase()
-    : "U";
+  const userName = activeUser?.fullName || 
+                   (activeUser?.firstName ? `${activeUser.firstName} ${activeUser.lastName || ""}`.trim() : (activeUser as any)?.name) || 
+                   "Welcome";
+ 
+  const userInitial = (activeUser?.fullName || activeUser?.firstName || (activeUser as any)?.name || "U")[0].toUpperCase();
 
   return (
     <header className='sticky top-0 z-40 w-full bg-white border-b border-gray-100 px-4 sm:px-6 py-3 flex items-center gap-3'>

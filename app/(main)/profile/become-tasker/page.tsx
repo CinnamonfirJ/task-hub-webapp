@@ -30,12 +30,17 @@ export default function BecomeTaskerPage() {
   // Initialize selected categories from user profile
   useEffect(() => {
     if (user && !isInitialized && allSubcategories) {
-      if (user.categories && user.categories.length > 0) {
-        const categoryIds = user.categories.map((cat: any) => 
-          typeof cat === 'string' ? cat : cat._id
-        );
+      const userCats = (user as any).subCategories || user.categories || [];
+      
+      if (userCats && userCats.length > 0) {
+        const categoryIds = userCats.map((cat: any) => {
+          if (typeof cat === 'string') return cat;
+          return cat._id || cat.id || (cat as any).subCategory || (cat as any).category;
+        }).filter(Boolean);
+        
         setSelectedSubcatIds(categoryIds);
       }
+      
       if (user.university) {
         setSelectedUniversityId(typeof user.university === 'string' ? user.university : user.university._id);
       }

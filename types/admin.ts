@@ -7,9 +7,11 @@ import { User } from "./auth";
 export interface AdminProfile {
   _id: string;
   name: string;
+  fullName?: string;
   firstName?: string;
   lastName?: string;
   email: string;
+  emailAddress?: string;
   role: "super_admin" | "operations" | "trust_safety" | "finance";
   isActive: boolean;
   phoneNumber?: string;
@@ -1833,6 +1835,7 @@ export interface AdminCategoryDetailResponse {
     tasks: AdminCategoryTask[];
     taskers: AdminCategoryTasker[];
     subcategories?: AdminCategory[]; // Added for hierarchy drill-down
+    subCategories?: AdminCategory[]; // Match API casing
   };
 }
 
