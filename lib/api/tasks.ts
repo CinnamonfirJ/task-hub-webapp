@@ -40,12 +40,9 @@ export const tasksApi = {
     if (filters.page) params.append("page", filters.page.toString());
     if (filters.status) params.append("status", filters.status);
 
-    const res = await apiData<any>(
-      `/api/tasks?${params.toString()}`,
-      {
-        method: "GET",
-      },
-    );
+    const res = await apiData<any>(`/api/tasks?${params.toString()}`, {
+      method: "GET",
+    });
 
     return (
       res?.tasks ||
@@ -70,8 +67,8 @@ export const tasksApi = {
   },
 
   getTaskerFeed: async (
-    params: { 
-      maxDistance?: number; 
+    params: {
+      maxDistance?: number;
       status?: string;
       cursor?: string;
       limit?: number;
@@ -87,14 +84,16 @@ export const tasksApi = {
     if (params.cursor) searchParams.append("cursor", params.cursor);
     if (params.limit) searchParams.append("limit", params.limit.toString());
     if (params.biddingOnly) searchParams.append("biddingOnly", "true");
-    if (params.budget_min) searchParams.append("budget_min", params.budget_min.toString());
-    if (params.budget_max) searchParams.append("budget_max", params.budget_max.toString());
+    if (params.budget_min)
+      searchParams.append("budget_min", params.budget_min.toString());
+    if (params.budget_max)
+      searchParams.append("budget_max", params.budget_max.toString());
 
     const res = await apiData<any>(
       `/api/tasks/tasker/feed?${searchParams.toString()}`,
       { method: "GET" },
     );
-    
+
     // Maintain fallback for legacy compatibility if API returns just array
     if (Array.isArray(res)) {
       return {
@@ -108,8 +107,8 @@ export const tasksApi = {
           hasNextPage: false,
           hasPrevPage: false,
           tasksPerPage: res.length,
-          nextCursor: null
-        }
+          nextCursor: null,
+        },
       };
     }
 
@@ -159,6 +158,21 @@ export const tasksApi = {
       res?.tasks ||
       (Array.isArray(res?.data) ? res.data : res?.data?.tasks) ||
       (Array.isArray(res) ? res : [])
+    );
+  },
+
+  getTaskerTasks: async (
+    filters: { status?: string; page?: number; limit?: number } = {},
+  ): Promise<TasksResponse> => {
+    const params = new URLSearchParams();
+    if (filters.status && filters.status !== "all")
+      params.append("status", filters.status);
+    if (filters.page) params.append("page", filters.page.toString());
+    if (filters.limit) params.append("limit", filters.limit.toString());
+
+    return apiData<TasksResponse>(
+      `/api/tasks/tasker/tasks?${params.toString()}`,
+      { method: "GET" },
     );
   },
 
