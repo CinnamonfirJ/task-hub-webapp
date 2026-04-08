@@ -13,10 +13,15 @@ export function TaskerEarnings() {
   const { data: balance, isLoading: isBalanceLoading } = useQuery({
     queryKey: ["taskerBalance"],
     queryFn: walletApi.getTaskerBalance,
-    refetchInterval: 30000, 
+    refetchInterval: 30000,
   });
 
-  const { data: transactions, isLoading: isTxLoading, isError: isTxError, refetch: refetchTx } = useQuery({
+  const {
+    data: transactions,
+    isLoading: isTxLoading,
+    isError: isTxError,
+    refetch: refetchTx,
+  } = useQuery({
     queryKey: ["taskerWithdrawals"],
     queryFn: () => walletApi.getWithdrawalHistory({ limit: 50 }),
   });
@@ -39,10 +44,16 @@ export function TaskerEarnings() {
       </div>
 
       <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-        <StatCard title="Total Jobs" value={totalJobs.toString()} />
-        <StatCard title="Total Earned" value={`#${totalEarned.toLocaleString()}`} />
-        <StatCard title="Awaiting Release" value={`#${awaitingRelease.toLocaleString()}`} />
-        <StatCard title="On Dispute Hold" value={`#${onDisputeHold}`} />
+        <StatCard title='Total Jobs' value={totalJobs.toString()} />
+        <StatCard
+          title='Total Earned'
+          value={`#${totalEarned.toLocaleString()}`}
+        />
+        <StatCard
+          title='Awaiting Release'
+          value={`#${awaitingRelease.toLocaleString()}`}
+        />
+        <StatCard title='On Dispute Hold' value={`#${onDisputeHold}`} />
       </div>
 
       <div className='mt-8 pt-4'>
@@ -95,9 +106,13 @@ export function TaskerEarnings() {
 
 function StatCard({ title, value }: { title: string; value: string | number }) {
   return (
-    <div className="bg-white border border-gray-100 p-6 rounded-2xl md:rounded-3xl hover:shadow-md transition-shadow flex flex-col justify-between">
-      <div className="font-bold text-gray-900 text-2xl md:text-3xl">{value}</div>
-      <div className="text-gray-500 text-xs md:text-sm font-medium mt-auto pt-4">{title}</div>
+    <div className='bg-white border border-gray-100 p-6 rounded-2xl md:rounded-lg hover:shadow-md transition-shadow flex flex-col justify-between'>
+      <div className='font-bold text-gray-900 text-2xl md:text-3xl'>
+        {value}
+      </div>
+      <div className='text-gray-500 text-xs md:text-sm font-medium mt-auto pt-4'>
+        {title}
+      </div>
     </div>
   );
 }

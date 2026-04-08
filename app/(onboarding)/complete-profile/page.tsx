@@ -173,7 +173,7 @@ export default function CompleteProfilePage() {
                 className='grid grid-cols-1 gap-8'
               >
                 {/* Basic Information */}
-                <Card className='bg-white shadow-sm border-none rounded-3xl overflow-hidden'>
+                <Card className='bg-white shadow-sm border-none rounded-lg overflow-hidden'>
                   <CardHeader className='bg-white px-8 py-5 border-gray-50 border-b'>
                     <CardTitle className='font-bold text-lg text-gray-900'>
                       Basic Information
@@ -270,7 +270,7 @@ export default function CompleteProfilePage() {
                 </Card>
 
                 {/* Location */}
-                <Card className='bg-white shadow-sm border-none rounded-3xl overflow-hidden'>
+                <Card className='bg-white shadow-sm border-none rounded-lg overflow-hidden'>
                   <CardHeader className='bg-white px-8 py-5 border-gray-50 border-b'>
                     <CardTitle className='font-bold text-lg text-gray-900'>
                       Location
@@ -329,7 +329,7 @@ export default function CompleteProfilePage() {
 
                 {/* Service Information - Taskers Only */}
                 {user?.role === "tasker" && (
-                  <Card className='bg-white shadow-sm border-none rounded-3xl overflow-hidden'>
+                  <Card className='bg-white shadow-sm border-none rounded-lg overflow-hidden'>
                     <CardHeader className='bg-white px-8 py-5 border-gray-50 border-b'>
                       <CardTitle className='font-bold text-lg text-gray-900'>
                         Service Information
@@ -343,7 +343,7 @@ export default function CompleteProfilePage() {
                         <p className='mb-4 font-medium text-[11px] text-gray-400'>
                           Upload images showcasing previous work
                         </p>
-                        <div className='group flex flex-col justify-center items-center space-y-3 hover:bg-gray-50 p-10 border-2 border-gray-100 border-dashed rounded-3xl transition-colors cursor-pointer'>
+                        <div className='group flex flex-col justify-center items-center space-y-3 hover:bg-gray-50 p-10 border-2 border-gray-100 border-dashed rounded-lg transition-colors cursor-pointer'>
                           <Upload
                             size={20}
                             className='text-gray-400 group-hover:text-[#6B46C1] transition-colors'
@@ -388,7 +388,7 @@ export default function CompleteProfilePage() {
             </div>
           ) : (
             <div className='slide-in-from-right-4 space-y-8 animate-in duration-500 fade-in'>
-              <Card className='bg-white shadow-sm border-none rounded-3xl min-h-[300px] overflow-hidden'>
+              <Card className='bg-white shadow-sm border-none rounded-lg min-h-[300px] overflow-hidden'>
                 <CardHeader className='bg-white px-8 py-6 border-gray-50 border-b'>
                   <CardTitle className='font-bold text-xl'>
                     Identity Verification

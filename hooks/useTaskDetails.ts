@@ -65,3 +65,17 @@ export function useUpdateTaskStatusTasker() {
     },
   });
 }
+
+/**
+ * Hook to fetch tasker's own tasks (history).
+ */
+export function useTaskerTasks(
+  filters: { status?: string; page?: number; limit?: number } = {},
+  options?: { enabled?: boolean }
+) {
+  return useQuery({
+    queryKey: ["taskerTasks", filters],
+    queryFn: () => tasksApi.getTaskerTasks(filters),
+    ...options,
+  });
+}

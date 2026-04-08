@@ -1,83 +1,90 @@
 "use client";
 
-import { useState } from "react";
-import { FileText, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ActivityItem } from "@/components/ActivityItem";
-import { useQuery } from "@tanstack/react-query";
-import { tasksApi } from "@/lib/api/tasks";
+import { useTaskDetails, useTaskerTasks } from "@/hooks/useTaskDetails";
 import { Task } from "@/types/task";
 import Link from "next/link";
 
 import { useAuth } from "@/hooks/useAuth";
 import { bidsApi } from "@/lib/api/bids";
+import { getCategoryName } from "@/hooks/useHome";
+import { ChevronLeft, ChevronRight, FileText, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { tasksApi } from "@/lib/api/tasks";
+import { Button } from "@/components/ui/button";
+import { ActivityItem } from "@/components/ActivityItem";
 
 type StatusFilter =
   | "all"
-  | "open"
   | "assigned"
-  | "inProgress"
+  | "in-progress"
   | "completed"
-  | "canceled"
-  | "rejected";
+  | "cancelled";
 
 export default function HistoryPage() {
   const { user } = useAuth();
   const isTasker = user?.role === "tasker";
   const [activeFilter, setActiveFilter] = useState<StatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const limit = 9;
 
   const filters: { key: StatusFilter; label: string }[] = [
     { key: "all", label: "All" },
-    { key: "open", label: "Open" },
-    { key: "assigned", label: "Assigned" },
-    { key: "inProgress", label: "In progress" },
+    { key: "assigned", label: "Pending" },
+    { key: "in-progress", label: "Active" },
     { key: "completed", label: "Completed" },
-    { key: "canceled", label: "Canceled" },
+    { key: "cancelled", label: "Cancelled" },
   ];
-  
-  // Add Rejected filter for taskers
-  if (isTasker) {
-    filters.push({ key: "rejected", label: "Rejected" });
-  }
 
-  // Fetch all user tasks or tasker bids
+  // Fetch tasker tasks from new endpoint
   const {
-    data: items,
-    isLoading,
-    isError,
+    data: taskerData,
+    isLoading: isTaskerLoading,
+    isError: isTaskerError,
+  } = useTaskerTasks(
+    {
+      status: activeFilter,
+      page,
+      limit,
+    },
+    { enabled: isTasker }
+  );
+
+  // Keep legacy fetch for users (poster)
+  const {
+    data: userData,
+    isLoading: isUserLoading,
+    isError: isUserError,
   } = useQuery({
-    queryKey: isTasker ? ["taskerBids"] : ["userTasks"],
-    queryFn: () => (isTasker ? bidsApi.getMyBids() : tasksApi.getUserTasks()) as Promise<any[]>,
+    queryKey: ["userTasks"],
+    queryFn: () => tasksApi.getUserTasks(),
+    enabled: !isTasker,
   });
 
-  // Normalize items to a common format (or handle separately)
-  const currentItems = (items as any[] || []).filter((item: any) => {
-    // If Tasker, item is a Bid. If User, item is a Task.
-    const status = (isTasker ? (item.status || 'pending') : (item.status || "")).toLowerCase();
-    const taskStatus = (isTasker && item.task && typeof item.task === 'object' ? item.task.status : item.status || "").toLowerCase();
+  const isLoading = isTasker ? isTaskerLoading : isUserLoading;
+  const isError = isTasker ? isTaskerError : isUserError;
 
-    if (activeFilter === "all") return true;
-
-    switch (activeFilter) {
-      case "open":
-        return isTasker ? status === "pending" : (status === "open" || status === "pending");
-      case "assigned":
-        return isTasker ? status === "accepted" : (status === "assigned");
-      case "inProgress":
-        // For tasker, check task status if bid was accepted
-        return isTasker 
-          ? (status === "accepted" && (taskStatus === "in_progress" || taskStatus === "inprogress"))
-          : (status === "in_progress" || status === "inprogress");
-      case "completed":
-        return isTasker ? (status === "accepted" && taskStatus === "completed") : (status === "completed");
-      case "canceled":
-        return isTasker ? taskStatus === "cancelled" : (status === "canceled" || status === "cancelled");
-      case "rejected":
-        return isTasker && status === "rejected";
-      default:
+  // Normalize items to a common format
+  const currentItems = isTasker
+    ? taskerData?.tasks || []
+    : (userData || []).filter((item: any) => {
+        if (activeFilter === "all") return true;
+        // User (poster) side filtering logic using current status strings
+        const status = (item.status || "").toLowerCase();
+        if (activeFilter === "assigned") return status === "assigned";
+        if (activeFilter === "in-progress")
+          return (
+            status === "in-progress" ||
+            status === "inprogress" ||
+            status === "in_progress"
+          );
+        if (activeFilter === "completed") return status === "completed";
+        if (activeFilter === "cancelled")
+          return status === "cancelled" || status === "canceled";
         return false;
-    }
-  });
+      });
+
+  const totalPages = isTasker ? taskerData?.totalPages || 1 : 1;
 
   const isEmpty = !isLoading && currentItems.length === 0;
 
@@ -98,7 +105,10 @@ export default function HistoryPage() {
         {filters.map((filter) => (
           <button
             key={filter.key}
-            onClick={() => setActiveFilter(filter.key)}
+            onClick={() => {
+              setActiveFilter(filter.key);
+              setPage(1); // Reset to first page on filter change
+            }}
             className={`px-4 md:px-6 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all whitespace-nowrap ${
               activeFilter === filter.key
                 ? "bg-[#6B46C1] text-white"
@@ -127,28 +137,30 @@ export default function HistoryPage() {
           <div className='text-center space-y-2'>
             <h2 className='text-2xl font-bold text-gray-900'>
               No{" "}
-              {activeFilter === "inProgress"
-                ? "In Progress"
+              {activeFilter === "in-progress"
+                ? "Active"
                 : filters.find((f) => f.key === activeFilter)?.label}{" "}
               Tasks
             </h2>
             <p className='text-gray-600 max-w-md'>
-              {activeFilter === "open"
-                ? "Tasks with open status will appear here."
+              {activeFilter === "all"
+                ? "You haven't posted or applied for any tasks yet."
                 : activeFilter === "assigned"
-                  ? "Tasks assigned to you will appear here."
-                  : activeFilter === "inProgress"
-                    ? "Tasks you are working on will appear here."
+                  ? "Tasks assigned will appear here."
+                  : activeFilter === "in-progress"
+                    ? "Tasks currently being worked on will appear here."
                     : activeFilter === "completed"
-                      ? "Your completed tasks will appear here."
-                      : "Canceled tasks will appear here."}
+                      ? "Completed tasks will appear here."
+                      : "Cancelled tasks will appear here."}
             </p>
           </div>
-          <Link href='/post-task'>
-            <Button className='bg-[#6B46C1] hover:bg-[#553C9A] text-white px-8 py-2 rounded-lg'>
-              Post a Task
-            </Button>
-          </Link>
+          {!isTasker && (
+            <Link href='/post-task'>
+              <Button className='bg-[#6B46C1] hover:bg-[#553C9A] text-white px-8 py-2 rounded-lg'>
+                Post a Task
+              </Button>
+            </Link>
+          )}
         </div>
       ) : (
         // FIX 1: Removed `space-y-4` — it was adding margin-top on every child,
@@ -156,33 +168,78 @@ export default function HistoryPage() {
         // FIX 2: Changed gap-4 → gap-6 for consistent spacing on both axes.
         // FIX 3: Added h-full to Link so it fills the grid cell height.
         // FIX 4: Passed className="h-full" into ActivityItem so it stretches too.
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {currentItems.map((item: any) => {
-            const isBid = isTasker;
-            const task = isBid ? (typeof item.task === 'object' ? item.task : null) : item;
-            const displayTitle = task?.title || (isBid ? "Task" : "Untitled Task");
-            const displayCategory = isBid 
-              ? (task?.categories?.[0]?.name || "General")
-              : (typeof task.categories?.[0] === "string" 
-                  ? task.categories[0] 
-                  : task.categories?.[0]?.displayName || task.categories?.[0]?.name || "General");
-            const displayStatus = isBid ? (item.status || "Applied") : task.status;
-            
-            return (
-              <Link key={item._id} href={`/tasks/${task?._id || item._id}`} className='h-full'>
-                <ActivityItem
-                  id={item._id}
-                  title={displayTitle}
-                  category={displayCategory}
-                  description={task?.description || ""}
-                  date={item.createdAt}
-                  status={displayStatus}
-                  amount={isBid ? item.amount : task.budget}
+        <div className='space-y-8'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {currentItems.map((item: any) => {
+              // Item is a Task directly from the new API for Taskers
+              const task = item;
+              const displayTitle = task?.title || "Untitled Task";
+              const displayCategory = getCategoryName(task);
+              const displayStatus = task.status;
+
+              return (
+                <Link
+                  key={item._id}
+                  href={`/tasks/${task?._id || item._id}`}
                   className='h-full'
-                />
-              </Link>
-            );
-          })}
+                >
+                  <ActivityItem
+                    id={item._id}
+                    title={displayTitle}
+                    category={displayCategory}
+                    description={task?.description || ""}
+                    date={item.createdAt}
+                    status={displayStatus}
+                    amount={task.budget}
+                    className='h-full'
+                  />
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Pagination */}
+          {isTasker && totalPages > 1 && (
+            <div className='flex items-center justify-center gap-4 pt-4'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className='flex items-center gap-1'
+              >
+                <ChevronLeft className='h-4 w-4' />
+                Previous
+              </Button>
+              <div className='flex items-center gap-2'>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${
+                        page === p
+                          ? "bg-[#6B46C1] text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ),
+                )}
+              </div>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className='flex items-center gap-1'
+              >
+                Next
+                <ChevronRight className='h-4 w-4' />
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

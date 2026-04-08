@@ -2,6 +2,7 @@
 
 import { useHome, formatDeadline, getCategoryName } from "@/hooks/useHome";
 import { useCategories } from "@/hooks/useCategories";
+import { useNearbyTaskers } from "@/hooks/useNearbyTaskers";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -24,37 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { TaskerProfileModal } from "@/components/dashboard/TaskerProfileModal";
 
-// ─── Static fallback categories ──────────────────────────────────────────────
-const FALLBACK_CATEGORIES = [
-  {
-    _id: "local",
-    name: "local-services",
-    displayName: "Local Services",
-    subtitle: "Plumbing, cleaning, repairs",
-    Icon: Briefcase,
-    bg: "bg-purple-100",
-    iconColor: "text-[#6B46C1]",
-  },
-  {
-    _id: "campus",
-    name: "campus-tasks",
-    displayName: "Campus Tasks",
-    subtitle: "Tutoring, Printing, Laundry",
-    Icon: GraduationCap,
-    bg: "bg-green-100",
-    iconColor: "text-green-600",
-  },
-  {
-    _id: "errands",
-    name: "errands",
-    displayName: "Errands & Deliveries",
-    subtitle: "Shopping, Pickup, Delivery",
-    Icon: ShoppingBag,
-    bg: "bg-yellow-100",
-    iconColor: "text-yellow-600",
-  },
-];
-
+// ─── Dynamic categories helper ──────────────────────────────────────────────
 function getCategoryMeta(name: string) {
   const key = (name || "").toLowerCase();
   if (
@@ -104,9 +75,28 @@ function getCategoryMeta(name: string) {
 export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false);
   const [selectedTasker, setSelectedTasker] = useState<any>(null);
+  const [coords, setCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
+
+    // Prompt for geolocation
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCoords({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.warn("Geolocation error:", error.message);
+        },
+      );
+    }
   }, []);
 
   const {
@@ -128,7 +118,7 @@ export default function HomePage() {
   } = useHome();
 
   // Fetch categories for the categories section
-  const { data: categoriesData, isLoading: isLoadingCategories } =
+  const { data: allCategories, isLoading: isLoadingCategories } =
     useCategories();
 
   // Fetch bids on the first user task to get top taskers (user view only)
@@ -143,9 +133,23 @@ export default function HomePage() {
     staleTime: 1000 * 60 * 5,
   });
 
-  // Derive "Top Workers Near You" from bids on user's tasks
+  // Derived from nearby taskers hook
+  const { data: nearbyData, isLoading: isLoadingNearby } = useNearbyTaskers(
+    coords?.latitude,
+    coords?.longitude,
+    !!coords && !isTasker,
+  );
+
+  // Derive "Top Workers" from multiple real data sources
   const topWorkers: any[] = (() => {
     if (isTasker) return [];
+
+    // Priority 1: Nearby taskers from API (returns top-rated if no location)
+    if (nearbyData && nearbyData.length > 0) {
+      return nearbyData;
+    }
+
+    // Priority 2: Taskers who have already bid on the user's tasks
     const bids = firstTaskBidsData?.bids || [];
     const seen = new Set<string>();
     const workers: any[] = [];
@@ -280,7 +284,7 @@ export default function HomePage() {
                 >
                   <div className='flex justify-between items-start'>
                     <span className='bg-[#F5EEFF] text-[#6B46C1] px-3 py-1 rounded-md font-bold text-[10px] uppercase tracking-wider'>
-                      {getCategoryName(task.categories)}
+                      {getCategoryName(task)}
                     </span>
                     <span className='text-[#4CAF50] font-black text-xl'>
                       ₦ {task.budget?.toLocaleString() || "0"}
@@ -407,13 +411,20 @@ export default function HomePage() {
   // ─── USER VIEW ───────────────────────────────────────────────────────────────
   const displayCategories = (() => {
     if (isLoadingCategories) return [];
-    if (categoriesData && categoriesData.length > 0) {
-      return categoriesData.slice(0, 3).map((cat: any) => {
+    if (allCategories && allCategories.length > 0) {
+      const mainCategories = allCategories.filter((c: any) => !c.parentCategory);
+      return mainCategories.slice(0, 3).map((cat: any) => {
         const meta = getCategoryMeta(cat.displayName || cat.name || "");
-        return { ...cat, ...meta };
+        return { 
+          ...cat, 
+          Icon: meta.Icon, 
+          bg: meta.bg, 
+          iconColor: meta.iconColor, 
+          subtitle: cat.description || meta.subtitle 
+        };
       });
     }
-    return FALLBACK_CATEGORIES;
+    return [];
   })();
 
   return (
@@ -456,29 +467,36 @@ export default function HomePage() {
               <Skeleton key={i} className='h-20 rounded-lg' />
             ))}
           </div>
-        ) : (
+        ) : displayCategories.length > 0 ? (
           <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
             {displayCategories.map((cat: any) => {
               const { Icon, bg, iconColor, subtitle } = cat;
               return (
-                <div
+                <Link
                   key={cat._id}
-                  className='flex items-center gap-4 bg-white border border-gray-100 rounded-lg p-4 shadow-sm hover:shadow-md hover:border-gray-200 transition-all cursor-pointer'
+                  href={`/post-task?mainCategory=${cat._id}`}
+                  className='flex items-center gap-4 bg-white border border-gray-100 rounded-lg p-4 shadow-sm hover:shadow-md hover:border-gray-200 transition-all cursor-pointer group'
                 >
                   <div
-                    className={`shrink-0 w-11 h-11 ${bg} rounded-lg flex items-center justify-center`}
+                    className={`shrink-0 w-11 h-11 ${bg} rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform`}
                   >
                     <Icon size={22} className={iconColor} />
                   </div>
                   <div className='min-w-0'>
-                    <p className='font-bold text-gray-900 text-sm truncate'>
+                    <p className='font-bold text-gray-900 text-sm truncate group-hover:text-[#6B46C1] transition-colors'>
                       {cat.displayName || cat.name}
                     </p>
-                    <p className='text-gray-400 text-xs truncate'>{subtitle}</p>
+                    <p className='text-gray-400 text-xs truncate font-medium'>
+                      {subtitle}
+                    </p>
                   </div>
-                </div>
+                </Link>
               );
             })}
+          </div>
+        ) : (
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center text-gray-500 font-medium">
+            No categories available.
           </div>
         )}
       </div>
@@ -507,14 +525,14 @@ export default function HomePage() {
             Top Workers near you
           </h2>
           <Link
-            href='/feed'
+            href='/post-task'
             className='text-[#6B46C1] font-semibold text-sm hover:underline flex items-center gap-1'
           >
             View all <ArrowRight size={14} />
           </Link>
         </div>
 
-        {isLoading ? (
+        {isLoading || (isLoadingNearby && coords) ? (
           <div className='flex gap-4 overflow-x-auto pb-2'>
             {[1, 2, 3].map((i) => (
               <Skeleton
@@ -533,25 +551,29 @@ export default function HomePage() {
                   : "Tasker");
               const initial = name[0]?.toUpperCase() || "T";
               const role =
-                Array.isArray(worker.categories) && worker.categories.length > 0
+                worker.primaryCategory ||
+                (Array.isArray(worker.categories) &&
+                worker.categories.length > 0
                   ? worker.categories[0]?.displayName ||
                     worker.categories[0]?.name ||
                     worker.categories[0]
-                  : worker.role === "tasker"
-                    ? "Tasker"
-                    : "Worker";
+                  : "Tasker");
               const rating =
+                worker.averageRating ||
                 (worker as any)?.stats?.ratings ||
                 (worker as any)?.rating ||
                 "4.9";
               const jobs =
-                (worker as any)?.stats?.tasksCompleted ||
-                (worker as any)?.completedTasks ||
-                0;
-              const location =
+                worker.completedJobs !== undefined
+                  ? worker.completedJobs
+                  : (worker as any)?.stats?.tasksCompleted ||
+                    (worker as any)?.completedTasks ||
+                    0;
+              const locationLabel =
+                worker.area ||
+                worker.residentState ||
                 (worker as any)?.location?.city ||
                 (worker as any)?.address?.city ||
-                (worker as any)?.city ||
                 "Nearby";
 
               return (
@@ -594,9 +616,11 @@ export default function HomePage() {
                       </span>
                     </span>
                     <span>{jobs} jobs</span>
-                    <span className='flex items-center gap-1'>
+                    <span className='flex items-center gap-1 font-semibold text-[#6B46C1]'>
                       <MapPin size={12} />
-                      {location}
+                      {worker.distance
+                        ? `${worker.distance.toFixed(1)}km`
+                        : locationLabel}
                     </span>
                   </div>
                 </div>
@@ -604,62 +628,20 @@ export default function HomePage() {
             })}
           </div>
         ) : (
-          /* Fallback — no bids yet, show static placeholder workers */
-          <div className='flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:overflow-visible'>
-            {[
-              {
-                name: "Musa Ibrahim",
-                role: "Electrician",
-                rating: "4.9",
-                jobs: 127,
-                location: "Lekki",
-              },
-              {
-                name: "Chioma Okafor",
-                role: "Cleaner",
-                rating: "4.9",
-                jobs: 127,
-                location: "Yaba",
-              },
-              {
-                name: "Tunde Bakare",
-                role: "Plumber",
-                rating: "4.7",
-                jobs: 87,
-                location: "Ikeja",
-              },
-            ].map((w, idx) => (
-              <div
-                key={idx}
-                className='min-w-[220px] md:min-w-0 bg-white border border-gray-100 rounded-lg p-4 shadow-sm shrink-0'
-              >
-                <div className='flex items-center gap-3 mb-3'>
-                  <div className='w-11 h-11 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold shrink-0'>
-                    {w.name[0]}
-                  </div>
-                  <div>
-                    <p className='font-bold text-gray-900 text-sm'>{w.name}</p>
-                    <p className='text-gray-400 text-xs'>{w.role}</p>
-                  </div>
-                </div>
-                <div className='flex items-center gap-3 text-xs text-gray-500'>
-                  <span className='flex items-center gap-1'>
-                    <Star
-                      size={12}
-                      className='text-yellow-400 fill-yellow-400'
-                    />
-                    <span className='font-semibold text-gray-900'>
-                      {w.rating}
-                    </span>
-                  </span>
-                  <span>{w.jobs} jobs</span>
-                  <span className='flex items-center gap-1'>
-                    <MapPin size={12} />
-                    {w.location}
-                  </span>
-                </div>
-              </div>
-            ))}
+          /* Empty state - no real workers found yet */
+          <div className='bg-white border border-gray-100 border-dashed rounded-lg p-8 flex flex-col items-center justify-center text-center space-y-3 shadow-sm'>
+            <div className='bg-[#F5EEFF] p-3 rounded-full'>
+              <Stars size={20} className='text-[#6B46C1]' />
+            </div>
+            <div>
+              <h3 className='font-bold text-gray-900 text-sm'>
+                No top workers nearby
+              </h3>
+              <p className='text-gray-400 text-xs max-w-[240px]'>
+                We haven&apos;t found any taskers in your location yet. Check
+                back soon!
+              </p>
+            </div>
           </div>
         )}
       </div>

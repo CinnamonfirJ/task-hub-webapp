@@ -83,8 +83,8 @@ export default function StaffDetailsPage({
         return "bg-blue-50 text-blue-600";
       case "trust_safety":
         return "bg-orange-50 text-orange-600";
-      case "support":
-        return "bg-green-50 text-green-600";
+      case "finance":
+        return "bg-amber-50 text-amber-600";
       default:
         return "bg-gray-50 text-gray-600";
     }

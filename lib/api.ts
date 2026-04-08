@@ -4,6 +4,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_API;
 
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
+  skipAuthError?: boolean;
 }
 
 export const apiData = async <T>(
@@ -48,6 +49,13 @@ export const apiData = async <T>(
 
     if (!response.ok) {
       if (response.status === 401) {
+        if (options.skipAuthError) {
+          if (process.env.NODE_ENV === "development") {
+            console.warn(`[API 401] Unauthorized response from ${endpoint}, but skipAuthError is true. Skipping global logout.`);
+          }
+          throw new Error("Unauthorized");
+        }
+
         if (process.env.NODE_ENV === "development") {
           console.warn(
             `[API 401] Unauthorized response from ${endpoint}. Clearing token.`,

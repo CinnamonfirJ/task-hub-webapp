@@ -23,18 +23,19 @@ export default function AdminLayout({
     setIsMounted(true);
   }, []);
 
-  const isLoginPage = pathname === "/admin/login";
+  const isPublicPage =
+    pathname === "/admin/login" || pathname === "/admin/setup-account";
 
   useEffect(() => {
-    if (isMounted && !isLoadingUser && !isLoginPage) {
+    if (isMounted && !isLoadingUser && !isPublicPage) {
       if (!isAuthenticated) {
         router.replace("/admin/login");
       }
     }
-  }, [isMounted, isLoadingUser, isAuthenticated, user, isLoginPage, router]);
+  }, [isMounted, isLoadingUser, isAuthenticated, user, isPublicPage, router]);
 
-  // Don't wrap login page with security logic or sidebar
-  if (isLoginPage) {
+  // Don't wrap public pages (login, setup-account) with security logic or sidebar
+  if (isPublicPage) {
     return <>{children}</>;
   }
 

@@ -113,7 +113,7 @@ export default function ProfilePage() {
 
       {/* User Info Card */}
       <Link href='/profile/details'>
-        <div className='bg-white border-none shadow-sm rounded-3xl p-4 md:p-6 flex items-center gap-4 md:gap-5 hover:bg-gray-50 transition-colors cursor-pointer group'>
+        <div className='bg-white border-none shadow-sm rounded-lg p-4 md:p-6 flex items-center gap-4 md:gap-5 hover:bg-gray-50 transition-colors cursor-pointer group'>
           <div className='w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-xl md:text-2xl font-bold border-4 border-white shadow-sm overflow-hidden shrink-0'>
             {isLoadingUser ? (
               <Skeleton className='w-full h-full' />
@@ -237,7 +237,7 @@ export default function ProfilePage() {
 
       {/* Switch to Users Banner (For Taskers) - Moved below Wallet Card */}
       {user?.role === "tasker" && (
-        <div className='bg-[#F5F3FF] border border-purple-100 p-4 md:p-5 rounded-3xl flex items-center justify-between group cursor-pointer shadow-sm'>
+        <div className='bg-[#F5F3FF] border border-purple-100 p-4 md:p-5 rounded-lg flex items-center justify-between group cursor-pointer shadow-sm'>
           <div className='flex items-center gap-3 md:gap-4'>
             <div className='bg-[#6B46C1] p-2.5 md:p-3 rounded-xl text-white'>
               <UserIcon size={20} className='md:w-[22px] md:h-[22px]' />
@@ -315,7 +315,7 @@ export default function ProfilePage() {
         {/* Become a tasker (Only for regular users) */}
         {user?.role === "user" && (
           <Link href='/profile/become-tasker'>
-            <div className='bg-white hover:bg-gray-50 transition-colors p-4 md:p-5 rounded-3xl flex items-center justify-between group cursor-pointer shadow-sm border border-gray-50 mb-4 md:mb-6'>
+            <div className='bg-white hover:bg-gray-50 transition-colors p-4 md:p-5 rounded-lg flex items-center justify-between group cursor-pointer shadow-sm border border-gray-50 mb-4 md:mb-6'>
               <div className='flex items-center gap-3 md:gap-4'>
                 <div className='bg-purple-100 p-2.5 md:p-3 rounded-xl text-[#6B46C1]'>
                   <Zap

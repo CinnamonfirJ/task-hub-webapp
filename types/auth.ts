@@ -15,7 +15,9 @@ export interface User {
   isActive?: boolean;
   lastLogin?: string;
   profilePicture?: string;
+  bio?: string;
   categories?: any[];
+  university?: any;
   wallet?: number;
   notificationId?: string | null;
   

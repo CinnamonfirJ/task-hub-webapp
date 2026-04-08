@@ -6,6 +6,8 @@ import {
   useAdminCategoryDetails,
   useUpdateAdminCategory,
   useDeleteAdminCategory,
+  useAdminCategories,
+  useCreateAdminCategory,
 } from "@/hooks/useAdmin";
 import {
   ArrowLeft,
@@ -18,6 +20,8 @@ import {
   Search,
   Loader2,
   Unlock,
+  ChevronRight,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,15 +50,22 @@ export default function CategoryDetailsPage() {
   const categoryId = params.id as string;
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddSubModalOpen, setIsAddSubModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
-  const [taskFilter, setTaskFilter] = useState("All");
+
+  const [activeTab, setActiveTab] = useState<
+    "tasks" | "taskers" | "subcategories"
+  >("tasks");
   const [taskSearch, setTaskSearch] = useState("");
-  const [taskerFilter, setTaskerFilter] = useState("All");
+  const [taskFilter, setTaskFilter] = useState("All");
   const [taskerSearch, setTaskerSearch] = useState("");
+  const [taskerFilter, setTaskerFilter] = useState("All");
 
   const { data, isLoading, error } = useAdminCategoryDetails(categoryId);
+  const { data: allCategoriesData } = useAdminCategories();
   const updateCategory = useUpdateAdminCategory();
   const deleteCategory = useDeleteAdminCategory();
+  const createCategory = useCreateAdminCategory();
 
   if (isLoading) {
     return (
@@ -84,6 +95,24 @@ export default function CategoryDetailsPage() {
   }
 
   const { category, stats, tasks, taskers } = data;
+
+  // If the backend doesn't return subcategories, filter them from all categories
+  const subcategories =
+    (data as any).subCategories ||
+    (data as any).subcategories ||
+    (allCategoriesData?.categories || []).filter(
+      (c: any) =>
+        c.parentCategory === categoryId ||
+        c.parentCategory?._id === categoryId ||
+        c.mainCategory === categoryId ||
+        c.mainCategory?._id === categoryId,
+    );
+
+  const parentCategory = allCategoriesData?.categories?.find(
+    (c: any) =>
+      c._id === category.parentCategory ||
+      c._id === (category.parentCategory as any)?._id,
+  );
 
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch = task.title
@@ -119,6 +148,19 @@ export default function CategoryDetailsPage() {
     }
   };
 
+  const handleCreateSubcategory = async (categoryData: any) => {
+    try {
+      await createCategory.mutateAsync({
+        ...categoryData,
+        parentCategory: category._id,
+      });
+      toast.success("Sub category created successfully");
+      setIsAddSubModalOpen(false);
+    } catch {
+      toast.error("Failed to create sub category");
+    }
+  };
+
   const handleConfirm = async () => {
     if (!confirmAction) return;
 
@@ -134,16 +176,10 @@ export default function CategoryDetailsPage() {
         });
         const next = category.isActive ? "closed" : "activated";
         toast.success(`Category ${next} successfully`);
-        setConfirmAction(null);
-      } else if (confirmAction.type === "suspend-tasker") {
-        // Wire up to your suspend API when available
-        toast.success(
-          `${confirmAction.tasker.fullName} suspended successfully`,
-        );
-        setConfirmAction(null);
       }
     } catch {
       toast.error("Something went wrong");
+    } finally {
       setConfirmAction(null);
     }
   };
@@ -152,123 +188,135 @@ export default function CategoryDetailsPage() {
     (confirmAction?.type === "delete-category" && deleteCategory.isPending) ||
     (confirmAction?.type === "toggle-category" && updateCategory.isPending);
 
-  // Derive modal copy from the pending action
-  const confirmTitle =
-    confirmAction?.type === "delete-category"
-      ? `Delete "${category.name}"?`
-      : confirmAction?.type === "toggle-category"
-        ? category.isActive
-          ? `Close "${category.name}"?`
-          : `Activate "${category.name}"?`
-        : confirmAction?.type === "suspend-tasker"
-          ? `Suspend ${confirmAction.tasker.fullName}?`
-          : "";
-
-  const confirmDescription =
-    confirmAction?.type === "delete-category"
-      ? "This action cannot be undone. All services linked to this category may be affected."
-      : confirmAction?.type === "toggle-category"
-        ? category.isActive
-          ? "Closing this category will hide it from the platform. You can reactivate it later."
-          : "Activating this category will make it visible on the platform again."
-        : confirmAction?.type === "suspend-tasker"
-          ? `${confirmAction.tasker.fullName} will lose access to new tasks while suspended.`
-          : "";
-
-  const confirmLabel =
-    confirmAction?.type === "delete-category"
-      ? "Delete"
-      : confirmAction?.type === "toggle-category"
-        ? category.isActive
-          ? "Close category"
-          : "Activate"
-        : confirmAction?.type === "suspend-tasker"
-          ? "Suspend"
-          : "Confirm";
-
-  const confirmVariant =
-    confirmAction?.type === "delete-category" ||
-    confirmAction?.type === "suspend-tasker"
-      ? "danger"
-      : "warning";
-
   return (
     <div className='space-y-6 md:space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto'>
-      {/* Header */}
-      <div className='flex flex-col md:flex-row md:items-start justify-between gap-4'>
-        <div className='flex items-start gap-4'>
-          <Button
-            variant='outline'
-            size='icon'
-            className='h-10 w-10 shrink-0 rounded-xl border-gray-200'
+      {/* Breadcrumbs & Header */}
+      <div className='space-y-4'>
+        <div className='flex items-center gap-2 text-sm text-gray-500'>
+          <button
             onClick={() => router.push("/admin/categories")}
+            className='hover:text-gray-900 transition-colors'
           >
-            <ArrowLeft size={20} className='text-gray-600' />
-          </Button>
-          <div>
-            <h1 className='text-xl md:text-2xl font-bold text-gray-900'>
-              {category.name}
-            </h1>
-            <p className='text-sm text-gray-500 mt-1 max-w-xl'>
-              {category.description}
-            </p>
-          </div>
+            Categories
+          </button>
+          {parentCategory && (
+            <>
+              <ChevronRight size={14} />
+              <button
+                onClick={() =>
+                  router.push(`/admin/categories/${parentCategory._id}`)
+                }
+                className='hover:text-gray-900 transition-colors'
+              >
+                {parentCategory.displayName || parentCategory.name}
+              </button>
+            </>
+          )}
+          <ChevronRight size={14} />
+          <span className='font-medium text-gray-900'>
+            {category.displayName || category.name}
+          </span>
         </div>
-        <div className='flex items-center gap-3 shrink-0'>
-          <Button
-            variant='outline'
-            className='rounded-xl h-10 px-4 group'
-            onClick={() => setIsEditModalOpen(true)}
-          >
-            <Pencil
-              size={16}
-              className='mr-2 text-gray-500 group-hover:text-gray-900'
-            />
-            Edit
-          </Button>
-          <Button
-            variant='outline'
-            className='rounded-xl h-10 px-4 group'
-            onClick={() => setConfirmAction({ type: "toggle-category" })}
-          >
-            {category.isActive ? (
-              <Lock
-                size={16}
-                className='mr-2 text-gray-500 group-hover:text-gray-900'
-              />
-            ) : (
-              <Unlock
-                size={16}
-                className='mr-2 text-gray-500 group-hover:text-gray-900'
-              />
-            )}
-            {category.isActive ? "Close" : "Activate"}
-          </Button>
-          <Button
-            variant='default'
-            className='bg-red-500 hover:bg-red-600 text-white rounded-xl h-10 px-4 shadow-none'
-            onClick={() => setConfirmAction({ type: "delete-category" })}
-          >
-            <Trash2 size={16} className='mr-2' />
-            Delete
-          </Button>
+
+        <div className='flex flex-col md:flex-row md:items-start justify-between gap-6'>
+          <div className='flex items-start gap-4'>
+            <Button
+              variant='outline'
+              size='icon'
+              className='h-12 w-12 shrink-0 rounded-2xl border-gray-100 shadow-sm'
+              onClick={() => router.push("/admin/categories")}
+            >
+              <ArrowLeft size={22} className='text-gray-600' />
+            </Button>
+            <div>
+              <div className='flex items-center gap-3'>
+                <h1 className='text-2xl md:text-3xl font-bold text-gray-900'>
+                  {category.displayName || category.name}
+                </h1>
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    category.isActive
+                      ? "bg-green-50 text-green-600"
+                      : "bg-red-50 text-red-600"
+                  }`}
+                >
+                  {category.isActive ? "Active" : "Closed"}
+                </span>
+              </div>
+              <p className='text-sm text-gray-500 mt-2 max-w-2xl leading-relaxed'>
+                {category.description ||
+                  "Manage settings and view metrics for this category."}
+              </p>
+            </div>
+          </div>
+          <div className='flex items-center gap-3 shrink-0'>
+            <Button
+              variant='outline'
+              className='rounded-xl h-11 px-5 border-gray-200'
+              onClick={() => setIsEditModalOpen(true)}
+            >
+              <Pencil size={18} className='mr-2 text-gray-500' />
+              Edit
+            </Button>
+            <Button
+              variant='outline'
+              className='rounded-xl h-11 px-5 border-gray-200'
+              onClick={() => setConfirmAction({ type: "toggle-category" })}
+            >
+              {category.isActive ? (
+                <Lock size={18} className='mr-2 text-gray-500' />
+              ) : (
+                <Unlock size={18} className='mr-2 text-gray-500' />
+              )}
+              {category.isActive ? "Close" : "Activate"}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='outline'
+                  size='icon'
+                  className='h-11 w-11 rounded-xl border-gray-200'
+                >
+                  <MoreVertical size={20} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align='end'
+                className='w-48 rounded-xl p-1.5 shadow-xl border-gray-100'
+              >
+                <DropdownMenuItem
+                  className='text-red-600 focus:text-red-700 focus:bg-red-50 py-2.5 rounded-lg cursor-pointer'
+                  onClick={() => setConfirmAction({ type: "delete-category" })}
+                >
+                  <Trash2 size={16} className='mr-3' /> Delete Category
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+      <div className='grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6'>
         {[
           { label: "Total services", value: stats.totalServices },
-          { label: "Active taskers", value: stats.activeTaskers },
-          { label: "Total taskers", value: stats.totalTaskers },
+          {
+            label: "Sub categories",
+            value: stats.subCategoryCount || subcategories.length,
+          },
+          { label: "Active services", value: stats.activeServices || 0 },
+          { label: "Taskers", value: stats.totalTaskers },
           { label: "Revenue", value: formatCurrency(stats.revenue) },
         ].map((stat, idx) => (
-          <Card key={idx} className='border-gray-100 shadow-sm rounded-2xl'>
+          <Card
+            key={idx}
+            className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'
+          >
             <CardContent className='p-6'>
-              <div className='text-xs text-gray-500 font-medium mb-1'>
+              <div className='text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-2'>
                 {stat.label}
               </div>
-              <div className='text-2xl md:text-3xl font-bold text-gray-900'>
+              <div className='text-2xl font-bold text-gray-900'>
                 {stat.value}
               </div>
             </CardContent>
@@ -276,299 +324,370 @@ export default function CategoryDetailsPage() {
         ))}
       </div>
 
-      {/* Tasks Table */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
-        <div className='p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4'>
-          <div className='relative w-full md:max-w-xs'>
-            <Search
-              className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
-              size={18}
-            />
-            <Input
-              placeholder='Search tasks...'
-              value={taskSearch}
-              onChange={(e) => setTaskSearch(e.target.value)}
-              className='pl-10 h-10 bg-gray-50/50 border-gray-100 rounded-xl w-full text-sm'
-            />
-          </div>
-          <div className='flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto'>
-            {[
-              "All",
-              "In-progress",
-              "Open",
-              "Completed",
-              "Cancelled",
-              "Assigned",
-            ].map((f) => (
-              <button
-                key={f}
-                onClick={() => setTaskFilter(f)}
-                className={`px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
-                  taskFilter === f
-                    ? "bg-gray-900 text-white"
-                    : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-100"
+      {/* Main Content Area */}
+      <div className='space-y-6'>
+        {/* Tabs Selection */}
+        <div className='flex border-b border-gray-100 overflow-x-auto'>
+          {[
+            { id: "tasks", label: "Tasks", count: filteredTasks.length },
+            { id: "taskers", label: "Taskers", count: filteredTaskers.length },
+            ...(category.parentCategory
+              ? []
+              : [
+                  {
+                    id: "subcategories",
+                    label: "Sub-categories",
+                    count: subcategories.length,
+                  },
+                ]),
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`px-6 py-4 text-sm font-bold transition-all border-b-2 whitespace-nowrap ${
+                activeTab === tab.id
+                  ? "border-black text-black"
+                  : "border-transparent text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              {tab.label}
+              <span
+                className={`ml-2 px-2 py-0.5 rounded-full text-[10px] ${
+                  activeTab === tab.id
+                    ? "bg-black text-white"
+                    : "bg-gray-100 text-gray-500"
                 }`}
               >
-                {f}
-              </button>
-            ))}
-          </div>
+                {tab.count}
+              </span>
+            </button>
+          ))}
         </div>
-        <div className='p-6'>
-          <h3 className='text-base font-bold text-gray-900 mb-4'>
-            Tasks in this category
-          </h3>
-          <div className='overflow-x-auto'>
-            <table className='w-full text-sm'>
-              <thead>
-                <tr className='border-b border-gray-100'>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px] w-[25%]'>
-                    TASK
-                  </th>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    POSTED BY
-                  </th>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    CATEGORY
-                  </th>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    BUDGET
-                  </th>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    STATUS
-                  </th>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    DATE
-                  </th>
-                </tr>
-              </thead>
-              <tbody className='divide-y divide-gray-50'>
-                {filteredTasks.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className='py-8 text-center text-gray-500'>
-                      No tasks found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredTasks.map((task) => (
-                    <tr
-                      key={task._id}
-                      className='hover:bg-gray-50/50 transition-colors'
-                    >
-                      <td className='py-4 px-4 font-semibold text-gray-900'>
-                        {task.title}
-                      </td>
-                      <td className='py-4 px-4 text-gray-500'>
-                        {task.postedBy}
-                      </td>
-                      <td className='py-4 px-4 text-gray-500'>
-                        {task.category}
-                      </td>
-                      <td className='py-4 px-4 text-gray-900'>
-                        {formatCurrency(task.budget)}
-                      </td>
-                      <td className='py-4 px-4'>
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider ${
-                            task.status === "Completed"
-                              ? "bg-green-50 text-green-600"
-                              : task.status === "In progress"
-                                ? "bg-blue-50 text-blue-600"
-                                : task.status === "Assigned"
-                                  ? "bg-yellow-50 text-yellow-600"
-                                  : "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          {task.status}
-                        </span>
-                      </td>
-                      <td className='py-4 px-4 text-gray-500'>
-                        {task.date ??
-                          (task.createdAt
-                            ? new Date(task.createdAt).toLocaleDateString()
-                            : "—")}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </Card>
 
-      {/* Taskers Table */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden mt-8'>
-        <div className='p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4'>
-          <div className='relative w-full md:max-w-xs'>
-            <Search
-              className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
-              size={18}
-            />
-            <Input
-              placeholder='Search name or email...'
-              value={taskerSearch}
-              onChange={(e) => setTaskerSearch(e.target.value)}
-              className='pl-10 h-10 bg-gray-50/50 border-gray-100 rounded-xl w-full text-sm'
-            />
-          </div>
-          <div className='flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto'>
-            {["All", "Active", "Suspended", "Verified"].map((f) => (
-              <button
-                key={f}
-                onClick={() => setTaskerFilter(f)}
-                className={`px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
-                  taskerFilter === f
-                    ? "bg-gray-900 text-white"
-                    : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-100"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className='p-6'>
-          <h3 className='text-base font-bold text-gray-900 mb-4'>
-            Taskers offering services in this category
-          </h3>
-          <div className='overflow-x-auto'>
-            <table className='w-full text-sm'>
-              <thead>
-                <tr className='border-b border-gray-100'>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px] w-[30%]'>
-                    TASKERS
-                  </th>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    CATEGORY
-                  </th>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    STATUS
-                  </th>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    VERIFICATION
-                  </th>
-                  <th className='py-3 px-4 text-left font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    LAST ACTIVE
-                  </th>
-                  <th className='py-3 px-4 text-right font-bold text-gray-900 uppercase tracking-wider text-[11px]'>
-                    ACTION
-                  </th>
-                </tr>
-              </thead>
-              <tbody className='divide-y divide-gray-50'>
-                {filteredTaskers.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className='py-8 text-center text-gray-500'>
-                      No taskers found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredTaskers.map((tasker) => {
-                    const email = tasker.email ?? tasker.emailAddress ?? "";
-                    return (
-                      <tr
-                        key={tasker._id}
-                        className='hover:bg-gray-50/50 transition-colors group'
+        {/* Tab Content */}
+        <div className='pt-2'>
+          {activeTab === "tasks" && (
+            <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+              <div className='p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4'>
+                <div className='relative w-full md:max-w-xs'>
+                  <Search
+                    className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
+                    size={16}
+                  />
+                  <Input
+                    placeholder='Search tasks...'
+                    value={taskSearch}
+                    onChange={(e) => setTaskSearch(e.target.value)}
+                    className='pl-9 h-10 bg-gray-50/50 border-gray-100 rounded-xl text-sm'
+                  />
+                </div>
+                <div className='flex gap-1 p-1 bg-gray-50 rounded-xl overflow-x-auto'>
+                  {["All", "In-progress", "Open", "Completed", "Cancelled"].map(
+                    (f) => (
+                      <button
+                        key={f}
+                        onClick={() => setTaskFilter(f)}
+                        className={`px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                          taskFilter === f
+                            ? "bg-white text-black shadow-sm"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
                       >
-                        <td className='py-4 px-4'>
-                          <div className='flex items-center gap-3'>
-                            <div className='w-10 h-10 rounded-full bg-gray-200 overflow-hidden shrink-0'>
-                              {tasker.profilePicture && (
-                                <img
-                                  src={tasker.profilePicture}
-                                  alt={tasker.fullName}
-                                  className='w-full h-full object-cover'
-                                />
-                              )}
-                            </div>
-                            <div>
-                              <div className='font-semibold text-gray-900'>
-                                {tasker.fullName}
+                        {f}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+              <div className='overflow-x-auto'>
+                <table className='w-full text-sm'>
+                  <thead>
+                    <tr className='border-b border-gray-100 bg-gray-50/30'>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Task
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Posted By
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Budget
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Status
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className='divide-y divide-gray-50'>
+                    {filteredTasks.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className='py-12 text-center text-gray-400'
+                        >
+                          No tasks found
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredTasks.map((task) => (
+                        <tr
+                          key={task._id}
+                          className='hover:bg-gray-50/50 transition-colors'
+                        >
+                          <td className='py-5 px-6 font-bold text-gray-900'>
+                            {task.title}
+                          </td>
+                          <td className='py-5 px-6 text-gray-500'>
+                            {task.postedBy}
+                          </td>
+                          <td className='py-5 px-6 font-medium'>
+                            {formatCurrency(task.budget)}
+                          </td>
+                          <td className='py-5 px-6'>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                task.status === "Completed"
+                                  ? "bg-green-50 text-green-600"
+                                  : task.status === "In progress"
+                                    ? "bg-blue-50 text-blue-600"
+                                    : "bg-gray-100 text-gray-600"
+                              }`}
+                            >
+                              {task.status}
+                            </span>
+                          </td>
+                          <td className='py-5 px-6 text-gray-400'>
+                            {new Date(
+                              task.createdAt || Date.now(),
+                            ).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+
+          {activeTab === "taskers" && (
+            <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+              <div className='p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4'>
+                <div className='relative w-full md:max-w-xs'>
+                  <Search
+                    className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
+                    size={16}
+                  />
+                  <Input
+                    placeholder='Search taskers...'
+                    value={taskerSearch}
+                    onChange={(e) => setTaskerSearch(e.target.value)}
+                    className='pl-9 h-10 bg-gray-50/50 border-gray-100 rounded-xl text-sm'
+                  />
+                </div>
+              </div>
+              <div className='overflow-x-auto'>
+                <table className='w-full text-sm'>
+                  <thead>
+                    <tr className='border-b border-gray-100 bg-gray-50/30'>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Tasker
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Status
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Verification
+                      </th>
+                      <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Last Active
+                      </th>
+                      <th className='py-4 px-6 text-right font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className='divide-y divide-gray-50'>
+                    {filteredTaskers.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className='py-12 text-center text-gray-400'
+                        >
+                          No taskers found
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredTaskers.map((tasker) => (
+                        <tr
+                          key={tasker._id}
+                          className='hover:bg-gray-50/50 transition-colors group'
+                        >
+                          <td className='py-4 px-6'>
+                            <div className='flex items-center gap-3'>
+                              <div className='w-10 h-10 rounded-xl bg-gray-100 overflow-hidden shrink-0 border border-gray-50'>
+                                {tasker.profilePicture && (
+                                  <img
+                                    src={tasker.profilePicture}
+                                    alt=''
+                                    className='w-full h-full object-cover'
+                                  />
+                                )}
                               </div>
-                              <div className='text-xs text-gray-500 mt-0.5'>
-                                {email}
+                              <div>
+                                <div className='font-bold text-gray-900'>
+                                  {tasker.fullName}
+                                </div>
+                                <div className='text-[11px] text-gray-500'>
+                                  {tasker.email || tasker.emailAddress}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className='py-4 px-4 text-gray-500'>
-                          {tasker.category}
-                        </td>
-                        <td className='py-4 px-4'>
-                          <span
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider ${
-                              tasker.status === "Active"
-                                ? "bg-green-50 text-green-600"
-                                : "bg-red-50 text-red-600"
-                            }`}
+                          </td>
+                          <td className='py-4 px-6'>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                tasker.status === "Active"
+                                  ? "bg-green-50 text-green-600"
+                                  : "bg-red-50 text-red-600"
+                              }`}
+                            >
+                              {tasker.status}
+                            </span>
+                          </td>
+                          <td className='py-4 px-6'>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                tasker.verification === "Verified"
+                                  ? "bg-blue-50 text-blue-600"
+                                  : "bg-purple-50 text-purple-600"
+                              }`}
+                            >
+                              {tasker.verification}
+                            </span>
+                          </td>
+                          <td className='py-4 px-6 text-gray-400 text-xs'>
+                            {tasker.lastActive || "Recently active"}
+                          </td>
+                          <td className='py-4 px-6 text-right'>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity'
+                              onClick={() =>
+                                router.push(`/admin/taskers/${tasker._id}`)
+                              }
+                            >
+                              <Eye size={16} className='text-gray-400' />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+
+          {activeTab === "subcategories" && (
+            <div className='space-y-4'>
+              <div className='flex justify-between items-center px-2'>
+                <h3 className='font-bold text-gray-900'>
+                  Sub-categories in this group
+                </h3>
+                <Button
+                  onClick={() => setIsAddSubModalOpen(true)}
+                  className='bg-black hover:bg-black/80 text-white rounded-xl h-10 px-4 text-xs font-bold'
+                >
+                  <Plus size={16} className='mr-2' /> Add sub-category
+                </Button>
+              </div>
+              <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+                <div className='overflow-x-auto'>
+                  <table className='w-full text-sm'>
+                    <thead>
+                      <tr className='border-b border-gray-100 bg-gray-50/30'>
+                        <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                          Category
+                        </th>
+                        {/* <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Description</th> */}
+                        {/* <th className="py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]">Min Price</th> */}
+                        <th className='py-4 px-6 text-left font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                          Status
+                        </th>
+                        <th className='py-4 px-6 text-right font-bold text-gray-500 uppercase tracking-wider text-[10px]'>
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className='divide-y divide-gray-50'>
+                      {subcategories.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className='py-12 text-center text-gray-400'
                           >
-                            {tasker.status}
-                          </span>
-                        </td>
-                        <td className='py-4 px-4'>
-                          <span
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider ${
-                              tasker.verification === "Verified"
-                                ? "bg-blue-50 text-blue-600"
-                                : tasker.verification === "Not verified"
-                                  ? "bg-purple-50 text-purple-600"
-                                  : "bg-yellow-50 text-yellow-600"
-                            }`}
+                            No sub-categories found. Create one from the button
+                            above.
+                          </td>
+                        </tr>
+                      ) : (
+                        subcategories.map((sub: any) => (
+                          <tr
+                            key={sub._id}
+                            onClick={() =>
+                              router.push(`/admin/categories/${sub._id}`)
+                            }
+                            className='hover:bg-gray-50/50 transition-colors cursor-pointer group'
                           >
-                            {tasker.verification}
-                          </span>
-                        </td>
-                        <td className='py-4 px-4 text-gray-500'>
-                          {tasker.lastActive ?? "—"}
-                        </td>
-                        <td className='py-4 px-4 text-right'>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
+                            <td className='py-5 px-6 font-bold text-gray-900'>
+                              {sub.displayName || sub.name}
+                            </td>
+                            {/* <td className="py-5 px-6 text-gray-500 line-clamp-1">{sub.description}</td> */}
+                            {/* <td className="py-5 px-6 font-medium">{formatCurrency(sub.minimumPrice || 0)}</td> */}
+                            <td className='py-5 px-6'>
+                              <span
+                                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                  sub.isActive
+                                    ? "bg-green-50 text-green-600"
+                                    : "bg-red-50 text-red-600"
+                                }`}
+                              >
+                                {sub.isActive ? "Active" : "Closed"}
+                              </span>
+                            </td>
+                            <td className='py-5 px-6 text-right'>
                               <Button
                                 variant='ghost'
                                 size='icon'
-                                className='h-8 w-8 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100'
+                                className='h-8 w-8 rounded-lg group-hover:bg-white'
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/admin/categories/${sub._id}`);
+                                }}
                               >
-                                <MoreVertical size={16} />
+                                <ChevronRight
+                                  size={16}
+                                  className='text-gray-400'
+                                />
                               </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                              align='end'
-                              className='w-44 rounded-xl shadow-lg border-gray-100'
-                            >
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  router.push(`/admin/taskers/${tasker._id}`)
-                                }
-                                className='cursor-pointer py-2.5 text-gray-700'
-                              >
-                                <Eye className='mr-2 h-4 w-4' /> View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className='cursor-pointer py-2.5 text-red-600 focus:text-red-700 focus:bg-red-50'
-                                onClick={() =>
-                                  setConfirmAction({
-                                    type: "suspend-tasker",
-                                    tasker,
-                                  })
-                                }
-                              >
-                                <Ban className='mr-2 h-4 w-4' /> Suspend User
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            </div>
+          )}
         </div>
-      </Card>
+      </div>
 
+      {/* Modals */}
       <CategoryModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -577,17 +696,46 @@ export default function CategoryDetailsPage() {
         isSaving={updateCategory.isPending}
       />
 
-      {/* Single confirm modal handles all destructive actions on this page */}
-      <ConfirmModal
-        isOpen={confirmAction !== null}
-        onClose={() => setConfirmAction(null)}
-        onConfirm={handleConfirm}
-        title={confirmTitle}
-        description={confirmDescription}
-        confirmLabel={confirmLabel}
-        variant={confirmVariant}
-        isLoading={isConfirmLoading}
+      <CategoryModal
+        isOpen={isAddSubModalOpen}
+        onClose={() => setIsAddSubModalOpen(false)}
+        onSave={handleCreateSubcategory}
+        parentCategory={category}
+        isSaving={createCategory.isPending}
       />
+
+      {confirmAction && (
+        <ConfirmModal
+          isOpen={confirmAction !== null}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={handleConfirm}
+          title={
+            confirmAction.type === "delete-category"
+              ? `Delete "${category?.name}"?`
+              : category?.isActive
+                ? `Close "${category?.name}"?`
+                : `Activate "${category?.name}"?`
+          }
+          description={
+            confirmAction.type === "delete-category"
+              ? "This action cannot be undone. All services linked to this category may be affected."
+              : category?.isActive
+                ? "Closing this category will hide it from the platform. You can reactivate it later."
+                : "Activating this category will make it visible on the platform again."
+          }
+          confirmLabel={
+            confirmAction.type === "delete-category"
+              ? "Delete"
+              : category?.isActive
+                ? "Close category"
+                : "Activate"
+          }
+          variant={
+            confirmAction.type === "delete-category" ? "danger" : "warning"
+          }
+          isLoading={isConfirmLoading}
+        />
+      )}
     </div>
   );
 }

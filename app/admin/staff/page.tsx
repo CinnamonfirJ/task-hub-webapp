@@ -39,8 +39,7 @@ export default function StaffPage() {
 
   // Form state for invite
   const [inviteForm, setInviteForm] = useState({
-    fullName: "",
-    emailAddress: "",
+    email: "",
     role: "operations" as const,
   });
 
@@ -60,7 +59,7 @@ export default function StaffPage() {
     inviteAdmin(inviteForm, {
       onSuccess: () => {
         setIsInviteModalOpen(false);
-        setInviteForm({ fullName: "", emailAddress: "", role: "operations" });
+        setInviteForm({ email: "", role: "operations" });
       },
     });
   };
@@ -73,8 +72,8 @@ export default function StaffPage() {
         return "bg-blue-100 text-blue-700";
       case "trust_safety":
         return "bg-orange-100 text-orange-700";
-      case "support":
-        return "bg-green-100 text-green-700";
+      case "finance":
+        return "bg-amber-100 text-amber-700";
       default:
         return "bg-gray-100 text-gray-700";
     }
@@ -257,20 +256,6 @@ export default function StaffPage() {
               </div>
 
               <div className='p-6 space-y-5'>
-                <div className='space-y-2'>
-                  <label className='text-sm font-semibold text-gray-900'>
-                    Full Name
-                  </label>
-                  <Input
-                    required
-                    value={inviteForm.fullName}
-                    onChange={(e) =>
-                      setInviteForm({ ...inviteForm, fullName: e.target.value })
-                    }
-                    placeholder='Enter full name'
-                    className='bg-gray-50/50 border-gray-200 focus-visible:ring-purple-200 h-11'
-                  />
-                </div>
 
                 <div className='space-y-2'>
                   <label className='text-sm font-semibold text-gray-900'>
@@ -279,11 +264,11 @@ export default function StaffPage() {
                   <Input
                     required
                     type='email'
-                    value={inviteForm.emailAddress}
+                    value={inviteForm.email}
                     onChange={(e) =>
                       setInviteForm({
                         ...inviteForm,
-                        emailAddress: e.target.value,
+                        email: e.target.value,
                       })
                     }
                     placeholder='Enter email address'
@@ -308,7 +293,7 @@ export default function StaffPage() {
                   >
                     <option value='operations'>Operations Admin</option>
                     <option value='trust_safety'>Trust & Safety Admin</option>
-                    <option value='support'>Support Admin</option>
+                    <option value='finance'>Finance Admin</option>
                     <option value='super_admin'>Super Admin</option>
                   </select>
                 </div>

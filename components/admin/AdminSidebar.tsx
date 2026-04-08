@@ -18,6 +18,7 @@ import {
   LogOut,
   X,
   Banknote,
+  GraduationCap
 } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
 import { useAdminProfile } from "@/hooks/useAdmin";
@@ -31,12 +32,14 @@ export const navItems = [
   { icon: ShieldCheck, label: "Staff/Admin", href: "/admin/staff" },
   { icon: Briefcase, label: "Tasks", href: "/admin/tasks" },
   { icon: Folder, label: "Categories", href: "/admin/categories" },
+  { icon: GraduationCap, label: "Universities", href: "/admin/universities" },
   { icon: CreditCard, label: "Payments", href: "/admin/payments" },
   { icon: Banknote, label: "Withdrawals", href: "/admin/withdrawals" },
   { icon: UserCheck, label: "KYC/Verification", href: "/admin/verification" },
   { icon: MessageSquare, label: "Message", href: "/admin/messages" },
   { icon: Users, label: "Waitlist", href: "/admin/waitlist" },
   { icon: FileText, label: "Report & Logs", href: "/admin/reports" },
+  { icon: Bell, label: "Notifications", href: "/admin/notifications" },
   { icon: Settings, label: "Settings", href: "/admin/settings" },
 ];
 

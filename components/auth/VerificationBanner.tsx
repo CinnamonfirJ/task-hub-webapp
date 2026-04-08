@@ -25,10 +25,11 @@ export function VerificationBanner() {
   );
 
   const isVerified =
-    user?.verifyIdentity ||
-    user?.isKYCVerified ||
-    (user as any).kycVerified ||
-    (user as any).verified;
+    !!user?.verifyIdentity ||
+    !!user?.isKYCVerified ||
+    !!(user as any)?.kycVerified ||
+    !!(user as any)?.verified ||
+    user?.role === "admin";
 
   // Don't show if loading, no user, already verified, or on onboarding pages
   if (isLoadingUser || !user || isVerified || isOnOnboardingPage) {

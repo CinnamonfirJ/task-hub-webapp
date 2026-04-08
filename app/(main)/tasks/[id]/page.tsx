@@ -1,6 +1,7 @@
 "use client";
 
-import { useTaskDetails } from "@/hooks/useTaskDetails";
+import { useTaskDetails, useUpdateTaskStatusTasker, useCompletionCode } from "@/hooks/useTaskDetails";
+import { getCategoryName } from "@/hooks/useHome";
 import {
   useTaskBids,
   useAcceptBid,
@@ -9,7 +10,6 @@ import {
   useMyBids,
   useRejectBid,
 } from "@/hooks/useBids";
-import { useUpdateTaskStatusTasker, useCompletionCode } from "@/hooks/useTaskDetails";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -70,6 +70,8 @@ export default function TaskDetailsPage() {
 
   // Accept bid mutation
   const { mutate: acceptBid, isPending: isAccepting } = useAcceptBid();
+  // Track which specific bid is being accepted for per-card loading state
+  const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
 
   // Reject bid mutation
   const { mutate: rejectBid, isPending: isRejecting } = useRejectBid();
@@ -156,8 +158,14 @@ export default function TaskDetailsPage() {
   };
 
   const handleConfirmAccept = () => {
-    acceptBid(confirmAccept.bidId);
-    setConfirmAccept({ isOpen: false, bidId: "" });
+    const bidId = confirmAccept.bidId;
+    setAcceptingBidId(bidId);
+    acceptBid(bidId, {
+      onSettled: () => {
+        setAcceptingBidId(null);
+        setConfirmAccept({ isOpen: false, bidId: "" });
+      },
+    });
   };
 
   const handleRejectBid = (bidId: string) => {
@@ -229,12 +237,7 @@ export default function TaskDetailsPage() {
     );
   }
 
-  const categories = task.categories || [];
-  const primaryCategory = categories.length > 0 ? categories[0] : null;
-  const categoryName =
-    primaryCategory && typeof primaryCategory === "object"
-      ? primaryCategory.displayName || primaryCategory.name
-      : "Uncategorized";
+  const categoryName = getCategoryName(task);
 
   const displayLocation =
     typeof task.location === "object" && task.location.address
@@ -363,7 +366,7 @@ export default function TaskDetailsPage() {
                       onAccept={handleAcceptBid}
                       onReject={handleRejectBid}
                       onMessage={handleMessageTasker}
-                      isAccepting={isAccepting}
+                      isAccepting={acceptingBidId === bid._id}
                       isRejecting={isRejecting}
                     />
                   ))}
