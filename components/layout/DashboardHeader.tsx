@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { Search, Bell, ChevronDown } from "lucide-react";
+import { Search, Bell, ChevronDown, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -12,11 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAdminProfile } from "@/hooks/useAdmin";
+import { useSidebar } from "@/components/admin/SidebarContext";
 
 export function DashboardHeader() {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith("/admin");
   const { user, logout } = useAuth();
+  const { toggleSidebar } = useSidebar();
 
   // Only call the admin profile API on admin routes — never for regular users/taskers
   const { data: admin } = useAdminProfile();
@@ -29,7 +31,15 @@ export function DashboardHeader() {
   const userInitial = (activeUser?.fullName || activeUser?.firstName || (activeUser as any)?.name || "U")[0].toUpperCase();
 
   return (
-    <header className='sticky top-0 z-40 w-full bg-white border-b border-gray-100 px-4 sm:px-6 py-3 flex items-center gap-3'>
+    <header className='sticky top-0 z-40 w-full bg-white border-b border-gray-100 px-4 sm:px-6 py-3 flex items-center gap-2 sm:gap-3'>
+      {/* Mobile Sidebar Toggle Button */}
+      <button 
+        onClick={toggleSidebar}
+        className='lg:hidden p-2 -ml-2 text-gray-500 hover:text-[#6B46C1] transition-colors rounded-lg hover:bg-gray-100'
+      >
+        <Menu size={24} />
+      </button>
+
       {/* Search Bar — always visible */}
       <div className='flex-1 max-w-xl'>
         <div className='relative'>

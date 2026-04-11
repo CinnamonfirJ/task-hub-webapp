@@ -3,6 +3,7 @@ import { MobileNavbar } from "@/components/layout/MobileNavbar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { VerificationBanner } from "@/components/auth/VerificationBanner";
+import { SidebarProvider } from "@/components/admin/SidebarContext";
 
 export default function MainLayout({
   children,
@@ -11,15 +12,17 @@ export default function MainLayout({
 }) {
   return (
     <AuthGuard>
-      <div className='min-h-screen bg-[#F8F9FC]'>
-        <Sidebar />
-        <MobileNavbar />
-        <main className='lg:ml-64 min-h-screen'>
-          <DashboardHeader />
-          <VerificationBanner />
-          {children}
-        </main>
-      </div>
+      <SidebarProvider>
+        <div className='min-h-screen bg-[#F8F9FC]'>
+          <Sidebar />
+          <MobileNavbar />
+          <main className='lg:ml-64 min-h-screen'>
+            <DashboardHeader />
+            <VerificationBanner />
+            {children}
+          </main>
+        </div>
+      </SidebarProvider>
     </AuthGuard>
   );
 }

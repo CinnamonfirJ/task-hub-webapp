@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Menu,
   X,
   Home,
   History,
@@ -20,9 +19,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { useConversations } from "@/hooks/useChat";
+import { useSidebar } from "@/components/admin/SidebarContext";
 
 export function MobileNavbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, closeSidebar } = useSidebar();
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { data: convData } = useConversations();
@@ -50,7 +50,8 @@ export function MobileNavbar() {
 
   // Close drawer when route changes
   useEffect(() => {
-    setIsOpen(false);
+    closeSidebar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   // Prevent scroll when drawer is open
@@ -66,33 +67,6 @@ export function MobileNavbar() {
 
   return (
     <div className='lg:hidden'>
-      {/* Top Navbar */}
-      <nav className='fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-100 px-4 flex items-center justify-between z-40'>
-        <Link href='/profile' className='flex items-center gap-2'>
-          {user?.profilePicture ? (
-            <img
-              src={user.profilePicture}
-              alt='Profile'
-              className='h-8 w-8 rounded-full object-cover border border-gray-100'
-            />
-          ) : (
-            <div className='h-8 w-8 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-xs font-bold'>
-              {userInitial}
-            </div>
-          )}
-        </Link>
-
-        <Logo size='sm' />
-
-        <button
-          onClick={() => setIsOpen(true)}
-          className='p-2 text-gray-500 hover:text-[#6B46C1] transition-colors'
-        >
-          <Menu size={24} />
-        </button>
-      </nav>
-
-      {/* Drawer Overlay */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -100,7 +74,7 @@ export function MobileNavbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
+              onClick={closeSidebar}
               className='fixed inset-0 bg-black/40 backdrop-blur-sm z-50'
             />
             <motion.div
@@ -113,7 +87,7 @@ export function MobileNavbar() {
               <div className='p-6 flex items-center justify-between border-b border-gray-50'>
                 <Logo size='sm' />
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeSidebar}
                   className='p-2 rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
                 >
                   <X size={20} />
@@ -158,7 +132,7 @@ export function MobileNavbar() {
                 <div className='p-6 border-t border-gray-50'>
                   <Button
                     onClick={() => {
-                      setIsOpen(false);
+                      closeSidebar();
                       logout();
                     }}
                     variant='outline'
