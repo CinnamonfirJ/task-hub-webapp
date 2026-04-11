@@ -59,19 +59,27 @@ export default function ChatPage() {
     }
   }, [id, allMessages.length, markRead, user?.role]);
 
-  const handleSendMessage = (text: string) => {
-    const filterResult = containsRestrictedContent(text);
+  const handleSendMessage = (data: string | FormData) => {
+    let textToFilter = "";
+    if (typeof data === "string") {
+      textToFilter = data;
+    } else {
+      textToFilter = (data.get("text") as string) || "";
+    }
 
-    if (filterResult.restricted) {
-      toast.error(
-        filterResult.reason || "Message contains restricted content.",
-      );
-      return;
+    if (textToFilter) {
+      const filterResult = containsRestrictedContent(textToFilter);
+      if (filterResult.restricted) {
+        toast.error(
+          filterResult.reason || "Message contains restricted content.",
+        );
+        return;
+      }
     }
 
     sendMessage({
       conversationId: id,
-      data: { text },
+      data: typeof data === "string" ? { text: data } : data,
     });
   };
 

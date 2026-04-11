@@ -7,6 +7,7 @@ import {
   useAcceptBid,
   useCreateBid,
   useUpdateBid,
+  useDeleteBid,
   useMyBids,
   useRejectBid,
 } from "@/hooks/useBids";
@@ -120,6 +121,9 @@ export default function TaskDetailsPage() {
   // Create bid mutation (for taskers)
   const { mutate: createBid, isPending: isSubmittingBid } = useCreateBid();
 
+  // Delete bid mutation
+  const { mutate: deleteBid, isPending: isDeletingBid } = useDeleteBid();
+
   const [isEditingApplication, setIsEditingApplication] = useState(false);
 
   // Cancel task mutation
@@ -155,6 +159,7 @@ export default function TaskDetailsPage() {
     bidId: "" 
   });
   const [confirmCancelTask, setConfirmCancelTask] = useState(false);
+  const [confirmDeleteBid, setConfirmDeleteBid] = useState(false);
 
   const handleAcceptBid = (bidId: string) => {
     setConfirmAccept({ isOpen: true, bidId });
@@ -226,6 +231,18 @@ export default function TaskDetailsPage() {
   const handleConfirmCancelTask = () => {
     cancelTask();
     setConfirmCancelTask(false);
+  };
+
+  const handleConfirmDeleteBid = () => {
+    if (taskerBid?._id) {
+      deleteBid(taskerBid._id, {
+        onSuccess: () => {
+          setIsEditingApplication(false);
+          toast.success("Application withdrawn successfully");
+        }
+      });
+    }
+    setConfirmDeleteBid(false);
   };
 
   if (isLoading) {
@@ -386,16 +403,25 @@ export default function TaskDetailsPage() {
               )}
             </div>
 
-            {/* Cancel Task Button */}
+            {/* Task Owner Actions */}
             {task.status === "open" && (
-              <Button
-                variant='outline'
-                onClick={handleCancelTask}
-                disabled={isCancelling}
-                className='text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200 rounded-xl font-bold px-8 py-6'
-              >
-                {isCancelling ? "Cancelling..." : "Cancel task"} ✕
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  variant='outline'
+                  onClick={() => router.push(`/edit-task/${task._id}`)}
+                  className='text-[#6B46C1] hover:text-[#553C9A] hover:bg-purple-50 border-purple-200 rounded-xl font-bold px-8 py-6 w-full sm:w-auto'
+                >
+                  Edit Task ✎
+                </Button>
+                <Button
+                  variant='outline'
+                  onClick={handleCancelTask}
+                  disabled={isCancelling}
+                  className='text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200 rounded-xl font-bold px-8 py-6 w-full sm:w-auto'
+                >
+                  {isCancelling ? "Cancelling..." : "Cancel task"} ✕
+                </Button>
+              </div>
             )}
 
             {/* Completion Code Display for Owner */}
@@ -588,6 +614,26 @@ export default function TaskDetailsPage() {
                       )}
                     </div>
 
+                    {/* Pending Bid Actions */}
+                    {taskerBid.status === "pending" && (
+                      <div className="flex gap-3 pt-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsEditingApplication(true)}
+                          className="flex-1 bg-white border-purple-200 text-[#6B46C1] hover:bg-purple-50 font-bold rounded-xl py-5"
+                        >
+                          Edit Application ✎
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => setConfirmDeleteBid(true)}
+                          className="flex-1 border-red-100 text-red-500 hover:bg-red-50 font-bold rounded-xl py-5"
+                        >
+                          Withdraw ✕
+                        </Button>
+                      </div>
+                    )}
+
                     {/* Tasker Actions (Start/Complete) */}
                     {taskerBid.status === "accepted" && task.status === "assigned" && (
                       <Button
@@ -717,6 +763,17 @@ export default function TaskDetailsPage() {
         title="Cancel Task?"
         message="Are you sure you want to cancel this task? If a tasker has already been assigned, any escrowed funds will be returned to your wallet. This action cannot be undone."
         confirmLabel="Cancel Task"
+        icon="warning"
+        variant="danger"
+      />
+      <ConfirmationModal
+        isOpen={confirmDeleteBid}
+        onClose={() => setConfirmDeleteBid(false)}
+        onConfirm={handleConfirmDeleteBid}
+        isLoading={isDeletingBid}
+        title="Withdraw Application?"
+        message="Are you sure you want to withdraw your application? This action cannot be undone."
+        confirmLabel="Withdraw Application"
         icon="warning"
         variant="danger"
       />

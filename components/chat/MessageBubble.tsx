@@ -30,8 +30,8 @@ export function MessageBubble({ message, currentUser }: MessageBubbleProps) {
         {message.attachments && message.attachments.length > 0 && (
           <div className='mt-2 space-y-2'>
             {message.attachments.map((att, idx) => (
-              <div key={idx} className='rounded-lg overflow-hidden'>
-                {att.type === "image" ? (
+              <div key={idx} className='rounded-lg overflow-hidden border border-white/10'>
+                {att.type.startsWith("image/") ? (
                   <img
                     src={att.url}
                     alt={att.name}
@@ -42,8 +42,14 @@ export function MessageBubble({ message, currentUser }: MessageBubbleProps) {
                     href={att.url}
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='flex items-center gap-2 p-2 bg-black/5 hover:bg-black/10 transition-colors'
+                    className={cn(
+                      "flex items-center gap-2 p-2 transition-colors",
+                      isMine ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"
+                    )}
                   >
+                    <div className="bg-white/20 p-1.5 rounded text-[10px] font-black uppercase">
+                      {att.name.split('.').pop()}
+                    </div>
                     <span className='truncate text-xs'>{att.name}</span>
                   </a>
                 )}

@@ -47,8 +47,13 @@ export function useUpdateBid() {
     mutationFn: ({ id, data }: { id: string; data: UpdateBidInput }) =>
       bidsApi.updateBid(id, data),
     onSuccess: (data) => {
+      const taskId = typeof data.task === "object" ? data.task?._id : data.task;
       queryClient.invalidateQueries({ queryKey: ["myBids"] });
       queryClient.invalidateQueries({ queryKey: ["bid", data._id] });
+      if (taskId) {
+        queryClient.invalidateQueries({ queryKey: ["taskBids", taskId] });
+        queryClient.invalidateQueries({ queryKey: ["task", taskId] });
+      }
     },
   });
 }
@@ -61,6 +66,7 @@ export function useDeleteBid() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myBids"] });
       queryClient.invalidateQueries({ queryKey: ["taskBids"] });
+      queryClient.invalidateQueries({ queryKey: ["task"] });
     },
   });
 }

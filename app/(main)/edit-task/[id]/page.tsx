@@ -1,6 +1,6 @@
 "use client";
 
-import { usePostTask } from "@/hooks/usePostTask";
+import { useEditTask } from "@/hooks/useEditTask";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,8 +21,11 @@ import { useCategories, useUniversities } from "@/hooks/useCategories";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-function PostTaskForm() {
-  const { form, onSubmit, isSubmitting } = usePostTask();
+import { useParams } from "next/navigation";
+
+function EditTaskForm() {
+  const { id } = useParams() as { id: string };
+  const { form, onSubmit, isSubmitting, isLoadingTask } = useEditTask(id);
   const searchParams = useSearchParams();
 
   const [tagInput, setTagInput] = useState("");
@@ -118,12 +121,21 @@ function PostTaskForm() {
   }) || [];
 
   // SINGLE STEP LAYOUT
+  if (isLoadingTask) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Loader2 className="w-10 h-10 animate-spin text-[#6B46C1]" />
+        <p className="mt-4 text-gray-500 font-medium">Loading form...</p>
+      </div>
+    );
+  }
+
   return (
     <div className='flex flex-col mx-auto p-4 md:p-8 w-full max-w-4xl min-h-screen slide-in-from-right-8 animate-in duration-300'>
       <div className='mb-10'>
-        <h1 className='text-3xl font-black text-gray-900'>Post a Task</h1>
+        <h1 className='text-3xl font-black text-gray-900'>Edit Task</h1>
         <p className='text-sm text-gray-400 font-medium'>
-           Fill in the details below to find the right tasker for your needs.
+           Update the details below.
         </p>
       </div>
 
@@ -445,14 +457,14 @@ function PostTaskForm() {
           {isSubmitting ? (
             <Loader2 className='w-6 h-6 animate-spin mr-2' />
           ) : null}
-          Post Task
+          Update Task
         </Button>
       </form>
     </div>
   );
 }
 
-export default function PostTaskPage() {
+export default function EditTaskPage() {
   return (
     <Suspense fallback={
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -460,7 +472,7 @@ export default function PostTaskPage() {
         <p className="mt-4 text-gray-500 font-medium">Loading form...</p>
       </div>
     }>
-      <PostTaskForm />
+      <EditTaskForm />
     </Suspense>
   );
 }

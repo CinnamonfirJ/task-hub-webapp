@@ -14,11 +14,18 @@ export const apiData = async <T>(
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  const headers = {
-    "Content-Type": "application/json",
+  const headers: Record<string, string> = {
     ...(token && { Authorization: `Bearer ${token}` }),
     ...options.headers,
   };
+
+  // Only append application/json if sending non-FormData payload and Content-Type isn't overridden
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = headers["Content-Type"] || "application/json";
+  } else if (headers["Content-Type"]) {
+    // Ensure fetch sets the proper multipart boundary for FormData
+    delete headers["Content-Type"];
+  }
 
   if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
     console.log(`[API Request] ${options.method || "GET"} ${endpoint}`, {
