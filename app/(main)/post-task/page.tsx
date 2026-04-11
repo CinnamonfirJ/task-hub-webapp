@@ -15,6 +15,7 @@ import {
   ArrowRight,
   ArrowLeft,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useCategories, useUniversities } from "@/hooks/useCategories";
 import { useSearchParams } from "next/navigation";
@@ -120,7 +121,12 @@ function PostTaskForm() {
         </p>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-10 pb-20 max-w-4xl'>
+      <form 
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          toast.error("Please fill in all required fields correctly.");
+        })} 
+        className='space-y-10 pb-20 max-w-4xl'
+      >
         {/* Task Title */}
         <div className='space-y-3'>
           <Label className='text-sm font-bold text-gray-700'>Task title</Label>

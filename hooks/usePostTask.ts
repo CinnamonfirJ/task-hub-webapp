@@ -7,11 +7,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { tasksApi } from "@/lib/api/tasks";
 import { useCategories } from "@/hooks/useCategories";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // Schema for task creation form
 const postTaskSchema = z.object({
-  title: z.string().min(5, "Title is too short"),
-  description: z.string().min(20, "Description is too short"),
+  title: z.string().min(5, "Title must be at least 5 characters long"),
+  description: z.string().min(20, "Description must be at least 20 characters long"),
   mainCategory: z.string().min(1, "Please select a main category"),
   categories: z.array(z.string()).min(1, "Please select at least one subcategory"),
   university: z.string().optional(),
@@ -38,8 +39,12 @@ export function usePostTask() {
   const createTaskMutation = useMutation({
     mutationFn: tasksApi.createTask,
     onSuccess: (data) => {
+      toast.success("Task posted successfully!");
       router.push(`/tasks/${data._id}`);
     },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to post task. Please try again or check your input.");
+    }
   });
 
   // Form setup with zod validation
