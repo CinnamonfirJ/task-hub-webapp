@@ -58,10 +58,20 @@ export const tasksApi = {
     return res?.data?.task || res?.task || res;
   },
 
-  createTask: async (data: any): Promise<Task> => {
+  createTask: async (data: FormData | any): Promise<Task> => {
+    const isFormData = data instanceof FormData;
     const res = await apiData<any>("/api/tasks", {
       method: "POST",
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
+    });
+    return res?.data?.task || res?.task;
+  },
+
+  updateTask: async (id: string, data: FormData | any): Promise<Task> => {
+    const isFormData = data instanceof FormData;
+    const res = await apiData<any>(`/api/tasks/${id}`, {
+      method: "PUT",
+      body: isFormData ? data : JSON.stringify(data),
     });
     return res?.data?.task || res?.task;
   },

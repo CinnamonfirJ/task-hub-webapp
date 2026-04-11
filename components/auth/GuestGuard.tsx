@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -9,6 +9,7 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
   const { isLoadingUser, isAuthenticated } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
@@ -16,9 +17,11 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isMounted && !isLoadingUser && isAuthenticated) {
-      router.replace("/home");
+      if (!pathname.startsWith("/verify-email")) {
+        router.replace("/home");
+      }
     }
-  }, [isMounted, isLoadingUser, isAuthenticated, router]);
+  }, [isMounted, isLoadingUser, isAuthenticated, router, pathname]);
 
   if (!isMounted) {
     return null;
@@ -32,7 +35,7 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (isAuthenticated) {
+  if (isAuthenticated && !pathname.startsWith("/verify-email")) {
     return null;
   }
 

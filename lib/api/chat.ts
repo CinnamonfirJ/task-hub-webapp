@@ -90,13 +90,14 @@ export const chatApi = {
   // Send a message
   sendMessage: async (
     conversationId: string,
-    data: SendMessageInput,
+    data: SendMessageInput | FormData,
   ): Promise<Message> => {
+    const isFormData = data instanceof FormData;
     const res = await apiData<any>(
       `/api/chat/conversations/${conversationId}/messages`,
       {
         method: "POST",
-        body: JSON.stringify(data),
+        body: isFormData ? data : JSON.stringify(data),
       },
     );
     return res?.message || res?.data?.message || res?.data || res;

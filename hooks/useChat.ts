@@ -56,7 +56,7 @@ export function useSendMessage() {
       data,
     }: {
       conversationId: string;
-      data: SendMessageInput;
+      data: SendMessageInput | FormData;
     }) => chatApi.sendMessage(conversationId, data),
     onSuccess: (_, variables) => {
       // Immediate refetch for smooth UI

@@ -8,6 +8,7 @@ import { tasksApi } from "@/lib/api/tasks";
 import { useCategories } from "@/hooks/useCategories";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 // Schema for task creation form
 const postTaskSchema = z.object({
@@ -26,7 +27,7 @@ const postTaskSchema = z.object({
 
 export type PostTaskValues = z.infer<typeof postTaskSchema>;
 
-export function usePostTask() {
+export function useEditTask(taskId: string) {
   const router = useRouter();
 
   // Fetch categories for the dropdown
@@ -35,15 +36,21 @@ export function usePostTask() {
     isLoading: isLoadingCategories,
   } = useCategories();
 
-  // Mutation for creating a new task
-  const createTaskMutation = useMutation({
-    mutationFn: tasksApi.createTask,
+  const { data: task, isLoading: isLoadingTask } = useQuery({
+    queryKey: ["task", taskId],
+    queryFn: () => tasksApi.getTask(taskId),
+    enabled: !!taskId,
+  });
+
+  // Mutation for updating task
+  const updateTaskMutation = useMutation({
+    mutationFn: (data: FormData) => tasksApi.updateTask(taskId, data),
     onSuccess: (data) => {
-      toast.success("Task posted successfully!");
+      toast.success("Task updated successfully!");
       router.push(`/tasks/${data._id}`);
     },
     onError: (error: any) => {
-      toast.error(error?.message || "Failed to post task. Please try again or check your input.");
+      toast.error(error?.message || "Failed to update task. Please try again or check your input.");
     }
   });
 
@@ -63,6 +70,26 @@ export function usePostTask() {
       images: [],
     },
   });
+
+  // Effect to prepopulate form when task is loaded
+  useEffect(() => {
+    if (task) {
+      form.reset({
+        title: task.title || "",
+        description: task.description || "",
+        budget: String(task.budget || ""),
+        mainCategory: typeof task.mainCategory?._id === "string" ? task.mainCategory._id : "",
+        categories: Array.isArray(task.categories) 
+          ? task.categories.map((c: any) => typeof c === "string" ? c : c._id) 
+          : [],
+        university: typeof task.university === "object" ? task.university?._id : (task.university || ""),
+        isBiddingEnabled: task.isBiddingEnabled !== false,
+        dueDate: task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : "",
+        tags: Array.isArray(task.tags) ? task.tags : [],
+        images: Array.isArray(task.images) ? task.images.map((img: any) => ({ url: typeof img === 'string' ? img : img.url })) : [],
+      });
+    }
+  }, [task, form]);
 
   // Submit handler that transforms data and calls mutation
   const onSubmit = (data: PostTaskValues) => {
@@ -115,7 +142,7 @@ export function usePostTask() {
       });
     }
 
-    createTaskMutation.mutate(formData);
+    updateTaskMutation.mutate(formData);
   };
 
   return {
@@ -123,6 +150,7 @@ export function usePostTask() {
     onSubmit,
     categories,
     isLoadingCategories,
-    isSubmitting: createTaskMutation.isPending,
+    isLoadingTask,
+    isSubmitting: updateTaskMutation.isPending,
   };
 }
