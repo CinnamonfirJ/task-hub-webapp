@@ -78,11 +78,15 @@ export function useEditTask(taskId: string) {
         title: task.title || "",
         description: task.description || "",
         budget: String(task.budget || ""),
-        mainCategory: typeof task.mainCategory?._id === "string" ? task.mainCategory._id : "",
+        mainCategory: (typeof task.mainCategory === 'object' && task.mainCategory?._id) 
+          ? task.mainCategory._id 
+          : (typeof task.mainCategory === 'string' ? task.mainCategory : ""),
         categories: Array.isArray(task.categories) 
           ? task.categories.map((c: any) => typeof c === "string" ? c : c._id) 
           : [],
-        university: typeof task.university === "object" ? task.university?._id : (task.university || ""),
+        university: (typeof task.university === "object" && task.university?._id) 
+          ? task.university._id 
+          : (task.university || ""),
         isBiddingEnabled: task.isBiddingEnabled !== false,
         dueDate: task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : "",
         tags: Array.isArray(task.tags) ? task.tags : [],

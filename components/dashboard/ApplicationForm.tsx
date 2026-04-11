@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Loader2, Calculator } from "lucide-react";
 import { Task } from "@/types/task";
+import { PLATFORM_FEE_PERCENT, calculateNetEarnings } from "@/lib/constants";
 
 interface ApplicationFormProps {
   task: Task;
@@ -83,6 +84,30 @@ export function ApplicationForm({
           </div>
         </div>
       )}
+
+      {/* Revenue Calculator */}
+      {(isFixedPrice ? displayAmount : customAmount) ? (
+        <div className='bg-gray-50 border border-gray-100 rounded-2xl p-4 mt-2 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300'>
+          <div className='flex items-center gap-2 text-[#6B46C1] mb-1'>
+            <Calculator size={14} className='font-bold' />
+            <span className='text-[10px] font-black uppercase tracking-widest'>Revenue Breakdown</span>
+          </div>
+          <div className='flex justify-between items-center text-xs'>
+            <span className='text-gray-500 font-medium'>Platform Service Fee ({PLATFORM_FEE_PERCENT * 100}%)</span>
+            <span className='text-red-400 font-bold'>-₦{(Math.round((isFixedPrice ? (displayAmount || 0) : Number(customAmount || 0)) * PLATFORM_FEE_PERCENT)).toLocaleString()}</span>
+          </div>
+          <div className='h-px bg-gray-200/50 w-full' />
+          <div className='flex justify-between items-center'>
+            <span className='text-gray-900 font-bold text-sm'>You will earn</span>
+            <span className='text-[#38A169] font-black text-lg'>
+              ₦{calculateNetEarnings(isFixedPrice ? (displayAmount || 0) : Number(customAmount || 0)).toLocaleString()}
+            </span>
+          </div>
+          <p className='text-[9px] text-gray-400 font-medium italic mt-1'>
+            * This is the exact amount that will be credited to your wallet upon task completion.
+          </p>
+        </div>
+      ) : null}
 
       {/* Message */}
       <div className='space-y-3'>

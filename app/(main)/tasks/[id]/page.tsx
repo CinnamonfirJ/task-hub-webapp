@@ -1,6 +1,10 @@
 "use client";
 
-import { useTaskDetails, useUpdateTaskStatusTasker, useCompletionCode } from "@/hooks/useTaskDetails";
+import {
+  useTaskDetails,
+  useUpdateTaskStatusTasker,
+  useCompletionCode,
+} from "@/hooks/useTaskDetails";
 import { getCategoryName } from "@/hooks/useHome";
 import {
   useTaskBids,
@@ -25,6 +29,7 @@ import { useCreateConversation } from "@/hooks/useChat";
 import { useWalletBalance } from "@/hooks/useWallet";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { calculateNetEarnings, calculatePlatformFee } from "@/lib/constants";
 
 export default function TaskDetailsPage() {
   const router = useRouter();
@@ -136,11 +141,12 @@ export default function TaskDetailsPage() {
   });
 
   // Tasker status update mutation
-  const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateTaskStatusTasker();
+  const { mutate: updateStatus, isPending: isUpdatingStatus } =
+    useUpdateTaskStatusTasker();
 
   // Completion code query
   const { data: completionCodeData } = useCompletionCode(
-    isOwner && task?.status === "in-progress" ? task._id : ""
+    isOwner && task?.status === "in-progress" ? task._id : "",
   );
   const completionCode = completionCodeData;
 
@@ -150,13 +156,19 @@ export default function TaskDetailsPage() {
   const [messageTaskerId, setMessageTaskerId] = useState<string | null>(null);
 
   // Modal states
-  const [confirmAccept, setConfirmAccept] = useState<{ isOpen: boolean; bidId: string }>({ 
-    isOpen: false, 
-    bidId: "" 
+  const [confirmAccept, setConfirmAccept] = useState<{
+    isOpen: boolean;
+    bidId: string;
+  }>({
+    isOpen: false,
+    bidId: "",
   });
-  const [confirmReject, setConfirmReject] = useState<{ isOpen: boolean; bidId: string }>({ 
-    isOpen: false, 
-    bidId: "" 
+  const [confirmReject, setConfirmReject] = useState<{
+    isOpen: boolean;
+    bidId: string;
+  }>({
+    isOpen: false,
+    bidId: "",
   });
   const [confirmCancelTask, setConfirmCancelTask] = useState(false);
   const [confirmDeleteBid, setConfirmDeleteBid] = useState(false);
@@ -170,7 +182,9 @@ export default function TaskDetailsPage() {
     const bid = bids.find((b) => b._id === bidId);
 
     if (bid && balance < bid.amount) {
-      toast.error(`Insufficient funds. Your balance is ₦${balance.toLocaleString()}, but this bid requires ₦${bid.amount.toLocaleString()}.`);
+      toast.error(
+        `Insufficient funds. Your balance is ₦${balance.toLocaleString()}, but this bid requires ₦${bid.amount.toLocaleString()}.`,
+      );
       setConfirmAccept({ isOpen: false, bidId: "" });
       setTimeout(() => router.push("/profile"), 1500);
       return;
@@ -239,7 +253,7 @@ export default function TaskDetailsPage() {
         onSuccess: () => {
           setIsEditingApplication(false);
           toast.success("Application withdrawn successfully");
-        }
+        },
       });
     }
     setConfirmDeleteBid(false);
@@ -405,7 +419,7 @@ export default function TaskDetailsPage() {
 
             {/* Task Owner Actions */}
             {task.status === "open" && (
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className='flex flex-col sm:flex-row gap-4'>
                 <Button
                   variant='outline'
                   onClick={() => router.push(`/edit-task/${task._id}`)}
@@ -426,21 +440,28 @@ export default function TaskDetailsPage() {
 
             {/* Completion Code Display for Owner */}
             {task.status === "in-progress" && (
-              <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl space-y-3">
-                <h3 className="font-bold text-emerald-800 text-lg">Task In Progress</h3>
-                <p className="text-emerald-700 text-sm">
-                  Share this 6-digit completion code with the tasker ONLY when you are satisfied with the work.
+              <div className='bg-emerald-50 border border-emerald-100 p-6 rounded-2xl space-y-3'>
+                <h3 className='font-bold text-emerald-800 text-lg'>
+                  Task In Progress
+                </h3>
+                <p className='text-emerald-700 text-sm'>
+                  Share this 6-digit completion code with the tasker ONLY when
+                  you are satisfied with the work.
                 </p>
-                <div className="flex justify-center py-4 text-4xl font-black tracking-[0.5em] text-emerald-900 bg-white rounded-xl border border-emerald-200">
+                <div className='flex justify-center py-4 text-4xl font-black tracking-[0.5em] text-emerald-900 bg-white rounded-xl border border-emerald-200'>
                   {completionCode || "------"}
                 </div>
               </div>
             )}
-            
+
             {task.status === "completed" && (
-              <div className="bg-blue-50 border border-blue-100 p-6 rounded-2xl">
-                <h3 className="font-bold text-blue-800 text-lg">Task Completed</h3>
-                <p className="text-blue-700 text-sm">This task has been verified and completed.</p>
+              <div className='bg-blue-50 border border-blue-100 p-6 rounded-2xl'>
+                <h3 className='font-bold text-blue-800 text-lg'>
+                  Task Completed
+                </h3>
+                <p className='text-blue-700 text-sm'>
+                  This task has been verified and completed.
+                </p>
               </div>
             )}
           </>
@@ -469,24 +490,31 @@ export default function TaskDetailsPage() {
                 <div className='w-10 h-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold text-sm shadow-sm'>
                   {posterInitial}
                 </div>
-                <div className="flex flex-col">
+                <div className='flex flex-col'>
                   <span className='text-gray-400 text-sm font-semibold'>
                     Posted by {posterName}
                   </span>
-                  
+
                   {/* Assignment Status Message */}
-                  {(task.status === 'assigned' || task.status === 'in-progress') && (
-                    <div className="mt-1">
-                      {taskerBid?.status === 'accepted' ? (
-                        <span className="text-green-600 text-xs font-bold uppercase tracking-tight">✓ Assigned to you</span>
+                  {(task.status === "assigned" ||
+                    task.status === "in-progress") && (
+                    <div className='mt-1'>
+                      {taskerBid?.status === "accepted" ? (
+                        <span className='text-green-600 text-xs font-bold uppercase tracking-tight'>
+                          ✓ Assigned to you
+                        </span>
                       ) : (
-                        <span className="text-red-500 text-xs font-bold uppercase tracking-tight">⚠ Assigned to someone else</span>
+                        <span className='text-red-500 text-xs font-bold uppercase tracking-tight'>
+                          ⚠ Assigned to someone else
+                        </span>
                       )}
                     </div>
                   )}
-                  {task.status === 'completed' && (
-                    <div className="mt-1">
-                       <span className="text-blue-500 text-xs font-bold uppercase tracking-tight">✓ Completed</span>
+                  {task.status === "completed" && (
+                    <div className='mt-1'>
+                      <span className='text-blue-500 text-xs font-bold uppercase tracking-tight'>
+                        ✓ Completed
+                      </span>
                     </div>
                   )}
                 </div>
@@ -564,29 +592,35 @@ export default function TaskDetailsPage() {
                   <div className='bg-purple-50 border border-purple-100 p-6 md:p-8 rounded-2xl md:rounded-[2rem] space-y-4'>
                     <div className='flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0'>
                       <div>
-                        <div className="flex items-center gap-3">
+                        <div className='flex items-center gap-3'>
                           <h3 className='font-bold text-[#6B46C1] text-xl'>
-                            Application {taskerBid.status === "accepted" ? "Accepted" : taskerBid.status === "rejected" ? "Rejected" : "Submitted"}
+                            Application{" "}
+                            {taskerBid.status === "accepted"
+                              ? "Accepted"
+                              : taskerBid.status === "rejected"
+                                ? "Rejected"
+                                : "Submitted"}
                           </h3>
                           <span
-                             className={cn(
-                               "px-3 py-1 rounded-full text-[10px] font-bold border",
-                               taskerBid.status === "accepted"
-                                 ? "bg-[#E6FFFA] text-[#38A169] border-[#B2F5EA]"
-                                 : taskerBid.status === "rejected"
-                                   ? "bg-[#FFF5F5] text-[#E53E3E] border-[#FED7D7]"
-                                   : "bg-[#FFF9EA] text-[#D69E2E] border-[#FFE7A5]"
-                             )}
-                           >
-                            {taskerBid.status?.charAt(0).toUpperCase() + taskerBid.status?.slice(1)}
+                            className={cn(
+                              "px-3 py-1 rounded-full text-[10px] font-bold border",
+                              taskerBid.status === "accepted"
+                                ? "bg-[#E6FFFA] text-[#38A169] border-[#B2F5EA]"
+                                : taskerBid.status === "rejected"
+                                  ? "bg-[#FFF5F5] text-[#E53E3E] border-[#FED7D7]"
+                                  : "bg-[#FFF9EA] text-[#D69E2E] border-[#FFE7A5]",
+                            )}
+                          >
+                            {taskerBid.status?.charAt(0).toUpperCase() +
+                              taskerBid.status?.slice(1)}
                           </span>
                         </div>
                         <p className='text-gray-600 text-sm mt-1'>
-                          {taskerBid.status === "accepted" 
-                            ? "Congratulations! Your application has been accepted." 
+                          {taskerBid.status === "accepted"
+                            ? "Congratulations! Your application has been accepted."
                             : taskerBid.status === "rejected"
-                            ? "Your application for this task has been rejected."
-                            : "You have submitted an application for this task."}
+                              ? "Your application for this task has been rejected."
+                              : "You have submitted an application for this task."}
                         </p>
                       </div>
                     </div>
@@ -599,6 +633,32 @@ export default function TaskDetailsPage() {
                           </span>
                           <span className='text-gray-900 font-bold'>
                             ₦{taskerBid.amount?.toLocaleString() || "0"}
+                          </span>
+                        </div>
+                      )}
+                      {taskerBid.amount && (
+                        <div className='flex justify-between items-center py-1 bg-green-50/50 px-2 rounded-lg border border-green-100/50'>
+                          <span className='text-green-700 font-bold text-[10px] uppercase tracking-wider'>
+                            Platform Fee
+                          </span>
+                          <span className='text-green-600 font-black text-sm'>
+                            ₦
+                            {calculatePlatformFee(
+                              taskerBid.amount,
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      {taskerBid.amount && (
+                        <div className='flex justify-between items-center py-1 bg-green-50/50 px-2 rounded-lg border border-green-100/50'>
+                          <span className='text-green-700 font-bold text-[10px] uppercase tracking-wider'>
+                            Profit
+                          </span>
+                          <span className='text-green-600 font-black text-sm'>
+                            ₦
+                            {calculateNetEarnings(
+                              taskerBid.amount,
+                            ).toLocaleString()}
                           </span>
                         </div>
                       )}
@@ -616,18 +676,18 @@ export default function TaskDetailsPage() {
 
                     {/* Pending Bid Actions */}
                     {taskerBid.status === "pending" && (
-                      <div className="flex gap-3 pt-2">
+                      <div className='flex gap-3 pt-2'>
                         <Button
-                          variant="outline"
+                          variant='outline'
                           onClick={() => setIsEditingApplication(true)}
-                          className="flex-1 bg-white border-purple-200 text-[#6B46C1] hover:bg-purple-50 font-bold rounded-xl py-5"
+                          className='flex-1 bg-white border-purple-200 text-[#6B46C1] hover:bg-purple-50 font-bold rounded-xl py-5'
                         >
                           Edit Application ✎
                         </Button>
                         <Button
-                          variant="outline"
+                          variant='outline'
                           onClick={() => setConfirmDeleteBid(true)}
-                          className="flex-1 border-red-100 text-red-500 hover:bg-red-50 font-bold rounded-xl py-5"
+                          className='flex-1 border-red-100 text-red-500 hover:bg-red-50 font-bold rounded-xl py-5'
                         >
                           Withdraw ✕
                         </Button>
@@ -635,41 +695,61 @@ export default function TaskDetailsPage() {
                     )}
 
                     {/* Tasker Actions (Start/Complete) */}
-                    {taskerBid.status === "accepted" && task.status === "assigned" && (
-                      <Button
-                        className="w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold"
-                        onClick={() => updateStatus({ taskId: task._id, payload: { status: "in-progress" } })}
-                        disabled={isUpdatingStatus}
-                      >
-                        {isUpdatingStatus ? "Starting..." : "Start Task"}
-                      </Button>
-                    )}
+                    {taskerBid.status === "accepted" &&
+                      task.status === "assigned" && (
+                        <Button
+                          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold'
+                          onClick={() =>
+                            updateStatus({
+                              taskId: task._id,
+                              payload: { status: "in-progress" },
+                            })
+                          }
+                          disabled={isUpdatingStatus}
+                        >
+                          {isUpdatingStatus ? "Starting..." : "Start Task"}
+                        </Button>
+                      )}
 
-                    {taskerBid.status === "accepted" && task.status === "in-progress" && (
-                      <div className="space-y-4">
-                        <div className="p-4 bg-white rounded-xl border border-purple-100 flex flex-col gap-3">
-                          <label className="text-sm font-bold text-gray-700">Enter Completion Code</label>
-                          <input 
-                            type="text" 
-                            maxLength={6}
-                            placeholder="6-digit code from user"
-                            className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-center text-2xl font-black tracking-widest outline-none focus:ring-2 focus:ring-purple-200"
-                            value={inputCode}
-                            onChange={(e) => setInputCode(e.target.value.replace(/\D/g, ""))}
-                          />
-                          <Button
-                            className="w-full bg-[#4CAF50] hover:bg-[#388E3C] py-6 font-bold"
-                            onClick={() => updateStatus({ 
-                              taskId: task._id, 
-                              payload: { status: "completed", completionCode: inputCode } 
-                            })}
-                            disabled={isUpdatingStatus || inputCode.length !== 6}
-                          >
-                            {isUpdatingStatus ? "Verifying..." : "Complete Task & Release Payment"}
-                          </Button>
+                    {taskerBid.status === "accepted" &&
+                      task.status === "in-progress" && (
+                        <div className='space-y-4'>
+                          <div className='p-4 bg-white rounded-xl border border-purple-100 flex flex-col gap-3'>
+                            <label className='text-sm font-bold text-gray-700'>
+                              Enter Completion Code
+                            </label>
+                            <input
+                              type='text'
+                              maxLength={6}
+                              placeholder='6-digit code from user'
+                              className='bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-center text-2xl font-black tracking-widest outline-none focus:ring-2 focus:ring-purple-200'
+                              value={inputCode}
+                              onChange={(e) =>
+                                setInputCode(e.target.value.replace(/\D/g, ""))
+                              }
+                            />
+                            <Button
+                              className='w-full bg-[#4CAF50] hover:bg-[#388E3C] py-6 font-bold'
+                              onClick={() =>
+                                updateStatus({
+                                  taskId: task._id,
+                                  payload: {
+                                    status: "completed",
+                                    completionCode: inputCode,
+                                  },
+                                })
+                              }
+                              disabled={
+                                isUpdatingStatus || inputCode.length !== 6
+                              }
+                            >
+                              {isUpdatingStatus
+                                ? "Verifying..."
+                                : "Complete Task & Release Payment"}
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
                 ) : (
                   <div className='space-y-4'>
@@ -704,7 +784,8 @@ export default function TaskDetailsPage() {
             {/* Cannot Apply State */}
             {task.applicationInfo &&
               !task.applicationInfo.canApply &&
-              !hasApplied && task.status === 'open' && (
+              !hasApplied &&
+              task.status === "open" && (
                 <div className='bg-gray-50 border border-gray-200 p-8 rounded-[2rem] text-center space-y-2'>
                   <h3 className='font-bold text-gray-600 text-xl'>
                     Cannot Apply
@@ -716,16 +797,19 @@ export default function TaskDetailsPage() {
               )}
 
             {/* Assigned to someone else banner */}
-            {(task.status === 'assigned' || task.status === 'in-progress') && !isOwner && taskerBid?.status !== 'accepted' && (
-               <div className='bg-gray-50 border border-red-100 p-8 rounded-[2rem] text-center space-y-2 opacity-80'>
-               <h3 className='font-bold text-red-500 text-xl'>
-                 Assigned to someone else
-               </h3>
-               <p className='text-gray-500 text-sm'>
-                 This task has already been assigned to another tasker and is no longer available.
-               </p>
-             </div>
-            )}
+            {(task.status === "assigned" || task.status === "in-progress") &&
+              !isOwner &&
+              taskerBid?.status !== "accepted" && (
+                <div className='bg-gray-50 border border-red-100 p-8 rounded-[2rem] text-center space-y-2 opacity-80'>
+                  <h3 className='font-bold text-red-500 text-xl'>
+                    Assigned to someone else
+                  </h3>
+                  <p className='text-gray-500 text-sm'>
+                    This task has already been assigned to another tasker and is
+                    no longer available.
+                  </p>
+                </div>
+              )}
           </>
         )}
       </div>
@@ -736,11 +820,11 @@ export default function TaskDetailsPage() {
         onClose={() => setConfirmAccept({ isOpen: false, bidId: "" })}
         onConfirm={handleConfirmAccept}
         isLoading={isAccepting}
-        title="Accept Bid?"
-        message="By accepting this bid, the task amount will be deducted from your wallet and held securely in escrow. The funds will only be released to the tasker once you provide them with the completion code after the task is finished."
-        confirmLabel="Accept & Secure Funds"
-        icon="shield"
-        variant="success"
+        title='Accept Bid?'
+        message='By accepting this bid, the task amount will be deducted from your wallet and held securely in escrow. The funds will only be released to the tasker once you provide them with the completion code after the task is finished.'
+        confirmLabel='Accept & Secure Funds'
+        icon='shield'
+        variant='success'
       />
 
       <ConfirmationModal
@@ -748,11 +832,11 @@ export default function TaskDetailsPage() {
         onClose={() => setConfirmReject({ isOpen: false, bidId: "" })}
         onConfirm={handleConfirmReject}
         isLoading={isRejecting}
-        title="Reject Bid?"
-        message="Are you sure you want to reject this bid? This action cannot be undone, and the tasker will be notified."
-        confirmLabel="Reject Bid"
-        icon="warning"
-        variant="danger"
+        title='Reject Bid?'
+        message='Are you sure you want to reject this bid? This action cannot be undone, and the tasker will be notified.'
+        confirmLabel='Reject Bid'
+        icon='warning'
+        variant='danger'
       />
 
       <ConfirmationModal
@@ -760,22 +844,22 @@ export default function TaskDetailsPage() {
         onClose={() => setConfirmCancelTask(false)}
         onConfirm={handleConfirmCancelTask}
         isLoading={isCancelling}
-        title="Cancel Task?"
-        message="Are you sure you want to cancel this task? If a tasker has already been assigned, any escrowed funds will be returned to your wallet. This action cannot be undone."
-        confirmLabel="Cancel Task"
-        icon="warning"
-        variant="danger"
+        title='Cancel Task?'
+        message='Are you sure you want to cancel this task? If a tasker has already been assigned, any escrowed funds will be returned to your wallet. This action cannot be undone.'
+        confirmLabel='Cancel Task'
+        icon='warning'
+        variant='danger'
       />
       <ConfirmationModal
         isOpen={confirmDeleteBid}
         onClose={() => setConfirmDeleteBid(false)}
         onConfirm={handleConfirmDeleteBid}
         isLoading={isDeletingBid}
-        title="Withdraw Application?"
-        message="Are you sure you want to withdraw your application? This action cannot be undone."
-        confirmLabel="Withdraw Application"
-        icon="warning"
-        variant="danger"
+        title='Withdraw Application?'
+        message='Are you sure you want to withdraw your application? This action cannot be undone.'
+        confirmLabel='Withdraw Application'
+        icon='warning'
+        variant='danger'
       />
     </div>
   );
