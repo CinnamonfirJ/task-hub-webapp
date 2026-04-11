@@ -19,7 +19,7 @@ export default function WaitlistForm({
 
   return (
     <div className={`w-full flex ${isHero ? "mb-6" : "mb-4 max-w-xl mx-auto justify-center"}`}>
-      <Link href="/signup" className="w-full sm:w-auto">
+      <Link href="/register" className="w-full sm:w-auto">
         <motion.button
           variants={scaleOnHover}
           initial='initial'
