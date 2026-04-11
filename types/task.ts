@@ -43,6 +43,7 @@ export interface Task {
   user?: Partial<User>; // Populated user info (poster details)
   deadline?: string;
   dueDate?: string; // New: matches spec
+  university?: any; // New: matches backend
   images?: string[];
   tags?: string[];
   createdAt: string;

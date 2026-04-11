@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCategories } from "@/hooks/useCategories";
 import { tasksApi } from "@/lib/api/tasks";
 import { authApi } from "@/lib/api/auth";
@@ -41,7 +41,9 @@ export type TaskerValues = z.infer<typeof taskerSchema>;
  * - Categories query for taskers
  */
 export function useProfile() {
+  const queryClient = useQueryClient();
   const { user, isLoadingUser, isUserError } = useAuth();
+  const { data: allCategories, isLoading: isCategoriesLoading } = useCategories();
   const [step, setStep] = useState(1);
   const [role, setRole] = useState<UserType>("user");
 
@@ -56,6 +58,7 @@ export function useProfile() {
   const updateProfileMutation = useMutation({
     mutationFn: authApi.updateProfile,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       // If User, go to verification. If Tasker, go to Service Info
       if (role === "user") {
         setStep(3); // Verification
@@ -68,6 +71,7 @@ export function useProfile() {
   const updateCategoriesMutation = useMutation({
     mutationFn: authApi.updateCategories,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       setStep(3); // Verification
     },
   });
@@ -75,6 +79,7 @@ export function useProfile() {
   const updatePictureMutation = useMutation({
     mutationFn: authApi.updateProfilePicture,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       // Toast or simple refresh
     },
   });
@@ -85,7 +90,28 @@ export function useProfile() {
   };
 
   const handleCategoriesSubmit = (categories: string[]) => {
-    updateCategoriesMutation.mutate({ categories });
+    // Split categories into main and sub by checking our local category list
+    const mains: string[] = [];
+    const subs: string[] = [];
+
+    categories.forEach((id) => {
+      const cat = allCategories?.find((c: any) => c._id === id);
+      if (cat) {
+        if (cat.parentCategory || cat.mainCategory) {
+          subs.push(id);
+        } else {
+          mains.push(id);
+        }
+      } else {
+        // Default to main if not found (fallback)
+        mains.push(id);
+      }
+    });
+
+    updateCategoriesMutation.mutate({
+      mainCategories: mains,
+      subCategories: subs,
+    });
   };
 
   const handlePictureUpload = (base64: string) => {

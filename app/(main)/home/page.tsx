@@ -113,6 +113,7 @@ export default function HomePage() {
     isLoadingUser,
     isVerified,
     isTasker,
+    hasCategories,
     userName,
     refetchTasks,
   } = useHome();
@@ -190,6 +191,30 @@ export default function HomePage() {
   if (isTasker) {
     return (
       <div className='flex flex-col space-y-6 md:space-y-8 mx-auto p-4 md:p-8 w-full max-w-4xl min-h-screen'>
+        {/* Category Setup Banner */}
+        {!hasCategories && (
+          <div className='bg-[#6B46C1] rounded-[2rem] p-8 md:p-10 flex flex-col items-center text-center gap-6 shadow-xl shadow-purple-200 animate-in zoom-in-95 duration-500'>
+            <div className='bg-white/20 p-5 rounded-full backdrop-blur-md'>
+              <Stars size={40} className='text-white animate-pulse' />
+            </div>
+            <div className='space-y-3 max-w-lg'>
+              <h3 className='font-black text-white text-2xl md:text-3xl leading-tight'>
+                Choose Your Services!
+              </h3>
+              <p className='text-purple-100 text-sm md:text-base font-medium leading-relaxed'>
+                You haven&apos;t selected any categories yet and you won&apos;t
+                be able to see any tasks until you do. Go to your profile then
+                service categories to select categories to work in.
+              </p>
+            </div>
+            <Link href='/profile/become-tasker' className='w-full sm:w-auto'>
+              <Button className='w-full sm:w-auto bg-white hover:bg-purple-50 text-[#6B46C1] px-10 h-14 rounded-2xl font-black text-lg shadow-lg flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95'>
+                Select Categories <ArrowRight size={20} />
+              </Button>
+            </Link>
+          </div>
+        )}
+
         {/* Tasker Header */}
         <div className='flex items-center gap-4'>
           {isLoadingUser ? (
@@ -277,7 +302,7 @@ export default function HomePage() {
             </div>
           ) : recentTasks.length > 0 ? (
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              {recentTasks.slice(0, 2).map((task) => (
+              {recentTasks.slice(0, 2).map((task: any) => (
                 <div
                   key={task._id}
                   className='bg-white border border-gray-100 p-6 rounded-lg shadow-sm space-y-4'
@@ -412,15 +437,17 @@ export default function HomePage() {
   const displayCategories = (() => {
     if (isLoadingCategories) return [];
     if (allCategories && allCategories.length > 0) {
-      const mainCategories = allCategories.filter((c: any) => !c.parentCategory);
+      const mainCategories = allCategories.filter(
+        (c: any) => !c.parentCategory,
+      );
       return mainCategories.slice(0, 3).map((cat: any) => {
         const meta = getCategoryMeta(cat.displayName || cat.name || "");
-        return { 
-          ...cat, 
-          Icon: meta.Icon, 
-          bg: meta.bg, 
-          iconColor: meta.iconColor, 
-          subtitle: cat.description || meta.subtitle 
+        return {
+          ...cat,
+          Icon: meta.Icon,
+          bg: meta.bg,
+          iconColor: meta.iconColor,
+          subtitle: cat.description || meta.subtitle,
         };
       });
     }
@@ -495,7 +522,7 @@ export default function HomePage() {
             })}
           </div>
         ) : (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center text-gray-500 font-medium">
+          <div className='bg-gray-50 border border-gray-200 rounded-lg p-6 text-center text-gray-500 font-medium'>
             No categories available.
           </div>
         )}
@@ -690,7 +717,7 @@ export default function HomePage() {
             {[featuredTask, ...recentTasks]
               .filter(Boolean)
               .slice(0, 5)
-              .map((task) => {
+              .map((task: any) => {
                 if (!task) return null;
                 const statusColor =
                   task.status === "open"

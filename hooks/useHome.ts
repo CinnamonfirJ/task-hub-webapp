@@ -41,7 +41,7 @@ export function useHome() {
       const res = isTasker
         ? await tasksApi.getTaskerFeed({ maxDistance: 200 })
         : await tasksApi.getUserDashboardTasks({ limit: 6 });
-      
+
       return Array.isArray(res) ? res : (res as any).tasks || [];
     },
     enabled: !!user, // Fetch if user exists, even if profile is incomplete
@@ -109,6 +109,14 @@ export function useHome() {
     user?.role === "admin" ||
     false;
 
+  const hasCategories = isTasker
+    ? (Array.isArray(user?.categories) && user.categories.length > 0) ||
+      (Array.isArray((user as any)?.mainCategories) &&
+        (user as any).mainCategories.length > 0) ||
+      (Array.isArray((user as any)?.subCategories) &&
+        (user as any).subCategories.length > 0)
+    : true;
+
   return {
     // User data
     user,
@@ -119,6 +127,7 @@ export function useHome() {
     isUserError: isUserFetchError,
     isVerified,
     isTasker,
+    hasCategories,
 
     // Tasks data
     featuredTask,
@@ -158,9 +167,9 @@ export function useTaskerFeed(
  * Infinite scroll hook for Tasker Feed
  */
 export function useInfiniteTaskerFeed(
-  params: { 
-    maxDistance?: number; 
-    status?: string; 
+  params: {
+    maxDistance?: number;
+    status?: string;
     limit?: number;
     biddingOnly?: boolean;
     budget_min?: number;
@@ -171,9 +180,9 @@ export function useInfiniteTaskerFeed(
 
   return useInfiniteQuery({
     queryKey: ["infiniteTaskerFeed", params],
-    queryFn: ({ pageParam }) => 
+    queryFn: ({ pageParam }) =>
       tasksApi.getTaskerFeed({ ...params, cursor: pageParam as string }),
-    initialPageParam: undefined as (string | undefined),
+    initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.pagination.nextCursor || undefined,
     enabled: !!user && user.role === "tasker",
     refetchInterval: params.status?.includes("assigned") ? 5000 : false,
@@ -213,7 +222,8 @@ export function getCategoryName(task?: Partial<Task>): string {
   const categories = task.categories || [];
   if (categories.length > 0) {
     const category = categories[0];
-    if (typeof category === "object") return category.displayName || category.name;
+    if (typeof category === "object")
+      return category.displayName || category.name;
     return category;
   }
 

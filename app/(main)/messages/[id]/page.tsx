@@ -79,7 +79,7 @@ export default function ChatPage() {
 
     sendMessage({
       conversationId: id,
-      data: typeof data === "string" ? { text: data } : data,
+      data: (typeof data === "string" ? { text: data } : data) as any,
     });
   };
 

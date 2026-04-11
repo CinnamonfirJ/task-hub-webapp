@@ -10,7 +10,7 @@ interface ChatWindowProps {
   conversation: Conversation;
   messages: Message[];
   currentUser: User | null;
-  onSend: (text: string) => void;
+  onSend: (data: string | FormData) => void;
   onBack?: () => void;
   isLoadingMessages?: boolean;
   onLoadMore?: () => void;
