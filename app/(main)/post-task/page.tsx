@@ -372,9 +372,9 @@ function PostTaskForm() {
                             const currentImages = form.getValues("images") || [];
                             form.setValue("images", currentImages.filter((_, i) => i !== index));
                           }}
-                          className='absolute top-2 right-2 p-1 bg-black/50 hover:bg-red-500 text-white rounded-full transition-colors opacity-0 group-hover:opacity-100'
+                          className='absolute top-1.5 right-1.5 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-all shadow-lg z-10'
                         >
-                          <X size={14} />
+                          <X size={12} strokeWidth={3} />
                         </button>
                       </div>
                     ))}
