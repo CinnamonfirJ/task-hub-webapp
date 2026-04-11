@@ -21,7 +21,8 @@ import { tasksApi } from "@/lib/api/tasks";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreateConversation } from "@/hooks/useChat";
-import { MessageSquare, ShieldCheck, AlertCircle } from "lucide-react";
+import { useWalletBalance } from "@/hooks/useWallet";
+import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 export default function TaskDetailsPage() {
@@ -34,6 +35,8 @@ export default function TaskDetailsPage() {
   const isOwner =
     user?._id ===
     (typeof task?.user === "object" ? task?.user?._id : task?.creator);
+
+  const { balance } = useWalletBalance();
 
   // Fetch bids if user is the task owner
   const { data: bidsData } = useTaskBids(task?._id || "", {
@@ -159,6 +162,15 @@ export default function TaskDetailsPage() {
 
   const handleConfirmAccept = () => {
     const bidId = confirmAccept.bidId;
+    const bid = bids.find((b) => b._id === bidId);
+
+    if (bid && balance < bid.amount) {
+      toast.error(`Insufficient funds. Your balance is ₦${balance.toLocaleString()}, but this bid requires ₦${bid.amount.toLocaleString()}.`);
+      setConfirmAccept({ isOpen: false, bidId: "" });
+      setTimeout(() => router.push("/profile"), 1500);
+      return;
+    }
+
     setAcceptingBidId(bidId);
     acceptBid(bidId, {
       onSettled: () => {

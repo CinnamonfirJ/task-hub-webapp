@@ -55,13 +55,13 @@ export default function Navbar() {
             Sign in
           </motion.div>
         </Link>
-        <Link href="/#final-cta">
+        <Link href="/signup">
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="text-[15px] font-semibold text-white bg-[#7C3AED] px-6 py-2.5 rounded-full hover:bg-[#6D28D9] transition-colors flex items-center gap-2 shadow-lg shadow-purple-200"
           >
-            Get early access
+            Sign up
             <Sparkles className="w-4 h-4 fill-white" />
           </motion.div>
         </Link>
@@ -90,8 +90,8 @@ export default function Navbar() {
            <Link href="#for-business" className="text-sm font-medium text-gray-700 py-2">For Business</Link>
            <div className="flex flex-col gap-3 mt-2">
              <Link href="/login" className="w-full text-center font-semibold text-[#1F2937] bg-[#F9FAFB] px-6 py-3 rounded-full">Sign in</Link>
-             <Link href="/#final-cta" className="w-full text-center font-semibold text-white bg-[#7C3AED] px-6 py-3 rounded-full flex items-center justify-center gap-2">
-               Get early access <Sparkles className="w-4 h-4" />
+             <Link href="/signup" className="w-full text-center font-semibold text-white bg-[#7C3AED] px-6 py-3 rounded-full flex items-center justify-center gap-2">
+               Sign up <Sparkles className="w-4 h-4" />
              </Link>
            </div>
         </motion.div>

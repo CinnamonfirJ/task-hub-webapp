@@ -38,19 +38,20 @@ export function VerificationBanner() {
 
   const handleResend = async () => {
     if (!user.emailAddress && !user.email) return;
-    setIsResending(true);
+    const email = user.emailAddress || user.email || "";
+    const role = user.role || "user";
+    
+    // Redirect immediately so the user can input the OTP if they already have one
+    router.push(`/verify-email?email=${encodeURIComponent(email)}&type=${role}`);
+
+    // Trigger the api call in the background
     try {
-      const email = user.emailAddress || user.email || "";
-      const role = user.role || "user";
       await authApi.resendCode(email, role);
       toast.success("Verification email sent successfully");
-      router.push(
-        `/verify-email?email=${encodeURIComponent(email)}&type=${role}`,
-      );
     } catch (error: any) {
-      toast.error(error.message || "Failed to resend verification email");
-    } finally {
-      setIsResending(false);
+      if (!error.message?.toLowerCase().includes("wait")) {
+        toast.error(error.message || "Failed to resend verification email");
+      }
     }
   };
 
@@ -70,15 +71,10 @@ export function VerificationBanner() {
         {isEmailUnverified ? (
           <button
             onClick={handleResend}
-            disabled={isResending}
-            className='flex items-center gap-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-70 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 shrink-0'
+            className='flex items-center gap-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm shrink-0'
           >
-            {isResending ? (
-              <Loader2 size={14} className='animate-spin' />
-            ) : (
-              <Send size={14} />
-            )}
-            Resend verification email
+            <Send size={14} />
+            Verify Email
           </button>
         ) : (
           <button
