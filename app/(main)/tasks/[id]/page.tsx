@@ -62,7 +62,7 @@ export default function TaskDetailsPage() {
           _id: task.taskerBidInfo._id,
           amount: task.taskerBidInfo.amount,
           message: task.taskerBidInfo.message,
-          status: "pending", // Default if we only have taskerBidInfo
+          status: task.taskerBidInfo.status || "pending",
         }
       : null);
 
@@ -439,7 +439,7 @@ export default function TaskDetailsPage() {
                   {/* Assignment Status Message */}
                   {(task.status === 'assigned' || task.status === 'in-progress') && (
                     <div className="mt-1">
-                      {task.taskerBidInfo?.status === 'accepted' ? (
+                      {taskerBid?.status === 'accepted' ? (
                         <span className="text-green-600 text-xs font-bold uppercase tracking-tight">✓ Assigned to you</span>
                       ) : (
                         <span className="text-red-500 text-xs font-bold uppercase tracking-tight">⚠ Assigned to someone else</span>
@@ -658,7 +658,7 @@ export default function TaskDetailsPage() {
               )}
 
             {/* Assigned to someone else banner */}
-            {(task.status === 'assigned' || task.status === 'in-progress') && !isOwner && task.taskerBidInfo?.status !== 'accepted' && (
+            {(task.status === 'assigned' || task.status === 'in-progress') && !isOwner && taskerBid?.status !== 'accepted' && (
                <div className='bg-gray-50 border border-red-100 p-8 rounded-[2rem] text-center space-y-2 opacity-80'>
                <h3 className='font-bold text-red-500 text-xl'>
                  Assigned to someone else

@@ -177,12 +177,12 @@ export default function MessagesPage() {
                   Start posting tasks and connecting with taskers to begin
                   conversations.
                 </p>
-                <Button
+                {/* <Button
                   onClick={() => router.push("/post-task")}
                   className='bg-[#6B46C1] hover:bg-[#553C9A] text-white px-6 py-2 rounded-lg'
                 >
                   Post a Task
-                </Button>
+                </Button> */}
               </div>
             )}
           </div>
