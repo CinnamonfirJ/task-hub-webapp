@@ -40,27 +40,22 @@ export function TaskerProfileModal({
       ? tasker.categories
           .map((c: any) => c.displayName || c.name || c)
           .join(" , ")
-      : "Digital marketer , Graphic Designer";
+      : "";
 
-  // @ts-ignore - Checking for bio which might not be strictly typed on User
   const bio =
     tasker?.bio ||
-    "I help brands get noticed and remembered. As a Digital Marketer and Graphic Designer, I combine strategy with stunning visuals to drive engagement, increase reach, and grow sales.";
+    "No bio provided yet.";
 
+  // @ts-ignore
+  const hasStats = !!tasker?.stats;
   // @ts-ignore
   const tasksCompleted = tasker?.stats?.tasksCompleted || "0";
   // @ts-ignore
-  const successRate = tasker?.stats?.successRate || "95%";
+  const successRate = tasker?.stats?.successRate || "0%";
   // @ts-ignore
   const ratings = tasker?.stats?.ratings || "0";
 
-  // @ts-ignore
-  const works = tasker?.works || [
-    "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=400&h=400",
-    "https://images.unsplash.com/photo-1505798577917-a65157d3320a?auto=format&fit=crop&q=80&w=400&h=400",
-    "https://images.unsplash.com/photo-1585909695284-32d2985ac9c0?auto=format&fit=crop&q=80&w=400&h=400",
-    "https://images.unsplash.com/photo-1585909694668-d0f52d3a95c4?auto=format&fit=crop&q=80&w=400&h=400",
-  ];
+  const works = tasker?.previousWork || [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -99,78 +94,82 @@ export function TaskerProfileModal({
           </section>
 
           {/* TASKER STATISTICS Section */}
-          <section className='space-y-4'>
-            <h3 className='text-sm font-bold text-gray-700 tracking-wider'>
-              TASKER STATISTICS
-            </h3>
-            <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
-              {/* Stat Card 1 */}
-              <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
-                <div className='w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-[#6B46C1]'>
-                  <Briefcase size={20} strokeWidth={2.5} />
-                </div>
-                <div className='space-y-1'>
-                  <div className='text-2xl font-black text-gray-900'>
-                    {tasksCompleted}
+          {hasStats && (
+            <section className='space-y-4'>
+              <h3 className='text-sm font-bold text-gray-700 tracking-wider'>
+                TASKER STATISTICS
+              </h3>
+              <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+                {/* Stat Card 1 */}
+                <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
+                  <div className='w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-[#6B46C1]'>
+                    <Briefcase size={20} strokeWidth={2.5} />
                   </div>
-                  <div className='text-gray-500 font-medium text-sm'>
-                    Task completed
+                  <div className='space-y-1'>
+                    <div className='text-2xl font-black text-gray-900'>
+                      {tasksCompleted}
+                    </div>
+                    <div className='text-gray-500 font-medium text-sm'>
+                      Task completed
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Stat Card 2 */}
-              <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
-                <div className='w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500'>
-                  <TrendingUp size={20} strokeWidth={2.5} />
-                </div>
-                <div className='space-y-1'>
-                  <div className='text-2xl font-black text-gray-900'>
-                    {successRate}
+                {/* Stat Card 2 */}
+                <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
+                  <div className='w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500'>
+                    <TrendingUp size={20} strokeWidth={2.5} />
                   </div>
-                  <div className='text-gray-500 font-medium text-sm'>
-                    Success Rate
+                  <div className='space-y-1'>
+                    <div className='text-2xl font-black text-gray-900'>
+                      {successRate}
+                    </div>
+                    <div className='text-gray-500 font-medium text-sm'>
+                      Success Rate
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Stat Card 3 */}
-              <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
-                <div className='w-10 h-10 rounded-lg bg-yellow-50 flex items-center justify-center text-yellow-500'>
-                  <Star size={20} strokeWidth={2.5} />
-                </div>
-                <div className='space-y-1'>
-                  <div className='text-2xl font-black text-gray-900'>
-                    {ratings}
+                {/* Stat Card 3 */}
+                <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
+                  <div className='w-10 h-10 rounded-lg bg-yellow-50 flex items-center justify-center text-yellow-500'>
+                    <Star size={20} strokeWidth={2.5} />
                   </div>
-                  <div className='text-gray-500 font-medium text-sm'>
-                    Ratings
+                  <div className='space-y-1'>
+                    <div className='text-2xl font-black text-gray-900'>
+                      {ratings}
+                    </div>
+                    <div className='text-gray-500 font-medium text-sm'>
+                      Ratings
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* WORKS Section */}
-          <section className='space-y-4 pb-4'>
-            <h3 className='text-sm font-bold text-gray-700 tracking-wider'>
-              WORKS
-            </h3>
-            <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-              {works.map((workImg: string, idx: number) => (
-                <div
-                  key={idx}
-                  className='aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-50'
-                >
-                  <img
-                    src={workImg}
-                    alt={`Work ${idx + 1}`}
-                    className='w-full h-full object-cover hover:scale-105 transition-transform duration-300'
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
+          {works.length > 0 && (
+            <section className='space-y-4 pb-4'>
+              <h3 className='text-sm font-bold text-gray-700 tracking-wider'>
+                WORKS
+              </h3>
+              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                {works.map((work, idx) => (
+                  <div
+                    key={work.publicId || idx}
+                    className='aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-50'
+                  >
+                    <img
+                      src={work.url}
+                      alt={`Work ${idx + 1}`}
+                      className='w-full h-full object-cover hover:scale-105 transition-transform duration-300'
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </DialogContent>
     </Dialog>

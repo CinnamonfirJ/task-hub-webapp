@@ -37,6 +37,8 @@ export interface User {
   verifyIdentity?: boolean;
   isVerified?: boolean;
   isKYCVerified?: boolean;
+  websiteLink?: string;
+  previousWork?: { url: string; publicId: string }[];
 }
 
 // API returns accessToken (not "token") and user/tasker depending on role
