@@ -79,6 +79,7 @@ function ResetPasswordForm() {
                 placeholder="Enter 5-digit code"
                 className="bg-gray-50/50 border-gray-200 h-12 font-bold text-lg text-center tracking-widest"
                 maxLength={5}
+                autoComplete="one-time-code"
                 {...form.register("code")}
               />
               {form.formState.errors.code && (
@@ -96,6 +97,7 @@ function ResetPasswordForm() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter new password"
                   className="pl-9 pr-10 h-12 bg-gray-50/50"
+                  autoComplete="new-password"
                   {...form.register("newPassword")}
                 />
                 <button
@@ -122,6 +124,7 @@ function ResetPasswordForm() {
                   type={showConfirm ? "text" : "password"}
                   placeholder="Confirm new password"
                   className="pl-9 pr-10 h-12 bg-gray-50/50"
+                  autoComplete="new-password"
                   {...form.register("confirmPassword")}
                 />
                 <button
