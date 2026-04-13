@@ -256,18 +256,26 @@ export const authApi = {
             profileData.role = "tasker";
             if (typeof window !== "undefined")
               localStorage.setItem("userType", "tasker");
-            
+
             // Normalize fullName for taskers/users who might only have firstName/lastName
-            if (!profileData.fullName && (profileData.firstName || profileData.lastName)) {
-              profileData.fullName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
+            if (
+              !profileData.fullName &&
+              (profileData.firstName || profileData.lastName)
+            ) {
+              profileData.fullName =
+                `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
             }
           } else if (endpoint === "/api/auth/user") {
             profileData.role = "user";
             if (typeof window !== "undefined")
               localStorage.setItem("userType", "user");
-              
-            if (!profileData.fullName && (profileData.firstName || profileData.lastName)) {
-              profileData.fullName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
+
+            if (
+              !profileData.fullName &&
+              (profileData.firstName || profileData.lastName)
+            ) {
+              profileData.fullName =
+                `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
             }
           }
 
@@ -276,18 +284,21 @@ export const authApi = {
             try {
               // If it's an admin or already shows as verified in the profile, we can skip the extra check
               // or at least ensure we don't call it if we don't need to.
-              const isAlreadyVerified = 
-                !!profileData.isKYCVerified || 
-                !!profileData.verifyIdentity || 
-                !!profileData.kycVerified || 
+              const isAlreadyVerified =
+                !!profileData.isKYCVerified ||
+                !!profileData.verifyIdentity ||
+                !!profileData.kycVerified ||
                 !!profileData.verified;
 
               if (userType !== "admin" && !isAlreadyVerified) {
                 const vStatus = await authApi.getVerificationStatus();
                 if (process.env.NODE_ENV === "development") {
-                  console.log("[authApi] Separate verification status response:", vStatus);
+                  console.log(
+                    "[authApi] Separate verification status response:",
+                    vStatus,
+                  );
                 }
-                
+
                 if (vStatus && vStatus.isVerified === true) {
                   Object.assign(profileData as any, {
                     isKYCVerified: true,
@@ -301,7 +312,7 @@ export const authApi = {
                 Object.assign(profileData as any, {
                   isKYCVerified: true,
                   verifyIdentity: true,
-                  role: "admin"
+                  role: "admin",
                 });
               }
             } catch (vErr) {
@@ -342,8 +353,8 @@ export const authApi = {
   updateProfile: async (data: Partial<User>): Promise<User> => {
     const userType =
       typeof window !== "undefined" ? localStorage.getItem("userType") : "user";
-    const endpoint =
-      userType === "tasker" ? "/api/auth/tasker" : "/api/auth/user";
+    const endpoint = "/api/auth/profile";
+    // userType === "tasker" ? "/api/auth/tasker" : "/api/auth/user";
 
     const res = await apiData<any>(endpoint, {
       method: "PUT",
@@ -372,10 +383,42 @@ export const authApi = {
     });
   },
 
-  updateCategories: async (data: { mainCategories: string[]; subCategories: string[]; university?: string | null }): Promise<{ tasker: User }> => {
+  updateCategories: async (data: {
+    mainCategories: string[];
+    subCategories: string[];
+    university?: string | null;
+  }): Promise<{ tasker: User }> => {
     return apiData<{ tasker: User }>("/api/auth/categories", {
       method: "PUT",
       body: JSON.stringify(data),
+    });
+  },
+
+  // ── Previous Work ──────────────────────────────────────────────────────
+
+  uploadPreviousWork: async (
+    formData: FormData,
+  ): Promise<{
+    status: string;
+    message: string;
+    previousWork: { url: string; publicId: string }[];
+  }> => {
+    return apiData<any>("/api/auth/previous-work", {
+      method: "POST",
+      body: formData,
+    });
+  },
+
+  deletePreviousWork: async (
+    publicId: string,
+  ): Promise<{
+    status: string;
+    message: string;
+    previousWork: { url: string; publicId: string }[];
+  }> => {
+    return apiData<any>("/api/auth/previous-work", {
+      method: "DELETE",
+      body: JSON.stringify({ publicId }),
     });
   },
 
