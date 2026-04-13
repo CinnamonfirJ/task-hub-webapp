@@ -24,6 +24,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { TaskerProfileModal } from "@/components/dashboard/TaskerProfileModal";
+import { TaskLocation } from "@/components/dashboard/TaskLocation";
 
 // ─── Dynamic categories helper ──────────────────────────────────────────────
 function getCategoryMeta(name: string) {
@@ -145,26 +146,21 @@ export default function HomePage() {
   const topWorkers: any[] = (() => {
     if (isTasker) return [];
 
-    // Priority 1: Nearby taskers from API (returns top-rated if no location)
-    if (nearbyData && nearbyData.length > 0) {
-      return nearbyData;
-    }
-
-    // Priority 2: Taskers who have already bid on the user's tasks
+    const workers: any[] = [...(nearbyData || [])];
     const bids = firstTaskBidsData?.bids || [];
-    const seen = new Set<string>();
-    const workers: any[] = [];
+
+    // Add taskers who bid on the user's tasks to fill up to 3
     for (const bid of bids) {
-      const t = typeof bid.tasker === "object" ? bid.tasker : null;
-      if (!t) continue;
-      const id = t._id || t.id;
-      if (id && !seen.has(id)) {
-        seen.add(id);
-        workers.push(t);
-      }
       if (workers.length >= 3) break;
+      const t = typeof bid.tasker === "object" ? bid.tasker : null;
+      if (t) {
+        const id = t._id || (t as any).id;
+        if (id && !workers.find((w) => (w._id || (w as any).id) === id)) {
+          workers.push(t);
+        }
+      }
     }
-    return workers;
+    return workers.slice(0, 3);
   })();
 
   if (!isMounted) {
@@ -747,11 +743,29 @@ export default function HomePage() {
                         <p className='font-semibold text-gray-900 text-sm truncate'>
                           {task.title}
                         </p>
-                        <p className='text-gray-400 text-xs mt-0.5 truncate'>
-                          {(task as any)?.location?.city ||
-                            (task as any)?.address?.city ||
-                            "Lekki Phase 1"}
-                        </p>
+                        <div className='text-gray-400 text-xs mt-0.5 truncate flex items-center gap-1'>
+                          <MapPin size={10} className="shrink-0" />
+                          <TaskLocation
+                            latitude={
+                              typeof task.location === "object"
+                                ? task.location?.latitude
+                                : undefined
+                            }
+                            longitude={
+                              typeof task.location === "object"
+                                ? task.location?.longitude
+                                : undefined
+                            }
+                            fallbackAddress={
+                              typeof task.location === "object"
+                                ? task.location?.address
+                                : typeof task.location === "string"
+                                  ? task.location
+                                  : (task as any)?.address?.city ||
+                                    (task as any)?.location?.city
+                            }
+                          />
+                        </div>
                       </div>
                       <div className='text-right shrink-0'>
                         <p className='font-black text-gray-900 text-sm'>
