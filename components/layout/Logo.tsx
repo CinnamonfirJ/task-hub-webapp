@@ -3,16 +3,25 @@ import Image from "next/image";
 interface LogoProps {
   className?: string;
   size?: "sm" | "md" | "lg";
+  width?: number;
+  height?: number;
 }
 
-export function Logo({ className = "", size = "lg" }: LogoProps) {
+export function Logo({
+  className = "",
+  size = "lg",
+  width: customWidth,
+  height: customHeight,
+}: LogoProps) {
   const dimensions = {
-    sm: { width: 120, height: 60 },
-    md: { width: 150, height: 70 },
-    lg: { width: 210, height: 90 },
+    sm: { width: 120, height: 55 },
+    md: { width: 150, height: 65 },
+    lg: { width: 180, height: 80 },
   };
 
-  const { width, height } = dimensions[size];
+  const { width: presetWidth, height: presetHeight } = dimensions[size];
+  const width = customWidth || presetWidth;
+  const height = customHeight || presetHeight;
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
@@ -21,7 +30,7 @@ export function Logo({ className = "", size = "lg" }: LogoProps) {
         alt='Taskhub Logo'
         width={width}
         height={height}
-        className='h-auto w-auto object-contain'
+        className='object-contain'
         priority
       />
     </div>

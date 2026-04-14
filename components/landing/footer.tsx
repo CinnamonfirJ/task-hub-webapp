@@ -21,8 +21,8 @@ export default function Footer() {
             <Image
               src="/assets/task-hub-logo-footer.png"
               alt="TaskHub"
-              width={140}
-              height={46}
+              width={160}
+              height={50}
               className="h-10 w-auto object-contain"
             />
             <p className="text-[14px] leading-relaxed text-gray-400 max-w-sm">

@@ -22,8 +22,8 @@ export default function Navbar() {
         <Image
           src='/assets/task-hub-logo.png'
           alt='TaskHub'
-          width={120}
-          height={40}
+          width={140}
+          height={45}
           className='h-10 w-auto object-contain'
         />
       </div>

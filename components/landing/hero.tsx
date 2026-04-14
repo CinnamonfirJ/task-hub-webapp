@@ -21,7 +21,7 @@ export default function Hero() {
   return (
     <section className='relative px-6 py-16 md:py-24 max-w-7xl mx-auto overflow-hidden'>
       {/* Subtle purple glow/gradient at bottom left */}
-      <div className='absolute bottom-0 left-0 w-2/3 h-2/3 bg-gradient-to-tr from-purple-50 via-purple-25 to-transparent opacity-60 -z-10 pointer-events-none blur-3xl' />
+      <div className='absolute bottom-0 left-0 w-2/3 h-2/3 bg-linear-to-tr from-purple-50 via-purple-25 to-transparent opacity-60 -z-10 pointer-events-none blur-3xl' />
 
       <div className='relative grid md:grid-cols-2 gap-16 items-center'>
         {/* Left Column - Content */}
@@ -151,7 +151,7 @@ export default function Hero() {
               className='w-full h-full object-cover object-center'
             />
             {/* Optional overlay for better image contrast */}
-            <div className='absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/5' />
+            <div className='absolute inset-0 bg-linear-to-br from-transparent via-transparent to-black/5' />
           </motion.div>
         </div>
       </div>
