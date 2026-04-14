@@ -17,6 +17,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
+import { NINManualSubmission } from "@/components/NINManualSubmission";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function CompleteProfilePage() {
   const {
@@ -30,6 +33,9 @@ export default function CompleteProfilePage() {
     isSubmitting,
     isProfileComplete,
   } = useCompleteProfile();
+  const [verificationMode, setVerificationMode] = useState<"sdk" | "manual">(
+    "sdk",
+  );
   const router = useRouter();
 
   // Redirect if already complete
@@ -388,34 +394,55 @@ export default function CompleteProfilePage() {
             </div>
           ) : (
             <div className='slide-in-from-right-4 space-y-8 animate-in duration-500 fade-in'>
-              <Card className='bg-white shadow-sm border-none rounded-lg min-h-[300px] overflow-hidden'>
-                <CardHeader className='bg-white px-8 py-6 border-gray-50 border-b'>
-                  <CardTitle className='font-bold text-xl'>
-                    Identity Verification
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className='space-y-8 p-8 flex flex-col items-center justify-center text-center'>
-                  <div className='bg-purple-50 p-6 rounded-full mb-2'>
-                    <ShieldCheck size={48} className='text-[#6B46C1]' />
-                  </div>
-                  <div className='space-y-2'>
-                    <p className='font-bold text-gray-900'>
-                      Official ID Verification
-                    </p>
-                    <p className='text-sm text-gray-500 max-w-sm mx-auto'>
-                      Please enter your 11-digit National Identification Number
-                      (NIN) below to start the secure verification flow.
-                    </p>
-                  </div>
+              <AnimatePresence mode='wait'>
+                {verificationMode === "sdk" ? (
+                  <Card
+                    key='sdk-card'
+                    className='bg-white shadow-sm border-none rounded-lg min-h-[300px] overflow-hidden'
+                  >
+                    <CardHeader className='bg-white px-8 py-6 border-gray-50 border-b'>
+                      <CardTitle className='font-bold text-xl'>
+                        Identity Verification
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className='space-y-8 p-8 flex flex-col items-center justify-center text-center'>
+                      <div className='bg-purple-50 p-6 rounded-full mb-2'>
+                        <ShieldCheck size={48} className='text-[#6B46C1]' />
+                      </div>
+                      <div className='space-y-2'>
+                        <p className='font-bold text-gray-900'>
+                          Official ID Verification
+                        </p>
+                        <p className='text-sm text-gray-500 max-w-sm mx-auto'>
+                          Please enter your 11-digit National Identification
+                          Number (NIN) below to start the secure verification
+                          flow.
+                        </p>
+                      </div>
 
-                  <div className='w-full max-w-sm space-y-4 pt-4'>
-                    <VerifyIdentityButton
-                      userId={user?._id}
-                      className='bg-[#6B46C1] hover:bg-[#553C9A] shadow-lg shadow-purple-200 py-8 rounded-xl w-full font-bold text-xl active:scale-[0.99] transition-all'
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                      <div className='w-full max-w-sm space-y-4 pt-4'>
+                        <VerifyIdentityButton
+                          userId={user?._id}
+                          className='bg-[#6B46C1] hover:bg-[#553C9A] shadow-lg shadow-purple-200 py-8 rounded-xl w-full font-bold text-xl active:scale-[0.99] transition-all'
+                        />
+
+                        <Button
+                          variant='ghost'
+                          onClick={() => setVerificationMode("manual")}
+                          className='w-full text-gray-400 hover:text-[#6B46C1] font-medium'
+                        >
+                          Try manual verification instead
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <NINManualSubmission
+                    key='manual-card'
+                    onCancel={() => setVerificationMode("sdk")}
+                  />
+                )}
+              </AnimatePresence>
 
               <div className='bg-blue-50/30 p-8 border border-blue-100/50 rounded-[2rem]'>
                 <p className='font-medium text-blue-600/60 text-sm text-center leading-relaxed'>
