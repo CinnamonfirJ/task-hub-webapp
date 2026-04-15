@@ -21,6 +21,8 @@ export function useLogin() {
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       email: "",
       password: "",

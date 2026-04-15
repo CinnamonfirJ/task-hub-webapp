@@ -65,11 +65,12 @@ export default function LoginPage() {
                 type='email'
                 placeholder='you@example.domain'
                 className='pl-9 h-12 bg-gray-50/50'
+                aria-invalid={!!form.formState.errors.email}
                 {...form.register("email")}
               />
             </div>
             {form.formState.errors.email && (
-              <p className='text-sm text-red-500'>
+              <p className='text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1'>
                 {form.formState.errors.email.message}
               </p>
             )}
@@ -86,6 +87,7 @@ export default function LoginPage() {
                 type={showPassword ? "text" : "password"}
                 placeholder='Enter your password'
                 className='pl-9 pr-10 h-12 bg-gray-50/50'
+                aria-invalid={!!form.formState.errors.password}
                 {...form.register("password")}
               />
 
@@ -104,7 +106,7 @@ export default function LoginPage() {
               </button>
             </div>
             {form.formState.errors.password && (
-              <p className='text-sm text-red-500'>
+              <p className='text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1'>
                 {form.formState.errors.password.message}
               </p>
             )}

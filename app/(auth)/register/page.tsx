@@ -61,11 +61,14 @@ export default function RegisterPage() {
                 id="fullName"
                 placeholder="e.g shola davies"
                 className="pl-9 h-12 bg-gray-50/50"
+                aria-invalid={!!form.formState.errors.fullName}
                 {...form.register("fullName")}
                 />
             </div>
             {form.formState.errors.fullName && (
-              <p className="text-sm text-red-500">{form.formState.errors.fullName.message}</p>
+              <p className="text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
+                {form.formState.errors.fullName.message}
+              </p>
             )}
           </div>
 
@@ -78,11 +81,14 @@ export default function RegisterPage() {
                 type="email"
                 placeholder="you@example.domain"
                 className="pl-9 h-12 bg-gray-50/50"
+                aria-invalid={!!form.formState.errors.email}
                 {...form.register("email")}
                 />
             </div>
             {form.formState.errors.email && (
-              <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
+              <p className="text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
+                {form.formState.errors.email.message}
+              </p>
             )}
           </div>
 
@@ -95,11 +101,14 @@ export default function RegisterPage() {
                 type="tel"
                 placeholder="+1234567890"
                 className="pl-9 h-12 bg-gray-50/50"
+                aria-invalid={!!form.formState.errors.phone}
                 {...form.register("phone")}
                 />
             </div>
             {form.formState.errors.phone && (
-              <p className="text-sm text-red-500">{form.formState.errors.phone.message}</p>
+              <p className="text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
+                {form.formState.errors.phone.message}
+              </p>
             )}
           </div>
 
@@ -110,10 +119,13 @@ export default function RegisterPage() {
                 id="country"
                 placeholder="Nigeria"
                 className="h-12 bg-gray-50/50"
+                aria-invalid={!!form.formState.errors.country}
                 {...form.register("country")}
               />
               {form.formState.errors.country && (
-                <p className="text-sm text-red-500">{form.formState.errors.country.message}</p>
+                <p className="text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
+                  {form.formState.errors.country.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -122,10 +134,13 @@ export default function RegisterPage() {
                 id="state"
                 placeholder="Lagos"
                 className="h-12 bg-gray-50/50"
+                aria-invalid={!!form.formState.errors.residentState}
                 {...form.register("residentState")}
               />
               {form.formState.errors.residentState && (
-                <p className="text-sm text-red-500">{form.formState.errors.residentState.message}</p>
+                <p className="text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
+                  {form.formState.errors.residentState.message}
+                </p>
               )}
             </div>
           </div>
@@ -136,10 +151,13 @@ export default function RegisterPage() {
               id="address"
               placeholder="Enter your full address"
               className="h-12 bg-gray-50/50"
+              aria-invalid={!!form.formState.errors.address}
               {...form.register("address")}
             />
             {form.formState.errors.address && (
-              <p className="text-sm text-red-500">{form.formState.errors.address.message}</p>
+              <p className="text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
+                {form.formState.errors.address.message}
+              </p>
             )}
           </div>
 
@@ -149,10 +167,13 @@ export default function RegisterPage() {
               id="dateOfBirth"
               type="date"
               className="h-12 bg-gray-50/50"
+              aria-invalid={!!form.formState.errors.dateOfBirth}
               {...form.register("dateOfBirth")}
             />
             {form.formState.errors.dateOfBirth && (
-              <p className="text-sm text-red-500">{form.formState.errors.dateOfBirth.message}</p>
+              <p className="text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
+                {form.formState.errors.dateOfBirth.message}
+              </p>
             )}
           </div>
 
@@ -167,6 +188,7 @@ export default function RegisterPage() {
           type={showPassword ? "text" : "password"}
           placeholder="Enter your password"
           className="pl-9 pr-10 h-12 bg-gray-50/50"
+          aria-invalid={!!form.formState.errors.password}
           {...form.register("password")}
         />
 
@@ -185,7 +207,9 @@ export default function RegisterPage() {
         </button>
       </div>
                {form.formState.errors.password && (
-                <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
+                <p className="text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1">
+                  {form.formState.errors.password.message}
+                </p>
               )}
             </div>
           
