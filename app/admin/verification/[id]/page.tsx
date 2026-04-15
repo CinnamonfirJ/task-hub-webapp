@@ -188,7 +188,8 @@ export default function KYCDetailsPage({
                 Full Name
               </div>
               <div className='text-sm font-bold text-gray-900'>
-                {record.user.fullName}
+                {record.user?.fullName || 
+                 (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "N/A")}
               </div>
             </div>
             <div>
@@ -196,10 +197,10 @@ export default function KYCDetailsPage({
                 Email Address
               </div>
               <div className='text-sm font-bold text-gray-900'>
-                {record.user.emailAddress}
+                {record.user?.emailAddress || "N/A"}
               </div>
             </div>
-            {record.user.phoneNumber && (
+            {record.user?.phoneNumber && (
               <div>
                 <div className='text-xs text-gray-500 font-medium mb-1'>
                   Phone Number
@@ -214,7 +215,7 @@ export default function KYCDetailsPage({
                 User ID
               </div>
               <div className='text-sm font-bold text-gray-900 font-mono'>
-                {record.user._id}
+                {record.user?._id || "N/A"}
               </div>
             </div>
           </CardContent>
@@ -232,7 +233,7 @@ export default function KYCDetailsPage({
                 National Identification Number (NIN)
               </div>
               <div className='bg-gray-50/50 border border-gray-100 rounded-xl p-4 font-bold text-gray-900 tracking-wider'>
-                {record.nin}
+                {record.maskedNin || record.nin || "N/A"}
               </div>
             </div>
             <div>
@@ -259,7 +260,8 @@ export default function KYCDetailsPage({
                   Approved By
                 </div>
                 <div className='text-sm font-bold text-gray-900'>
-                  {record.approvedBy.fullName}
+                  {record.approvedBy?.fullName || 
+                   (record.approvedBy?.firstName ? `${record.approvedBy.firstName} ${record.approvedBy.lastName || ""}`.trim() : "Staff")}
                 </div>
               </div>
             )}
@@ -331,7 +333,10 @@ export default function KYCDetailsPage({
             <div className='p-6 space-y-4'>
               <p className='text-sm text-gray-600'>
                 Approving will grant KYC verified status to{" "}
-                <strong>{record.user.fullName}</strong>.
+                <strong>
+                  {record.user?.fullName || 
+                   (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "this user")}
+                </strong>.
               </p>
               <div className='space-y-2'>
                 <label className='text-xs font-bold text-gray-700 uppercase'>

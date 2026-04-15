@@ -743,7 +743,7 @@ export default function HomePage() {
                         <p className='font-semibold text-gray-900 text-sm truncate'>
                           {task.title}
                         </p>
-                        <div className='text-gray-400 text-xs mt-0.5 truncate flex items-center gap-1'>
+                        {/* <div className='text-gray-400 text-xs mt-0.5 truncate flex items-center gap-1'>
                           <MapPin size={10} className="shrink-0" />
                           <TaskLocation
                             latitude={
@@ -765,7 +765,7 @@ export default function HomePage() {
                                     (task as any)?.location?.city
                             }
                           />
-                        </div>
+                        </div> */}
                       </div>
                       <div className='text-right shrink-0'>
                         <p className='font-black text-gray-900 text-sm'>

@@ -141,15 +141,16 @@ export default function KYCManagementPage() {
                     <td className='px-6 py-4'>
                       <div>
                         <div className='font-bold text-gray-900'>
-                          {record.user.fullName}
+                          {record.user?.fullName || 
+                           (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "N/A")}
                         </div>
                         <div className='text-xs text-gray-500'>
-                          {record.user.emailAddress}
+                          {record.user?.emailAddress || "N/A"}
                         </div>
                       </div>
                     </td>
                     <td className='px-6 py-4 text-gray-500 font-mono text-xs'>
-                      {record.nin}
+                      {record.maskedNin || record.nin || "N/A"}
                     </td>
                     <td className='px-6 py-4'>
                       <span

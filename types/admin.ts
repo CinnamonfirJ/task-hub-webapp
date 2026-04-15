@@ -570,21 +570,28 @@ export interface KYCRecord {
   user: {
     _id: string;
     fullName: string;
+    firstName?: string;
+    lastName?: string;
     emailAddress: string;
     phoneNumber?: string;
-  };
-  nin: string; // Always masked as "***********"
+  } | null;
+  nin: string; // Legacy masked string
+  maskedNin?: string; // New field from API
   status: "pending" | "approved" | "rejected";
   submittedDocuments?: KYCDocument[];
   approvedBy?: {
     _id: string;
     fullName: string;
+    firstName?: string;
+    lastName?: string;
   };
   approvedAt?: string;
   rejectionReason?: string;
   rejectedBy?: {
     _id: string;
     fullName: string;
+    firstName?: string;
+    lastName?: string;
   };
   rejectedAt?: string;
   createdAt: string;
