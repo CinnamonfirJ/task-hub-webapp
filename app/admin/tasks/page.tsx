@@ -75,7 +75,15 @@ export default function TasksManagementPage() {
   };
 
   const tasks = tasksData?.tasks ?? [];
-  const pagination = tasksData?.pagination;
+  const pagination = tasksData
+    ? {
+        currentPage: tasksData.currentPage ?? 1,
+        totalPages: tasksData.totalPages ?? 1,
+        totalTasks: tasksData.totalRecords ?? 0,
+        hasPrev: (tasksData.currentPage ?? 1) > 1,
+        hasNext: (tasksData.currentPage ?? 1) < (tasksData.totalPages ?? 1),
+      }
+    : undefined;
 
   const taskMetrics = [
     { label: "Total Tasks", value: String(taskStats?.total ?? "—") },
@@ -185,10 +193,10 @@ export default function TasksManagementPage() {
                   <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
                     <th className='px-6 py-4'>TASK</th>
                     <th className='px-6 py-4'>POSTED BY</th>
+                    <th className='px-6 py-4'>ASSIGNED TASKER</th>
                     <th className='px-6 py-4'>CATEGORY</th>
                     <th className='px-6 py-4'>BUDGET</th>
                     <th className='px-6 py-4'>STATUS</th>
-                    <th className='px-6 py-4'>DATE</th>
                     <th className='px-6 py-4 text-right'>ACTION</th>
                   </tr>
                 </thead>
@@ -199,40 +207,79 @@ export default function TasksManagementPage() {
                       className='group hover:bg-gray-50 transition-colors'
                     >
                       <td className='px-6 py-5'>
-                        <Link
-                          href={`/admin/tasks/${task._id}`}
-                          className='font-bold text-gray-900 hover:text-[#6B46C1] transition-colors'
-                        >
-                          {task.title}
-                        </Link>
-                      </td>
-                      <td className='px-6 py-5 text-gray-500 font-medium text-xs'>
-                        {task.user.emailAddress}
+                        <div className='flex flex-col gap-1'>
+                          <Link
+                            href={`/admin/tasks/${task._id}`}
+                            className='font-bold text-gray-900 hover:text-[#6B46C1] transition-colors line-clamp-1'
+                          >
+                            {task.title}
+                          </Link>
+                          <div className='flex items-center gap-2'>
+                            <span className='text-[10px] text-gray-400 font-medium'>
+                              {task.createdAt ? new Date(task.createdAt).toLocaleDateString() : 'N/A'}
+                            </span>
+                            {task.university && (
+                              <span className='text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 uppercase font-semibold'>
+                                Uni Member
+                              </span>
+                            )}
+                            {task.images && task.images.length > 0 && (
+                              <span className='text-[10px] text-[#6B46C1] font-medium'>
+                                {task.images.length} {task.images.length === 1 ? 'image' : 'images'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </td>
                       <td className='px-6 py-5'>
-                        {task.categories.map((cat) => (
-                          <span
-                            key={cat._id}
-                            className='text-[10px] bg-gray-50 text-gray-600 px-2 py-1 rounded-md border border-gray-100 font-medium mr-1'
-                          >
-                            {cat.displayName}
+                        <div className='flex flex-col'>
+                          <span className='text-xs font-bold text-gray-900'>
+                            {task.user?.fullName || "Unknown User"}
                           </span>
-                        ))}
+                          <span className='text-[10px] text-gray-500 font-medium'>
+                            {task.user?.emailAddress || "—"}
+                          </span>
+                        </div>
+                      </td>
+                      <td className='px-6 py-5'>
+                        {task.assignedTo ? (
+                          <div className='flex flex-col'>
+                            <span className='text-xs font-bold text-gray-900'>
+                              {task.assignedTo.firstName} {task.assignedTo.lastName}
+                            </span>
+                            <span className='text-[10px] text-gray-500 font-medium'>
+                              {task.assignedTo.emailAddress}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className='text-xs text-gray-400 italic font-medium'>Unassigned</span>
+                        )}
+                      </td>
+                      <td className='px-6 py-5'>
+                        <div className='flex flex-wrap gap-1'>
+                          {task.mainCategory?.name && (
+                            <span className='text-[10px] bg-gray-100 text-gray-700 px-2 py-1 rounded border border-gray-200 font-medium uppercase tracking-tight'>
+                              {task.mainCategory.name}
+                            </span>
+                          )}
+                          {task.subCategory?.name && (
+                            <span className='text-[10px] bg-purple-50 text-purple-700 px-2 py-1 rounded border border-purple-100 font-medium uppercase tracking-tight'>
+                              {task.subCategory.name}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className='px-6 py-5 font-bold text-gray-900'>
                         {formatCurrency(task.budget)}
                       </td>
                       <td className='px-6 py-5'>
                         <span
-                          className={`px-2 py-1 rounded-full text-[10px] font-bold ${statusColor[task.status] || "text-gray-500 bg-gray-50"}`}
+                          className={`px-2 py-1 rounded-full text-[10px] font-bold ${statusColor[task.status || ""] || "text-gray-500 bg-gray-50"}`}
                         >
-                          {task.status
+                          {(task.status || "unknown")
                             .replace("_", " ")
                             .replace(/\b\w/g, (l) => l.toUpperCase())}
                         </span>
-                      </td>
-                      <td className='px-6 py-5 text-gray-500 font-medium text-xs'>
-                        {new Date(task.createdAt).toLocaleDateString()}
                       </td>
                       <td className='px-6 py-5 text-right'>
                         <DropdownMenu>
@@ -240,7 +287,7 @@ export default function TasksManagementPage() {
                             <Button
                               variant='ghost'
                               size='icon'
-                              className='h-8 w-8 text-gray-400'
+                              className='h-8 w-8 text-gray-400 hover:text-gray-600'
                             >
                               <MoreVertical size={16} />
                             </Button>
@@ -265,7 +312,7 @@ export default function TasksManagementPage() {
                   {!isLoading && tasks.length === 0 && (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className='py-12 text-center text-gray-400 font-medium'
                       >
                         No tasks found

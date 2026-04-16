@@ -1,6 +1,6 @@
 "use client";
 
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminSidebar, navItems } from "@/components/admin/AdminSidebar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { FEATURES } from "@/lib/features";
 import { notFound, usePathname, useRouter } from "next/navigation";
@@ -30,9 +30,32 @@ export default function AdminLayout({
     if (isMounted && !isLoadingUser && !isPublicPage) {
       if (!isAuthenticated) {
         router.replace("/admin/login");
+        return;
+      }
+
+      // Check role permissions for the current route
+      if (user?.role) {
+        // Find the most specific match first by sorting by href length descending
+        const sortedNavItems = [...navItems].sort((a, b) => b.href.length - a.href.length);
+        const currentNavItem = sortedNavItems.find(item => pathname.startsWith(item.href));
+
+        if (currentNavItem) {
+          const userRole = user.role as any;
+          const hasAccess = 
+            userRole === "super_admin" || 
+            userRole === "admin" || // Generic admin fallback
+            currentNavItem.roles.includes(userRole);
+
+          if (!hasAccess) {
+            if (process.env.NODE_ENV === "development") {
+              console.warn(`[AdminLayout] Access denied for role: ${userRole} at path: ${pathname}`);
+            }
+            router.replace("/admin/dashboard");
+          }
+        }
       }
     }
-  }, [isMounted, isLoadingUser, isAuthenticated, user, isPublicPage, router]);
+  }, [isMounted, isLoadingUser, isAuthenticated, user, isPublicPage, pathname, router]);
 
   // Don't wrap public pages (login, setup-account) with security logic or sidebar
   if (isPublicPage) {

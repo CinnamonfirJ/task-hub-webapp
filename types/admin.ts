@@ -698,17 +698,32 @@ export interface AdminTaskListItem {
   status: string;
   budget: number;
   agreedPrice?: number;
-  categories: AdminTaskCategory[];
+  mainCategory?: {
+    _id: string;
+    name: string;
+  };
+  subCategory?: {
+    _id: string;
+    name: string;
+  };
+  university?: string | null;
+  images?: {
+    url: string;
+    _id: string;
+  }[];
+  categories?: AdminTaskCategory[];
   user: {
     _id: string;
     fullName: string;
     emailAddress: string;
   };
-  assignedTasker?: {
+  assignedTo?: {
     _id: string;
     firstName: string;
     lastName: string;
+    emailAddress?: string;
     rating?: number;
+    taskerName?: string;
   };
   location?: {
     address?: string;
@@ -721,16 +736,11 @@ export interface AdminTaskListItem {
 
 export interface AdminTaskListResponse {
   status: string;
-  data: {
-    tasks: AdminTaskListItem[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalTasks: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
-  };
+  results?: number;
+  totalRecords?: number;
+  totalPages?: number;
+  currentPage?: number;
+  tasks: AdminTaskListItem[];
 }
 
 export interface AdminTaskDetail {
@@ -756,7 +766,7 @@ export interface AdminTaskDetail {
     emailAddress: string;
     phoneNumber?: string;
   };
-  assignedTasker?: {
+  assignedTo?: {
     _id: string;
     taskerName?: string;
     emailAddress?: string;

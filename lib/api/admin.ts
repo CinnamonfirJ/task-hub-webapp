@@ -453,7 +453,7 @@ export const adminApi = {
     search?: string;
     sortBy?: string;
     order?: string;
-  }): Promise<AdminTaskListResponse["data"]> => {
+  }): Promise<AdminTaskListResponse> => {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -464,7 +464,17 @@ export const adminApi = {
       `/api/admin/tasks?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data ?? response;
+    const data = response.data ?? response;
+
+    // Normalize assignedTasker to assignedTo for compatibility with new types
+    if (data && Array.isArray(data.tasks)) {
+      data.tasks = data.tasks.map((task: any) => ({
+        ...task,
+        assignedTo: task.assignedTo || task.assignedTasker,
+      }));
+    }
+
+    return data;
   },
 
   getTaskDetails: async (

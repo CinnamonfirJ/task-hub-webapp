@@ -10,6 +10,15 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Lock, Phone, User, AlertTriangle, EyeOff, Eye } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { useState } from "react";
+import { NIGERIAN_STATES } from "@/utils/constants/nigeria-states";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function RegisterPage() {
   const { form, onSubmit, currentRole, setRole, isRegistering, registerError } = useRegister();
@@ -130,12 +139,13 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="state">Resident State</Label>
-              <Input
-                id="state"
-                placeholder="Lagos"
-                className="h-12 bg-gray-50/50"
-                aria-invalid={!!form.formState.errors.residentState}
-                {...form.register("residentState")}
+              <SearchableSelect 
+                options={NIGERIAN_STATES}
+                value={form.watch("residentState") || ""}
+                onValueChange={(value) => form.setValue("residentState", value, { shouldValidate: true })}
+                placeholder="Select State"
+                searchPlaceholder="Search state..."
+                error={!!form.formState.errors.residentState}
               />
               {form.formState.errors.residentState && (
                 <p className="text-xs font-semibold text-red-500 mt-1 transition-all duration-200 animate-in fade-in slide-in-from-top-1">

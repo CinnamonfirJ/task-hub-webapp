@@ -7,6 +7,8 @@ import { ProfileCompletionStep2 } from "@/components/profile/ProfileCompletionSt
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   ChevronRight,
   Wallet,
@@ -47,8 +49,16 @@ export default function ProfilePage() {
     handleNext,
     handlePictureUpload,
   } = useCompleteProfile();
+  const router = useRouter();
 
   const { data: bankData } = useTaskerBankAccount();
+
+  // Redirect unverified users
+  useEffect(() => {
+    if (!isLoadingUser && !isUserError && !isProfileComplete) {
+      router.replace("/complete-profile");
+    }
+  }, [isLoadingUser, isUserError, isProfileComplete, router]);
 
   // --- Modal States ---
   const [isFundOpen, setIsFundOpen] = useState(false);
@@ -65,18 +75,15 @@ export default function ProfilePage() {
     );
   }
 
-  // If profile is NOT complete, show the setup flow (only if we're not loading and there's no error)
-  if (!isLoadingUser && !isUserError && !isProfileComplete) {
-    if (step === 2) {
-      return <ProfileCompletionStep2 setStep={setStep} userId={user?._id} />;
-    }
+  // If loading or profile is NOT complete, show loading spinner while redirecting
+  if (isLoadingUser || (!isProfileComplete && !isUserError)) {
     return (
-      <ProfileCompletionStep1
-        form={form}
-        handleNext={handleNext}
-        handlePictureUpload={handlePictureUpload}
-        user={user}
-      />
+      <div className='flex items-center justify-center min-h-[60vh]'>
+        <div className='flex flex-col items-center gap-4'>
+          <Skeleton className='w-12 h-12 rounded-full' />
+          <p className='text-gray-400 font-medium animate-pulse'>Loading profile...</p>
+        </div>
+      </div>
     );
   }
 
@@ -236,7 +243,7 @@ export default function ProfilePage() {
       )}
 
       {/* Switch to Users Banner (For Taskers) - Moved below Wallet Card */}
-      {user?.role === "tasker" && (
+      {/* {user?.role === "tasker" && (
         <div className='bg-[#F5F3FF] border border-purple-100 p-4 md:p-5 rounded-lg flex items-center justify-between group cursor-pointer shadow-sm'>
           <div className='flex items-center gap-3 md:gap-4'>
             <div className='bg-[#6B46C1] p-2.5 md:p-3 rounded-xl text-white'>
@@ -253,6 +260,18 @@ export default function ProfilePage() {
           </div>
           <ChevronRight size={18} className='text-[#6B46C1] md:w-5 md:h-5' />
         </div>
+      )} */}
+
+      {/* Upload Previous Work Button (For Taskers) */}
+      {user?.role === "tasker" && (
+        <Link href='/profile/details#service-info'>
+          <Button 
+            className='w-full bg-red-600 hover:bg-red-700 text-white font-black py-7 rounded-2xl shadow-lg shadow-red-100 flex items-center justify-center gap-3 transition-all active:scale-[0.98]'
+          >
+            <Plus size={20} strokeWidth={3} />
+            UPLOAD PREVIOUS WORKS
+          </Button>
+        </Link>
       )}
 
       {/* Tasker Stats Section */}
@@ -313,7 +332,7 @@ export default function ProfilePage() {
       {/* Actions List */}
       <div className='space-y-4'>
         {/* Become a tasker (Only for regular users) */}
-        {user?.role === "user" && (
+        {/* {user?.role === "user" && (
           <Link href='/profile/become-tasker'>
             <div className='bg-white hover:bg-gray-50 transition-colors p-4 md:p-5 rounded-lg flex items-center justify-between group cursor-pointer shadow-sm border border-gray-50 mb-4 md:mb-6'>
               <div className='flex items-center gap-3 md:gap-4'>
@@ -339,11 +358,11 @@ export default function ProfilePage() {
               />
             </div>
           </Link>
-        )}
+        )} */}
 
         {/* Other menu items */}
         <div className='bg-white border border-gray-50 rounded-[2rem] md:rounded-[2.5rem] shadow-sm divide-y divide-gray-50 overflow-hidden'>
-          {user?.role === "tasker" && (
+          {/* {user?.role === "tasker" && (
             <ProfileMenuItem
               icon={
                 <DollarSign size={20} className='md:w-[22px] md:h-[22px]' />
@@ -354,7 +373,7 @@ export default function ProfilePage() {
               iconColor='text-green-600'
               iconBg='bg-green-50'
             />
-          )}
+          )} */}
           {user?.role === "tasker" && (
             <ProfileMenuItem
               icon={<Briefcase size={20} className='md:w-[22px] md:h-[22px]' />}
@@ -364,11 +383,11 @@ export default function ProfilePage() {
               iconBg='bg-purple-50'
             />
           )}
-          <ProfileMenuItem
+          {/* <ProfileMenuItem
             icon={<Lock size={20} className='md:w-[22px] md:h-[22px]' />}
             label='Transaction Pin'
             href='/profile/transaction-pin'
-          />
+          /> */}
           <ProfileMenuItem
             icon={
               <RectangleEllipsis

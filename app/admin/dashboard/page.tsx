@@ -19,8 +19,12 @@ import { Button } from "@/components/ui/button";
 import { useAdminDashboard } from "@/hooks/useAdmin";
 import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
+import { navItems } from "@/components/admin/AdminSidebar";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminDashboardPage() {
+  const { user } = useAuth();
   const {
     data: stats,
     isLoading: statsLoading,
@@ -36,11 +40,48 @@ export default function AdminDashboardPage() {
   }
 
   if (statsError) {
+    const isForbidden = (statsError as any)?.status === 403 || (statsError as any)?.message?.includes("403");
+
+    if (isForbidden) {
+       return (
+        <div className='p-8'>
+          <div className="bg-white border border-gray-100 rounded-[2rem] p-10 text-center shadow-sm">
+            <div className="bg-purple-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <ShieldCheck className="text-[#6B46C1] w-10 h-10" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Action Center</h1>
+            <p className="text-gray-500 max-w-md mx-auto mb-8">
+              You are logged in as <span className="font-semibold text-[#6B46C1]">{user?.role?.replace("_", " ")}</span>. 
+              While you don't have access to global statistics, you can manage your assigned modules below.
+            </p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+              {navItems.filter(item => item.href !== "/admin/dashboard" && item.roles.includes(user?.role as any)).map(item => (
+                <Link 
+                  key={item.href} 
+                  href={item.href}
+                  className="flex items-center gap-4 p-5 bg-gray-50 hover:bg-purple-50 rounded-2xl border border-transparent hover:border-purple-100 transition-all group"
+                >
+                  <div className="bg-white p-3 rounded-xl shadow-sm group-hover:bg-[#6B46C1] transition-colors">
+                    <item.icon size={24} className="text-[#6B46C1] group-hover:text-white" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-gray-900">{item.label}</p>
+                    <p className="text-xs text-gray-500">Access module</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className='p-8 text-center text-red-500'>
         <AlertCircle className='mx-auto h-12 w-12 mb-4' />
-        <p className='text-lg font-semibold'>
-          Failed to load dashboard statistics
+        <p className='text-lg font-semibold text-center leading-relaxed'>
+          Failed to load dashboard statistics.
         </p>
         <Button
           variant='outline'
@@ -440,7 +481,7 @@ export default function AdminDashboardPage() {
                 </span>
               </div>
               <div className='flex justify-between items-center py-4'>
-                <span className='text-sm text-gray-500'>Verified Users</span>
+                <span className='text-sm text-gray-500'>Users</span>
                 <span className='text-sm font-semibold text-gray-800'>
                   {stats?.cards?.totalUsers ?? 0}
                 </span>

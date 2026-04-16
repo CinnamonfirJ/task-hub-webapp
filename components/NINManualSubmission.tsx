@@ -99,7 +99,7 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
             </p>
             <Button 
               onClick={() => window.location.reload()} 
-              className="bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl px-8"
+              className="bg-green-600 hover:bg-green-700 text-white h-12 rounded-sm px-10 font-bold text-sm uppercase tracking-widest transition-all"
             >
               Close
             </Button>
@@ -116,22 +116,22 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
       exit={{ opacity: 0, y: -10 }}
       className="w-full"
     >
-      <Card className="shadow-xl border-none ring-1 ring-gray-100 rounded-3xl overflow-hidden">
+      <Card className="shadow-none border border-gray-100 rounded-sm overflow-hidden">
         <CardHeader className="bg-white px-8 pt-8 pb-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="bg-purple-50 p-2 rounded-lg">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="bg-purple-50 p-2 rounded-sm">
               <ShieldCheck className="text-purple-600 w-5 h-5" />
             </div>
-            <CardTitle className="text-xl font-bold text-gray-900">Manual NIN Submission</CardTitle>
+            <CardTitle className="text-xl font-bold text-gray-900 tracking-tight">Manual NIN Submission</CardTitle>
           </div>
-          <CardDescription className="text-gray-500">
+          <CardDescription className="text-gray-400 text-[13px] font-medium leading-relaxed">
             Provide your National Identity Number (NIN) for manual verification by our team.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-2">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="font-bold text-gray-700 text-sm pl-1">
+              <Label htmlFor="fullName" className="font-bold text-gray-700 text-[13px] pl-1 uppercase tracking-wider">
                 Full Legal Name
               </Label>
               <div className="relative">
@@ -139,8 +139,8 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
                   id="fullName"
                   {...register("fullName")}
                   placeholder="e.g. Adewale Okonkwo"
-                  className={`bg-gray-50 border-none rounded-xl h-14 px-4 font-medium focus-visible:ring-purple-400 transition-all ${
-                    errors.fullName ? "ring-2 ring-red-400" : ""
+                  className={`bg-gray-50 border-gray-100 rounded-sm h-14 px-4 font-medium focus-visible:ring-purple-400 focus:bg-white transition-all ${
+                    errors.fullName ? "border-red-400" : ""
                   }`}
                 />
               </div>
@@ -156,7 +156,7 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nin" className="font-bold text-gray-700 text-sm pl-1">
+              <Label htmlFor="nin" className="font-bold text-gray-700 text-[13px] pl-1 uppercase tracking-wider">
                 NIN (11 Digits)
               </Label>
               <div className="relative">
@@ -165,12 +165,12 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
                   {...register("nin")}
                   placeholder="12345678901"
                   maxLength={11}
-                  className={`bg-gray-50 border-none rounded-xl h-14 px-4 font-medium focus-visible:ring-purple-400 transition-all ${
-                    errors.nin ? "ring-2 ring-red-400" : ""
+                  className={`bg-gray-50 border-gray-100 rounded-sm h-14 px-4 font-medium focus-visible:ring-purple-400 focus:bg-white transition-all ${
+                    errors.nin ? "border-red-400" : ""
                   }`}
                 />
               </div>
-              <p className="text-[10px] text-gray-400 pl-1 font-medium">
+              <p className="text-[10px] text-gray-400 pl-1 font-medium tracking-tight">
                 Your NIN is stored in a masked format for privacy.
               </p>
               {errors.nin && (
@@ -184,11 +184,11 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
               )}
             </div>
 
-            <div className="flex flex-col gap-3 pt-4">
+            <div className="flex flex-col gap-4 pt-4">
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="bg-[#6B46C1] hover:bg-[#553C9A] py-8 rounded-2xl w-full font-bold text-lg shadow-lg shadow-purple-200 transition-all active:scale-[0.98]"
+                className="bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-sm w-full font-bold text-sm uppercase tracking-widest shadow-none transition-all active:scale-[0.98]"
               >
                 {isLoading ? (
                   <>
@@ -203,9 +203,9 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
               {onCancel && (
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   onClick={onCancel}
-                  className="text-gray-400 hover:text-gray-600 font-medium"
+                  className="w-full border-gray-100 text-gray-500 hover:bg-gray-50 h-14 rounded-sm font-bold text-sm uppercase tracking-widest"
                 >
                   Back to SDK Verification
                 </Button>
@@ -213,8 +213,8 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
             </div>
           </form>
 
-          <div className="mt-8 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
-            <p className="text-[11px] text-blue-600/70 font-medium text-center leading-relaxed">
+          <div className="mt-10 p-5 bg-blue-50/30 rounded-sm border border-blue-100/30">
+            <p className="text-[11px] text-blue-600/60 font-medium text-center leading-relaxed">
               Manual review typically takes 24-48 hours. By submitting, you agree to our verification terms.
             </p>
           </div>

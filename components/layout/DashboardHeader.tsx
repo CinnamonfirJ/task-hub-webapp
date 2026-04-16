@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAdminProfile } from "@/hooks/useAdmin";
 import { useSidebar } from "@/components/admin/SidebarContext";
+import { ExportModal, ExportType } from "@/components/admin/ExportModal";
+import { Download } from "lucide-react";
+import { useState } from "react";
 
 export function DashboardHeader() {
   const pathname = usePathname();
@@ -24,16 +27,33 @@ export function DashboardHeader() {
   const { data: admin } = useAdminProfile();
   const activeUser = isAdminRoute ? admin : user;
 
-  const userName = activeUser?.fullName || 
-                   (activeUser?.firstName ? `${activeUser.firstName} ${activeUser.lastName || ""}`.trim() : (activeUser as any)?.name) || 
-                   "Welcome";
- 
-  const userInitial = (activeUser?.fullName || activeUser?.firstName || (activeUser as any)?.name || "U")[0].toUpperCase();
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  // Derive export type from pathname
+  const getExportType = (): ExportType => {
+    if (pathname.includes("/admin/tasks")) return "tasks";
+    if (pathname.includes("/admin/payments")) return "payments";
+    if (pathname.includes("/admin/users")) return "users";
+    if (pathname.includes("/admin/taskers")) return "taskers";
+    return "dashboard";
+  };
+
+  const userName =
+    activeUser?.fullName ||
+    (activeUser?.firstName
+      ? `${activeUser.firstName} ${activeUser.lastName || ""}`.trim()
+      : (activeUser as any)?.name) ||
+    "Welcome";
+
+  const userInitial = (activeUser?.fullName ||
+    activeUser?.firstName ||
+    (activeUser as any)?.name ||
+    "U")[0].toUpperCase();
 
   return (
     <header className='sticky top-0 z-40 w-full bg-white border-b border-gray-100 px-4 sm:px-6 py-3 flex items-center gap-2 sm:gap-3'>
       {/* Mobile Sidebar Toggle Button */}
-      <button 
+      <button
         onClick={toggleSidebar}
         className='lg:hidden p-2 -ml-2 text-gray-500 hover:text-[#6B46C1] transition-colors rounded-lg hover:bg-gray-100'
       >
@@ -57,10 +77,54 @@ export function DashboardHeader() {
 
       {/* Right side: Bell + User */}
       <div className='flex items-center gap-3 ml-auto shrink-0'>
-        {/* Bell */}
-        <button className='relative p-1.5 text-gray-500 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-100'>
-          <Bell size={20} />
-        </button>
+        {/* Export Button (Admin Only) */}
+        {isAdminRoute && (
+          <button
+            onClick={() => setIsExportModalOpen(true)}
+            className='flex items-center gap-2 p-1.5 sm:px-3 text-gray-500 hover:text-[#6B46C1] transition-colors rounded-lg hover:bg-purple-50 group border border-transparent hover:border-purple-100'
+          >
+            <Download size={18} className='group-hover:bounce' />
+            <span className='hidden md:block text-xs font-bold'>Export</span>
+          </button>
+        )}
+
+        {/* Notifications (User/Tasker Only) */}
+        {!isAdminRoute && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className='relative p-1.5 text-gray-500 hover:text-[#6B46C1] transition-colors rounded-lg hover:bg-purple-50 group border border-transparent hover:border-purple-100 outline-none'>
+                <Bell size={20} />
+                <span className='absolute top-1.5 right-1.5 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse' />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end' className='w-80 p-0 overflow-hidden rounded-2xl border-gray-100 shadow-xl'>
+              <div className='p-4 border-b border-gray-50 flex items-center justify-between'>
+                <h3 className='font-bold text-gray-900'>Notifications</h3>
+                <span className='text-[10px] bg-purple-100 text-[#6B46C1] px-2 py-0.5 rounded-full font-bold uppercase'>3 New</span>
+              </div>
+              <div className='max-h-[320px] overflow-y-auto'>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className='p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors'>
+                    <div className='flex gap-3'>
+                      <div className='h-2 w-2 mt-1.5 rounded-full bg-[#6B46C1] shrink-0' />
+                      <div>
+                        <p className='text-sm font-semibold text-gray-900 leading-tight'>Notification Title {i}</p>
+                        <p className='text-xs text-gray-500 mt-1 line-clamp-2'>This is a description for the notification broadcast sent from admin panel.</p>
+                        <p className='text-[10px] text-gray-400 mt-2'>2 hours ago</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link
+                href="/notifications"
+                className='block w-full p-4 text-center text-sm font-bold text-[#6B46C1] hover:bg-purple-50 transition-colors border-t border-gray-50'
+              >
+                See more
+              </Link>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
         {/* User Profile */}
         <DropdownMenu>
@@ -101,6 +165,11 @@ export function DashboardHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        type={getExportType()}
+      />
     </header>
   );
 }

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
+import { ExportModal } from "@/components/admin/ExportModal";
 import Link from "next/link";
 import {
   useAdminTaskers,
@@ -34,6 +35,7 @@ export default function TaskersManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const limit = 20;
 
   // Fetch dashboard stats for summary metrics
@@ -54,30 +56,6 @@ export default function TaskersManagementPage() {
             : undefined,
     verified: activeFilter === "Verified" ? true : undefined,
   });
-
-  const { mutate: exportTaskers, isPending: isExporting } = useExportTaskers();
-
-  const handleExport = () => {
-    exportTaskers(undefined, {
-      onSuccess: (data) => {
-        if (data.downloadUrl) {
-          window.open(data.downloadUrl, "_blank");
-        } else {
-          const blob = new Blob([JSON.stringify(data, null, 2)], {
-            type: "application/json",
-          });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `taskers_export_${new Date().getTime()}.json`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        }
-      },
-    });
-  };
 
   const taskers = taskersData?.taskers ?? [];
   const pagination = taskersData?.pagination;
@@ -120,6 +98,11 @@ export default function TaskersManagementPage() {
 
   return (
     <div className='space-y-6'>
+      <ExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+        type="taskers" 
+      />
       <div className='flex flex-col md:flex-row gap-3 md:items-center justify-between'>
         <div>
           <h1 className='text-2xl font-bold text-gray-900'>
@@ -129,16 +112,11 @@ export default function TaskersManagementPage() {
         </div>
         <div className='flex gap-3'>
           <Button
-            disabled={isExporting}
-            onClick={handleExport}
+            onClick={() => setIsExportModalOpen(true)}
             variant='outline'
             className='text-sm h-10 px-4 gap-2'
           >
-            {isExporting ? (
-              <Loader2 size={16} className='animate-spin' />
-            ) : (
-              <Download size={16} />
-            )}
+            <Download size={16} />
             Export
           </Button>
         </div>

@@ -243,15 +243,15 @@ export default function TaskDetailsPage({
             </CardTitle>
           </CardHeader>
           <CardContent className='p-6 pt-0 space-y-5'>
-            {task.assignedTasker ? (
+            {task.assignedTo ? (
               <>
                 <div>
                   <div className='text-xs text-gray-500 font-medium mb-1'>
                     Assigned Tasker
                   </div>
                   <div className='text-sm font-semibold text-gray-900'>
-                    {task.assignedTasker.emailAddress ||
-                      task.assignedTasker.taskerName}
+                    {task.assignedTo.emailAddress ||
+                      task.assignedTo.taskerName}
                   </div>
                 </div>
                 <div>
@@ -261,13 +261,13 @@ export default function TaskDetailsPage({
                     {task.status.replace("_", " ")}
                   </span>
                 </div>
-                {task.assignedTasker.rating && (
+                {task.assignedTo.rating && (
                   <div>
                     <div className='text-xs text-gray-500 font-medium mb-1'>
                       Rating
                     </div>
                     <div className='text-sm font-semibold text-gray-900'>
-                      ⭐ {task.assignedTasker.rating}
+                      ⭐ {task.assignedTo.rating}
                     </div>
                   </div>
                 )}
