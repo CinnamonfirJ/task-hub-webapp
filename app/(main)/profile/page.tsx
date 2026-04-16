@@ -262,15 +262,25 @@ export default function ProfilePage() {
         </div>
       )} */}
 
-      {/* Upload Previous Work Button (For Taskers) */}
-      {user?.role === "tasker" && (
-        <Link href='/profile/details#service-info'>
-          <Button 
-            className='w-full bg-red-600 hover:bg-red-700 text-white font-black py-7 rounded-2xl shadow-lg shadow-red-100 flex items-center justify-center gap-3 transition-all active:scale-[0.98]'
-          >
-            <Plus size={20} strokeWidth={3} />
-            UPLOAD PREVIOUS WORKS
-          </Button>
+      {/* Upload Previous Work Section (For Taskers with no portfolio) */}
+      {user?.role === "tasker" && (!user?.previousWork || user.previousWork.length === 0) && (
+        <Link href='/profile/details#service-info' className="block mt-4">
+          <div className='bg-white border border-gray-200 p-5 rounded-md flex items-center justify-between group hover:border-[#6B46C1] transition-colors'>
+            <div className='flex items-center gap-4'>
+              <div className='bg-purple-50 p-3 rounded-md text-[#6B46C1]'>
+                <Plus size={20} />
+              </div>
+              <div className='space-y-0.5'>
+                <h3 className='font-black text-sm md:text-base text-gray-900 uppercase tracking-tight'>
+                  Upload Previous Works
+                </h3>
+                <p className='text-[10px] md:text-xs text-gray-500 font-medium'>
+                  Showcase your portfolio to build trust and attract more clients
+                </p>
+              </div>
+            </div>
+            <ChevronRight size={18} className='text-gray-300 group-hover:text-[#6B46C1] transition-colors' />
+          </div>
         </Link>
       )}
 
