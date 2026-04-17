@@ -751,6 +751,7 @@ export const adminApi = {
     page?: number;
     limit?: number;
     status?: string;
+    payoutMethod?: string;
   }): Promise<any> => {
     const query = new URLSearchParams();
     if (params) {
@@ -762,6 +763,13 @@ export const adminApi = {
       `/api/admin/withdrawals?${query.toString()}`,
       { method: "GET" },
     );
+    return response.data ?? response;
+  },
+
+  getWithdrawalStats: async (): Promise<any> => {
+    const response = await apiData<any>("/api/admin/withdrawals/stats", {
+      method: "GET",
+    });
     return response.data ?? response;
   },
 

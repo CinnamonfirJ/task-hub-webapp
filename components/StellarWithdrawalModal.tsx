@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useStellarWithdrawal } from "@/hooks/useWithdrawal";
 import { useTaskerWallet } from "@/hooks/useWallet";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface StellarWithdrawalModalProps {
   isOpen: boolean;
@@ -169,7 +170,14 @@ export function StellarWithdrawalModal({
                   Back
                 </Button>
                 <Button
-                  onClick={() => setStep('review')}
+                  onClick={() => {
+                    const xlmAmount = Number(amount);
+                    if (!xlmAmount || xlmAmount < 5) {
+                      toast.error('Minimum withdrawal is 5 XLM');
+                      return;
+                    }
+                    setStep('review');
+                  }}
                   disabled={!isAddressValid || !amount}
                   className='flex-1 py-6 rounded-md bg-[#6B46C1] hover:bg-[#553C9A] text-white font-medium text-base transition-all'
                 >
@@ -256,21 +264,24 @@ export function StellarWithdrawalModal({
                 </Button>
                 <Button
                   onClick={() => {
+                    // Backend always expects NGN — convert XLM → NGN (1 XLM = 1500 NGN)
+                    const xlmAmount = Number(amount);
+                    const ngnAmount = Math.round(xlmAmount * 1500);
                     withdraw(
-                      { 
-                        amount: Number(amount), 
-                        payoutMethod: "stellar", 
-                        stellarAddress: address, 
-                        transactionPin: pin.join('') 
+                      {
+                        amount: ngnAmount,
+                        payoutMethod: 'stellar_crypto',
+                        stellarAddress: address,
+                        transactionPin: pin.join('')
                       },
                       {
                         onSuccess: () => {
                           setStep('success');
                         },
                         onError: (err: any) => {
-                          const msg = err?.response?.data?.message || err?.message || "Invalid PIN or withdrawal failed";
+                          const msg = err?.response?.data?.message || err?.message || 'Invalid PIN or withdrawal failed';
                           toast.error(msg);
-                          setPin(["", "", "", ""]);
+                          setPin(['', '', '', '']);
                           pinRefs[0].current?.focus();
                         }
                       }
@@ -295,10 +306,7 @@ export function StellarWithdrawalModal({
               </p>
               
               <div className='flex justify-center mb-6'>
-                <div className='relative w-40 h-40 flex items-center justify-center bg-green-500 rounded-full shadow-[0_0_40px_rgba(34,197,94,0.4)]'>
-                  <BadgeCheck size={180} fill="currentColor" className="text-green-500 absolute -inset-2" stroke="white" strokeWidth={1} />
-                  <CheckCircle2 size={80} className="text-white relative z-10" strokeWidth={4} />
-                </div>
+                <Image src="/assets/check.png" alt="Success" width={200} height={200} />
               </div>
             </div>
           )}

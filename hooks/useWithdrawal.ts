@@ -4,15 +4,39 @@ import { walletApi } from "@/lib/api/wallet";
 import { useAuth } from "@/hooks/useAuth";
 
 /**
- * Hook for taskers to request a withdrawal.
+ * Bank transfer withdrawal with PIN + bankDetails (correct payload per API docs).
+ */
+export function useBankWithdrawal() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      amount: number;
+      payoutMethod: "bank_transfer";
+      transactionPin: string;
+      bankDetails: {
+        accountNumber: string;
+        bankName: string;
+        accountName: string;
+      };
+    }) => walletApi.requestBankWithdrawal(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["taskerWallet"] });
+      queryClient.invalidateQueries({ queryKey: ["taskerBalance"] });
+      queryClient.invalidateQueries({ queryKey: ["withdrawals"] });
+    },
+  });
+}
+
+/**
+ * Hook for taskers to request a withdrawal (legacy simple — kept for backward compat).
  */
 export function useWithdrawal() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (amount: number) => walletApi.requestWithdrawal(amount),
     onSuccess: () => {
-      // Refresh balance and transactions
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["taskerWallet"] });
@@ -22,11 +46,10 @@ export function useWithdrawal() {
 }
 
 /**
- * Hook for taskers to request a Stellar withdrawal.
+ * Stellar crypto withdrawal with PIN + stellarAddress.
  */
 export function useStellarWithdrawal() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (payload: {
       amount: number;
@@ -35,12 +58,22 @@ export function useStellarWithdrawal() {
       stellarAddress: string;
     }) => walletApi.requestStellarWithdrawal(payload),
     onSuccess: () => {
-      // Refresh balance and transactions
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["taskerWallet"] });
+      queryClient.invalidateQueries({ queryKey: ["taskerBalance"] });
       queryClient.invalidateQueries({ queryKey: ["withdrawals"] });
     },
+  });
+}
+
+/**
+ * Set up or reset the 4-digit transaction PIN.
+ */
+export function useSetupPin() {
+  return useMutation({
+    mutationFn: ({ pin, password }: { pin: string; password: string }) =>
+      walletApi.setupPin(pin, password),
   });
 }
 
@@ -52,7 +85,7 @@ export function useBanks() {
   return useQuery({
     queryKey: ["banks"],
     queryFn: () => walletApi.getBanks(),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     enabled: user?.role === "tasker",
   });
 }
