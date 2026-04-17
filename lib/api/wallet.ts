@@ -183,9 +183,14 @@ export const walletApi = {
 
   // ─── Stellar deposit info ─────────────────────────────────────────────────────
 
-  getDepositInfo: async (): Promise<{ walletAddress: string; memoId: string }> => {
+  getDepositInfo: async (): Promise<{ walletAddress: string; memoId: string; exchangeRate?: number }> => {
     const res = await apiData<any>("/api/wallet/stellar/deposit-info", { method: "GET" });
-    return res?.data || res;
+    const data = res?.data || res;
+    return {
+      walletAddress: data?.masterWalletAddress || data?.walletAddress,
+      memoId: data?.userMemoId || data?.memoId,
+      exchangeRate: data?.exchangeRate,
+    };
   },
 
   getWithdrawalHistory: async (params: { page?: number; limit?: number } = {}): Promise<any[]> => {
