@@ -7,6 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { 
+  useNotifications, 
+  useMarkNotificationAsRead, 
+  useMarkAllNotificationsAsRead, 
+  useDeleteNotification 
+} from "@/hooks/useAuth";
+import { formatDistanceToNow } from "date-fns";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 // Mock notification data for initial redesign
 const MOCK_NOTIFICATIONS = [
@@ -48,18 +57,36 @@ export default function UserNotificationsPage() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredNotifications = MOCK_NOTIFICATIONS.filter(n => {
-    const matchesTab = 
-      activeTab === "all" || 
-      (activeTab === "unread" && !n.isRead) || 
-      (activeTab === "read" && n.isRead);
-    
+  const { data: notificationsData, isLoading } = useNotifications({
+    isRead: activeTab === "all" ? undefined : activeTab === "read",
+    limit: 50
+  });
+
+  const { mutate: markAsRead } = useMarkNotificationAsRead();
+  const { mutate: markAllAsRead, isPending: isMarkingAll } = useMarkAllNotificationsAsRead();
+  const { mutate: deleteNotification } = useDeleteNotification();
+
+  const notifications = notificationsData?.notifications || [];
+
+  const filteredNotifications = notifications.filter((n: any) => {
     const matchesSearch = 
       n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       n.message.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesTab && matchesSearch;
+    return matchesSearch;
   });
+
+  const handleMarkAllAsRead = () => {
+    markAllAsRead(undefined, {
+      onSuccess: () => toast.success("All notifications marked as read")
+    });
+  };
+
+  const handleDelete = (id: string) => {
+    deleteNotification(id, {
+      onSuccess: () => toast.success("Notification deleted")
+    });
+  };
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -79,11 +106,15 @@ export default function UserNotificationsPage() {
           <p className="text-sm text-gray-500 mt-1">Stay updated with your latest activities and system alerts</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-9 px-3 text-xs font-bold gap-2 text-gray-600 rounded-xl">
-            <CheckCircle2 size={14} /> Mark all as read
-          </Button>
-          <Button variant="outline" size="icon" className="h-9 w-9 text-gray-400 rounded-xl">
-            <Trash2 size={16} />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleMarkAllAsRead}
+            disabled={isMarkingAll || notifications.length === 0}
+            className="h-9 px-3 text-xs font-bold gap-2 text-gray-600 rounded-xl"
+          >
+            {isMarkingAll ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+            Mark all as read
           </Button>
         </div>
       </div>
@@ -110,8 +141,12 @@ export default function UserNotificationsPage() {
       </div>
 
       {/* Notifications List */}
-      <div className="space-y-3">
-        {filteredNotifications.length === 0 ? (
+      <div className="space-y-3 relative min-h-[400px]">
+        {isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10 rounded-2xl">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+          </div>
+        ) : filteredNotifications.length === 0 ? (
           <Card className="border-dashed border-2 border-gray-100 bg-gray-50/30">
             <CardContent className="flex flex-col items-center justify-center py-20 text-center">
               <div className="bg-white p-4 rounded-full shadow-sm mb-4">
@@ -124,9 +159,10 @@ export default function UserNotificationsPage() {
             </CardContent>
           </Card>
         ) : (
-          filteredNotifications.map((notification) => (
+          filteredNotifications.map((notification: any) => (
             <Card 
-              key={notification.id} 
+              key={notification._id} 
+              onClick={() => !notification.isRead && markAsRead(notification._id)}
               className={cn(
                 "group relative border-transparent hover:border-purple-100 transition-all cursor-pointer rounded-2xl overflow-hidden",
                 !notification.isRead ? "bg-white shadow-md shadow-purple-50/50 ring-1 ring-purple-50" : "bg-gray-50/50 grayscale-[0.5] opacity-80"
@@ -158,18 +194,24 @@ export default function UserNotificationsPage() {
                           {notification.title}
                         </h3>
                         <p className="text-xs font-bold text-gray-400 mt-0.5 tracking-wider uppercase">
-                          {notification.type}
+                          {notification.type || "System"}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 text-gray-400">
                         <Clock size={14} />
                         <span className="text-xs font-medium">
-                          {new Date(notification.createdAt).toLocaleDateString() === new Date().toLocaleDateString() 
-                            ? "Today" 
-                            : new Date(notification.createdAt).toLocaleDateString()}
+                          {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                         </span>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                          <MoreVertical size={16} />
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 rounded-lg hover:text-red-500"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(notification._id);
+                          }}
+                        >
+                          <Trash2 size={16} />
                         </Button>
                       </div>
                     </div>

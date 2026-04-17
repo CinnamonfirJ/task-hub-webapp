@@ -5,6 +5,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_API;
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
   skipAuthError?: boolean;
+  isDownload?: boolean;
 }
 
 export const apiData = async <T>(
@@ -107,6 +108,28 @@ export const apiData = async <T>(
         );
       }
       return {} as T;
+    }
+
+    // Detect file responses to return as Blobs instead of parsing as JSON
+    const contentType = response.headers.get("Content-Type");
+    const contentDisposition = response.headers.get("Content-Disposition");
+    const isAttachment = contentDisposition?.includes("attachment");
+
+    // Only treat as file if it's NOT JSON and (isDownload requested OR isAttachment OR has binary Content-Type)
+    const isJson = contentType?.includes("application/json");
+    const isFile = !isJson && (options.isDownload || isAttachment || (contentType && (
+      contentType.includes("text/csv") ||
+      contentType.includes("application/pdf") ||
+      contentType.includes("application/vnd.ms-excel") ||
+      contentType.includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
+      contentType.includes("application/octet-stream")
+    )));
+
+    if (isFile) {
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[API Response] ${options.method || "GET"} ${endpoint}: File detected (${contentType}) returning as Blob`);
+      }
+      return (await response.blob()) as any;
     }
 
     const data = await response.json();

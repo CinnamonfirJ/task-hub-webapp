@@ -13,6 +13,7 @@ import {
   DollarSign,
   Loader2,
   Circle,
+  Download,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,8 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { navItems } from "@/components/admin/AdminSidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import { ExportModal } from "@/components/admin/ExportModal";
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
@@ -30,6 +33,7 @@ export default function AdminDashboardPage() {
     isLoading: statsLoading,
     isError: statsError,
   } = useAdminDashboard();
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   if (statsLoading) {
     return (
@@ -254,19 +258,21 @@ export default function AdminDashboardPage() {
         </div>
         <div className='flex gap-3'>
           <Button
+            onClick={() => setIsExportModalOpen(true)}
             variant='outline'
             className='text-sm h-9 px-4 gap-2 border-gray-200 font-medium'
           >
-            Default
-          </Button>
-          <Button
-            variant='outline'
-            className='text-sm h-9 px-4 gap-2 border-gray-200 font-medium'
-          >
+            <Download size={16} />
             Export
           </Button>
         </div>
       </div>
+
+      <ExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+        type="dashboard" 
+      />
 
       {/* 8 Metric Cards — 4 columns */}
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>

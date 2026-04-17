@@ -89,31 +89,8 @@ export default function UsersManagementPage() {
     }
   }, [usersData, page, activeFilter]);
 
-  const { mutate: exportUsers, isPending: isExporting } = useExportUsers();
   const { mutate: lockUser } = useLockUser();
   const { mutate: unlockUser } = useUnlockUser();
-
-  const handleExport = () => {
-    exportUsers(undefined, {
-      onSuccess: (data) => {
-        if (data.downloadUrl) {
-          window.open(data.downloadUrl, "_blank");
-        } else {
-          const blob = new Blob([JSON.stringify(data, null, 2)], {
-            type: "application/json",
-          });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `users_export_${new Date().getTime()}.json`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        }
-      },
-    });
-  };
 
   const summaryMetrics = [
     { label: "Total Users", value: stats?.totalUsers?.toLocaleString() || "0" },
@@ -196,7 +173,7 @@ export default function UsersManagementPage() {
           <Button
             onClick={() => setIsExportModalOpen(true)}
             variant='outline'
-            className='text-sm h-10 px-4 gap-2'
+            className='text-sm h-10 px-4 gap-2 border-gray-200'
           >
             <Download size={16} />
             Export

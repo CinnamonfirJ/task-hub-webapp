@@ -14,8 +14,10 @@ import {
 import { useAdminProfile } from "@/hooks/useAdmin";
 import { useSidebar } from "@/components/admin/SidebarContext";
 import { ExportModal, ExportType } from "@/components/admin/ExportModal";
-import { Download } from "lucide-react";
+import { useNotifications, useMarkNotificationAsRead } from "@/hooks/useAuth";
+import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 
 export function DashboardHeader() {
   const pathname = usePathname();
@@ -90,40 +92,7 @@ export function DashboardHeader() {
 
         {/* Notifications (User/Tasker Only) */}
         {!isAdminRoute && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className='relative p-1.5 text-gray-500 hover:text-[#6B46C1] transition-colors rounded-lg hover:bg-purple-50 group border border-transparent hover:border-purple-100 outline-none'>
-                <Bell size={20} />
-                <span className='absolute top-1.5 right-1.5 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse' />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end' className='w-80 p-0 overflow-hidden rounded-2xl border-gray-100 shadow-xl'>
-              <div className='p-4 border-b border-gray-50 flex items-center justify-between'>
-                <h3 className='font-bold text-gray-900'>Notifications</h3>
-                <span className='text-[10px] bg-purple-100 text-[#6B46C1] px-2 py-0.5 rounded-full font-bold uppercase'>3 New</span>
-              </div>
-              <div className='max-h-[320px] overflow-y-auto'>
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className='p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors'>
-                    <div className='flex gap-3'>
-                      <div className='h-2 w-2 mt-1.5 rounded-full bg-[#6B46C1] shrink-0' />
-                      <div>
-                        <p className='text-sm font-semibold text-gray-900 leading-tight'>Notification Title {i}</p>
-                        <p className='text-xs text-gray-500 mt-1 line-clamp-2'>This is a description for the notification broadcast sent from admin panel.</p>
-                        <p className='text-[10px] text-gray-400 mt-2'>2 hours ago</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <Link
-                href="/notifications"
-                className='block w-full p-4 text-center text-sm font-bold text-[#6B46C1] hover:bg-purple-50 transition-colors border-t border-gray-50'
-              >
-                See more
-              </Link>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <NotificationsDropdown />
         )}
 
         {/* User Profile */}
@@ -171,5 +140,84 @@ export function DashboardHeader() {
         type={getExportType()}
       />
     </header>
+  );
+}
+function NotificationsDropdown() {
+  const { data: notificationsData, isLoading } = useNotifications({ limit: 5 });
+  const { mutate: markAsRead } = useMarkNotificationAsRead();
+  
+  const notifications = notificationsData?.notifications || [];
+  const unreadCount = notifications.filter((n: any) => !n.isRead).length;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className='relative p-1.5 text-gray-500 hover:text-[#6B46C1] transition-colors rounded-lg hover:bg-purple-50 group border border-transparent hover:border-purple-100 outline-none'>
+          <Bell size={20} />
+          {unreadCount > 0 && (
+            <span className='absolute top-1.5 right-1.5 h-3 w-3 bg-red-500 rounded-full border-2 border-white animate-pulse' />
+          )}
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align='end' className='w-85 p-0 overflow-hidden rounded-2xl border-gray-100 shadow-xl'>
+        <div className='p-5 border-b border-gray-50 flex items-center justify-between'>
+          <h3 className='font-bold text-gray-900'>Notifications</h3>
+          {unreadCount > 0 && (
+            <span className='text-[10px] bg-purple-100 text-[#6B46C1] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider'>
+              {unreadCount} New
+            </span>
+          )}
+        </div>
+        
+        <div className='max-h-[400px] overflow-y-auto custom-scrollbar min-h-[100px] bg-white'>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+            </div>
+          ) : notifications.length > 0 ? (
+            notifications.map((notification: any) => (
+              <div 
+                key={notification._id} 
+                onClick={() => !notification.isRead && markAsRead(notification._id)}
+                className={`p-5 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors flex gap-4 ${
+                  !notification.isRead ? "bg-purple-50/30" : ""
+                }`}
+              >
+                <div className={`h-2.5 w-2.5 mt-1.5 rounded-full shrink-0 ${
+                  !notification.isRead ? "bg-[#6B46C1]" : "bg-gray-200"
+                }`} />
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm leading-snug truncate ${
+                    !notification.isRead ? "font-bold text-gray-900" : "font-medium text-gray-600"
+                  }`}>
+                    {notification.title}
+                  </p>
+                  <p className='text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed'>
+                    {notification.message}
+                  </p>
+                  <p className='text-[10px] text-gray-400 mt-2 font-medium flex items-center gap-1'>
+                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                    <span className="h-1 w-1 rounded-full bg-gray-300 mx-1" />
+                    {notification.type || "System"}
+                  </p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+              <Bell size={32} className="opacity-10 mb-2" />
+              <p className="text-xs font-bold">No notifications yet</p>
+            </div>
+          )}
+        </div>
+        
+        <Link
+          href="/notifications"
+          className='block w-full p-4 text-center text-xs font-black text-[#6B46C1] hover:bg-purple-50 transition-colors border-t border-gray-50 uppercase tracking-widest bg-gray-50/50'
+        >
+          View all notifications
+        </Link>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

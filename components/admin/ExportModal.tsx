@@ -69,17 +69,59 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
   const handleExport = async () => {
     try {
       const params = (type === "dashboard" || type === "tasks") 
-        ? { startDate, endDate } 
-        : undefined;
+        ? { startDate, endDate, format } 
+        : format;
 
       mutation.mutate(params as any, {
-        onSuccess: (data: any) => {
-          toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported successfully!`);
-          
-          // In a real app, 'data' would be a URL or a blob
-          // For now, we simulate the download if the API returns a blob/url
-          if (data?.url) {
-            window.open(data.url, "_blank");
+        onSuccess: (response: any) => {
+          // 1. Direct Blob Download (PDF, Excel, direct CSV stream)
+          if (response instanceof Blob) {
+            const url = window.URL.createObjectURL(response);
+            const link = document.createElement("a");
+            link.href = url;
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            const extension = format === "xlsx" ? "xlsx" : format;
+            link.setAttribute("download", `${type}-report-${timestamp}.${extension}`);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} report downloaded!`);
+            onClose();
+            return;
+          }
+
+          // 2. Metadata with downloadUrl (S3 or generated file link)
+          const downloadUrl = response?.data?.downloadUrl || response?.url || response?.downloadUrl;
+          if (downloadUrl) {
+            toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} report ready!`);
+            window.open(downloadUrl, "_blank");
+            onClose();
+            return;
+          }
+
+          // 3. Fallback: Local JSON/CSV creation from raw data array
+          // If the backend returns raw records, we generate a local file
+          const dataToExport = response?.data || response;
+          if (Array.isArray(dataToExport) || typeof dataToExport === 'object') {
+            const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
+              type: "application/json",
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `${type}_export_${new Date().getTime()}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported successfully!`);
+          } else {
+            toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} export triggered!`);
           }
           
           onClose();
@@ -159,7 +201,9 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   <SelectItem value="csv" className="font-bold">CSV (Comma Separated Values)</SelectItem>
-                  <SelectItem value="xlsx" className="font-bold">Excel Spreadshet (.xlsx)</SelectItem>
+                  <SelectItem value="xlsx" className="font-bold">Excel Spreadsheet (.xlsx)</SelectItem>
+                  <SelectItem value="json" className="font-bold">JSON (Raw Data Export)</SelectItem>
+                  {/* <SelectItem value="pdf" className="font-bold">PDF (Print-ready Report)</SelectItem> */}
                 </SelectContent>
               </Select>
             </div>

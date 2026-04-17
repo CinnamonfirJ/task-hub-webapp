@@ -80,7 +80,14 @@ export const walletApi = {
 
   getBanks: async (): Promise<any[]> => {
     const res = await apiData<any>("/api/wallet/banks", { method: "GET" });
-    return res?.data || res || [];
+    // Handle multiple possible response shapes from the backend
+    const banks =
+      res?.data?.banks ||
+      res?.data?.data ||
+      (Array.isArray(res?.data) ? res.data : null) ||
+      (Array.isArray(res) ? res : null) ||
+      [];
+    return Array.isArray(banks) ? banks : [];
   },
 
   getBankAccount: async (): Promise<any> => {
@@ -101,6 +108,19 @@ export const walletApi = {
       method: "POST",
       body: JSON.stringify({ amount }),
     });
+    return res?.data || res;
+  },
+
+  requestStellarWithdrawal: async (payload: { amount: number; payoutMethod: string; transactionPin: string; stellarAddress: string }): Promise<any> => {
+    const res = await apiData<any>("/api/wallet/tasker/withdraw", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    return res?.data || res;
+  },
+
+  getDepositInfo: async (): Promise<{ walletAddress: string; memoId: string }> => {
+    const res = await apiData<any>("/api/wallet/stellar/deposit-info", { method: "GET" });
     return res?.data || res;
   },
 

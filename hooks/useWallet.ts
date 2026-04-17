@@ -44,3 +44,12 @@ export function useTaskerWallet() {
     enabled: user?.role === "tasker",
   });
 }
+
+export function useStellarDepositInfo() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["stellarDepositInfo"],
+    queryFn: () => walletApi.getDepositInfo(),
+    enabled: !!user,
+  });
+}

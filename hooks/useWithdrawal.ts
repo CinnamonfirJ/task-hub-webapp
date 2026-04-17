@@ -22,6 +22,29 @@ export function useWithdrawal() {
 }
 
 /**
+ * Hook for taskers to request a Stellar withdrawal.
+ */
+export function useStellarWithdrawal() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: {
+      amount: number;
+      payoutMethod: string;
+      transactionPin: string;
+      stellarAddress: string;
+    }) => walletApi.requestStellarWithdrawal(payload),
+    onSuccess: () => {
+      // Refresh balance and transactions
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["taskerWallet"] });
+      queryClient.invalidateQueries({ queryKey: ["withdrawals"] });
+    },
+  });
+}
+
+/**
  * Hook to get the list of supported banks.
  */
 export function useBanks() {
@@ -29,7 +52,7 @@ export function useBanks() {
   return useQuery({
     queryKey: ["banks"],
     queryFn: () => walletApi.getBanks(),
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: user?.role === "tasker",
   });
 }

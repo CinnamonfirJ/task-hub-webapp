@@ -170,3 +170,42 @@ export function useVerifyEmail() {
     isResending: resendMutation.isPending,
   };
 }
+
+export function useNotifications(params?: Parameters<typeof authApi.getNotifications>[0]) {
+  return useQuery({
+    queryKey: ["notifications", params],
+    queryFn: () => authApi.getNotifications(params),
+    staleTime: 60 * 1000, // 1 minute
+    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
+  });
+}
+
+export function useMarkNotificationAsRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => authApi.markNotificationAsRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+
+export function useMarkAllNotificationsAsRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => authApi.markAllNotificationsAsRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+
+export function useDeleteNotification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => authApi.deleteNotification(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}

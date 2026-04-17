@@ -21,8 +21,9 @@ import {
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
 import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
-import { useAdminTasks, useTaskStats, useExportTasks } from "@/hooks/useAdmin";
+import { useAdminTasks, useTaskStats } from "@/hooks/useAdmin";
 import { formatCurrency } from "@/lib/utils";
+import { ExportModal } from "@/components/admin/ExportModal";
 
 export default function TasksManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -38,41 +39,13 @@ export default function TasksManagementPage() {
         : activeFilter.toLowerCase();
 
   const { data: taskStats } = useTaskStats();
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const { data: tasksData, isLoading } = useAdminTasks({
     page,
     limit,
     search: searchQuery || undefined,
     status: statusParam,
   });
-
-  const { mutate: exportTasks, isPending: isExporting } = useExportTasks();
-
-  const handleExport = () => {
-    exportTasks(
-      {
-        status: statusParam,
-      },
-      {
-        onSuccess: (data) => {
-          if (data.downloadUrl) {
-            window.open(data.downloadUrl, "_blank");
-          } else {
-            const blob = new Blob([JSON.stringify(data, null, 2)], {
-              type: "application/json",
-            });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `tasks_export_${new Date().getTime()}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-          }
-        },
-      },
-    );
-  };
 
   const tasks = tasksData?.tasks ?? [];
   const pagination = tasksData
@@ -131,22 +104,23 @@ export default function TasksManagementPage() {
           <p className='text-sm text-gray-500'>Monitor and manage all tasks</p>
         </div>
         <Button
-          disabled={isExporting}
-          onClick={handleExport}
+          onClick={() => setIsExportModalOpen(true)}
           variant='outline'
           className='text-sm h-10 px-4 gap-2'
         >
-          {isExporting ? (
-            <Loader2 size={16} className='animate-spin' />
-          ) : (
-            <Download size={16} />
-          )}
+          <Download size={16} />
           Export
         </Button>
       </div>
 
+      <ExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+        type="tasks" 
+      />
+
       <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
-        {taskMetrics.map((metric, idx) => (
+        {taskMetrics.map((metric: { label: string; value: string; color?: string }, idx: number) => (
           <Card key={idx} className='border border-gray-100 shadow-sm'>
             <CardContent className='p-4'>
               <div
@@ -201,7 +175,7 @@ export default function TasksManagementPage() {
                   </tr>
                 </thead>
                 <tbody className='divide-y'>
-                  {tasks.map((task) => (
+                  {tasks.map((task: any) => (
                     <tr
                       key={task._id}
                       className='group hover:bg-gray-50 transition-colors'
@@ -278,7 +252,7 @@ export default function TasksManagementPage() {
                         >
                           {(task.status || "unknown")
                             .replace("_", " ")
-                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            .replace(/\b\w/g, (l: string) => l.toUpperCase())}
                         </span>
                       </td>
                       <td className='px-6 py-5 text-right'>

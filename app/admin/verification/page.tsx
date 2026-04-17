@@ -84,13 +84,13 @@ export default function KYCManagementPage() {
             Review and manage identity verifications
           </p>
         </div>
-        <Button 
+        {/* <Button 
           variant='outline' 
           className='text-sm h-10 px-4 gap-2'
           onClick={() => setIsExportModalOpen(true)}
         >
           <Download size={16} /> Export
-        </Button>
+        </Button> */}
       </div>
 
       <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>

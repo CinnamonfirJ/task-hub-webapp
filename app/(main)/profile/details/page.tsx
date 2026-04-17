@@ -526,7 +526,7 @@ export default function ProfileDetailsPage() {
                 />
                 <EditableListItem 
                   icon={<MapPin size={20} />} 
-                  label="Resident State" 
+                  label="State" 
                   id="residentState" 
                   options={NIGERIAN_STATES}
                   placeholder="Select state"

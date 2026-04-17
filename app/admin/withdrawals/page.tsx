@@ -31,10 +31,12 @@ interface AdminWithdrawal {
     email: string;
   };
   amount: number;
-  bankDetails: {
+  payoutMethod: "bank" | "stellar";
+  bankDetails?: {
     bankName: string;
     accountNumber: string;
   };
+  stellarAddress?: string;
   createdAt: string;
   status: "pending" | "approved" | "completed" | "rejected";
 }
@@ -118,6 +120,7 @@ export default function AdminWithdrawalsPage() {
                   <tr>
                     <th className='px-6 py-4'>Tasker</th>
                     <th className='px-6 py-4'>Amount</th>
+                    <th className='px-6 py-4'>Method</th>
                     <th className='px-6 py-4'>Bank Details</th>
                     <th className='px-6 py-4'>Date</th>
                     <th className='px-6 py-4'>Status</th>
@@ -149,12 +152,35 @@ export default function AdminWithdrawalsPage() {
                         ₦{item.amount.toLocaleString()}
                       </td>
                       <td className='px-6 py-4'>
-                        <p className='font-medium text-gray-700'>
-                          {item.bankDetails?.bankName}
-                        </p>
-                        <p className='text-xs text-gray-500 font-mono tracking-tighter'>
-                          {item.bankDetails?.accountNumber}
-                        </p>
+                        <span
+                          className={cn(
+                            "px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-tight",
+                            item.payoutMethod === "stellar"
+                              ? "bg-purple-100 text-purple-700 border border-purple-200"
+                              : "bg-blue-100 text-blue-700 border border-blue-200",
+                          )}
+                        >
+                          {item.payoutMethod || "bank"}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        {item.payoutMethod === "stellar" ? (
+                          <>
+                            <p className='font-medium text-gray-700'>Stellar Wallet</p>
+                            <p className='text-[10px] text-gray-500 font-mono tracking-tighter break-all max-w-[150px]'>
+                              {item.stellarAddress || "N/A"}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className='font-medium text-gray-700'>
+                              {item.bankDetails?.bankName}
+                            </p>
+                            <p className='text-xs text-gray-500 font-mono tracking-tighter'>
+                              {item.bankDetails?.accountNumber}
+                            </p>
+                          </>
+                        )}
                       </td>
                       <td className='px-6 py-4 text-gray-500'>
                         {new Date(item.createdAt).toLocaleDateString()}

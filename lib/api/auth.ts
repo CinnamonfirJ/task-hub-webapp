@@ -529,4 +529,44 @@ export const authApi = {
       },
     );
   },
+
+  // ── Notifications ──────────────────────────────────────────────────────
+
+  getNotifications: async (params?: {
+    page?: number;
+    limit?: number;
+    isRead?: boolean;
+  }): Promise<{
+    status: string;
+    notifications: any[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      pages: number;
+    };
+  }> => {
+    return apiData<any>("/api/notifications", {
+      method: "GET",
+      params,
+    });
+  },
+
+  markNotificationAsRead: async (id: string): Promise<void> => {
+    return apiData<void>(`/api/notifications/${id}/read`, {
+      method: "PATCH",
+    });
+  },
+
+  markAllNotificationsAsRead: async (): Promise<void> => {
+    return apiData<void>("/api/notifications/read-all", {
+      method: "PATCH",
+    });
+  },
+
+  deleteNotification: async (id: string): Promise<void> => {
+    return apiData<void>(`/api/notifications/${id}`, {
+      method: "DELETE",
+    });
+  },
 };

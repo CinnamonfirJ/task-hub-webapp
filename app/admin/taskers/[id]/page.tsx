@@ -18,6 +18,7 @@ import {
   LogIn,
   CheckSquare,
   UserCog,
+  ShieldAlertIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,8 +29,19 @@ import {
   useSuspendTasker,
   useActivateTasker,
   useVerifyTasker,
+  useSecuritySummary,
+  useActivityLogs,
 } from "@/hooks/useAdmin";
 import { formatCurrency } from "@/lib/utils";
+import {
+  History,
+  Info,
+  Fingerprint,
+  Key,
+  MousePointerClick,
+  AlertCircle,
+  ChevronDown,
+} from "lucide-react";
 
 export default function TaskerDetailsPage({
   params,
@@ -48,6 +60,15 @@ export default function TaskerDetailsPage({
   const { mutate: suspend, isPending: isSuspending } = useSuspendTasker();
   const { mutate: activate, isPending: isActivating } = useActivateTasker();
   const { mutate: verify, isPending: isVerifying } = useVerifyTasker();
+
+  const [logPage, setLogPage] = useState(1);
+
+  const { data: securitySummary, isLoading: isLoadingSecurity } = useSecuritySummary(id);
+  const { data: logsData, isLoading: isLoadingLogs } = useActivityLogs({
+    userId: id,
+    page: logPage,
+    limit: 10,
+  });
 
   if (isLoading) {
     return (
@@ -285,6 +306,93 @@ export default function TaskerDetailsPage({
         </Card>
       </div>
 
+      {/* ── Security Summary ── */}
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <CardHeader className='pb-2 flex flex-row items-center justify-between space-y-0'>
+            <CardTitle className='text-sm font-bold text-gray-900 flex items-center gap-2'>
+              <ShieldAlertIcon size={16} className='text-purple-600' />
+              Security Summary
+            </CardTitle>
+            {isLoadingSecurity && <Loader2 size={14} className='animate-spin text-gray-400' />}
+          </CardHeader>
+          <CardContent className='pt-2'>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='p-3 bg-gray-50 rounded-xl border border-gray-100'>
+                <p className='text-[10px] text-gray-400 font-bold uppercase mb-1'>Risk Score</p>
+                <div className='flex items-center gap-2'>
+                  <span className={`text-lg font-bold ${
+                    (securitySummary?.riskScore || 0) > 70 ? "text-red-500" : 
+                    (securitySummary?.riskScore || 0) > 30 ? "text-amber-500" : "text-green-500"
+                  }`}>
+                    {securitySummary?.riskScore ?? "—"}
+                  </span>
+                  <span className='text-[10px] text-gray-400'>/ 100</span>
+                </div>
+              </div>
+              <div className='p-3 bg-gray-50 rounded-xl border border-gray-100'>
+                <p className='text-[10px] text-gray-400 font-bold uppercase mb-1'>Security Alerts</p>
+                <div className='flex items-center gap-2'>
+                  <span className='text-lg font-bold text-gray-900'>
+                    {securitySummary?.alerts?.length || 0}
+                  </span>
+                  <span className='text-[10px] text-gray-400'>Total</span>
+                </div>
+              </div>
+              <div className='col-span-2 p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between'>
+                <div>
+                  <p className='text-[10px] text-gray-400 font-bold uppercase mb-1 flex items-center gap-1'>
+                    <Fingerprint size={12} /> Last Known IP
+                  </p>
+                  <p className='text-sm font-mono text-gray-700'>{securitySummary?.lastLoginIp || "—"}</p>
+                </div>
+                <div className='text-right'>
+                  <p className='text-[10px] text-gray-400 font-bold uppercase mb-1'>Status</p>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    tasker?.isSuspended ? "bg-red-50 text-red-500" : "bg-green-50 text-green-500"
+                  }`}>
+                    {tasker?.isSuspended ? "Flagged" : "Secure"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Security Alerts List */}
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <CardHeader className='pb-2'>
+            <CardTitle className='text-sm font-bold text-gray-900 flex items-center gap-2'>
+              <AlertCircle size={16} className='text-amber-500' />
+              Recent Security Alerts
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='pt-2 h-[140px] overflow-y-auto custom-scrollbar px-6'>
+            {securitySummary?.alerts?.length > 0 ? (
+              <div className='space-y-3'>
+                {securitySummary.alerts.map((alert: any, idx: number) => (
+                  <div key={idx} className='flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors'>
+                    <div className={`mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 ${
+                      alert.severity === "high" ? "bg-red-500" : "bg-amber-400"
+                    }`} />
+                    <div>
+                      <p className='text-xs font-bold text-gray-800'>{alert.type}</p>
+                      <p className='text-[10px] text-gray-500'>{alert.description}</p>
+                      <p className='text-[9px] text-gray-400 mt-0.5'>{new Date(alert.date).toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className='h-full flex flex-col items-center justify-center text-gray-400'>
+                <ShieldCheck size={24} className='mb-2 opacity-20' />
+                <p className='text-xs font-medium'>No security alerts detected</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       {/* ── Service Category ── */}
       <Card className='border border-gray-100 shadow-sm rounded-2xl'>
         <CardHeader className='pb-3'>
@@ -378,56 +486,96 @@ export default function TaskerDetailsPage({
         </CardContent>
       </Card>
 
-      {/* ── Activity Log ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
-        <CardHeader className='flex flex-row items-center justify-between p-6 pb-4'>
-          <CardTitle className='text-base font-bold text-gray-900'>
-            Activity Log
-          </CardTitle>
-          <button className='text-xs text-gray-400 hover:text-gray-600 font-medium'>
-            See all
-          </button>
-        </CardHeader>
-        <CardContent className='p-6 pt-0 space-y-5'>
-          {activityLog.length > 0 ? (
-            activityLog.map((entry: any, idx: number) => (
-              <div key={idx} className='flex items-start gap-4'>
-                {/* Dot */}
-                <div className='mt-1 w-2.5 h-2.5 rounded-full bg-[#6B46C1] shrink-0' />
-                <div>
-                  <p className='text-sm font-bold text-gray-900'>
-                    {entry.title}
-                  </p>
-                  <p className='text-xs text-gray-500'>{entry.description}</p>
-                  <p className='text-xs text-gray-400 mt-0.5'>
-                    {entry.createdAt
-                      ? new Date(entry.createdAt).toLocaleString()
-                      : "—"}
-                  </p>
+      {/* ── Activity History ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <div className='flex items-center justify-between px-6 pt-5 pb-3'>
+          <h3 className='text-base font-bold text-gray-900 flex items-center gap-2'>
+            <History size={18} className='text-gray-400' />
+            Activity History
+          </h3>
+          <div className='flex items-center gap-2 text-[10px] text-gray-400 font-medium'>
+            {logsData?.totalRecords || 0} Total Events
+          </div>
+        </div>
+        <CardContent className='px-6 pb-6 pt-0'>
+          <div className='space-y-4 relative min-h-[100px]'>
+            {isLoadingLogs && (
+              <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
+                <Loader2 className='h-6 w-6 animate-spin text-purple-600' />
+              </div>
+            )}
+            
+            {(logsData?.logs || []).map((log: any, idx: number) => (
+              <div key={log._id || idx} className='group flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100'>
+                <div className='mt-1.5 w-2 h-2 rounded-full bg-purple-500 shrink-0 group-hover:scale-125 transition-transform' />
+                <div className='flex-1'>
+                  <div className='flex items-center justify-between mb-0.5'>
+                    <p className='text-sm font-bold text-gray-900 group-hover:text-purple-700 transition-colors'>
+                      {log.action.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                    </p>
+                    <span className='text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded uppercase'>
+                      {log.onModel || log.resourceType || "System"}
+                    </span>
+                  </div>
+                  <p className='text-xs text-gray-500 leading-relaxed mb-1.5'>{log.details || "No additional details provided."}</p>
+                  <div className='flex items-center gap-3 text-[10px] text-gray-400'>
+                    <div className='flex items-center gap-1'>
+                      <Calendar size={10} />
+                      {new Date(log.createdAt).toLocaleString()}
+                    </div>
+                    {log.ipAddress && (
+                      <div className='flex items-center gap-1'>
+                        <MousePointerClick size={10} />
+                        {log.ipAddress}
+                      </div>
+                    )}
+                    {(log.performedBy || log.admin) && (
+                      <div className='flex items-center gap-1'>
+                        <ShieldCheck size={10} className='text-purple-400' />
+                        {log.performedBy 
+                          ? `${log.performedBy.firstName || ""} ${log.performedBy.lastName || ""}`.trim() || log.performedBy.emailAddress
+                          : log.admin?.fullName ?? log.admin?.email}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            ))
-          ) : /* Fallback: show recentTasks as activity */
-          recentTasks?.length > 0 ? (
-            recentTasks.map((task: any) => (
-              <div key={task._id} className='flex items-start gap-4'>
-                <div className='mt-1 w-2.5 h-2.5 rounded-full bg-[#6B46C1] shrink-0' />
-                <div>
-                  <p className='text-sm font-bold text-gray-900'>
-                    Task {task.status.replace("_", " ")}
-                  </p>
-                  <p className='text-xs text-gray-500'>{task.title}</p>
-                  <p className='text-xs text-gray-400 mt-0.5'>
-                    {task.updatedAt
-                      ? new Date(task.updatedAt).toLocaleString()
-                      : "—"}
-                  </p>
-                </div>
+            ))}
+
+            {(logsData?.logs || []).length === 0 && !isLoadingLogs && (
+              <div className='py-12 text-center text-gray-400 font-medium text-sm flex flex-col items-center gap-2'>
+                <History size={32} className='opacity-10' />
+                <p>No activity logs found for this tasker</p>
               </div>
-            ))
-          ) : (
-            <div className='py-6 text-center text-gray-400 font-medium text-sm'>
-              No activity recorded
+            )}
+          </div>
+
+          {/* Pagination for Logs */}
+          {(logsData?.totalPages ?? 0) > 1 && (
+            <div className='flex items-center justify-between mt-6 pt-4 border-t border-gray-100'>
+              <p className='text-[10px] text-gray-400'>
+                Page {logPage} of {logsData?.totalPages || 0}
+              </p>
+              <div className='flex gap-2'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setLogPage((p) => Math.max(1, p - 1))}
+                  disabled={logPage === 1}
+                  className='h-7 w-7 p-0 rounded-lg'
+                >
+                  <ChevronDown className='rotate-90' size={14} />
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setLogPage((p) => p + 1)}
+                  disabled={logPage === (logsData?.totalPages ?? 0)}
+                  className='h-7 w-7 p-0 rounded-lg'
+                >
+                  <ChevronDown className='-rotate-90' size={14} />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

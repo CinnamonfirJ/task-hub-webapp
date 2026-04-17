@@ -452,6 +452,14 @@ export function useActivityLogs(
   });
 }
 
+export function useSecuritySummary(userId: string) {
+  return useQuery({
+    queryKey: ["admin", "security-summary", userId],
+    queryFn: () => adminApi.getSecuritySummary(userId),
+    enabled: !!userId,
+  });
+}
+
 // --- Messages & Support Hooks ---
 
 export function useMessageStats() {
@@ -603,19 +611,19 @@ export function useExportTasks() {
 
 export function useExportPayments() {
   return useMutation({
-    mutationFn: () => adminApi.exportPayments(),
+    mutationFn: (format?: string) => adminApi.exportPayments(format),
   });
 }
 
 export function useExportUsers() {
   return useMutation({
-    mutationFn: () => adminApi.exportUsers(),
+    mutationFn: (format?: string) => adminApi.exportUsers(format),
   });
 }
 
 export function useExportTaskers() {
   return useMutation({
-    mutationFn: () => adminApi.exportTaskers(),
+    mutationFn: (format?: string) => adminApi.exportTaskers(format),
   });
 }
 

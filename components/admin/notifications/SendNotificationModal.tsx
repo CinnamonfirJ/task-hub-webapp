@@ -36,6 +36,7 @@ export function SendNotificationModal({
   const [message, setMessage] = useState("");
   const [type, setType] = useState<any>("Announcement");
   const [audience, setAudience] = useState<any>("All Users");
+  const [deliveryMethod, setDeliveryMethod] = useState<"in_app" | "email" | "both">("in_app");
 
   const { mutate: sendNotification, isPending } = useSendNotification();
 
@@ -53,6 +54,7 @@ export function SendNotificationModal({
         message,
         type,
         audience,
+        sendEmail: deliveryMethod === "email" || deliveryMethod === "both",
       },
       {
         onSuccess: () => {
@@ -72,6 +74,7 @@ export function SendNotificationModal({
     setMessage("");
     setType("Announcement");
     setAudience("All Users");
+    setDeliveryMethod("in_app");
   };
 
   return (
@@ -128,6 +131,45 @@ export function SendNotificationModal({
                   <SelectItem value='Everyone'>Everyone</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          <div className='space-y-2'>
+            <Label className='text-sm font-semibold'>Delivery Method</Label>
+            <div className='grid grid-cols-3 gap-2'>
+              <button
+                type='button'
+                onClick={() => setDeliveryMethod("in_app")}
+                className={`py-2 px-3 rounded-xl border text-[10px] font-bold transition-all ${
+                  deliveryMethod === "in_app"
+                    ? "bg-purple-50 border-purple-200 text-purple-600 "
+                    : "bg-white border-gray-100 text-gray-500 hover:border-gray-200"
+                }`}
+              >
+                In-App Only
+              </button>
+              <button
+                type='button'
+                onClick={() => setDeliveryMethod("email")}
+                className={`py-2 px-3 rounded-xl border text-[10px] font-bold transition-all ${
+                  deliveryMethod === "email"
+                    ? "bg-purple-50 border-purple-200 text-purple-600 "
+                    : "bg-white border-gray-100 text-gray-500 hover:border-gray-200"
+                }`}
+              >
+                Email Only
+              </button>
+              <button
+                type='button'
+                onClick={() => setDeliveryMethod("both")}
+                className={`py-2 px-3 rounded-xl border text-[10px] font-bold transition-all ${
+                  deliveryMethod === "both"
+                    ? "bg-purple-50 border-purple-200 text-purple-600 "
+                    : "bg-white border-gray-100 text-gray-500 hover:border-gray-200"
+                }`}
+              >
+                Both Channels
+              </button>
             </div>
           </div>
 

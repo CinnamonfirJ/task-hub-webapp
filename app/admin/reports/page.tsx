@@ -28,12 +28,16 @@ import { useReports, useActivityLogs } from "@/hooks/useAdmin";
 export default function ReportsManagementPage() {
   const [activeTab, setActiveTab] = useState<"reports" | "activity">("reports");
   const [activeFilter, setActiveFilter] = useState("All");
+  const [activeLogFilter, setActiveLogFilter] = useState("All");
   const [page, setPage] = useState(1);
   const [logPage, setLogPage] = useState(1);
   const limit = 20;
 
   const statusParam =
     activeFilter === "All" ? undefined : activeFilter.toLowerCase();
+
+  const resourceTypeParam = 
+    activeLogFilter === "All" ? undefined : activeLogFilter;
 
   const { data: reportsData, isLoading: loadingReports } = useReports({
     status: statusParam,
@@ -44,6 +48,7 @@ export default function ReportsManagementPage() {
   const { data: logsData, isLoading: loadingLogs } = useActivityLogs({
     page: logPage,
     limit: 50,
+    resourceType: resourceTypeParam,
   });
 
   const reports = reportsData?.reports ?? [];
@@ -67,6 +72,11 @@ export default function ReportsManagementPage() {
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
     setPage(1);
+  };
+
+  const handleLogFilterChange = (filter: string) => {
+    setActiveLogFilter(filter);
+    setLogPage(1);
   };
 
   const statusColor: Record<string, string> = {
@@ -100,9 +110,9 @@ export default function ReportsManagementPage() {
             Manage disputes, reports, and view admin activity
           </p>
         </div>
-        <Button variant='outline' className='text-sm h-10 px-4 gap-2'>
+        {/* <Button variant='outline' className='text-sm h-10 px-4 gap-2'>
           <Download size={16} /> Export
-        </Button>
+        </Button> */}
       </div>
 
       {/* Tab Switcher */}
@@ -260,6 +270,15 @@ export default function ReportsManagementPage() {
       {activeTab === "activity" && (
         <Card className='border border-gray-100 shadow-sm overflow-hidden'>
           <CardContent className='p-0'>
+            <div className='p-6 border-b border-gray-100'>
+              <AdminSearchFilter
+                searchPlaceholder='Search logs...'
+                filterOptions={["All", "User", "Tasker"]}
+                activeFilter={activeLogFilter}
+                onFilterChange={handleLogFilterChange}
+              />
+            </div>
+
             <div className='overflow-x-auto min-h-[400px] relative'>
               {loadingLogs && (
                 <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
@@ -269,10 +288,10 @@ export default function ReportsManagementPage() {
               <table className='w-full text-left text-sm'>
                 <thead>
                   <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
-                    <th className='px-6 py-4'>RESOURCE TYPE</th>
+                    <th className='px-6 py-4'>ENTITY</th>
                     <th className='px-6 py-4'>ACTION</th>
-                    <th className='px-6 py-4'>ADMIN</th>
-                    <th className='px-6 py-4'>TARGET ID</th>
+                    <th className='px-6 py-4'>STATUS</th>
+                    <th className='px-6 py-4'>PERFORMED BY</th>
                     <th className='px-6 py-4'>DATE</th>
                   </tr>
                 </thead>
@@ -282,34 +301,40 @@ export default function ReportsManagementPage() {
                       key={log._id}
                       className='hover:bg-gray-50 transition-colors'
                     >
-                      {/* FIX: API uses `resourceType`, not `type` */}
+                      {/* ENTITY: Fallback from resourceType to onModel */}
                       <td className='px-6 py-4'>
-                        <span className='text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md'>
-                          {typeLabel(log.resourceType ?? log.type ?? "—")}
+                        <span className='text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md border border-purple-100'>
+                          {typeLabel(log.onModel ?? log.resourceType ?? log.type ?? "—")}
                         </span>
                       </td>
-                      {/* `action` is correct in the API */}
+                      {/* ACTION */}
                       <td className='px-6 py-4 text-xs font-medium text-gray-900'>
                         {typeLabel(log.action)}
                       </td>
-                      {/* FIX: API returns `admin.email`, not `admin.fullName` */}
+                      {/* STATUS */}
+                      <td className='px-6 py-4'>
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
+                          log.status === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                        }`}>
+                          {log.status || "—"}
+                        </span>
+                      </td>
+                      {/* PERFORMED BY: Use log.performedBy if available */}
                       <td className='px-6 py-4 text-xs text-gray-500'>
-                        {log.admin?.fullName ?? log.admin?.email ?? "—"}
-                        {log.admin?.role && (
-                          <span className='text-[10px] ml-1 text-gray-400'>
-                            ({log.admin.role})
+                        <div className='flex flex-col'>
+                          <span className='font-medium text-gray-900'>
+                            {log.performedBy 
+                              ? `${log.performedBy.firstName || ""} ${log.performedBy.lastName || ""}`.trim() || log.performedBy.emailAddress
+                              : log.admin?.fullName ?? log.admin?.email ?? "—"}
                           </span>
-                        )}
+                          {log.performedBy?.role && (
+                            <span className='text-[10px] text-gray-400 capitalize'>
+                              ({log.performedBy.role})
+                            </span>
+                          )}
+                        </div>
                       </td>
-                      {/* FIX: API has no `target` object; use `resourceId` instead */}
-                      <td className='px-6 py-4 text-xs text-gray-500 font-mono'>
-                        {log.target
-                          ? `${log.target.name} (${log.target.type})`
-                          : log.resourceId
-                            ? log.resourceId
-                            : "—"}
-                      </td>
-                      {/* FIX: API uses `createdAt`, not `timestamp` */}
+                      {/* DATE */}
                       <td className='px-6 py-4 text-xs text-gray-400'>
                         {new Date(
                           log.timestamp ?? log.createdAt,

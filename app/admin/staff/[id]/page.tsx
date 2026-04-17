@@ -133,12 +133,12 @@ export default function StaffDetailsPage({
             )}
             {profile.isActive ? "Deactivate Account" : "Activate Account"}
           </Button>
-          <Button
+          {/* <Button
             variant='outline'
             className='h-10 gap-2 text-sm font-semibold rounded-xl border-gray-200 text-gray-700 px-5'
           >
             <Download size={16} className='text-gray-500' /> Export Profile
-          </Button>
+          </Button> */}
         </div>
       </div>
 

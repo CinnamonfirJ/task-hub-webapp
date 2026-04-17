@@ -34,7 +34,8 @@ import { FundWalletModal } from "@/components/FundWalletModal";
 import { StellarPaymentModal } from "@/components/StellarPaymentModal";
 import { WithdrawFundsModal } from "@/components/WithdrawFundsModal";
 import { StellarWithdrawalModal } from "@/components/StellarWithdrawalModal";
-import { useBanks, useTaskerBankAccount } from "@/hooks/useWithdrawal";
+import { BankAccountModal } from "@/components/BankAccountModal";
+import { useTaskerBankAccount } from "@/hooks/useWithdrawal";
 import { useState } from "react";
 
 export default function ProfilePage() {
@@ -65,6 +66,7 @@ export default function ProfilePage() {
   const [isStellarFundOpen, setIsStellarFundOpen] = useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [isStellarWithdrawOpen, setIsStellarWithdrawOpen] = useState(false);
+  const [isBankModalOpen, setIsBankModalOpen] = useState(false);
   const [txAmount, setTxAmount] = useState("0.00");
 
   if (!user && !isLoadingUser && !isUserError) {
@@ -204,42 +206,55 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* Bank Account Information (For Taskers with saved bank) */}
-      {user?.role === "tasker" && bankData && (
-        <div className='bg-white border-2 border-dashed border-purple-200 p-5 md:p-6 rounded-[2rem] space-y-4'>
-          <div className='flex items-center justify-between border-b border-purple-50 pb-3'>
-            <h3 className='text-[10px] md:text-xs font-black text-purple-900 uppercase tracking-widest flex items-center gap-2'>
-              <CreditCard size={14} className='text-[#6B46C1]' />
-              SAVED SETTLEMENT BANK
+      {/* Bank Account Information (For Taskers) */}
+      {user?.role === "tasker" && (
+        <button
+          onClick={() => setIsBankModalOpen(true)}
+          className="w-full text-left bg-white hover:bg-purple-50/60 transition-colors border-2 border-dashed border-purple-200 p-5 md:p-6 rounded-[2rem] space-y-4 group"
+        >
+          <div className="flex items-center justify-between border-b border-purple-50 pb-3">
+            <h3 className="text-[10px] md:text-xs font-black text-purple-900 uppercase tracking-widest flex items-center gap-2">
+              <CreditCard size={14} className="text-[#6B46C1]" />
+              {bankData ? "Settlement Bank" : "Add Settlement Bank"}
             </h3>
-            <CheckCircle2 size={16} className='text-green-500' />
+            {bankData ? (
+              <span className="text-[10px] text-purple-600 font-bold group-hover:underline">Edit</span>
+            ) : (
+              <Plus size={14} className="text-[#6B46C1]" />
+            )}
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div className='space-y-1'>
-              <p className='text-[9px] text-gray-400 font-bold uppercase tracking-tighter'>
-                Account Name
-              </p>
-              <p className='text-sm font-black text-gray-900 leading-tight'>
-                {bankData.accountName}
-              </p>
-            </div>
-            <div className='space-y-1'>
-              <p className='text-[9px] text-gray-400 font-bold uppercase tracking-tighter'>
-                Bank / Number
-              </p>
-              <div className='flex items-center gap-2'>
-                <p className='text-sm font-black text-gray-900'>
-                  {bankData.bankName}
+          {bankData ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
+                  Account Name
                 </p>
-                <span className='w-1 h-1 bg-gray-300 rounded-full' />
-                <p className='text-sm font-black text-gray-600 tracking-widest'>
-                  {bankData.accountNumber}
+                <p className="text-sm font-black text-gray-900 leading-tight">
+                  {bankData.accountName}
                 </p>
               </div>
+              <div className="space-y-1">
+                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
+                  Bank / Number
+                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-black text-gray-900">
+                    {bankData.bankName}
+                  </p>
+                  <span className="w-1 h-1 bg-gray-300 rounded-full" />
+                  <p className="text-sm font-black text-gray-600 tracking-widest">
+                    {bankData.accountNumber}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          ) : (
+            <p className="text-xs text-gray-400 font-medium">
+              Add your bank account for Paystack withdrawal settlements
+            </p>
+          )}
+        </button>
       )}
 
       {/* Switch to Users Banner (For Taskers) - Moved below Wallet Card */}
@@ -494,11 +509,11 @@ export default function ProfilePage() {
       <StellarWithdrawalModal
         isOpen={isStellarWithdrawOpen}
         onClose={() => setIsStellarWithdrawOpen(false)}
-        amount={txAmount}
-        onWithdraw={(address) => {
-          console.log("Withdrawing to Stellar address:", address);
-          setIsStellarWithdrawOpen(false);
-        }}
+      />
+
+      <BankAccountModal
+        isOpen={isBankModalOpen}
+        onClose={() => setIsBankModalOpen(false)}
       />
     </div>
   );
