@@ -90,7 +90,7 @@ export default function TaskerDetailsPage({
     );
   }
 
-  const { tasker, stats, recentTasks, reviews, account, kyc } = detailData;
+  const { tasker, stats, recentTasks, reviews, account, kyc, categories } = detailData;
   const activityLog = detailData?.activityLog ?? [];
   const fullName = account?.fullName;
 
@@ -402,15 +402,18 @@ export default function TaskerDetailsPage({
         </CardHeader>
         <CardContent>
           <div className='flex flex-wrap gap-3'>
-            {tasker?.categories?.map((cat: any, idx: number) => (
-              <span
-                key={typeof cat === "string" ? idx : cat._id}
-                className='px-4 py-2 bg-white text-gray-700 text-xs font-semibold rounded-xl border border-gray-200 shadow-sm'
-              >
-                {typeof cat === "string" ? cat : cat.displayName}
-              </span>
-            ))}
-            {(!tasker?.categories || tasker.categories.length === 0) && (
+            {/* categories is string[] | TaskerCategory[] from the detail endpoint */}
+            {(categories ?? tasker?.categories ?? []).map(
+              (cat: any, idx: number) => (
+                <span
+                  key={typeof cat === "string" ? idx : cat._id ?? idx}
+                  className='px-4 py-2 bg-purple-50 text-[#6B46C1] text-xs font-semibold rounded-xl border border-purple-100'
+                >
+                  {typeof cat === "string" ? cat : (cat.displayName ?? cat.name ?? cat)}
+                </span>
+              ),
+            )}
+            {((categories ?? tasker?.categories ?? []).length === 0) && (
               <span className='text-sm text-gray-400'>
                 No categories assigned
               </span>

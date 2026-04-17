@@ -408,11 +408,11 @@ export default function ProfilePage() {
               iconBg='bg-purple-50'
             />
           )}
-          {/* <ProfileMenuItem
+          <ProfileMenuItem
             icon={<Lock size={20} className='md:w-[22px] md:h-[22px]' />}
             label='Transaction Pin'
             href='/profile/transaction-pin'
-          /> */}
+          />
           <ProfileMenuItem
             icon={
               <RectangleEllipsis
