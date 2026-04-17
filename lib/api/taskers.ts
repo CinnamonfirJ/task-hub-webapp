@@ -20,7 +20,7 @@ export const taskersApi = {
 
   submitNIN: async (nin: string, fullName: string) => {
     return await apiData<{ status: string; message: string; kycId?: string }>(
-      "/api/tasker/nin/submit-nin",
+      "/api/nin/submit-nin",
       {
         method: "POST",
         body: JSON.stringify({ nin, fullName }),

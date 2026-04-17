@@ -18,6 +18,8 @@ import {
   TrendingUp,
   DollarSign,
   AlertCircle,
+  Copy,
+  ExternalLink,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -29,7 +31,8 @@ interface AdminWithdrawal {
   _id: string;
   tasker?: {
     _id: string;
-    fullName: string;
+    firstName: string;
+    lastName: string;
     email?: string;
     emailAddress?: string;
   };
@@ -40,7 +43,9 @@ interface AdminWithdrawal {
     accountNumber: string;
     accountName?: string;
   };
-  stellarAddress?: string;
+  stellarDetails?: {
+    publicKey?: string;
+  }
   createdAt: string;
   status: "pending" | "approved" | "completed" | "rejected";
 }
@@ -239,11 +244,11 @@ export default function AdminWithdrawalsPage() {
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-2'>
                           <div className='w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-sm'>
-                            {item.tasker?.fullName?.[0] || "T"}
+                            {item.tasker?.firstName?.[0] || "T"}
                           </div>
                           <div>
                             <p className='font-bold text-gray-900'>
-                              {item.tasker?.fullName || "—"}
+                              {item.tasker?.firstName + " " + item.tasker?.lastName || "—"}
                             </p>
                             <p className='text-[10px] text-gray-500'>
                               {item.tasker?.emailAddress || item.tasker?.email || ""}
@@ -270,20 +275,48 @@ export default function AdminWithdrawalsPage() {
                         {isStellar(item.payoutMethod) ? (
                           <>
                             <p className='font-medium text-gray-700'>Stellar Wallet</p>
-                            <p className='text-[10px] text-gray-500 font-mono break-all max-w-[150px]'>
-                              {item.stellarAddress || "N/A"}
-                            </p>
+                            <div 
+                              className='flex items-center gap-1.5 cursor-pointer group/copy'
+                              onClick={() => {
+                                if (item?.stellarDetails?.publicKey) {
+                                  navigator.clipboard.writeText(item.stellarDetails.publicKey);
+                                  toast.success("Address copied to clipboard");
+                                }
+                              }}
+                            >
+                              <p className='text-[10px] text-gray-500 font-mono' title={item?.stellarDetails?.publicKey}>
+                                {item?.stellarDetails?.publicKey 
+                                  ? `${item.stellarDetails.publicKey.slice(0, 6)}...${item.stellarDetails.publicKey.slice(-4)}`
+                                  : "N/A"}
+                              </p>
+                              {item?.stellarDetails?.publicKey && (
+                                <Copy size={12} className='text-gray-300 group-hover/copy:text-purple-500 transition-colors' />
+                              )}
+                            </div>
                           </>
                         ) : (
                           <>
                             <p className='font-medium text-gray-700'>
                               {item.bankDetails?.bankName || "—"}
                             </p>
-                            <p className='text-xs text-gray-500 font-mono'>
-                              {item.bankDetails?.accountNumber || "—"}
-                            </p>
+                            <div 
+                              className='flex items-center gap-1.5 cursor-pointer group/copy'
+                              onClick={() => {
+                                if (item.bankDetails?.accountNumber) {
+                                  navigator.clipboard.writeText(item.bankDetails.accountNumber);
+                                  toast.success("Account number copied");
+                                }
+                              }}
+                            >
+                              <p className='text-xs text-gray-500 font-mono'>
+                                {item.bankDetails?.accountNumber || "—"}
+                              </p>
+                              {item.bankDetails?.accountNumber && (
+                                <Copy size={12} className='text-gray-300 group-hover/copy:text-blue-500 transition-colors' />
+                              )}
+                            </div>
                             {item.bankDetails?.accountName && (
-                              <p className='text-[10px] text-gray-400'>
+                              <p className='text-[10px] text-gray-400 mt-0.5'>
                                 {item.bankDetails.accountName}
                               </p>
                             )}
