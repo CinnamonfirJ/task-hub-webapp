@@ -55,7 +55,6 @@ export function WithdrawFundsModal({
     useRef<HTMLInputElement>(null),
   ];
 
-  const isDev = process.env.NODE_ENV === "development";
 
   useEffect(() => {
     if (savedBank) {
@@ -332,32 +331,30 @@ export function WithdrawFundsModal({
                   </div>
                 </button>
 
-                {isDev && (
-                  <button
-                    onClick={() => setMethod("stellar")}
+                <button
+                  onClick={() => setMethod("stellar")}
+                  className={cn(
+                    "w-full p-4 rounded-xl border flex items-center justify-between group transition-all text-left",
+                    method === "stellar"
+                      ? "border-transparent bg-[#F6F4FB]"
+                      : "border-gray-200 bg-[#F9FAFB] hover:border-[#6B46C1]/30"
+                  )}
+                >
+                  <div>
+                    <p className='text-gray-900 font-medium text-[15px]'>Stellar</p>
+                    <p className='text-gray-400 text-sm'>Cryptocurrency Payment</p>
+                  </div>
+                  <div
                     className={cn(
-                      "w-full p-4 rounded-xl border flex items-center justify-between group transition-all text-left",
-                      method === "stellar"
-                        ? "border-transparent bg-[#F6F4FB]"
-                        : "border-gray-200 bg-[#F9FAFB] hover:border-[#6B46C1]/30"
+                      "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0",
+                      method === "stellar" ? "border-[#6B46C1]" : "border-gray-400"
                     )}
                   >
-                    <div>
-                      <p className='text-gray-900 font-medium text-[15px]'>Stellar</p>
-                      <p className='text-gray-400 text-sm'>Cryptocurrency Payment</p>
-                    </div>
-                    <div
-                      className={cn(
-                        "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0",
-                        method === "stellar" ? "border-[#6B46C1]" : "border-gray-400"
-                      )}
-                    >
-                      {method === "stellar" && (
-                        <div className='w-2.5 h-2.5 bg-[#6B46C1] rounded-full' />
-                      )}
-                    </div>
-                  </button>
-                )}
+                    {method === "stellar" && (
+                      <div className='w-2.5 h-2.5 bg-[#6B46C1] rounded-full' />
+                    )}
+                  </div>
+                </button>
               </div>
             </div>
 

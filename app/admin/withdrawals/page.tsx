@@ -373,8 +373,7 @@ export default function AdminWithdrawalsPage() {
                               </Button>
                             </>
                           )}
-                          {item.status === "approved" &&
-                            !isStellar(item.payoutMethod) && (
+                          {item.status === "approved" && (
                               <Button
                                 size='sm'
                                 className='bg-green-600 hover:bg-green-700 text-white rounded-xl'

@@ -30,7 +30,6 @@ export function FundWalletModal({
 }: FundWalletModalProps) {
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<"paystack" | "stellar">("paystack");
-  const isDev = process.env.NEXT_PUBLIC_ENV === "development";
 
   const { mutate: initializeFunding, isPending } = useInitializeFunding();
 
@@ -152,48 +151,46 @@ export function FundWalletModal({
             </button>
 
             {/* Stellar Option */}
-            {isDev && (
-              <button
-                onClick={() => setMethod("stellar")}
-                className={cn(
-                  "w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-between group",
-                  method === "stellar"
-                    ? "border-[#6B46C1] bg-purple-50/50"
-                    : "border-gray-100 hover:border-purple-200",
-                )}
-              >
-                <div className='flex items-center gap-4'>
-                  <div
-                    className={cn(
-                      "p-3 rounded-xl transition-colors",
-                      method === "stellar"
-                        ? "bg-purple-100 text-purple-600"
-                        : "bg-gray-50 text-gray-400 group-hover:bg-purple-50",
-                    )}
-                  >
-                    <Coins size={22} />
-                  </div>
-                  <div className='text-left'>
-                    <p className='font-bold text-gray-900'>Stellar</p>
-                    <p className='text-xs text-gray-400 font-medium'>
-                      Cryptocurrency Payment
-                    </p>
-                  </div>
-                </div>
+            <button
+              onClick={() => setMethod("stellar")}
+              className={cn(
+                "w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-between group",
+                method === "stellar"
+                  ? "border-[#6B46C1] bg-purple-50/50"
+                  : "border-gray-100 hover:border-purple-200",
+              )}
+            >
+              <div className='flex items-center gap-4'>
                 <div
                   className={cn(
-                    "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                    "p-3 rounded-xl transition-colors",
                     method === "stellar"
-                      ? "border-[#6B46C1] bg-[#6B46C1]"
-                      : "border-gray-200",
+                      ? "bg-purple-100 text-purple-600"
+                      : "bg-gray-50 text-gray-400 group-hover:bg-purple-50",
                   )}
                 >
-                  {method === "stellar" && (
-                    <div className='w-2 h-2 bg-white rounded-full' />
-                  )}
+                  <Coins size={22} />
                 </div>
-              </button>
-            )}
+                <div className='text-left'>
+                  <p className='font-bold text-gray-900'>Stellar</p>
+                  <p className='text-xs text-gray-400 font-medium'>
+                    Cryptocurrency Payment
+                  </p>
+                </div>
+              </div>
+              <div
+                className={cn(
+                  "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                  method === "stellar"
+                    ? "border-[#6B46C1] bg-[#6B46C1]"
+                    : "border-gray-200",
+                )}
+              >
+                {method === "stellar" && (
+                  <div className='w-2 h-2 bg-white rounded-full' />
+                )}
+              </div>
+            </button>
           </div>
         </div>
 
