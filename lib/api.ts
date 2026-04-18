@@ -6,6 +6,19 @@ interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
   skipAuthError?: boolean;
   isDownload?: boolean;
+  params?: Record<string, any>;
+}
+
+export class ApiError extends Error {
+  status: number;
+  data: any;
+
+  constructor(message: string, status: number, data: any) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.data = data;
+  }
 }
 
 export const apiData = async <T>(
@@ -26,6 +39,18 @@ export const apiData = async <T>(
   } else if (headers["Content-Type"]) {
     // Ensure fetch sets the proper multipart boundary for FormData
     delete headers["Content-Type"];
+  }
+
+  // Handle query parameters
+  let url = `${BASE_URL}${endpoint}`;
+  if (options.params) {
+    const urlObj = new URL(url);
+    Object.keys(options.params).forEach(key => {
+      if (options.params![key] !== undefined && options.params![key] !== null) {
+        urlObj.searchParams.append(key, options.params![key].toString());
+      }
+    });
+    url = urlObj.toString();
   }
 
   if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
@@ -53,7 +78,8 @@ export const apiData = async <T>(
         hasToken: !!token,
       });
     }
-    const response = await fetch(`${BASE_URL}${endpoint}`, config);
+    const response = await fetch(url, config);
+
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -61,7 +87,7 @@ export const apiData = async <T>(
           if (process.env.NODE_ENV === "development") {
             console.warn(`[API 401] Unauthorized response from ${endpoint}, but skipAuthError is true. Skipping global logout.`);
           }
-          throw new Error("Unauthorized");
+          throw new ApiError("Unauthorized", 401, { code: "unauthorized" });
         }
 
         if (process.env.NODE_ENV === "development") {
@@ -81,7 +107,7 @@ export const apiData = async <T>(
             window.location.href = "/login";
           }
         }
-        throw new Error("Unauthorized");
+        throw new ApiError("Unauthorized", 401, { code: "unauthorized" });
       }
 
       const errorData = await response.json().catch(() => ({}));
@@ -91,8 +117,11 @@ export const apiData = async <T>(
           errorData,
         );
       }
-      throw new Error(
+      
+      throw new ApiError(
         errorData.message || `Error ${response.status}: ${response.statusText}`,
+        response.status,
+        errorData
       );
     }
 
@@ -146,9 +175,14 @@ export const apiData = async <T>(
 
     return data;
   } catch (error: any) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    
     if (error?.message !== "Unauthorized") {
       console.error("API Request Failed:", error);
     }
     throw error;
   }
 };
+

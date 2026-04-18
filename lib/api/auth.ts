@@ -510,6 +510,52 @@ export const authApi = {
     }
   },
 
+  // ── Google Authentication ───────────────────────────────────────────
+  
+  googleSignIn: async (idToken: string, user_type: UserType): Promise<AuthResponse> => {
+    const res = await apiData<any>("/api/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ idToken, user_type }),
+    });
+
+    const token = res?.token || res?.accessToken;
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("userType", user_type);
+    }
+
+    return res;
+  },
+
+  googleCompleteSignup: async (payload: any): Promise<AuthResponse> => {
+    const res = await apiData<any>("/api/auth/google/complete-signup", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    const token = res?.token || res?.accessToken;
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("userType", payload.user_type);
+    }
+
+    return res;
+  },
+
+  setPassword: async (newPassword: string): Promise<{ status: string; message: string }> => {
+    return apiData<any>("/api/auth/set-password", {
+      method: "POST",
+      body: JSON.stringify({ newPassword }),
+    });
+  },
+
+  deactivateGoogleAccount: async (idToken: string): Promise<{ status: string; message: string }> => {
+    return apiData<any>("/api/auth/deactivate-account", {
+      method: "POST",
+      body: JSON.stringify({ idToken }),
+    });
+  },
+
   // ── Session ────────────────────────────────────────────────────────────
 
   logout: async (): Promise<{ status: string; message: string }> => {
