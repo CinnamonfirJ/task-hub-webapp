@@ -22,15 +22,15 @@ export function TaskerEarnings() {
     isError: isTxError,
     refetch: refetchTx,
   } = useQuery({
-    queryKey: ["taskerWithdrawals"],
-    queryFn: () => walletApi.getWithdrawalHistory({ limit: 50 }),
+    queryKey: ["taskerTransactions"],
+    // Correct endpoint: /api/wallet/tasker/transactions
+    queryFn: () => walletApi.getTaskerTransactions({ limit: 50 }),
   });
 
-  // Map to the requested UI fields based on our assumptions
-  const totalJobs = 0; // Not provided by the balance API directly
-  const totalEarned = balance?.walletBalance || 0; // Assuming current balance maps to total earned loosely, or we only have this snapshot
-  const awaitingRelease = balance?.pendingWithdrawalAmount || 0;
-  const onDisputeHold = 0; // Not provided
+  const walletBalance = balance?.walletBalance || 0;
+  const pendingAmount = balance?.pendingWithdrawalAmount || 0;
+  const withdrawable = balance?.withdrawableAmount || 0;
+  const pendingCount = balance?.hasPendingWithdrawal ? 1 : 0;
 
   return (
     <div className='flex flex-col space-y-6 md:space-y-8 w-full max-w-5xl mx-auto'>
@@ -39,21 +39,31 @@ export function TaskerEarnings() {
           Earnings
         </h1>
         <p className='text-gray-500 font-medium text-sm md:text-base'>
-          View all transaction History
+          View all transaction history
         </p>
       </div>
 
       <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-        <StatCard title='Total Jobs' value={totalJobs.toString()} />
         <StatCard
-          title='Total Earned'
-          value={`#${totalEarned.toLocaleString()}`}
+          title='Wallet Balance'
+          value={`₦${walletBalance.toLocaleString()}`}
+          loading={isBalanceLoading}
         />
         <StatCard
-          title='Awaiting Release'
-          value={`#${awaitingRelease.toLocaleString()}`}
+          title='Withdrawable'
+          value={`₦${withdrawable.toLocaleString()}`}
+          loading={isBalanceLoading}
         />
-        <StatCard title='On Dispute Hold' value={`#${onDisputeHold}`} />
+        <StatCard
+          title='Pending Withdrawal'
+          value={`₦${pendingAmount.toLocaleString()}`}
+          loading={isBalanceLoading}
+        />
+        <StatCard
+          title='Pending Requests'
+          value={pendingCount.toString()}
+          loading={isBalanceLoading}
+        />
       </div>
 
       <div className='mt-8 pt-4'>
@@ -104,11 +114,23 @@ export function TaskerEarnings() {
   );
 }
 
-function StatCard({ title, value }: { title: string; value: string | number }) {
+function StatCard({
+  title,
+  value,
+  loading,
+}: {
+  title: string;
+  value: string | number;
+  loading?: boolean;
+}) {
   return (
     <div className='bg-white border border-gray-100 p-6 rounded-2xl md:rounded-lg hover:shadow-md transition-shadow flex flex-col justify-between'>
       <div className='font-bold text-gray-900 text-2xl md:text-3xl'>
-        {value}
+        {loading ? (
+          <Loader2 className='w-6 h-6 animate-spin text-[#6B46C1] opacity-40' />
+        ) : (
+          value
+        )}
       </div>
       <div className='text-gray-500 text-xs md:text-sm font-medium mt-auto pt-4'>
         {title}

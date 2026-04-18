@@ -42,6 +42,29 @@ export interface User {
 }
 
 // API returns accessToken (not "token") and user/tasker depending on role
+export interface GoogleSignInSuccess {
+  status: "success";
+  token: string;
+  user_type: UserType;
+  isEmailVerified: boolean;
+  expiresIn: string;
+  linkedNow?: boolean;
+  created?: boolean;
+}
+
+export interface GoogleProfilePrefill {
+  email: string;
+  name: string;
+  givenName: string;
+  familyName: string;
+  picture: string;
+}
+
+export interface GoogleOnboardingPayload extends Partial<RegisterInput> {
+  idToken: string;
+  user_type: UserType;
+}
+
 export interface AuthResponse {
   status: string;
   message: string;
@@ -49,7 +72,15 @@ export interface AuthResponse {
   user?: User;
   tasker?: User;
   emailVerificationRequired?: boolean;
+  // Google specific
+  code?: string;
+  googleProfile?: GoogleProfilePrefill;
+  token?: string; // Some endpoints might return 'token' instead of 'accessToken'
+  linkedNow?: boolean;
+  created?: boolean;
 }
+
+
 
 // Registration response (no token, just confirmation)
 export interface RegisterResponse {

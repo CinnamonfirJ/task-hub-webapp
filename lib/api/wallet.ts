@@ -64,6 +64,20 @@ export const walletApi = {
     return txs || [];
   },
 
+  // Tasker-specific transaction history (correct endpoint per API docs)
+  getTaskerTransactions: async (filters: TransactionFilters = {}): Promise<Transaction[]> => {
+    const params = new URLSearchParams();
+    if (filters.page) params.append("page", filters.page.toString());
+    if (filters.limit) params.append("limit", filters.limit.toString());
+
+    const res = await apiData<any>(
+      `/api/wallet/tasker/transactions?${params.toString()}`,
+      { method: "GET" }
+    );
+    const txs = res?.data?.transactions || res?.transactions || (Array.isArray(res?.data) ? res.data : null);
+    return txs || [];
+  },
+
   getTaskerBalance: async (): Promise<{
     walletBalance: number;
     withdrawableAmount: number;
@@ -80,7 +94,13 @@ export const walletApi = {
 
   getBanks: async (): Promise<any[]> => {
     const res = await apiData<any>("/api/wallet/banks", { method: "GET" });
-    return res?.data || res || [];
+    const banks =
+      res?.data?.banks ||
+      res?.data?.data ||
+      (Array.isArray(res?.data) ? res.data : null) ||
+      (Array.isArray(res) ? res : null) ||
+      [];
+    return Array.isArray(banks) ? banks : [];
   },
 
   getBankAccount: async (): Promise<any> => {
@@ -96,12 +116,81 @@ export const walletApi = {
     return res?.data || res;
   },
 
+  // ─── Withdrawal (unified endpoint — correct per API docs) ────────────────────
+
+  /**
+   * Bank Transfer withdrawal
+   * POST /api/wallet/withdraw
+   */
+  requestBankWithdrawal: async (payload: {
+    amount: number;
+    payoutMethod: "bank_transfer";
+    transactionPin: string;
+    bankDetails: {
+      accountNumber: string;
+      bankName: string;
+      accountName: string;
+    };
+  }): Promise<any> => {
+    const res = await apiData<any>("/api/wallet/withdraw", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    return res?.data || res;
+  },
+
+  /**
+   * Stellar crypto withdrawal
+   * POST /api/wallet/withdraw
+   */
+  requestStellarWithdrawal: async (payload: {
+    amount: number;
+    payoutMethod: string;
+    transactionPin: string;
+    stellarAddress: string;
+  }): Promise<any> => {
+    const res = await apiData<any>("/api/wallet/withdraw", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    return res?.data || res;
+  },
+
+  /**
+   * Legacy simple withdrawal — kept for backward compat but now hits correct endpoint
+   */
   requestWithdrawal: async (amount: number): Promise<any> => {
-    const res = await apiData<any>("/api/wallet/tasker/withdraw", {
+    const res = await apiData<any>("/api/wallet/withdraw", {
       method: "POST",
       body: JSON.stringify({ amount }),
     });
     return res?.data || res;
+  },
+
+  // ─── Transaction PIN ──────────────────────────────────────────────────────────
+
+  /**
+   * Set up or reset the 4-digit transaction PIN
+   * POST /api/wallet/tasker/pin/setup
+   */
+  setupPin: async (pin: string, password: string): Promise<{ message: string }> => {
+    const res = await apiData<any>("/api/wallet/tasker/pin/setup", {
+      method: "POST",
+      body: JSON.stringify({ pin, password }),
+    });
+    return res?.data || res;
+  },
+
+  // ─── Stellar deposit info ─────────────────────────────────────────────────────
+
+  getDepositInfo: async (): Promise<{ walletAddress: string; memoId: string; exchangeRate?: number }> => {
+    const res = await apiData<any>("/api/wallet/stellar/deposit-info", { method: "GET" });
+    const data = res?.data || res;
+    return {
+      walletAddress: data?.masterWalletAddress || data?.walletAddress,
+      memoId: data?.userMemoId || data?.memoId,
+      exchangeRate: data?.exchangeRate,
+    };
   },
 
   getWithdrawalHistory: async (params: { page?: number; limit?: number } = {}): Promise<any[]> => {
@@ -117,7 +206,8 @@ export const walletApi = {
     return withdrawals || [];
   },
 
-  // Legacy/Internal - Escrow is handled automatically by the backend status transitions
+  // ─── Escrow (backend-managed) ─────────────────────────────────────────────────
+
   holdEscrow: async (payload: {
     taskId: string;
     taskerId: string;

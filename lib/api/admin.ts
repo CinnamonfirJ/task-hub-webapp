@@ -288,6 +288,8 @@ export const adminApi = {
     page?: number;
     limit?: number;
     type?: string;
+    resourceType?: string;
+    userId?: string;
     adminId?: string;
     startDate?: string;
     endDate?: string;
@@ -303,6 +305,12 @@ export const adminApi = {
       { method: "GET" },
     );
     return response ?? response;
+  },
+
+  getSecuritySummary: async (userId: string): Promise<any> => {
+    return apiData<any>(`/api/admin/reports/summary/${userId}`, {
+      method: "GET",
+    });
   },
 
   // Messages & Support
@@ -453,7 +461,7 @@ export const adminApi = {
     search?: string;
     sortBy?: string;
     order?: string;
-  }): Promise<AdminTaskListResponse["data"]> => {
+  }): Promise<AdminTaskListResponse> => {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -464,7 +472,17 @@ export const adminApi = {
       `/api/admin/tasks?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data ?? response;
+    const data = response.data ?? response;
+
+    // Normalize assignedTasker to assignedTo for compatibility with new types
+    if (data && Array.isArray(data.tasks)) {
+      data.tasks = data.tasks.map((task: any) => ({
+        ...task,
+        assignedTo: task.assignedTo || task.assignedTasker,
+      }));
+    }
+
+    return data;
   },
 
   getTaskDetails: async (
@@ -611,6 +629,7 @@ export const adminApi = {
   exportDashboard: async (params?: {
     startDate?: string;
     endDate?: string;
+    format?: string;
   }): Promise<ExportResponse<DashboardExportRecord>["data"]> => {
     const query = new URLSearchParams();
     if (params) {
@@ -618,9 +637,10 @@ export const adminApi = {
         if (value !== undefined) query.append(key, String(value));
       });
     }
+    if (!query.has("format")) query.append("format", "csv");
     const response = await apiData<any>(
       `/api/admin/reports/export/dashboard?${query.toString()}`,
-      { method: "GET" },
+      { method: "GET", isDownload: true },
     );
     return response.data ?? response;
   },
@@ -630,6 +650,7 @@ export const adminApi = {
     endDate?: string;
     status?: string;
     category?: string;
+    format?: string;
   }): Promise<ExportResponse<TaskExportRecord>["data"]> => {
     const query = new URLSearchParams();
     if (params) {
@@ -637,34 +658,38 @@ export const adminApi = {
         if (value !== undefined) query.append(key, String(value));
       });
     }
+    if (!query.has("format")) query.append("format", "csv");
     const response = await apiData<any>(
       `/api/admin/reports/export/tasks?${query.toString()}`,
-      { method: "GET" },
+      { method: "GET", isDownload: true },
     );
     return response.data ?? response;
   },
 
-  exportPayments: async (): Promise<
+  exportPayments: async (format: string = "csv"): Promise<
     ExportResponse<PaymentExportRecord>["data"]
   > => {
-    const response = await apiData<any>("/api/admin/reports/export/payments", {
+    const response = await apiData<any>(`/api/admin/reports/export/payments?format=${format}`, {
       method: "GET",
+      isDownload: true,
     });
     return response.data ?? response;
   },
 
-  exportUsers: async (): Promise<ExportResponse<UserExportRecord>["data"]> => {
-    const response = await apiData<any>("/api/admin/reports/export/users", {
+  exportUsers: async (format: string = "csv"): Promise<ExportResponse<UserExportRecord>["data"]> => {
+    const response = await apiData<any>(`/api/admin/reports/export/users?format=${format}`, {
       method: "GET",
+      isDownload: true,
     });
     return response.data ?? response;
   },
 
-  exportTaskers: async (): Promise<
+  exportTaskers: async (format: string = "csv"): Promise<
     ExportResponse<TaskerExportRecord>["data"]
   > => {
-    const response = await apiData<any>("/api/admin/reports/export/taskers", {
+    const response = await apiData<any>(`/api/admin/reports/export/taskers?format=${format}`, {
       method: "GET",
+      isDownload: true,
     });
     return response.data ?? response;
   },
@@ -726,6 +751,7 @@ export const adminApi = {
     page?: number;
     limit?: number;
     status?: string;
+    payoutMethod?: string;
   }): Promise<any> => {
     const query = new URLSearchParams();
     if (params) {
@@ -737,6 +763,13 @@ export const adminApi = {
       `/api/admin/withdrawals?${query.toString()}`,
       { method: "GET" },
     );
+    return response.data ?? response;
+  },
+
+  getWithdrawalStats: async (): Promise<any> => {
+    const response = await apiData<any>("/api/admin/withdrawals/stats", {
+      method: "GET",
+    });
     return response.data ?? response;
   },
 
@@ -845,7 +878,7 @@ export const adminApi = {
     return response.data;
   },
 
-  sendNotification: async (data: SendNotificationRequest): Promise<any> => {
+  sendNotification: async (data: SendNotificationRequest & { sendEmail?: boolean }): Promise<any> => {
     return apiData<any>("/api/admin/notifications/send", {
       method: "POST",
       body: JSON.stringify(data),

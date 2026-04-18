@@ -414,7 +414,7 @@ export default function ProfileDetailsPage() {
               </div>
             </div>
 
-            <div className='space-y-6'>
+            <div className='space-y-6' id='service-info'>
               <h3 className='font-bold text-gray-700 text-lg'>Service Information</h3>
               <div className='space-y-6'>
                 <div className='space-y-3'>
@@ -526,7 +526,7 @@ export default function ProfileDetailsPage() {
                 />
                 <EditableListItem 
                   icon={<MapPin size={20} />} 
-                  label="Resident State" 
+                  label="State" 
                   id="residentState" 
                   options={NIGERIAN_STATES}
                   placeholder="Select state"

@@ -26,21 +26,21 @@ import { Button } from "../ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
 export const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
-  { icon: Users, label: "Users", href: "/admin/users" },
-  { icon: Users2, label: "Taskers", href: "/admin/taskers" },
-  { icon: ShieldCheck, label: "Staff/Admin", href: "/admin/staff" },
-  { icon: Briefcase, label: "Tasks", href: "/admin/tasks" },
-  { icon: Folder, label: "Categories", href: "/admin/categories" },
-  { icon: GraduationCap, label: "Universities", href: "/admin/universities" },
-  { icon: CreditCard, label: "Payments", href: "/admin/payments" },
-  { icon: Banknote, label: "Withdrawals", href: "/admin/withdrawals" },
-  { icon: UserCheck, label: "KYC/Verification", href: "/admin/verification" },
-  { icon: MessageSquare, label: "Message", href: "/admin/messages" },
-  { icon: Users, label: "Waitlist", href: "/admin/waitlist" },
-  { icon: FileText, label: "Report & Logs", href: "/admin/reports" },
-  { icon: Bell, label: "Notifications", href: "/admin/notifications" },
-  { icon: Settings, label: "Settings", href: "/admin/settings" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard", roles: ["super_admin", "operations", "trust_safety", "finance"] },
+  { icon: Users, label: "Users", href: "/admin/users", roles: ["super_admin", "operations", "trust_safety"] },
+  { icon: Users2, label: "Taskers", href: "/admin/taskers", roles: ["super_admin", "operations", "trust_safety"] },
+  { icon: ShieldCheck, label: "Staff/Admin", href: "/admin/staff", roles: ["super_admin"] },
+  { icon: Briefcase, label: "Tasks", href: "/admin/tasks", roles: ["super_admin", "operations"] },
+  { icon: Folder, label: "Categories", href: "/admin/categories", roles: ["super_admin", "operations"] },
+  { icon: GraduationCap, label: "Universities", href: "/admin/universities", roles: ["super_admin", "operations"] },
+  { icon: CreditCard, label: "Payments", href: "/admin/payments", roles: ["super_admin", "finance"] },
+  { icon: Banknote, label: "Withdrawals", href: "/admin/withdrawals", roles: ["super_admin", "finance"] },
+  { icon: UserCheck, label: "KYC/Verification", href: "/admin/verification", roles: ["super_admin", "operations", "trust_safety"] },
+  { icon: MessageSquare, label: "Message", href: "/admin/messages", roles: ["super_admin", "operations", "trust_safety"] },
+  { icon: Users, label: "Waitlist", href: "/admin/waitlist", roles: ["super_admin", "operations"] },
+  { icon: FileText, label: "Report & Logs", href: "/admin/reports", roles: ["super_admin", "trust_safety"] },
+  { icon: Bell, label: "Notifications", href: "/admin/notifications", roles: ["super_admin", "operations"] },
+  { icon: Settings, label: "Settings", href: "/admin/settings", roles: ["super_admin", "finance"] },
 ];
 
 export function AdminSidebar() {
@@ -88,7 +88,9 @@ export function AdminSidebar() {
         </div>
 
         <nav className='flex-1 space-y-1 px-3 py-4 overflow-y-auto'>
-          {navItems.map((item) => {
+          {navItems
+            .filter((item) => !admin?.role || item.roles.includes(admin.role))
+            .map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
               <Link

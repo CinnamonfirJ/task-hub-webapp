@@ -4,6 +4,7 @@ import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { VerificationBanner } from "@/components/auth/VerificationBanner";
 import { SidebarProvider } from "@/components/admin/SidebarContext";
+import { PortfolioBanner } from "@/components/layout/PortfolioBanner";
 
 export default function MainLayout({
   children,
@@ -20,6 +21,7 @@ export default function MainLayout({
             <DashboardHeader />
             <VerificationBanner />
             {children}
+            <PortfolioBanner />
           </main>
         </div>
       </SidebarProvider>

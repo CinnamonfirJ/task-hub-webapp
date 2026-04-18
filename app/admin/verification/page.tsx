@@ -23,10 +23,12 @@ import {
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
 import { useKYCRequests, useKYCStats } from "@/hooks/useAdmin";
+import { ExportModal } from "@/components/admin/ExportModal";
 
 export default function KYCManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [page, setPage] = useState(1);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const limit = 20;
 
   const statusParam =
@@ -82,9 +84,13 @@ export default function KYCManagementPage() {
             Review and manage identity verifications
           </p>
         </div>
-        <Button variant='outline' className='text-sm h-10 px-4 gap-2'>
+        {/* <Button 
+          variant='outline' 
+          className='text-sm h-10 px-4 gap-2'
+          onClick={() => setIsExportModalOpen(true)}
+        >
           <Download size={16} /> Export
-        </Button>
+        </Button> */}
       </div>
 
       <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
@@ -244,6 +250,12 @@ export default function KYCManagementPage() {
           )}
         </CardContent>
       </Card>
+
+      <ExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+        type="taskers"
+      />
     </div>
   );
 }

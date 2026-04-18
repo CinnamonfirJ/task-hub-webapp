@@ -83,22 +83,22 @@ export default function NotificationsPage() {
       </div>
 
       {/* Stats Section */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
         {statsCards.map((stat, index) => (
-          <Card key={index} className='border-none shadow-sm bg-white'>
-            <CardContent className='p-6'>
-              <div className='flex items-center gap-4'>
-                <div className={`p-3 rounded-xl ${stat.color}`}>
-                  <stat.icon size={24} />
+          <Card key={index} className='border-none shadow-sm bg-white overflow-hidden group hover:shadow-md transition-shadow'>
+            <CardContent className='p-0'>
+              <div className='flex items-center p-6'>
+                <div className={`p-4 rounded-2xl ${stat.color} mr-4 transition-transform group-hover:scale-110 duration-300`}>
+                  <stat.icon size={26} />
                 </div>
                 <div>
-                  <p className='text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>
                     {stat.title}
                   </p>
                   {loadingStats ? (
                     <Loader2 className='h-5 w-5 animate-spin text-gray-400 mt-1' />
                   ) : (
-                    <h3 className='text-xl font-bold text-gray-900'>
+                    <h3 className='text-2xl font-black text-gray-900 mt-0.5'>
                       {stat.value}
                     </h3>
                   )}
@@ -126,62 +126,76 @@ export default function NotificationsPage() {
             )}
             <table className='w-full text-left text-sm'>
               <thead>
-                <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
-                  <th className='px-6 py-4'>TITLE</th>
-                  <th className='px-6 py-4'>TYPE</th>
-                  <th className='px-6 py-4'>AUDIENCE</th>
-                  <th className='px-6 py-4'>RECIPIENTS</th>
-                  <th className='px-6 py-4'>SENT</th>
-                  <th className='px-6 py-4 text-right'>ACTION</th>
+                <tr className='border-y bg-gray-50/50 text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+                  <th className='px-6 py-4'>Message Details</th>
+                  <th className='px-6 py-4 text-center'>Type</th>
+                  <th className='px-6 py-4'>Audience</th>
+                  <th className='px-6 py-4'>Performance</th>
+                  <th className='px-6 py-4'>Date Sent</th>
+                  {/* <th className='px-6 py-4 text-right'>Action</th> */}
                 </tr>
               </thead>
               <tbody className='divide-y'>
                 {notifications?.map((notification) => (
                   <tr
                     key={notification._id}
-                    className='group hover:bg-gray-50 transition-colors'
+                    className='group hover:bg-[#6B46C1]/2 transition-colors'
                   >
                     <td className='px-6 py-5 shrink-0'>
-                      <div className='flex flex-col'>
-                        <span className='font-medium text-gray-900 text-xs'>
+                      <div className='flex flex-col gap-1'>
+                        <span className='font-bold text-gray-900 text-sm'>
                           {notification.title}
                         </span>
-                        <span className='text-[10px] text-gray-400 truncate max-w-[200px]'>
+                        <p className='text-xs text-gray-400 line-clamp-1 max-w-[250px] font-medium'>
                           {notification.message}
-                        </span>
+                        </p>
                       </div>
                     </td>
-                    <td className='px-6 py-5'>
-                      <span className='text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md border border-purple-100'>
+                    <td className='px-6 py-5 text-center'>
+                      <span className={`text-[10px] font-black uppercase tracking-tighter px-2.5 py-1 rounded-full border ${
+                        notification.type === 'Warning' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                        notification.type === 'Alert' ? 'bg-red-50 text-red-600 border-red-100' :
+                        notification.type === 'Announcement' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                        'bg-purple-50 text-purple-600 border-purple-100'
+                      }`}>
                         {notification.type}
                       </span>
                     </td>
                     <td className='px-6 py-5'>
-                      <span className='text-gray-600 text-xs'>
-                        {notification.audience}
-                      </span>
+                      <div className='flex items-center gap-2'>
+                        <div className='h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400'>
+                          <UsersIcon size={12} />
+                        </div>
+                        <span className='text-gray-600 text-[11px] font-bold'>
+                          {notification.audience}
+                        </span>
+                      </div>
                     </td>
                     <td className='px-6 py-5'>
-                      <div className='flex flex-col'>
-                        <span className='text-gray-900 font-bold text-xs'>
-                          {notification.recipientsCount}
-                        </span>
-                        <span className='text-[10px] text-gray-400'>
-                          {notification.openedCount} opened
-                        </span>
+                      <div className='flex flex-col gap-1.5'>
+                        <div className='flex items-center justify-between text-[10px] font-bold'>
+                          <span className='text-gray-900'>{notification.recipientsCount} recipients</span>
+                          <span className='text-gray-400'>{Math.round((notification.openedCount / notification.recipientsCount) * 100) || 0}% opened</span>
+                        </div>
+                        <div className='w-full h-1.5 bg-gray-100 rounded-full overflow-hidden'>
+                          <div 
+                            className='h-full bg-[#6B46C1] rounded-full' 
+                            style={{ width: `${(notification.openedCount / notification.recipientsCount) * 100 || 0}%` }}
+                          />
+                        </div>
                       </div>
                     </td>
                     <td className='px-6 py-5 text-xs text-gray-500'>
                       <div className='flex flex-col'>
-                        <span>
-                          {new Date(notification.createdAt).toLocaleDateString()}
+                        <span className='font-bold text-gray-700'>
+                          {new Date(notification.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
-                        <span className='text-[10px]'>
+                        <span className='text-[10px] text-gray-400 font-medium mt-0.5'>
                           {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     </td>
-                    <td className='px-6 py-5 text-right'>
+                    {/* <td className='px-6 py-5 text-right'>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -201,7 +215,7 @@ export default function NotificationsPage() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
                 {!loadingNotifications && notifications?.length === 0 && (

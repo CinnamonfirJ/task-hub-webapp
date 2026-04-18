@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
+import { ExportModal } from "@/components/admin/ExportModal";
 import Link from "next/link";
 import {
   useAdminUsers,
@@ -36,6 +37,7 @@ export default function UsersManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const limit = 10;
 
   // Fetch stats
@@ -87,31 +89,8 @@ export default function UsersManagementPage() {
     }
   }, [usersData, page, activeFilter]);
 
-  const { mutate: exportUsers, isPending: isExporting } = useExportUsers();
   const { mutate: lockUser } = useLockUser();
   const { mutate: unlockUser } = useUnlockUser();
-
-  const handleExport = () => {
-    exportUsers(undefined, {
-      onSuccess: (data) => {
-        if (data.downloadUrl) {
-          window.open(data.downloadUrl, "_blank");
-        } else {
-          const blob = new Blob([JSON.stringify(data, null, 2)], {
-            type: "application/json",
-          });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `users_export_${new Date().getTime()}.json`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        }
-      },
-    });
-  };
 
   const summaryMetrics = [
     { label: "Total Users", value: stats?.totalUsers?.toLocaleString() || "0" },
@@ -192,16 +171,11 @@ export default function UsersManagementPage() {
         </div>
         <div className='flex gap-3'>
           <Button
-            disabled={isExporting}
-            onClick={handleExport}
+            onClick={() => setIsExportModalOpen(true)}
             variant='outline'
-            className='text-sm h-10 px-4 gap-2'
+            className='text-sm h-10 px-4 gap-2 border-gray-200'
           >
-            {isExporting ? (
-              <Loader2 size={16} className='animate-spin' />
-            ) : (
-              <Download size={16} />
-            )}
+            <Download size={16} />
             Export
           </Button>
         </div>
@@ -394,8 +368,6 @@ export default function UsersManagementPage() {
                 </tbody>
               </table>
 
-              {/* Load More Button Integrated via ExpandableTableContainer logic if possible, 
-                  but here we manually inject if it's simpler or expected outside the table */}
               {hasMore && (
                 <div className='p-6 flex justify-center border-t border-gray-100'>
                   <Button
@@ -414,6 +386,11 @@ export default function UsersManagementPage() {
           </div>
         </CardContent>
       </Card>
+      <ExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+        type="users" 
+      />
     </div>
   );
 }

@@ -47,7 +47,7 @@ export default function VerificationPage() {
           <ArrowLeft size={20} />
         </Button>
         <h1 className='text-2xl font-bold text-gray-900'>
-          Identity Verification
+          KYC Verification
         </h1>
       </div>
 
@@ -73,12 +73,12 @@ export default function VerificationPage() {
 
             <div className='space-y-3'>
               <h2 className='text-2xl font-bold text-gray-900'>
-                {isVerified ? "Verified Account" : "Unverified Identity"}
+                {isVerified ? "Account Verified" : "Verify Your Identity"}
               </h2>
               <p className='text-sm text-gray-400 max-w-md mx-auto leading-relaxed'>
                 {isVerified
-                  ? "Your identity has been successfully verified using your NIN. You have full access to all TaskHub features including withdrawals."
-                  : "Your identity has not been verified yet. Verify your identity using your NIN to unlock all features and build trust with other users."}
+                  ? "Your identity has been successfully verified. You now have full access to all TaskHub features including withdrawals."
+                  : "To unlock all features and build trust, you have two options: upload a verification document or enter your 11-digit NIN manually."}
               </p>
             </div>
 
@@ -97,13 +97,13 @@ export default function VerificationPage() {
                         userId={user?._id}
                         className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold rounded-2xl shadow-lg shadow-purple-200'
                       />
-                      <Button
-                        variant='ghost'
-                        onClick={() => setVerificationMode("manual")}
-                        className='w-full text-gray-400 hover:text-[#6B46C1] font-medium'
-                      >
-                        Try manual verification instead
-                      </Button>
+                        <Button
+                          variant='outline'
+                          onClick={() => setVerificationMode("manual")}
+                          className='w-full border-[#6B46C1] text-[#6B46C1] hover:bg-purple-50 py-8 text-lg font-bold rounded-2xl'
+                        >
+                          Enter 11-digit NIN
+                        </Button>
                     </motion.div>
                   ) : (
                     <NINManualSubmission

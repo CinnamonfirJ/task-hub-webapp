@@ -19,11 +19,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
+import { ExportModal } from "@/components/admin/ExportModal";
 import Link from "next/link";
 import {
   usePaymentStats,
   useTransactions,
-  useExportPayments,
 } from "@/hooks/useAdmin";
 import { formatCurrency } from "@/lib/utils";
 
@@ -31,6 +31,7 @@ export default function PaymentsManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const limit = 30;
 
   const typeParam =
@@ -53,31 +54,6 @@ export default function PaymentsManagementPage() {
     type: typeParam,
     search: searchTerm,
   });
-
-  const { mutate: exportPayments, isPending: isExporting } =
-    useExportPayments();
-
-  const handleExport = () => {
-    exportPayments(undefined, {
-      onSuccess: (data) => {
-        if (data.downloadUrl) {
-          window.open(data.downloadUrl, "_blank");
-        } else {
-          const blob = new Blob([JSON.stringify(data, null, 2)], {
-            type: "application/json",
-          });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `payments_export_${new Date().getTime()}.json`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        }
-      },
-    });
-  };
 
   const transactions = Array.isArray(txData)
     ? txData
@@ -157,20 +133,21 @@ export default function PaymentsManagementPage() {
         </div>
         <div className='flex gap-3'>
           <Button
-            disabled={isExporting}
-            onClick={handleExport}
+            onClick={() => setIsExportModalOpen(true)}
             variant='outline'
             className='text-sm h-10 px-4 gap-2 border-gray-200'
           >
-            {isExporting ? (
-              <Loader2 size={16} className='animate-spin' />
-            ) : (
-              <Download size={16} />
-            )}
+            <Download size={16} />
             Export
           </Button>
         </div>
       </div>
+
+      <ExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+        type="payments" 
+      />
 
       <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
         {paymentMetrics.map((metric, idx) => (

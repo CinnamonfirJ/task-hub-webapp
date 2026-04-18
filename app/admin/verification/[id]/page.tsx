@@ -89,7 +89,9 @@ export default function KYCDetailsPage({
     approved: { bg: "bg-green-50", text: "text-green-600", label: "Approved" },
     rejected: { bg: "bg-red-50", text: "text-red-600", label: "Rejected" },
   };
-  const sc = statusConfig[record.status];
+
+  const status = record.status?.toLowerCase() || "pending";
+  const sc = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
 
   return (
     <div className='space-y-6 md:space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto relative'>
@@ -168,7 +170,7 @@ export default function KYCDetailsPage({
                 Submitted
               </div>
               <div className='text-sm font-bold text-gray-900'>
-                {new Date(record.createdAt).toLocaleString()}
+                {record.createdAt ? new Date(record.createdAt).toLocaleString() : "N/A"}
               </div>
             </div>
           </div>
@@ -189,7 +191,8 @@ export default function KYCDetailsPage({
               </div>
               <div className='text-sm font-bold text-gray-900'>
                 {record.user?.fullName || 
-                 (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "N/A")}
+                 (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : 
+                  record.verificationData?.fullName || "N/A")}
               </div>
             </div>
             <div>
@@ -241,7 +244,7 @@ export default function KYCDetailsPage({
                 Submission Date
               </div>
               <div className='text-sm font-bold text-gray-900'>
-                {new Date(record.createdAt).toLocaleString()}
+                {record.createdAt ? new Date(record.createdAt).toLocaleString() : "N/A"}
               </div>
             </div>
             {record.updatedAt && (
@@ -249,9 +252,9 @@ export default function KYCDetailsPage({
                 <div className='text-xs text-gray-500 font-medium mb-1'>
                   Last Updated
                 </div>
-                <div className='text-sm font-bold text-gray-900'>
-                  {new Date(record.updatedAt).toLocaleString()}
-                </div>
+              <div className='text-sm font-bold text-gray-900'>
+                {record.updatedAt ? new Date(record.updatedAt).toLocaleString() : "N/A"}
+              </div>
               </div>
             )}
             {record.approvedBy && (
