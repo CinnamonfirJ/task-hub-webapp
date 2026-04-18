@@ -10,6 +10,8 @@ import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { googleStore } from "@/lib/google-store";
 import { useEffect } from "react";
 import { Loader2, User as UserIcon, Phone, MapPin, Calendar, Globe } from "lucide-react";
+import { NIGERIAN_STATES } from "@/utils/constants/nigeria-states";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const onboardingSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
@@ -170,10 +172,13 @@ export function GoogleOnboardingForm() {
           {/* Resident State */}
           <div className="space-y-2">
             <Label htmlFor="residentState">Resident State</Label>
-            <Input
-              id="residentState"
-              placeholder="Lagos"
-              {...form.register("residentState")}
+            <SearchableSelect 
+              options={NIGERIAN_STATES}
+              value={form.watch("residentState") || ""}
+              onValueChange={(value) => form.setValue("residentState", value, { shouldValidate: true })}
+              placeholder="Select State"
+              searchPlaceholder="Search state..."
+              error={!!form.formState.errors.residentState}
             />
             {form.formState.errors.residentState && (
               <p className="text-xs text-red-500">{form.formState.errors.residentState.message}</p>
@@ -184,10 +189,12 @@ export function GoogleOnboardingForm() {
           {role === "tasker" && (
             <div className="space-y-2">
               <Label htmlFor="originState">Origin State</Label>
-              <Input
-                id="originState"
-                placeholder="Oyo"
-                {...form.register("originState")}
+              <SearchableSelect 
+                options={NIGERIAN_STATES}
+                value={form.watch("originState") || ""}
+                onValueChange={(value) => form.setValue("originState", value, { shouldValidate: true })}
+                placeholder="Select State"
+                searchPlaceholder="Search state..."
               />
             </div>
           )}
