@@ -11,7 +11,9 @@ import {
   FileText,
   ExternalLink,
   Eye,
+  Copy,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -233,8 +235,22 @@ export default function KYCDetailsPage({
               <div className='text-sm text-gray-500 font-medium mb-2'>
                 National Identification Number (NIN)
               </div>
-              <div className='bg-gray-50/50 border border-gray-100 rounded-xl p-4 font-bold text-gray-900 tracking-wider'>
-                {record.maskedNin || record.nin || "N/A"}
+              <div className='bg-gray-50/50 border border-gray-100 rounded-xl p-4 font-bold text-gray-900 tracking-wider flex items-center justify-between group'>
+                <span>{record.maskedNin || record.nin || "N/A"}</span>
+                {(record.nin || record.maskedNin) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-gray-400 hover:text-[#6B46C1] hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => {
+                      navigator.clipboard.writeText(record.nin || record.maskedNin || "");
+                      toast.success("NIN copied to clipboard");
+                    }}
+                    title="Copy NIN"
+                  >
+                    <Copy size={16} />
+                  </Button>
+                )}
               </div>
             </div>
             <div>
