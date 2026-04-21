@@ -11,9 +11,12 @@ import {
   ChevronRight,
   MoreVertical,
   ShieldCheck,
+  X,
+  Eye,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,13 +25,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
-import { useKYCRequests, useKYCStats } from "@/hooks/useAdmin";
+import { useKYCRequests, useKYCStats, useApproveKYC, useRejectKYC } from "@/hooks/useAdmin";
 import { ExportModal } from "@/components/admin/ExportModal";
 
 export default function KYCManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [page, setPage] = useState(1);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [approveNotes, setApproveNotes] = useState("");
+  const [rejectReason, setRejectReason] = useState("");
   const limit = 20;
 
   const statusParam =
@@ -42,6 +50,9 @@ export default function KYCManagementPage() {
     page,
     limit,
   });
+  
+  const { mutate: approve, isPending: isApproving } = useApproveKYC();
+  const { mutate: reject, isPending: isRejecting } = useRejectKYC();
 
   const records = kycData?.records ?? [];
   const pagination = kycData?.pagination;
@@ -71,6 +82,34 @@ export default function KYCManagementPage() {
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
     setPage(1);
+  };
+
+  const handleApprove = () => {
+    if (!selectedRecord) return;
+    approve(
+      { id: selectedRecord._id, notes: approveNotes },
+      {
+        onSuccess: () => {
+          setIsApproveModalOpen(false);
+          setApproveNotes("");
+          setSelectedRecord(null);
+        },
+      },
+    );
+  };
+
+  const handleReject = () => {
+    if (!selectedRecord) return;
+    reject(
+      { id: selectedRecord._id, reason: rejectReason },
+      {
+        onSuccess: () => {
+          setIsRejectModalOpen(false);
+          setRejectReason("");
+          setSelectedRecord(null);
+        },
+      },
+    );
   };
 
   return (
@@ -180,28 +219,38 @@ export default function KYCManagementPage() {
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant='ghost'
-                            size='icon'
-                            className='h-8 w-8 text-gray-400'
+                            size='sm'
+                            className='h-8 px-2 text-gray-500 font-bold text-[10px] hover:bg-gray-100 gap-1 rounded-lg border border-gray-100'
                           >
-                            <MoreVertical size={16} />
+                            <MoreVertical size={12} />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align='end' className='w-44'>
                           <Link href={`/admin/verification/${record._id}`}>
-                            <DropdownMenuItem className='gap-2 cursor-pointer'>
-                              <ExternalLink size={14} /> View Details
+                            <DropdownMenuItem className='gap-2 cursor-pointer text-gray-700'>
+                              <Eye size={16} /> View Details
                             </DropdownMenuItem>
                           </Link>
-                          {record.status === "pending" && (
-                            <>
-                              <DropdownMenuItem className='gap-2 cursor-pointer text-green-600 focus:text-green-600'>
-                                <CheckCircle size={14} /> Approve
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className='gap-2 cursor-pointer text-red-600 focus:text-red-600'>
-                                <XCircle size={14} /> Reject
-                              </DropdownMenuItem>
-                            </>
-                          )}
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setSelectedRecord(record);
+                              setIsApproveModalOpen(true);
+                            }}
+                            disabled={record.status === "approved"}
+                            className='gap-2 cursor-pointer text-green-600 focus:text-green-600 font-medium'
+                          >
+                            <CheckCircle size={14} /> Approve
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setSelectedRecord(record);
+                              setIsRejectModalOpen(true);
+                            }}
+                            disabled={record.status === "rejected"}
+                            className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-medium'
+                          >
+                            <XCircle size={14} /> Reject
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>
@@ -256,6 +305,130 @@ export default function KYCManagementPage() {
         onClose={() => setIsExportModalOpen(false)} 
         type="taskers"
       />
+
+      {/* Approve Modal */}
+      {isApproveModalOpen && selectedRecord && (
+        <div className='fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4' onClick={(e) => {
+          if (e.target === e.currentTarget) setIsApproveModalOpen(false);
+        }}>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200'>
+            <div className='p-6 border-b border-gray-100 flex items-center justify-between bg-white'>
+              <h2 className='text-xl font-bold text-green-600 flex items-center gap-2'>
+                <CheckCircle size={24} /> Approve KYC
+              </h2>
+              <button
+                onClick={() => setIsApproveModalOpen(false)}
+                className='w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className='p-8 space-y-6'>
+              <div className='bg-green-50/50 p-4 rounded-2xl border border-green-100'>
+                <p className='text-sm text-gray-700 leading-relaxed'>
+                  You are about to approve verification for <strong className='text-gray-900'>{selectedRecord.user?.fullName || selectedRecord.user?.firstName || "this user"}</strong>. 
+                  This will grant them verified status across the platform.
+                </p>
+              </div>
+              <div className='space-y-3'>
+                <label className='text-xs font-bold text-gray-500 uppercase tracking-wider ml-1'>
+                  Internal Notes (Optional)
+                </label>
+                <Input
+                  placeholder='Enter any internal notes regarding this approval...'
+                  value={approveNotes}
+                  onChange={(e) => setApproveNotes(e.target.value)}
+                  className='rounded-2xl h-12 border-gray-200 focus:border-green-500 focus:ring-green-500/20'
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className='p-6 border-t border-gray-100 bg-gray-50/30 flex justify-end gap-3'>
+              <Button
+                variant='ghost'
+                onClick={() => setIsApproveModalOpen(false)}
+                className='rounded-2xl font-semibold px-6 hover:bg-gray-200'
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleApprove}
+                disabled={isApproving}
+                className='bg-green-500 hover:bg-green-600 text-white rounded-2xl gap-2 font-bold px-8 h-12 shadow-md shadow-green-500/20 active:scale-[0.98] transition-all'
+              >
+                {isApproving ? (
+                  <Loader2 size={18} className='animate-spin' />
+                ) : (
+                  <CheckCircle size={18} />
+                )}
+                Approve Verification
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Modal */}
+      {isRejectModalOpen && selectedRecord && (
+        <div className='fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4' onClick={(e) => {
+          if (e.target === e.currentTarget) setIsRejectModalOpen(false);
+        }}>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200'>
+            <div className='p-6 border-b border-gray-100 flex items-center justify-between bg-white'>
+              <h2 className='text-xl font-bold text-red-600 flex items-center gap-2'>
+                <XCircle size={24} /> Reject KYC
+              </h2>
+              <button
+                onClick={() => setIsRejectModalOpen(false)}
+                className='w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className='p-8 space-y-6'>
+              <div className='bg-red-50/50 p-4 rounded-2xl border border-red-100'>
+                <p className='text-sm text-gray-700 leading-relaxed'>
+                  Please provide a clear reason why <strong className='text-gray-900'>{selectedRecord.user?.fullName || selectedRecord.user?.firstName || "this user"}</strong>'s 
+                  verification is being rejected. This information may be shared with the user.
+                </p>
+              </div>
+              <div className='space-y-3'>
+                <label className='text-xs font-bold text-gray-500 uppercase tracking-wider ml-1'>
+                  Rejection Reason <span className='text-red-500'>*</span>
+                </label>
+                <Input
+                  placeholder='e.g. ID photo is blurry or does not match profile'
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  className='rounded-2xl h-12 border-gray-200 focus:border-red-500 focus:ring-red-500/20'
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className='p-6 border-t border-gray-100 bg-gray-50/30 flex justify-end gap-3'>
+              <Button
+                variant='ghost'
+                onClick={() => setIsRejectModalOpen(false)}
+                className='rounded-2xl font-semibold px-6 hover:bg-gray-200'
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleReject}
+                disabled={isRejecting || !rejectReason.trim()}
+                className='bg-red-500 hover:bg-red-600 text-white rounded-2xl gap-2 font-bold px-8 h-12 shadow-md shadow-red-500/20 active:scale-[0.98] transition-all'
+              >
+                {isRejecting ? (
+                  <Loader2 size={18} className='animate-spin' />
+                ) : (
+                  <XCircle size={18} />
+                )}
+                Reject Verification
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
