@@ -8,13 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { googleStore } from "@/lib/google-store";
-import { useEffect } from "react";
+import { UserType } from "@/types/auth";
+import { useEffect, useState } from "react";
 import { Loader2, User as UserIcon, Phone, MapPin, Calendar, Globe } from "lucide-react";
 import { NIGERIAN_STATES } from "@/utils/constants/nigeria-states";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const onboardingSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
   email: z.string().email(),
   phoneNumber: z.string().min(10, "Valid phone number is required"),
   country: z.string().min(1, "Country is required"),
@@ -28,12 +30,14 @@ type OnboardingValues = z.infer<typeof onboardingSchema>;
 
 export function GoogleOnboardingForm() {
   const { handleCompleteSignup, isProcessing } = useGoogleAuth();
-  const { prefill, role } = googleStore.getState();
+  const { prefill, role: initialRole } = googleStore.getState();
+  const [role, setRole] = useState<UserType>((initialRole as UserType) || "user");
 
   const form = useForm<OnboardingValues>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
-      fullName: prefill?.name || "",
+      firstName: prefill?.givenName || prefill?.name?.split(" ")[0] || "",
+      lastName: prefill?.familyName || prefill?.name?.split(" ").slice(1).join(" ") || "",
       email: prefill?.email || "",
       country: "Nigeria",
       residentState: "",
@@ -47,7 +51,8 @@ export function GoogleOnboardingForm() {
   useEffect(() => {
     if (!prefill) return;
     form.reset({
-      fullName: prefill.name,
+      firstName: prefill.givenName || prefill.name.split(" ")[0],
+      lastName: prefill.familyName || prefill.name.split(" ").slice(1).join(" "),
       email: prefill.email,
       country: "Nigeria",
     });
@@ -59,32 +64,85 @@ export function GoogleOnboardingForm() {
     if (role === "tasker" && !payload.originState) {
         payload.originState = data.residentState; // Fallback
     }
-    await handleCompleteSignup(payload);
+    await handleCompleteSignup({ ...payload, user_type: role });
   };
 
   if (!role) return null;
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      {/* User Type Toggle */}
+      <div className="space-y-2">
+        <Label>Account Type</Label>
+        <div className="flex bg-gray-100 p-1 rounded-lg">
+          <button
+            type="button"
+            onClick={() => setRole("user")}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+              role === "user"
+                ? "bg-white text-primary shadow-sm"
+                : "text-muted-foreground hover:text-gray-700"
+            }`}
+          >
+            Customer
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("tasker")}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+              role === "tasker"
+                ? "bg-[#6B46C1] text-white shadow-sm"
+                : "text-muted-foreground hover:text-gray-700"
+            }`}
+          >
+            Tasker
+          </button>
+        </div>
+        <p className="text-[10px] text-muted-foreground">
+          {role === 'tasker' 
+            ? "You'll be able to browse tasks and provide services." 
+            : "You'll be able to post tasks and find help."}
+        </p>
+      </div>
+
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Full Name */}
+          {/* First Name */}
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="firstName">First Name</Label>
             <div className="relative">
               <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                id="fullName"
-                placeholder="Jane Doe"
+                id="firstName"
+                placeholder="Jane"
                 className="pl-9"
-                {...form.register("fullName")}
+                {...form.register("firstName")}
               />
             </div>
-            {form.formState.errors.fullName && (
-              <p className="text-xs text-red-500">{form.formState.errors.fullName.message}</p>
+            {form.formState.errors.firstName && (
+              <p className="text-xs text-red-500">{form.formState.errors.firstName.message}</p>
             )}
           </div>
 
+          {/* Last Name */}
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name</Label>
+            <div className="relative">
+              <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="lastName"
+                placeholder="Doe"
+                className="pl-9"
+                {...form.register("lastName")}
+              />
+            </div>
+            {form.formState.errors.lastName && (
+              <p className="text-xs text-red-500">{form.formState.errors.lastName.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Email (Locked) */}
           <div className="space-y-2">
             <Label htmlFor="email">Email Address</Label>
@@ -97,7 +155,6 @@ export function GoogleOnboardingForm() {
             />
             <p className="text-[10px] text-muted-foreground">Registered with Google</p>
           </div>
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Phone Number */}
