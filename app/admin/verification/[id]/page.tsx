@@ -121,7 +121,7 @@ export default function KYCDetailsPage({
         <div className='flex items-center gap-3'>
           <Button
             onClick={() => setIsApproveModalOpen(true)}
-            disabled={isApproving || record.status === "approved"}
+            disabled={isApproving || record.status === "approved" || record.status === "approve"}
              className='bg-[#4CAF50] text-white rounded-sm gap-2 font-bold px-8 h-12'
           >
             {isApproving ? (
