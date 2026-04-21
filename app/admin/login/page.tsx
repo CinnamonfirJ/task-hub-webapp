@@ -97,7 +97,7 @@ export default function AdminLoginPage() {
                   <Input
                     id='email'
                     type='email'
-                    placeholder='admin@taskhub.com'
+                    placeholder='example@example.com'
                     className='pl-10 h-12 bg-gray-50/50 border-gray-100 rounded-xl focus-visible:ring-[#6B46C1]'
                     {...form.register("email")}
                   />

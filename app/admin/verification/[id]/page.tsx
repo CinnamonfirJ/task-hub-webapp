@@ -10,6 +10,7 @@ import {
   X,
   FileText,
   ExternalLink,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,41 +109,39 @@ export default function KYCDetailsPage({
           </Link>
           <div>
             <h1 className='text-xl md:text-2xl font-bold text-gray-900'>
-              KYC / Verification Details
+              KYC / Verification Management
             </h1>
             <p className='text-xs md:text-sm text-gray-500'>
-              Review verification submission
+              Review and manage identity verifications
             </p>
           </div>
         </div>
-        {record.status === "pending" && (
-          <div className='flex gap-3'>
-            <Button
-              onClick={() => setIsApproveModalOpen(true)}
-              disabled={isApproving}
-              className='bg-green-500 hover:bg-green-600 text-white gap-2 h-10 px-4 font-semibold rounded-xl'
-            >
-              {isApproving ? (
-                <Loader2 size={16} className='animate-spin' />
-              ) : (
-                <CheckCircle size={16} />
-              )}
-              Approve
-            </Button>
-            <Button
-              onClick={() => setIsRejectModalOpen(true)}
-              disabled={isRejecting}
-              className='bg-[#EF4444] hover:bg-[#DC2626] text-white gap-2 h-10 px-4 font-semibold rounded-xl'
-            >
-              {isRejecting ? (
-                <Loader2 size={16} className='animate-spin' />
-              ) : (
-                <XCircle size={16} />
-              )}
-              Reject
-            </Button>
-          </div>
-        )}
+        <div className='flex items-center gap-3'>
+          <Button
+            onClick={() => setIsApproveModalOpen(true)}
+            disabled={isApproving || record.status === "approved"}
+             className='bg-[#4CAF50] text-white rounded-sm gap-2 font-bold px-8 h-12'
+          >
+            {isApproving ? (
+              <Loader2 size={20} className='animate-spin' />
+            ) : (
+              <CheckCircle size={20} />
+            )}
+            Approve verification
+          </Button>
+          <Button
+            onClick={() => setIsRejectModalOpen(true)}
+            disabled={isRejecting || record.status === "rejected"}
+            className='bg-[#EF4444] text-white rounded-sm gap-2 font-bold px-8 h-12'
+          >
+            {isRejecting ? (
+              <Loader2 size={20} className='animate-spin' />
+            ) : (
+              <XCircle size={20} />
+            )}
+            Reject
+          </Button>
+        </div>
       </div>
 
       <Card className='border border-gray-100 shadow-sm rounded-2xl'>
@@ -191,8 +190,7 @@ export default function KYCDetailsPage({
               </div>
               <div className='text-sm font-bold text-gray-900'>
                 {record.user?.fullName || 
-                 (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : 
-                  record.verificationData?.fullName || "N/A")}
+                 (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "N/A")}
               </div>
             </div>
             <div>
@@ -322,56 +320,60 @@ export default function KYCDetailsPage({
 
       {/* Approve Modal */}
       {isApproveModalOpen && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl'>
-            <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
-              <h2 className='text-xl font-bold text-green-600'>Approve KYC</h2>
+        <div className='fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4' onClick={(e) => {
+          if (e.target === e.currentTarget) setIsApproveModalOpen(false);
+        }}>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200'>
+            <div className='p-6 border-b border-gray-100 flex items-center justify-between bg-white'>
+              <h2 className='text-xl font-bold text-green-600 flex items-center gap-2'>
+                <CheckCircle size={24} /> Approve KYC
+              </h2>
               <button
                 onClick={() => setIsApproveModalOpen(false)}
-                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400'
+                className='w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
               >
                 <X size={20} />
               </button>
             </div>
-            <div className='p-6 space-y-4'>
-              <p className='text-sm text-gray-600'>
-                Approving will grant KYC verified status to{" "}
-                <strong>
-                  {record.user?.fullName || 
-                   (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "this user")}
-                </strong>.
-              </p>
-              <div className='space-y-2'>
-                <label className='text-xs font-bold text-gray-700 uppercase'>
-                  Notes (Optional)
+            <div className='p-8 space-y-6'>
+              <div className='bg-green-50/50 p-4 rounded-2xl border border-green-100'>
+                <p className='text-sm text-gray-700 leading-relaxed'>
+                  Approving will grant KYC verified status to <strong className='text-gray-900'>{record.user?.fullName || (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "this user")}</strong>. 
+                  This will grant them verified status across the platform.
+                </p>
+              </div>
+              <div className='space-y-3'>
+                <label className='text-xs font-bold text-gray-500 uppercase tracking-wider ml-1'>
+                  Internal Notes (Optional)
                 </label>
                 <Input
-                  placeholder='e.g. Documents verified manually'
+                  placeholder='Enter any internal notes regarding this approval...'
                   value={approveNotes}
                   onChange={(e) => setApproveNotes(e.target.value)}
-                  className='rounded-xl h-11'
+                  className='rounded-2xl h-12 border-gray-200 focus:border-green-500 focus:ring-green-500/20'
+                  autoFocus
                 />
               </div>
             </div>
-            <div className='p-6 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3'>
+            <div className='p-6 border-t border-gray-100 bg-gray-50/30 flex justify-end gap-3'>
               <Button
-                variant='outline'
+                variant='ghost'
                 onClick={() => setIsApproveModalOpen(false)}
-                className='rounded-xl font-semibold'
+                className='rounded-2xl font-semibold px-6 hover:bg-gray-200'
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleApprove}
                 disabled={isApproving}
-                className='bg-green-500 hover:bg-green-600 text-white rounded-xl gap-2 font-semibold'
+                className='bg-[#4CAF50] text-white rounded-sm gap-2 font-bold px-8 h-12 '
               >
                 {isApproving ? (
-                  <Loader2 size={16} className='animate-spin' />
+                  <Loader2 size={18} className='animate-spin' />
                 ) : (
-                  <CheckCircle size={16} />
-                )}{" "}
-                Confirm Approval
+                  <CheckCircle size={18} />
+                )}
+                Approve Verification
               </Button>
             </div>
           </div>
@@ -380,49 +382,60 @@ export default function KYCDetailsPage({
 
       {/* Reject Modal */}
       {isRejectModalOpen && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl'>
-            <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
-              <h2 className='text-xl font-bold text-red-600'>Reject KYC</h2>
+        <div className='fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4' onClick={(e) => {
+          if (e.target === e.currentTarget) setIsRejectModalOpen(false);
+        }}>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200'>
+            <div className='p-6 border-b border-gray-100 flex items-center justify-between bg-white'>
+              <h2 className='text-xl font-bold text-red-600 flex items-center gap-2'>
+                <XCircle size={24} /> Reject KYC
+              </h2>
               <button
                 onClick={() => setIsRejectModalOpen(false)}
-                className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400'
+                className='w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'
               >
                 <X size={20} />
               </button>
             </div>
-            <div className='p-6 space-y-4'>
-              <div className='space-y-2'>
-                <label className='text-xs font-bold text-gray-700 uppercase'>
-                  Rejection Reason *
+            <div className='p-8 space-y-6'>
+              <div className='bg-red-50/50 p-4 rounded-2xl border border-red-100'>
+                <p className='text-sm text-gray-700 leading-relaxed'>
+                  Please provide a clear reason why <strong className='text-gray-900'>{record.user?.fullName || (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "this user")}</strong>'s 
+                  verification is being rejected. This information may be shared with the user.
+                </p>
+              </div>
+              <div className='space-y-3'>
+                <label className='text-xs font-bold text-gray-500 uppercase tracking-wider ml-1'>
+                  Rejection Reason <span className='text-red-500'>*</span>
                 </label>
                 <Input
-                  placeholder='e.g. ID photo does not match selfie'
+                  placeholder='e.g. ID photo is blurry or does not match profile'
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
-                  className='rounded-xl h-11'
+                  className='rounded-2xl h-12 border-gray-200 focus:border-red-500 focus:ring-red-500/20'
+                  autoFocus
                 />
               </div>
             </div>
-            <div className='p-6 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3'>
+            <div className='p-6 border-t border-gray-100 bg-gray-50/30 flex justify-end gap-3'>
               <Button
-                variant='outline'
+                variant='ghost'
                 onClick={() => setIsRejectModalOpen(false)}
-                className='rounded-xl font-semibold'
+                className='rounded-2xl font-semibold px-6 hover:bg-gray-200'
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleReject}
                 disabled={isRejecting || !rejectReason.trim()}
-                className='bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-xl gap-2 font-semibold'
+                className='bg-[#EF4444] text-white rounded-sm gap-2 font-bold px-8 h-12'
               >
                 {isRejecting ? (
-                  <Loader2 size={16} className='animate-spin' />
+                  <Loader2 size={18} className='animate-spin' />
                 ) : (
-                  <XCircle size={16} />
-                )}{" "}
-                Confirm Rejection
+                  <XCircle size={18} />
+                )}
+                Reject Verification
               </Button>
             </div>
           </div>
