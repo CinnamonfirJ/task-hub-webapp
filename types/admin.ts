@@ -577,7 +577,7 @@ export interface KYCRecord {
   } | null;
   nin: string; // Legacy masked string
   maskedNin?: string; // New field from API
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "approve" | "rejected";
   submittedDocuments?: KYCDocument[];
   approvedBy?: {
     _id: string;
