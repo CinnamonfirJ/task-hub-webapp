@@ -28,7 +28,7 @@ export default function GoogleCompletePage() {
         <div className="mb-8 border-b pb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Complete your profile</h1>
           <p className="text-muted-foreground">
-            Just a few more details to get you started as a {role === 'tasker' ? 'Tasker' : 'User'}.
+            Just a few more details to get you started.
           </p>
         </div>
 

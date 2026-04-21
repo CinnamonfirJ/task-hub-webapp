@@ -63,11 +63,13 @@ export function useGoogleAuth() {
       return;
     }
 
+    const currentRole = fields.user_type || role;
+
     setIsProcessing(true);
     try {
       const result = await authApi.googleCompleteSignup({
         idToken,
-        user_type: role,
+        user_type: currentRole,
         ...fields,
       });
 
@@ -79,7 +81,7 @@ export function useGoogleAuth() {
       }
     } catch (error: any) {
       if (error instanceof ApiError) {
-        handleAuthError(error.status, error.data, role as UserType, idToken);
+        handleAuthError(error.status, error.data, currentRole as UserType, idToken);
       } else {
         toast.error(error.message || "Signup completion failed");
       }
