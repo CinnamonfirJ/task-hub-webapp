@@ -13,7 +13,9 @@ import {
   ShieldCheck,
   X,
   Eye,
+  Copy,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -195,7 +197,23 @@ export default function KYCManagementPage() {
                       </div>
                     </td>
                     <td className='px-6 py-4 text-gray-500 font-mono text-xs'>
-                      {record.maskedNin || record.nin || "N/A"}
+                      <div className="flex items-center gap-2">
+                        {record.maskedNin || record.nin || "N/A"}
+                        {(record.nin || record.maskedNin) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              navigator.clipboard.writeText(record.nin || record.maskedNin || "");
+                              toast.success("NIN copied to clipboard");
+                            }}
+                            className="h-6 w-6 text-gray-400 hover:text-[#6B46C1] hover:bg-gray-100"
+                            title="Copy NIN"
+                          >
+                            <Copy size={12} />
+                          </Button>
+                        )}
+                      </div>
                     </td>
                     <td className='px-6 py-4'>
                       <span
