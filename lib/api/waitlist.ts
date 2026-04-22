@@ -2,6 +2,10 @@ import { AdminWaitlistResponse } from "@/types/admin";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+if (!BACKEND_URL && typeof window !== "undefined") {
+  console.error("CRITICAL: NEXT_PUBLIC_API_BASE_URL is missing for Waitlist API.");
+}
+
 function getAuthHeaders(): Record<string, string> {
   // Adjust the key to match wherever your app stores the admin token
   const token =

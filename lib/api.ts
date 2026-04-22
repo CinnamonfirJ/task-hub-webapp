@@ -2,6 +2,10 @@ import { redirect } from "next/navigation";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+if (!BASE_URL && typeof window !== "undefined") {
+  console.error("CRITICAL: NEXT_PUBLIC_API_BASE_URL is not defined. API calls will fail.");
+}
+
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
   skipAuthError?: boolean;
