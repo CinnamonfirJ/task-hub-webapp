@@ -1,6 +1,6 @@
 import { AdminWaitlistResponse } from "@/types/admin";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BASE_API;
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 function getAuthHeaders(): Record<string, string> {
   // Adjust the key to match wherever your app stores the admin token

@@ -13,10 +13,10 @@ export async function POST(req: Request) {
     }
 
     const token = authHeader.split(" ")[1];
-    const backendUrl = process.env.NEXT_PUBLIC_BASE_API;
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     if (!backendUrl) {
-      console.error("NEXT_PUBLIC_BASE_API is not defined");
+      console.error("NEXT_PUBLIC_API_BASE_URL is not defined");
       return NextResponse.json(
         { error: "Server configuration error" },
         { status: 500 },
