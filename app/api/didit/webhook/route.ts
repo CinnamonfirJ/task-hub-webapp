@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     }
 
     // 4. Forward to Express backend
-    const backendUrl = process.env.NEXT_PUBLIC_BASE_API;
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const internalToken = process.env.INTERNAL_BACKEND_TOKEN;
 
     if (backendUrl && internalToken) {
