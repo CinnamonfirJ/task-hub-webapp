@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,6 +25,22 @@ export function AdminSearchFilter({
   activeFilter,
   onFilterChange,
 }: AdminSearchFilterProps) {
+  const [localSearch, setLocalSearch] = useState(searchTerm || "");
+
+  useEffect(() => {
+    setLocalSearch(searchTerm || "");
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchTerm) {
+        onSearch?.(localSearch);
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timer);
+  }, [localSearch, onSearch, searchTerm]);
+
   return (
     <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 w-full'>
       <div className='relative w-full md:max-w-md'>
@@ -34,8 +51,8 @@ export function AdminSearchFilter({
         <Input
           type='search'
           placeholder={searchPlaceholder}
-          value={searchTerm}
-          onChange={(e) => onSearch?.(e.target.value)}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
           className='pl-10 h-11 w-full bg-gray-50/50 border-gray-100 rounded-xl focus-visible:ring-[#6B46C1] text-sm'
         />
       </div>

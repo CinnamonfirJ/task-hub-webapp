@@ -182,6 +182,7 @@ export default function UsersManagementPage() {
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
               searchPlaceholder='Search name or email...'
+              searchTerm={searchQuery}
               filterOptions={[
                 "All",
                 "Active",

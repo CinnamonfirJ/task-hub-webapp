@@ -33,6 +33,7 @@ import { ExportModal } from "@/components/admin/ExportModal";
 
 export default function KYCManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
@@ -51,13 +52,45 @@ export default function KYCManagementPage() {
   const { data: kycData, isLoading } = useKYCRequests({
     status: statusParam,
     page,
-    limit,
+    limit: searchTerm ? 100 : limit, // Increase limit when searching to allow client-side filter to find more
   });
   
   const { mutate: approve, isPending: isApproving } = useApproveKYC();
   const { mutate: reject, isPending: isRejecting } = useRejectKYC();
 
-  const records = kycData?.records ?? [];
+  const rawRecords = kycData?.records ?? [];
+  
+  // Client-side filtering fallback: 
+  // If the server returns results, we show them. 
+  // If the server doesn't support the specific field search (like name/email), 
+  // this ensures we still filter what we have.
+  const records = searchTerm 
+    ? rawRecords.filter(record => {
+        const term = searchTerm.toLowerCase();
+        
+        // User Info
+        const firstName = (record.user?.firstName || "").toLowerCase();
+        const lastName = (record.user?.lastName || "").toLowerCase();
+        const fullName = (record.user?.fullName || `${firstName} ${lastName}`).toLowerCase();
+        const email = (record.user?.emailAddress || "").toLowerCase();
+        const phone = (record.user?.phoneNumber || "").toLowerCase();
+        
+        // KYC Info
+        const nin = (record.maskedNin || record.nin || "").toLowerCase();
+        const status = (record.status || "").toLowerCase();
+        const id = (record._id || "").toLowerCase();
+        
+        return (
+          fullName.includes(term) || 
+          email.includes(term) || 
+          phone.includes(term) || 
+          nin.includes(term) ||
+          status.includes(term) ||
+          id.includes(term)
+        );
+      })
+    : rawRecords;
+
   const totalRecords = kycData?.count || 0;
   const totalPages = Math.ceil(totalRecords / limit);
 
@@ -82,6 +115,11 @@ export default function KYCManagementPage() {
       color: "text-red-500",
     },
   ];
+
+  const handleSearch = (query: string) => {
+    setSearchTerm(query);
+    setPage(1);
+  };
 
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
@@ -158,6 +196,8 @@ export default function KYCManagementPage() {
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
               searchPlaceholder='Search submissions...'
+              searchTerm={searchTerm}
+              onSearch={handleSearch}
               filterOptions={["All", "Pending", "Approved", "Rejected"]}
               activeFilter={activeFilter}
               onFilterChange={handleFilterChange}
@@ -282,7 +322,7 @@ export default function KYCManagementPage() {
                       colSpan={5}
                       className='py-12 text-center text-gray-400 font-medium'
                     >
-                      No KYC submissions found
+                      {searchTerm ? `No results found for "${searchTerm}"` : "No KYC submissions found"}
                     </td>
                   </tr>
                 )}

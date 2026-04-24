@@ -23,6 +23,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
+import { useSearch } from "@/hooks/useSearch";
 import {
   useAdminUniversities,
   useCreateUniversity,
@@ -88,6 +90,19 @@ export default function UniversitiesPage() {
     }
   };
 
+  const list = universities || [];
+  
+  // Use the reusable search hook
+  const searchedList = useSearch(list, searchTerm, ["name", "abbreviation", "state", "location"]);
+
+  const filtered = searchedList.filter((u: any) => {
+    const matchesFilter =
+      filter === "All" ||
+      (filter === "Active" && u.isActive) ||
+      (filter === "Inactive" && !u.isActive);
+    return matchesFilter;
+  });
+
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
@@ -95,18 +110,6 @@ export default function UniversitiesPage() {
       </div>
     );
   }
-
-  const list = universities || [];
-  const filtered = list.filter((u: any) => {
-    const matchesSearch =
-      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.abbreviation.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter =
-      filter === "All" ||
-      (filter === "Active" && u.isActive) ||
-      (filter === "Inactive" && !u.isActive);
-    return matchesSearch && matchesFilter;
-  });
 
   return (
     <div className="space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto">
@@ -126,31 +129,15 @@ export default function UniversitiesPage() {
         </Button>
       </div>
 
-      <Card className="border border-gray-100 shadow-sm rounded-2xl p-4">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full md:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <Input
-              placeholder="Search university or abbreviation..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-12 bg-gray-50/50 border-none rounded-xl"
-            />
-          </div>
-          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl">
-            {["All", "Active", "Inactive"].map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
-                  filter === f ? "bg-white text-black shadow-sm" : "text-gray-500"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </div>
+      <Card className="border border-gray-100 shadow-sm rounded-2xl p-6">
+        <AdminSearchFilter
+          searchPlaceholder='Search university or abbreviation...'
+          searchTerm={searchTerm}
+          onSearch={setSearchTerm}
+          filterOptions={["All", "Active", "Inactive"]}
+          activeFilter={filter}
+          onFilterChange={setFilter}
+        />
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
