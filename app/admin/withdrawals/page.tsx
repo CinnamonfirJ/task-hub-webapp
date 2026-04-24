@@ -22,6 +22,7 @@ import {
   ExternalLink,
   X,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 import { useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -60,17 +61,23 @@ const METHOD_TABS = [
 export default function AdminWithdrawalsPage() {
   const [statusFilter, setStatusFilter] = useState("pending");
   const [methodFilter, setMethodFilter] = useState("");
-  const [rejectModalId, setRejectModalId] = useState<string | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
-
+  const [page, setPage] = useState(1);
+  const limit = 20;
   const { data: withdrawalData, isLoading } = useAdminWithdrawals({
     status: statusFilter || undefined,
     payoutMethod: methodFilter || undefined,
+    page,
+    limit,
   });
   const { data: stats, isLoading: isStatsLoading } = useWithdrawalStats();
 
   const withdrawals: AdminWithdrawal[] = withdrawalData?.withdrawals ?? [];
   const pagination = withdrawalData?.pagination;
+  const totalRecords = pagination?.totalWithdrawals || 0;
+  const totalPages = Math.ceil(totalRecords / limit);
+
+  const [rejectModalId, setRejectModalId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   const { mutate: approve, isPending: isApproving } = useApproveWithdrawal();
   const { mutate: reject, isPending: isRejecting } = useRejectWithdrawal();
@@ -117,8 +124,18 @@ export default function AdminWithdrawalsPage() {
   const isStellar = (method: string) =>
     method === "stellar_crypto" || method === "stellar";
 
-  return (
-    <div className='p-4 md:p-8 space-y-8 max-w-[1400px] mx-auto'>
+    const handleFilterChange = (status: string) => {
+      setStatusFilter(status);
+      setPage(1);
+    };
+
+    const handleMethodChange = (method: string) => {
+      setMethodFilter(method);
+      setPage(1);
+    };
+
+    return (
+      <div className='p-4 md:p-8 space-y-8 max-w-[1400px] mx-auto'>
       {/* Header */}
       <div>
         <h1 className='text-2xl md:text-3xl font-bold text-gray-900'>
@@ -166,40 +183,36 @@ export default function AdminWithdrawalsPage() {
         {/* Status filter */}
         <div className='flex flex-wrap gap-2'>
           {STATUS_TABS.map((status) => (
-            <Button
+            <button
               key={status}
-              variant={statusFilter === status ? "default" : "outline"}
-              size='sm'
-              onClick={() => setStatusFilter(status)}
+              onClick={() => handleFilterChange(status)}
               className={cn(
-                "capitalize rounded-xl",
+                "px-4 py-2 text-sm font-bold capitalize rounded-xl transition-all",
                 statusFilter === status
-                  ? "bg-[#6B46C1] hover:bg-[#553C9A] text-white"
-                  : ""
+                  ? "bg-[#6B46C1] text-white shadow-md shadow-purple-200"
+                  : "bg-white text-gray-600 border border-gray-100 hover:bg-gray-50"
               )}
             >
               {status}
-            </Button>
+            </button>
           ))}
         </div>
 
         {/* Method filter */}
         <div className='flex flex-wrap gap-2'>
           {METHOD_TABS.map(({ label, value }) => (
-            <Button
+            <button
               key={value}
-              variant={methodFilter === value ? "default" : "outline"}
-              size='sm'
-              onClick={() => setMethodFilter(value)}
+              onClick={() => handleMethodChange(value)}
               className={cn(
-                "rounded-xl text-xs",
+                "px-3 py-1.5 text-[11px] font-bold rounded-xl transition-all",
                 methodFilter === value
-                  ? "bg-gray-800 hover:bg-gray-900 text-white"
-                  : ""
+                  ? "bg-gray-800 text-white shadow-md"
+                  : "bg-white text-gray-500 border border-gray-100 hover:bg-gray-50"
               )}
             >
               {label}
-            </Button>
+            </button>
           ))}
         </div>
       </div>
@@ -405,13 +418,21 @@ export default function AdminWithdrawalsPage() {
               </table>
             </div>
           )}
+
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalRecords={totalRecords}
+            label='withdrawals'
+          />
         </CardContent>
       </Card>
 
       {/* Reject Modal */}
       {rejectModalId && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden'>
+          <div className='bg-white rounded-2xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto no-scrollbar'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-lg font-bold text-gray-900'>Reject Withdrawal</h2>

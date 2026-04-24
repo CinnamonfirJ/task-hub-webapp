@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Users, Download, Loader2 } from "lucide-react";
+import { Search, Users, Download, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
@@ -13,10 +14,6 @@ export default function WaitlistManagementPage() {
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  // Local state for waitlist for "Load more" functionality
-  const [visibleItems, setVisibleItems] = useState<any[]>([]);
-  const [hasMore, setHasMore] = useState(false);
-
   // Fetch waitlist with search
   const { data: waitlistData, isLoading } = useWaitlist({
     page,
@@ -24,37 +21,13 @@ export default function WaitlistManagementPage() {
     search: searchQuery,
   });
 
-  // Update visible items when new data comes in
-  useEffect(() => {
-    if (waitlistData?.data) {
-      const backendTotal = waitlistData.count || 0;
-
-      if (page === 1) {
-        setVisibleItems(waitlistData.data);
-        setHasMore(waitlistData.data.length < backendTotal);
-      } else {
-        setVisibleItems((prev) => {
-          const existingIds = new Set(prev.map((item) => item._id));
-          const newItems = waitlistData.data.filter(
-            (item) => !existingIds.has(item._id),
-          );
-          const updated = [...prev, ...newItems];
-          setHasMore(updated.length < backendTotal);
-          return updated;
-        });
-      }
-    }
-  }, [waitlistData, page]);
+  const waitlistItems = waitlistData?.data || [];
+  const totalRecords = waitlistData?.count || 0;
+  const totalPages = Math.ceil(totalRecords / limit);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     setPage(1);
-  };
-
-  const handleLoadMore = () => {
-    if (hasMore && !isLoading) {
-      setPage((prev) => prev + 1);
-    }
   };
 
   const handleExport = () => {
@@ -90,7 +63,7 @@ export default function WaitlistManagementPage() {
             onClick={handleExport}
             variant='outline'
             className='text-sm h-10 px-4 gap-2'
-            disabled={visibleItems.length === 0}
+            disabled={waitlistItems.length === 0}
           >
             <Download size={16} />
             Export CSV
@@ -140,7 +113,7 @@ export default function WaitlistManagementPage() {
                   </tr>
                 </thead>
                 <tbody className='divide-y'>
-                  {visibleItems.map((item) => (
+                  {waitlistItems.map((item) => (
                     <tr
                       key={item._id}
                       className='group hover:bg-gray-50 transition-colors'
@@ -158,7 +131,7 @@ export default function WaitlistManagementPage() {
                       </td>
                     </tr>
                   ))}
-                  {!isLoading && visibleItems.length === 0 && (
+                  {!isLoading && waitlistItems.length === 0 && (
                     <tr>
                       <td
                         colSpan={3}
@@ -172,20 +145,13 @@ export default function WaitlistManagementPage() {
                 </tbody>
               </table>
 
-              {hasMore && (
-                <div className='p-6 flex justify-center border-t border-gray-100'>
-                  <Button
-                    onClick={handleLoadMore}
-                    disabled={isLoading}
-                    className='bg-[#6B46C1] hover:bg-[#553C9A] text-white px-8 rounded-lg text-sm font-semibold h-10 transition-colors'
-                  >
-                    {isLoading ? (
-                      <Loader2 size={18} className='animate-spin mr-2' />
-                    ) : null}
-                    Load more
-                  </Button>
-                </div>
-              )}
+              <AdminPagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+                totalRecords={totalRecords}
+                label='entries'
+              />
             </ExpandableTableContainer>
           </div>
         </CardContent>

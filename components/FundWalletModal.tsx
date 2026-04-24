@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useInitializeFunding } from "@/hooks/useWallet";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface FundWalletModalProps {
   isOpen: boolean;
@@ -59,8 +60,8 @@ export function FundWalletModal({
   };
 
   return (
-    <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50'>
-      <div className='bg-white rounded-[2.5rem] p-8 w-full max-w-xl shadow-2xl relative animate-in fade-in zoom-in duration-300'>
+    <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
+      <div className='bg-white rounded-[2.5rem] p-8 w-full max-w-xl shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <div className='flex items-center justify-between mb-8'>
           <h2 className='text-2xl font-bold text-gray-900'>Fund wallet</h2>
           <button
@@ -234,6 +235,11 @@ export function FundWalletModal({
               "Fund"
             )}
           </Button>
+        </div>
+
+        <div className='mt-6 flex justify-center gap-4 text-[10px] text-gray-400 font-medium'>
+          <Link href="/terms" className="hover:text-purple-600 underline underline-offset-2">Terms & Conditions</Link>
+          <Link href="/privacy" className="hover:text-purple-600 underline underline-offset-2">Privacy Policy</Link>
         </div>
       </div>
     </div>

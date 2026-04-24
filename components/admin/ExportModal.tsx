@@ -137,7 +137,7 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[450px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
+      <DialogContent className="sm:max-w-[450px] rounded-3xl p-0 bg-white border-none shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
         <div className="bg-[#6B46C1] p-8 text-white">
           <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
             <Download size={24} />

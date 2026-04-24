@@ -67,7 +67,7 @@ export function MessageBubble({ message, currentUser }: MessageBubbleProps) {
                         </div>
                       </button>
                     </DialogTrigger>
-                    <DialogContent className='max-w-[95vw] sm:max-w-[90vw] h-[90vh] p-0 overflow-hidden bg-transparent border-none shadow-none flex items-center justify-center'>
+                    <DialogContent className='max-w-[95vw] sm:max-w-[90vw] h-[90vh] p-0 bg-transparent border-none shadow-none flex items-center justify-center overflow-auto no-scrollbar'>
                       <VisuallyHidden>
                         <DialogTitle>{att.name || "Image Preview"}</DialogTitle>
                       </VisuallyHidden>

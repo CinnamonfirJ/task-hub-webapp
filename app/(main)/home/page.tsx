@@ -548,7 +548,7 @@ export default function HomePage() {
             Top Workers near you
           </h2>
           <Link
-            href='/post-task'
+            href='/taskers'
             className='text-[#6B46C1] font-semibold text-sm hover:underline flex items-center gap-1'
           >
             View all <ArrowRight size={14} />

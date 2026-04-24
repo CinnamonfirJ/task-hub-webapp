@@ -34,7 +34,7 @@ export function NotificationDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='sm:max-w-[500px] gap-6'>
+      <DialogContent className='sm:max-w-[500px] gap-6 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <DialogHeader>
           <DialogTitle className='text-xl font-bold flex items-center gap-2'>
             Notification Details

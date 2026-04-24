@@ -9,7 +9,10 @@ import {
   Loader2,
   MoreVertical,
   ExternalLink,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,11 +51,11 @@ export default function StaffPage() {
     page,
     limit,
     status: activeFilter === "All" ? undefined : activeFilter.toLowerCase(),
-    // Note: Search is not explicitly in getStaffList params but can be added if backend supports it
-    // For now, we'll assume the base filtering works.
   });
-
   const { mutate: inviteAdmin, isPending: isInviting } = useCreateStaff();
+
+  const totalRecords = staffData?.pagination?.totalAdmin || 0;
+  const totalPages = Math.ceil(totalRecords / limit);
 
   const handleInviteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -229,13 +232,21 @@ export default function StaffPage() {
               ))
             )}
           </div>
+
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalRecords={totalRecords}
+            label='staff members'
+          />
         </ExpandableTableContainer>
       </div>
 
       {/* Invite Admin Modal */}
       {isInviteModalOpen && (
         <div className='fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl animate-in fade-in zoom-in duration-200'>
+          <div className='bg-white rounded-2xl w-full max-w-lg shadow-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
             <form onSubmit={handleInviteSubmit}>
               <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
                 <div>

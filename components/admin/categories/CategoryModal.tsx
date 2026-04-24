@@ -84,7 +84,7 @@ export function CategoryModal({
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-300'>
-      <div className='bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300'>
+      <div className='bg-white rounded-[2.5rem] w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         {/* Header */}
         <div className='p-8 pb-4 flex items-center justify-between'>
           <div>

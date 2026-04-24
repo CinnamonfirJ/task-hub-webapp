@@ -69,7 +69,7 @@ export function StellarWithdrawalModal({
 
   return (
     <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in duration-300'>
+      <div className='bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <button
           onClick={resetAndClose}
           className='absolute right-6 top-6 text-gray-500 hover:text-gray-900 transition-colors z-10'

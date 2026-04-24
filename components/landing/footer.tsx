@@ -3,6 +3,7 @@
 import { Facebook, Instagram, Linkedin, MapPin, Mail } from "lucide-react"
 import Image from "next/image"
 import { motion } from "framer-motion"
+import Link from "next/link"
 import { fadeInUp, staggerContainer } from "@/utils/landing-animations"
 
 export default function Footer() {
@@ -47,10 +48,10 @@ export default function Footer() {
             <motion.div variants={fadeInUp}>
               <h3 className="text-white font-semibold mb-6 text-[15px]">Company</h3>
               <ul className="space-y-4 text-[14px]">
-                <li><a href="#" className="hover:text-white transition-colors">About us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Career</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">News</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About us</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Career</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">News</Link></li>
+                <li><Link href="/legal" className="hover:text-white transition-colors">Legal Overview</Link></li>
               </ul>
             </motion.div>
 
@@ -80,9 +81,9 @@ export default function Footer() {
             <motion.div variants={fadeInUp}>
               <h3 className="text-white font-semibold mb-6 text-[15px]">Legal</h3>
               <ul className="space-y-4 text-[14px]">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Cookie Policy</a></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+                <li><Link href="/data-protection" className="hover:text-white transition-colors">Data Protection</Link></li>
               </ul>
             </motion.div>
           </div>
@@ -106,9 +107,9 @@ export default function Footer() {
           </p>
           <div className="flex items-center gap-2 text-[13px] text-gray-500">
              <span className="w-1 h-1 rounded-full bg-gray-500"></span>
-             <a href="#" className="hover:text-white transition-colors">Terms</a>
+             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
              <span className="w-1 h-1 rounded-full bg-gray-500"></span>
-             <a href="#" className="hover:text-white transition-colors">Privacy</a>
+             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
           </div>
         </motion.div>
       </motion.div>

@@ -587,7 +587,7 @@ export default function TaskerDetailsPage({
       {/* ── Suspend Tasker Modal ── */}
       {isSuspendModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl'>
+          <div className='bg-white rounded-2xl w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto no-scrollbar'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-gray-900'>

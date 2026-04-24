@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { UserPaymentHistory } from "@/components/wallet/UserPaymentHistory";
 import { TaskerEarnings } from "@/components/wallet/TaskerEarnings";
 import { Loader2 } from "lucide-react";
+import { LegalFooter } from "@/components/layout/LegalFooter";
 
 export default function PaymentHistoryPage() {
   const { user, isLoadingUser } = useAuth();
@@ -19,8 +20,11 @@ export default function PaymentHistoryPage() {
   const isTasker = user?.role === "tasker";
 
   return (
-    <div className="p-4 md:p-8 w-full min-h-screen">
-      {isTasker ? <TaskerEarnings /> : <UserPaymentHistory />}
+    <div className="p-4 md:p-8 w-full min-h-[calc(100vh-140px)] flex flex-col">
+      <div className="grow">
+        {isTasker ? <TaskerEarnings /> : <UserPaymentHistory />}
+      </div>
+      <LegalFooter />
     </div>
   );
 }
