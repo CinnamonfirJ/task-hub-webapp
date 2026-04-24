@@ -15,6 +15,7 @@ import {
   Eye,
   Copy,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,7 +58,8 @@ export default function KYCManagementPage() {
   const { mutate: reject, isPending: isRejecting } = useRejectKYC();
 
   const records = kycData?.records ?? [];
-  const pagination = kycData?.pagination;
+  const totalRecords = kycData?.count || 0;
+  const totalPages = Math.ceil(totalRecords / limit);
 
   const summaryMetrics = [
     {
@@ -288,33 +290,13 @@ export default function KYCManagementPage() {
             </table>
           </div>
 
-          {pagination && pagination.totalPages > 1 && (
-            <div className='flex items-center justify-between px-6 py-4 border-t border-gray-100'>
-              <p className='text-xs text-gray-500'>
-                Page {pagination.currentPage} of {pagination.totalPages}
-              </p>
-              <div className='flex gap-2'>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={!pagination.hasPrev}
-                  className='h-8 w-8 p-0'
-                >
-                  <ChevronLeft size={16} />
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={!pagination.hasNext}
-                  className='h-8 w-8 p-0'
-                >
-                  <ChevronRight size={16} />
-                </Button>
-              </div>
-            </div>
-          )}
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalRecords={totalRecords}
+            label='submissions'
+          />
         </CardContent>
       </Card>
 
@@ -329,7 +311,7 @@ export default function KYCManagementPage() {
         <div className='fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4' onClick={(e) => {
           if (e.target === e.currentTarget) setIsApproveModalOpen(false);
         }}>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200'>
+          <div className='bg-white rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between bg-white'>
               <h2 className='text-xl font-bold text-green-600 flex items-center gap-2'>
                 <CheckCircle size={24} /> Approve KYC

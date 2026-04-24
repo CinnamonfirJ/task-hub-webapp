@@ -44,7 +44,7 @@ export function ConfirmModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='rounded-2xl max-w-sm border border-gray-100 shadow-xl p-6'>
+      <DialogContent className='rounded-2xl max-w-sm border border-gray-100 shadow-xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <DialogHeader className='space-y-2'>
           <DialogTitle className='text-base font-bold text-gray-900'>
             {title}

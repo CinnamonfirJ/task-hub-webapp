@@ -59,7 +59,7 @@ export function TaskerProfileModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='max-w-3xl rounded-lg p-0 overflow-hidden border-0 gap-0 max-h-[90vh] overflow-y-auto'>
+      <DialogContent className='max-w-3xl rounded-lg p-0 bg-white border-0 gap-0 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <DialogHeader className='sr-only'>
           <DialogTitle>Tasker Profile</DialogTitle>
         </DialogHeader>

@@ -159,19 +159,26 @@ function WalletCallbackContent() {
   );
 }
 
+import { LegalFooter } from "@/components/layout/LegalFooter";
+
 export default function WalletCallbackPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-lg mx-auto pt-16 pb-20">
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center min-h-[60vh]">
-              <Loader2 size={40} className="text-[#6B46C1] animate-spin" />
-            </div>
-          }
-        >
-          <WalletCallbackContent />
-        </Suspense>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="grow">
+        <div className="max-w-lg mx-auto pt-16 pb-20">
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 size={40} className="text-[#6B46C1] animate-spin" />
+              </div>
+            }
+          >
+            <WalletCallbackContent />
+          </Suspense>
+        </div>
+      </div>
+      <div className="px-4">
+        <LegalFooter />
       </div>
     </div>
   );

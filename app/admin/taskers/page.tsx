@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,6 +60,8 @@ export default function TaskersManagementPage() {
 
   const taskers = taskersData?.taskers ?? [];
   const pagination = taskersData?.pagination;
+  const totalRecords = pagination?.totalTaskers || 0;
+  const totalPages = Math.ceil(totalRecords / limit);
   const summaryMetrics = [
     {
       label: "Total Taskers",
@@ -292,35 +295,13 @@ export default function TaskersManagementPage() {
             </ExpandableTableContainer>
           </div>
 
-          {/* Pagination */}
-          {pagination && pagination.totalPages > 1 && (
-            <div className='flex items-center justify-between px-6 py-4 border-t border-gray-100'>
-              <p className='text-xs text-gray-500'>
-                Showing page {pagination.currentPage} of {pagination.totalPages}{" "}
-                ({pagination.totalTaskers} taskers)
-              </p>
-              <div className='flex gap-2'>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={!pagination.hasPrev}
-                  className='h-8 w-8 p-0'
-                >
-                  <ChevronLeft size={16} />
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={!pagination.hasNext}
-                  className='h-8 w-8 p-0'
-                >
-                  <ChevronRight size={16} />
-                </Button>
-              </div>
-            </div>
-          )}
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalRecords={totalRecords}
+            label='taskers'
+          />
         </CardContent>
       </Card>
     </div>

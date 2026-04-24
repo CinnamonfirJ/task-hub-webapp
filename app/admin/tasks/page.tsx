@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Ban,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,15 +49,8 @@ export default function TasksManagementPage() {
   });
 
   const tasks = tasksData?.tasks ?? [];
-  const pagination = tasksData
-    ? {
-        currentPage: tasksData.currentPage ?? 1,
-        totalPages: tasksData.totalPages ?? 1,
-        totalTasks: tasksData.totalRecords ?? 0,
-        hasPrev: (tasksData.currentPage ?? 1) > 1,
-        hasNext: (tasksData.currentPage ?? 1) < (tasksData.totalPages ?? 1),
-      }
-    : undefined;
+  const totalRecords = tasksData?.totalRecords ?? 0;
+  const totalPages = Math.ceil(totalRecords / limit);
 
   const taskMetrics = [
     { label: "Total Tasks", value: String(taskStats?.total ?? "—") },
@@ -298,34 +292,13 @@ export default function TasksManagementPage() {
             </ExpandableTableContainer>
           </div>
 
-          {pagination && pagination.totalPages > 1 && (
-            <div className='flex items-center justify-between px-6 py-4 border-t border-gray-100'>
-              <p className='text-xs text-gray-500'>
-                Page {pagination.currentPage} of {pagination.totalPages} (
-                {pagination.totalTasks} tasks)
-              </p>
-              <div className='flex gap-2'>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={!pagination.hasPrev}
-                  className='h-8 w-8 p-0'
-                >
-                  <ChevronLeft size={16} />
-                </Button>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={!pagination.hasNext}
-                  className='h-8 w-8 p-0'
-                >
-                  <ChevronRight size={16} />
-                </Button>
-              </div>
-            </div>
-          )}
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalRecords={totalRecords}
+            label='tasks'
+          />
         </CardContent>
       </Card>
     </div>

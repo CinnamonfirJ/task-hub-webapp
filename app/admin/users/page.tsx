@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,10 +44,6 @@ export default function UsersManagementPage() {
   // Fetch stats
   const { data: stats, isLoading: statsLoading } = useUserStats();
 
-  // Local state for users for "Load more" functionality
-  const [visibleUsers, setVisibleUsers] = useState<any[]>([]);
-  const [hasMore, setHasMore] = useState(false);
-
   // Fetch users with filters
   const { data: usersData, isLoading: usersLoading } = useAdminUsers({
     page,
@@ -61,33 +58,21 @@ export default function UsersManagementPage() {
     verified: activeFilter === "Verified" ? true : undefined,
   });
 
-  // Update visible users when new data comes in
-  useEffect(() => {
-    if (usersData?.users) {
-      // client-side filter for "Suspended" until backend is updated
-      const processedUsers =
-        activeFilter === "Suspended"
-          ? usersData.users.filter((user) => {
-              if (!user.lockUntil) return false;
-              return new Date(user.lockUntil) > new Date();
-            })
-          : usersData.users;
+  const users = usersData?.users || [];
+  const pagination = usersData?.pagination;
 
-      if (page === 1) {
-        setVisibleUsers(processedUsers);
-      } else {
-        setVisibleUsers((prev) => {
-          // Prevent duplicates
-          const existingIds = new Set(prev.map((u) => u._id));
-          const newUsers = processedUsers.filter(
-            (u) => !existingIds.has(u._id),
-          );
-          return [...prev, ...newUsers];
-        });
-      }
-      setHasMore(usersData.pagination?.hasNext ?? false);
-    }
-  }, [usersData, page, activeFilter]);
+  // Calculate total pages accurately
+  const totalRecords = pagination?.totalUsers || 0;
+  const totalPages = Math.ceil(totalRecords / limit);
+
+  // Process users for client-side filter (e.g. Suspended)
+  const processedUsers =
+    activeFilter === "Suspended"
+      ? users.filter((user) => {
+          if (!user.lockUntil) return false;
+          return new Date(user.lockUntil) > new Date();
+        })
+      : users;
 
   const { mutate: lockUser } = useLockUser();
   const { mutate: unlockUser } = useUnlockUser();
@@ -144,12 +129,6 @@ export default function UsersManagementPage() {
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
     setPage(1); // Reset to first page on filter change
-  };
-
-  const handleLoadMore = () => {
-    if (hasMore && !usersLoading) {
-      setPage((prev) => prev + 1);
-    }
   };
 
   if (statsLoading && page === 1) {
@@ -235,7 +214,7 @@ export default function UsersManagementPage() {
                   </tr>
                 </thead>
                 <tbody className='divide-y'>
-                  {visibleUsers.map((user) => (
+                  {processedUsers.map((user) => (
                     <tr
                       key={user._id}
                       className='group hover:bg-gray-50 transition-colors'
@@ -351,7 +330,7 @@ export default function UsersManagementPage() {
                       </td>
                     </tr>
                   ))}
-                  {!usersLoading && visibleUsers.length === 0 && (
+                  {!usersLoading && processedUsers.length === 0 && (
                     <tr>
                       <td
                         colSpan={6}
@@ -368,20 +347,13 @@ export default function UsersManagementPage() {
                 </tbody>
               </table>
 
-              {hasMore && (
-                <div className='p-6 flex justify-center border-t border-gray-100'>
-                  <Button
-                    onClick={handleLoadMore}
-                    disabled={usersLoading}
-                    className='bg-[#6B46C1] hover:bg-[#553C9A] text-white px-8 rounded-lg text-sm font-semibold h-10 transition-colors'
-                  >
-                    {usersLoading ? (
-                      <Loader2 size={18} className='animate-spin mr-2' />
-                    ) : null}
-                    Load more
-                  </Button>
-                </div>
-              )}
+              <AdminPagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+                totalRecords={totalRecords}
+                label='users'
+              />
             </ExpandableTableContainer>
           </div>
         </CardContent>

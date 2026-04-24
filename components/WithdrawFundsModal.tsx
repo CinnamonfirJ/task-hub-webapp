@@ -19,6 +19,8 @@ import {
 } from "@/hooks/useWithdrawal";
 import { toast } from "sonner";
 
+import Link from "next/link";
+
 interface WithdrawFundsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -506,6 +508,11 @@ export function WithdrawFundsModal({
                   "Continue"
                 )}
               </Button>
+            </div>
+
+            <div className='mt-6 flex justify-center gap-4 text-[10px] text-gray-400 font-medium'>
+              <Link href="/terms" className="hover:text-purple-600 underline underline-offset-2">Terms & Conditions</Link>
+              <Link href="/privacy" className="hover:text-purple-600 underline underline-offset-2">Privacy Policy</Link>
             </div>
           </>
         )}
