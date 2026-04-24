@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CategoryModal } from "@/components/admin/categories/CategoryModal";
 import { ConfirmModal } from "@/components/admin/categories/ConfirmModal";
+import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
+import { useSearch } from "@/hooks/useSearch";
 import {
   useAdminCategories,
   useCreateAdminCategory,
@@ -100,6 +102,35 @@ export default function CategoriesPage() {
     (confirmAction?.type === "delete" && deleteCategory.isPending) ||
     (confirmAction?.type === "toggle" && updateCategory.isPending);
 
+  const stats = data?.stats;
+  const categories: AdminCategory[] = data?.categories ?? [];
+
+  // Use the reusable search hook
+  const searchedCategories = useSearch(categories, searchTerm, ["name", "displayName", "description"]);
+
+  const filteredCategories = searchedCategories.filter((cat) => {
+    const matchesFilter =
+      filter === "All" ||
+      (filter === "Active" && cat.isActive) ||
+      (filter === "Closed" && !cat.isActive);
+    return matchesFilter;
+  });
+
+  const summaryMetrics = [
+    {
+      label: "Active Categories",
+      value: stats?.activeCategories?.toString() ?? "0",
+    },
+    {
+      label: "Closed Categories",
+      value: stats?.closedCategories?.toString() ?? "0",
+    },
+    {
+      label: "Total Tasks",
+      value: stats?.totalTasks?.toString() ?? stats?.totalServices?.toString() ?? "0",
+    },
+  ];
+
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
@@ -124,35 +155,6 @@ export default function CategoriesPage() {
       </div>
     );
   }
-
-  const stats = data?.stats;
-  const categories: AdminCategory[] = data?.categories ?? [];
-
-  const filteredCategories = categories.filter((cat) => {
-    const matchesSearch =
-      cat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (cat.displayName || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter =
-      filter === "All" ||
-      (filter === "Active" && cat.isActive) ||
-      (filter === "Closed" && !cat.isActive);
-    return matchesSearch && matchesFilter;
-  });
-
-  const summaryMetrics = [
-    {
-      label: "Active Categories",
-      value: stats?.activeCategories?.toString() ?? "0",
-    },
-    {
-      label: "Closed Categories",
-      value: stats?.closedCategories?.toString() ?? "0",
-    },
-    {
-      label: "Total Tasks",
-      value: stats?.totalTasks?.toString() ?? stats?.totalServices?.toString() ?? "0",
-    },
-  ];
 
   return (
     <div className="space-y-6 md:space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto">
@@ -196,36 +198,15 @@ export default function CategoriesPage() {
       </div>
 
       {/* Controls */}
-      <Card className="border border-gray-100 shadow-sm rounded-2xl p-4">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full md:max-w-md">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <Input
-              placeholder="Search category"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-12 bg-gray-50/50 border-gray-100 rounded-xl w-full focus:bg-white transition-colors"
-            />
-          </div>
-          <div className="flex items-center gap-1 p-1 bg-gray-100/50 rounded-xl overflow-x-auto w-full md:w-auto">
-            {["All", "Active", "Closed"].map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-6 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${
-                  filter === f
-                    ? "bg-black text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-200/50"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </div>
+      <Card className="border border-gray-100 shadow-sm rounded-2xl p-6">
+        <AdminSearchFilter
+          searchPlaceholder='Search categories...'
+          searchTerm={searchTerm}
+          onSearch={setSearchTerm}
+          filterOptions={["All", "Active", "Closed"]}
+          activeFilter={filter}
+          onFilterChange={setFilter}
+        />
       </Card>
 
       {/* Desktop Table */}

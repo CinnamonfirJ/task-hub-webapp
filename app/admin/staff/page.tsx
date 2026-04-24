@@ -46,11 +46,22 @@ export default function StaffPage() {
     role: "operations" as const,
   });
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setPage(1);
+  };
+
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
+    setPage(Page => 1);
+  };
+
   const { data: stats, isLoading: statsLoading } = useStaffStats();
   const { data: staffData, isLoading: staffLoading } = useAdminStaffList({
     page,
     limit,
     status: activeFilter === "All" ? undefined : activeFilter.toLowerCase(),
+    search: searchQuery,
   });
   const { mutate: inviteAdmin, isPending: isInviting } = useCreateStaff();
 
@@ -142,9 +153,11 @@ export default function StaffPage() {
       <div className='bg-white p-4 rounded-lg shadow-sm border'>
         <AdminSearchFilter
           searchPlaceholder='Search name or email...'
+          searchTerm={searchQuery}
+          onSearch={handleSearch}
           filterOptions={["All", "Active", "Inactive"]}
           activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
+          onFilterChange={handleFilterChange}
         />
       </div>
 

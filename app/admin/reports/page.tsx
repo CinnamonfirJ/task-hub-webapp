@@ -29,6 +29,8 @@ export default function ReportsManagementPage() {
   const [activeTab, setActiveTab] = useState<"reports" | "activity">("reports");
   const [activeFilter, setActiveFilter] = useState("All");
   const [activeLogFilter, setActiveLogFilter] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [logSearchTerm, setLogSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [logPage, setLogPage] = useState(1);
   const limit = 20;
@@ -43,12 +45,14 @@ export default function ReportsManagementPage() {
     status: statusParam,
     page,
     limit,
+    search: searchTerm,
   });
 
   const { data: logsData, isLoading: loadingLogs } = useActivityLogs({
     page: logPage,
     limit: 50,
     resourceType: resourceTypeParam,
+    search: logSearchTerm,
   });
 
   const reports = reportsData?.reports ?? [];
@@ -68,6 +72,16 @@ export default function ReportsManagementPage() {
           hasPrev: (logsData.currentPage ?? logPage) > 1,
         }
       : null;
+
+  const handleSearch = (query: string) => {
+    setSearchTerm(query);
+    setPage(1);
+  };
+
+  const handleLogSearch = (query: string) => {
+    setLogSearchTerm(query);
+    setLogPage(1);
+  };
 
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
@@ -138,6 +152,8 @@ export default function ReportsManagementPage() {
             <div className='p-6 border-b border-gray-100'>
               <AdminSearchFilter
                 searchPlaceholder='Search reports...'
+                searchTerm={searchTerm}
+                onSearch={handleSearch}
                 filterOptions={["All", "Pending", "Resolved", "Dismissed"]}
                 activeFilter={activeFilter}
                 onFilterChange={handleFilterChange}
@@ -273,6 +289,8 @@ export default function ReportsManagementPage() {
             <div className='p-6 border-b border-gray-100'>
               <AdminSearchFilter
                 searchPlaceholder='Search logs...'
+                searchTerm={logSearchTerm}
+                onSearch={handleLogSearch}
                 filterOptions={["All", "User", "Tasker"]}
                 activeFilter={activeLogFilter}
                 onFilterChange={handleLogFilterChange}

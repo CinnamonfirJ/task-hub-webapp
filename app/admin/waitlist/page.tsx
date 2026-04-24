@@ -34,8 +34,8 @@ export default function WaitlistManagementPage() {
     const csvContent =
       "data:text/csv;charset=utf-8," +
       "ID,Email,Joined At\n" +
-      visibleItems
-        .map((item) => `${item._id},${item.email},${item.createdAt}`)
+      waitlistItems
+        .map((item: any) => `${item._id},${item.email},${item.createdAt}`)
         .join("\n");
 
     const encodedUri = encodeURI(csvContent);
@@ -89,6 +89,7 @@ export default function WaitlistManagementPage() {
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
               searchPlaceholder='Search email...'
+              searchTerm={searchQuery}
               onSearch={handleSearch}
               // Waitlist doesn't need complex filters for now
               filterOptions={["All"]}

@@ -199,11 +199,14 @@ export const adminApi = {
     limit?: number;
     sortBy?: string;
     order?: string;
+    search?: string;
   }): Promise<KYCListResponse> => {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) query.append(key, String(value));
+        if (value !== undefined && value !== "") {
+          query.append(key, String(value));
+        }
       });
     }
     const response = await apiData<any>(`/api/admin/kyc?${query.toString()}`, {
@@ -245,6 +248,7 @@ export const adminApi = {
     type?: string;
     page?: number;
     limit?: number;
+    search?: string;
   }): Promise<ReportListResponse> => {
     const query = new URLSearchParams();
     if (params) {
@@ -293,6 +297,7 @@ export const adminApi = {
     adminId?: string;
     startDate?: string;
     endDate?: string;
+    search?: string;
   }): Promise<ActivityLogResponse> => {
     const query = new URLSearchParams();
     if (params) {
@@ -572,6 +577,7 @@ export const adminApi = {
     limit?: number;
     role?: string;
     status?: string;
+    search?: string;
   }): Promise<StaffListResponse["data"]> => {
     const query = new URLSearchParams();
     if (params) {
