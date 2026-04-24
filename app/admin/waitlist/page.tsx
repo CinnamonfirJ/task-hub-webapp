@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { Search, Users, Download, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { AdminPagination } from "@/components/admin/AdminPagination";
+import { ApiError } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import { useWaitlist } from "@/hooks/useWaitlist";
-import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 
 export default function WaitlistManagementPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,15 +15,15 @@ export default function WaitlistManagementPage() {
   const limit = 20;
 
   // Fetch waitlist with search
-  const { data: waitlistData, isLoading } = useWaitlist({
+  const { data: waitlistData, isLoading, error } = useWaitlist({
     page,
     limit,
     search: searchQuery,
   });
 
   const waitlistItems = waitlistData?.data || [];
-  const totalRecords = waitlistData?.count || 0;
-  const totalPages = Math.ceil(totalRecords / limit);
+  const totalRecords = (waitlistData as any)?.totalRecords || (waitlistData as any)?.count || 0;
+  const totalPages = (waitlistData as any)?.totalPages || Math.ceil(totalRecords / limit);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -98,27 +98,48 @@ export default function WaitlistManagementPage() {
             />
           </div>
 
-          <div className='overflow-x-auto relative'>
-            {isLoading && page === 1 && (
+          <div className='overflow-x-auto min-h-[400px] relative border-t border-gray-100'>
+            {(isLoading || error) && page === 1 && (
               <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
-                <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                {isLoading ? (
+                  <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                ) : (
+                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                    <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                      <div className='w-6 h-6 text-red-500 font-bold'>!</div>
+                    </div>
+                    <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
+                    <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => window.location.reload()}
+                      className="border-red-100 text-red-600 hover:bg-red-50"
+                    >
+                      Try again
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
-            <ExpandableTableContainer>
-              <table className='w-full text-left text-sm'>
+            <table className='w-full text-left text-sm'>
                 <thead>
                   <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    <th className='px-6 py-4 w-12'>#</th>
                     <th className='px-6 py-4'>EMAIL ADDRESS</th>
                     <th className='px-6 py-4'>JOINED AT</th>
                     <th className='px-6 py-4 text-right'>ID</th>
                   </tr>
                 </thead>
                 <tbody className='divide-y'>
-                  {waitlistItems.map((item) => (
+                  {waitlistItems.map((item: any, index: number) => (
                     <tr
                       key={item._id}
                       className='group hover:bg-gray-50 transition-colors'
                     >
+                      <td className='px-6 py-4 text-xs font-medium text-gray-400'>
+                        {(page - 1) * limit + index + 1}
+                      </td>
                       <td className='px-6 py-4'>
                         <div className='font-bold text-gray-900'>
                           {item.email}
@@ -145,16 +166,15 @@ export default function WaitlistManagementPage() {
                   )}
                 </tbody>
               </table>
+            </div>
 
-              <AdminPagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
-                totalRecords={totalRecords}
-                label='entries'
-              />
-            </ExpandableTableContainer>
-          </div>
+            <AdminPagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              totalRecords={totalRecords}
+              label='entries'
+            />
         </CardContent>
       </Card>
     </div>

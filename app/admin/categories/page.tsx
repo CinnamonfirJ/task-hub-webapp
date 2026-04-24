@@ -13,7 +13,12 @@ import {
   Trash2,
   Unlock,
   Ban,
+  Layers,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
+import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,6 +41,7 @@ import {
 } from "@/hooks/useAdmin";
 import { toast } from "sonner";
 import type { AdminCategory } from "@/types/admin";
+import { ApiError } from "@/lib/api";
 
 type ConfirmAction =
   | { type: "delete"; category: AdminCategory }
@@ -105,7 +111,9 @@ export default function CategoriesPage() {
   const stats = data?.stats;
   const categories: AdminCategory[] = data?.categories ?? [];
 
-  // Use the reusable search hook
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
   const searchedCategories = useSearch(categories, searchTerm, ["name", "displayName", "description"]);
 
   const filteredCategories = searchedCategories.filter((cat) => {
@@ -115,6 +123,10 @@ export default function CategoriesPage() {
       (filter === "Closed" && !cat.isActive);
     return matchesFilter;
   });
+
+  const totalRecords = filteredCategories.length;
+  const totalPages = Math.ceil(totalRecords / limit);
+  const paginatedCategories = filteredCategories.slice((page - 1) * limit, page * limit);
 
   const summaryMetrics = [
     {
@@ -211,13 +223,35 @@ export default function CategoriesPage() {
 
       {/* Desktop Table */}
       <Card className="hidden md:block border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+          <div className="overflow-x-auto min-h-[400px] relative border-t border-gray-100">
+            {(isLoading || error) && (
+              <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                {isLoading ? (
+                  <Loader2 className="h-8 w-8 animate-spin text-[#6B46C1]" />
+                ) : (
+                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                    <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                      <div className='w-6 h-6 text-red-500 font-bold'>!</div>
+                    </div>
+                    <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
+                    <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => window.location.reload()}
+                      className="border-red-100 text-red-600 hover:bg-red-50"
+                    >
+                      Try again
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+            <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-gray-100 bg-white">
-                <th className="py-5 px-8 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider w-[25%]">
-                  CATEGORY
-                </th>
+              <tr className="border-b bg-gray-50/50 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                <th className="px-6 py-4 w-12 text-left">#</th>
+                <th className="px-6 py-4 text-left">Category</th>
                 <th className="py-5 px-8 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider w-[40%]">
                   DESCRIPTION
                 </th>
@@ -233,12 +267,15 @@ export default function CategoriesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredCategories.map((cat) => (
+        {paginatedCategories.map((cat: any, index: number) => (
                 <tr
                   key={cat._id}
                   onClick={() => router.push(`/admin/categories/${cat._id}`)}
-                  className="hover:bg-gray-50/80 transition-colors cursor-pointer group"
+                  className="group hover:bg-gray-50/80 transition-colors cursor-pointer border-b border-gray-50 last:border-0"
                 >
+                  <td className="px-6 py-5 text-xs font-medium text-gray-400">
+                    {(page - 1) * limit + index + 1}
+                  </td>
                   <td className="py-5 px-8">
                     <span className="text-sm font-bold text-gray-900">
                       {cat.displayName || cat.name}
@@ -344,12 +381,15 @@ export default function CategoriesPage() {
 
       {/* Mobile Cards */}
       <div className="md:hidden space-y-4">
-        {filteredCategories.map((cat) => (
+        {paginatedCategories.map((cat, index) => (
           <Card
             key={cat._id}
-            className="p-5 border border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors shadow-sm"
+            className="p-5 border border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors shadow-sm relative overflow-hidden"
             onClick={() => router.push(`/admin/categories/${cat._id}`)}
           >
+            <div className="absolute top-0 left-0 w-8 h-8 bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-400 rounded-br-lg">
+              {(page - 1) * limit + index + 1}
+            </div>
             <div className="flex justify-between items-start mb-3">
               <div>
                 <h3 className="font-bold text-gray-900">{cat.displayName || cat.name}</h3>
@@ -442,6 +482,15 @@ export default function CategoriesPage() {
           </Card>
         ))}
       </div>
+
+      <AdminPagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        totalRecords={totalRecords}
+        label="categories"
+        className="mt-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+      />
 
       {filteredCategories.length === 0 && (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">

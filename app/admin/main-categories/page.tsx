@@ -13,7 +13,11 @@ import {
   Unlock,
   Ban,
   Layers,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
+import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -109,7 +113,9 @@ export default function MainCategoriesPage() {
 
   const categories = mainCategoriesData?.mainCategories || [];
   
-  // Use the reusable search hook
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
   const searchedCategories = useSearch(categories, searchTerm, ["name", "displayName", "description"]);
 
   const filtered = searchedCategories.filter((cat: any) => {
@@ -119,6 +125,10 @@ export default function MainCategoriesPage() {
       (filter === "Inactive" && !cat.isActive);
     return matchesFilter;
   });
+
+  const totalRecords = filtered.length;
+  const totalPages = Math.ceil(totalRecords / limit);
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
 
   if (isLoading) {
     return (
@@ -171,16 +181,19 @@ export default function MainCategoriesPage() {
         <AdminSearchFilter
           searchPlaceholder='Search main categories...'
           searchTerm={searchTerm}
-          onSearch={setSearchTerm}
+          onSearch={(v) => { setSearchTerm(v); setPage(1); }}
           filterOptions={["All", "Active", "Inactive"]}
           activeFilter={filter}
-          onFilterChange={setFilter}
+          onFilterChange={(f) => { setFilter(f); setPage(1); }}
         />
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((cat: any) => (
+        {paginated.map((cat: any, index: number) => (
           <Card key={cat._id} className="group relative border border-gray-100 hover:border-purple-200 shadow-sm hover:shadow-md transition-all rounded-2xl overflow-hidden">
+            <div className="absolute top-0 left-0 w-8 h-8 bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-400 rounded-br-lg z-10">
+              {(page - 1) * limit + index + 1}
+            </div>
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
@@ -228,6 +241,15 @@ export default function MainCategoriesPage() {
           </Card>
         ))}
       </div>
+
+      <AdminPagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        totalRecords={totalRecords}
+        label="categories"
+        className="mt-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+      />
 
       {filtered.length === 0 && (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">

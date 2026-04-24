@@ -16,6 +16,7 @@ import {
   Copy,
 } from "lucide-react";
 import { AdminPagination } from "@/components/admin/AdminPagination";
+import { ApiError } from "@/lib/api";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,11 @@ import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
 import { useKYCRequests, useKYCStats, useApproveKYC, useRejectKYC } from "@/hooks/useAdmin";
 import { ExportModal } from "@/components/admin/ExportModal";
+import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
+import { useRouter } from "next/navigation";
 
 export default function KYCManagementPage() {
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -49,7 +53,7 @@ export default function KYCManagementPage() {
       : (activeFilter.toLowerCase() as "pending" | "approved" | "rejected");
 
   const { data: kycStats } = useKYCStats();
-  const { data: kycData, isLoading } = useKYCRequests({
+  const { data: kycData, isLoading, error } = useKYCRequests({
     status: statusParam,
     page,
     limit: searchTerm ? 100 : limit, // Increase limit when searching to allow client-side filter to find more
@@ -91,8 +95,9 @@ export default function KYCManagementPage() {
       })
     : rawRecords;
 
-  const totalRecords = kycData?.count || 0;
-  const totalPages = Math.ceil(totalRecords / limit);
+  const pagination = kycData?.pagination;
+  const totalRecords = (kycData as any)?.totalRecords || (kycData as any)?.count || (pagination as any)?.totalRecords || 0;
+  const totalPages = (pagination as any)?.totalPages || (kycData as any)?.totalPages || Math.ceil(totalRecords / (searchTerm ? 100 : limit));
 
   const summaryMetrics = [
     {
@@ -204,139 +209,162 @@ export default function KYCManagementPage() {
             />
           </div>
 
-          <div className='overflow-x-auto min-h-[400px] relative'>
-            {isLoading && (
+          <div className='overflow-x-auto min-h-[400px] relative border-t border-gray-100'>
+            {(isLoading || error) && (
               <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
-                <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                {isLoading ? (
+                  <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                ) : (
+                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                    <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                      <div className='w-6 h-6 text-red-500 font-bold'>!</div>
+                    </div>
+                    <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
+                    <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => window.location.reload()}
+                      className="border-red-100 text-red-600 hover:bg-red-50"
+                    >
+                      Try again
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
-
             <table className='w-full text-left text-sm'>
-              <thead>
-                <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
-                  <th className='px-6 py-4'>USER</th>
-                  <th className='px-6 py-4'>NIN</th>
-                  <th className='px-6 py-4'>STATUS</th>
-                  <th className='px-6 py-4'>DATE</th>
-                  <th className='px-6 py-4 text-right'>ACTION</th>
-                </tr>
-              </thead>
-              <tbody className='divide-y'>
-                {records.map((record) => (
-                  <tr
-                    key={record._id}
-                    className='group hover:bg-gray-50 transition-colors'
-                  >
-                    <td className='px-6 py-4'>
-                      <div>
-                        <div className='font-bold text-gray-900'>
-                          {record.user?.fullName || 
-                           (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "N/A")}
-                        </div>
-                        <div className='text-xs text-gray-500'>
-                          {record.user?.emailAddress || "N/A"}
-                        </div>
-                      </div>
-                    </td>
-                    <td className='px-6 py-4 text-gray-500 font-mono text-xs'>
-                      <div className="flex items-center gap-2">
-                        {record.maskedNin || record.nin || "N/A"}
-                        {(record.nin || record.maskedNin) && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              navigator.clipboard.writeText(record.nin || record.maskedNin || "");
-                              toast.success("NIN copied to clipboard");
-                            }}
-                            className="h-6 w-6 text-gray-400 hover:text-[#6B46C1] hover:bg-gray-100"
-                            title="Copy NIN"
-                          >
-                            <Copy size={12} />
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <span
-                        className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
-                          record.status === "approved"
-                            ? "bg-green-50 text-green-500"
-                            : record.status === "pending"
-                              ? "bg-yellow-50 text-yellow-500"
-                              : "bg-red-50 text-red-500"
-                        }`}
-                      >
-                        {record.status.charAt(0).toUpperCase() +
-                          record.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4 text-xs text-gray-500'>
-                      {new Date(record.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className='px-6 py-4 text-right'>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            className='h-8 px-2 text-gray-500 font-bold text-[10px] hover:bg-gray-100 gap-1 rounded-lg border border-gray-100'
-                          >
-                            <MoreVertical size={12} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end' className='w-44'>
-                          <Link href={`/admin/verification/${record._id}`}>
-                            <DropdownMenuItem className='gap-2 cursor-pointer text-gray-700'>
-                              <Eye size={16} /> View Details
-                            </DropdownMenuItem>
-                          </Link>
-                          <DropdownMenuItem 
-                            onClick={() => {
-                              setSelectedRecord(record);
-                              setIsApproveModalOpen(true);
-                            }}
-                            disabled={record.status === "approved"}
-                            className='gap-2 cursor-pointer text-green-600 focus:text-green-600 font-medium'
-                          >
-                            <CheckCircle size={14} /> Approve
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => {
-                              setSelectedRecord(record);
-                              setIsRejectModalOpen(true);
-                            }}
-                            disabled={record.status === "rejected"}
-                            className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-medium'
-                          >
-                            <XCircle size={14} /> Reject
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
+                <thead>
+                  <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    <th className='px-6 py-4 w-12'>#</th>
+                    <th className='px-6 py-4'>USER</th>
+                    <th className='px-6 py-4'>NIN</th>
+                    <th className='px-6 py-4'>STATUS</th>
+                    <th className='px-6 py-4'>DATE</th>
+                    <th className='px-6 py-4 text-right'>ACTION</th>
                   </tr>
-                ))}
-                {!isLoading && records.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className='py-12 text-center text-gray-400 font-medium'
+                </thead>
+                <tbody className='divide-y'>
+                  {records.map((record, index) => (
+                    <tr
+                      key={record._id}
+                      className='group hover:bg-gray-50 transition-colors cursor-pointer'
+                      onClick={() => router.push(`/admin/verification/${record._id}`)}
                     >
-                      {searchTerm ? `No results found for "${searchTerm}"` : "No KYC submissions found"}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                      <td className='px-6 py-4 text-xs font-medium text-gray-400'>
+                        {(page - 1) * (searchTerm ? 100 : limit) + index + 1}
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div>
+                          <div className='font-bold text-gray-900'>
+                            {record.user?.fullName || 
+                             (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "N/A")}
+                          </div>
+                          <div className='text-xs text-gray-500'>
+                            {record.user?.emailAddress || "N/A"}
+                          </div>
+                        </div>
+                      </td>
+                      <td className='px-6 py-4 text-gray-500 font-mono text-xs'>
+                        <div className="flex items-center gap-2">
+                          {record.maskedNin || record.nin || "N/A"}
+                          {(record.nin || record.maskedNin) && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(record.nin || record.maskedNin || "");
+                                toast.success("NIN copied to clipboard");
+                              }}
+                              className="h-6 w-6 text-gray-400 hover:text-[#6B46C1] hover:bg-gray-100"
+                              title="Copy NIN"
+                            >
+                              <Copy size={12} />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span
+                          className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
+                            record.status === "approved"
+                              ? "bg-green-50 text-green-500"
+                              : record.status === "pending"
+                                ? "bg-yellow-50 text-yellow-500"
+                                : "bg-red-50 text-red-500"
+                          }`}
+                        >
+                          {record.status.charAt(0).toUpperCase() +
+                            record.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 text-xs text-gray-500'>
+                        {new Date(record.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className='px-6 py-4 text-right' onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='h-8 px-2 text-gray-500 font-bold text-[10px] hover:bg-gray-100 gap-1 rounded-lg border border-gray-100'
+                            >
+                              <MoreVertical size={12} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end' className='w-44'>
+                            <Link href={`/admin/verification/${record._id}`}>
+                              <DropdownMenuItem className='gap-2 cursor-pointer text-gray-700'>
+                                <Eye size={16} /> View Details
+                              </DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                setSelectedRecord(record);
+                                setIsApproveModalOpen(true);
+                              }}
+                              disabled={record.status === "approved"}
+                              className='gap-2 cursor-pointer text-green-600 focus:text-green-600 font-medium'
+                            >
+                              <CheckCircle size={14} /> Approve
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                setSelectedRecord(record);
+                                setIsRejectModalOpen(true);
+                              }}
+                              disabled={record.status === "rejected"}
+                              className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-medium'
+                            >
+                              <XCircle size={14} /> Reject
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
+                  {!isLoading && records.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className='py-12 text-center text-gray-400 font-medium'
+                      >
+                        {searchTerm ? `No results found for "${searchTerm}"` : "No KYC submissions found"}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-          <AdminPagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-            totalRecords={totalRecords}
-            label='submissions'
-          />
+            <AdminPagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              totalRecords={totalRecords}
+              label='submissions'
+            />
         </CardContent>
       </Card>
 

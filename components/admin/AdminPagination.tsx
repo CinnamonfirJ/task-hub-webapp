@@ -20,27 +20,28 @@ export function AdminPagination({
   label = "records",
   className,
 }: AdminPaginationProps) {
-  if (totalPages <= 1) return null;
-
   // Generate page numbers to display
   const getPageNumbers = () => {
     const pages = [];
     const showMax = 5; // Number of page buttons to show
 
-    if (totalPages <= showMax) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    const validTotalPages = Math.max(0, Math.floor(Number(totalPages) || 0));
+    if (validTotalPages <= 0) return null;
+
+    if (validTotalPages <= showMax) {
+      for (let i = 1; i <= validTotalPages; i++) pages.push(i);
     } else {
       // Always show first page
       pages.push(1);
 
       let start = Math.max(2, currentPage - 1);
-      let end = Math.min(totalPages - 1, currentPage + 1);
+      let end = Math.min(validTotalPages - 1, currentPage + 1);
 
       // Adjust start/end to always show 3 middle pages if possible
       if (currentPage <= 2) {
-        end = 4;
-      } else if (currentPage >= totalPages - 1) {
-        start = totalPages - 3;
+        end = Math.min(validTotalPages - 1, 4);
+      } else if (currentPage >= validTotalPages - 1) {
+        start = Math.max(2, validTotalPages - 3);
       }
 
       if (start > 2) pages.push("...");
@@ -49,22 +50,28 @@ export function AdminPagination({
         pages.push(i);
       }
 
-      if (end < totalPages - 1) pages.push("...");
+      if (end < validTotalPages - 1) pages.push("...");
 
       // Always show last page
-      pages.push(totalPages);
+      pages.push(validTotalPages);
     }
     return pages;
   };
+
+  const pageNumbers = getPageNumbers();
+  const validTotalPages = Math.max(0, Math.floor(Number(totalPages) || 0));
+  const validTotalRecords = Math.max(0, Math.floor(Number(totalRecords) || 0));
+
+  if (!pageNumbers || (validTotalPages <= 1 && validTotalRecords === 0)) return null;
 
   return (
     <div className={cn("flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-gray-100 gap-4", className)}>
       <div className="text-xs text-gray-500 font-medium">
         Page <span className="text-gray-900 font-bold">{currentPage}</span> of{" "}
-        <span className="text-gray-900 font-bold">{totalPages}</span>
+        <span className="text-gray-900 font-bold">{validTotalPages}</span>
         {totalRecords !== undefined && (
           <>
-            {" "}(<span className="text-gray-900 font-bold">{totalRecords}</span> {label})
+            {" "}(<span className="text-gray-900 font-bold">{validTotalRecords}</span> {label})
           </>
         )}
       </div>
@@ -81,7 +88,7 @@ export function AdminPagination({
         </Button>
 
         <div className="flex items-center gap-1">
-          {getPageNumbers().map((p, idx) => (
+          {pageNumbers.map((p, idx) => (
             <React.Fragment key={idx}>
               {p === "..." ? (
                 <span className="px-2 text-gray-400">...</span>
