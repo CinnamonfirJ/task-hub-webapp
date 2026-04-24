@@ -13,6 +13,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { AdminPagination } from "@/components/admin/AdminPagination";
+import { ApiError } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,7 +44,7 @@ export default function TaskersManagementPage() {
   const { data: dashboardStats } = useAdminDashboard();
 
   // Fetch taskers with filters
-  const { data: taskersData, isLoading: taskersLoading } = useAdminTaskers({
+  const { data: taskersData, isLoading: taskersLoading, error } = useAdminTaskers({
     page,
     limit,
     search: searchQuery || undefined,
@@ -60,8 +61,8 @@ export default function TaskersManagementPage() {
 
   const taskers = taskersData?.taskers ?? [];
   const pagination = taskersData?.pagination;
-  const totalRecords = pagination?.totalTaskers || 0;
-  const totalPages = Math.ceil(totalRecords / limit);
+  const totalRecords = pagination?.totalTaskers || (taskersData as any)?.totalRecords || (taskersData as any)?.count || 0;
+  const totalPages = pagination?.totalPages || (taskersData as any)?.totalPages || Math.ceil(totalRecords / limit);
   const summaryMetrics = [
     {
       label: "Total Taskers",
@@ -156,16 +157,33 @@ export default function TaskersManagementPage() {
           </div>
 
           <div className='overflow-x-auto min-h-[400px] relative'>
-            {taskersLoading && (
+            {(taskersLoading || error) && (
               <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
-                <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                {taskersLoading ? (
+                  <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                ) : (
+                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                    <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                      <div className='w-6 h-6 text-red-500 font-bold'>!</div>
+                    </div>
+                    <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
+                    <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => window.location.reload()}
+                      className="border-red-100 text-red-600 hover:bg-red-50"
+                    >
+                      Try again
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
-
-            <ExpandableTableContainer>
-              <table className='w-full text-left text-sm'>
+            <table className='w-full text-left text-sm'>
                 <thead>
                   <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    <th className='px-6 py-4 w-12'>#</th>
                     <th className='px-6 py-4'>TASKERS</th>
                     <th className='px-6 py-4'>CATEGORIES</th>
                     <th className='px-6 py-4'>RATING</th>
@@ -176,11 +194,14 @@ export default function TaskersManagementPage() {
                   </tr>
                 </thead>
                 <tbody className='divide-y'>
-                  {taskers.map((tasker) => (
+                  {taskers.map((tasker, index) => (
                     <tr
                       key={tasker._id}
                       className='group hover:bg-gray-50 transition-colors'
                     >
+                      <td className='px-6 py-4 text-xs font-medium text-gray-400'>
+                        {(page - 1) * limit + index + 1}
+                      </td>
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-3'>
                           <div className='w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 shrink-0'>
@@ -292,16 +313,15 @@ export default function TaskersManagementPage() {
                   )}
                 </tbody>
               </table>
-            </ExpandableTableContainer>
-          </div>
+            </div>
 
-          <AdminPagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-            totalRecords={totalRecords}
-            label='taskers'
-          />
+            <AdminPagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              totalRecords={totalRecords}
+              label='taskers'
+            />
         </CardContent>
       </Card>
     </div>

@@ -38,7 +38,7 @@ export default function StaffPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const limit = 20;
 
   // Form state for invite
   const [inviteForm, setInviteForm] = useState({
@@ -65,8 +65,8 @@ export default function StaffPage() {
   });
   const { mutate: inviteAdmin, isPending: isInviting } = useCreateStaff();
 
-  const totalRecords = staffData?.pagination?.totalAdmin || 0;
-  const totalPages = Math.ceil(totalRecords / limit);
+  const totalRecords = staffData?.pagination?.totalStaff || (staffData as any)?.totalRecords || (staffData as any)?.count || 0;
+  const totalPages = (staffData as any)?.totalPages || Math.ceil(totalRecords / limit);
 
   const handleInviteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,97 +163,99 @@ export default function StaffPage() {
 
       <div className='space-y-4'>
         <h2 className='text-lg font-bold text-gray-900'>Admin Users</h2>
-        <ExpandableTableContainer>
-          <div className='grid gap-4'>
-            {staffLoading ? (
-              <div className='flex justify-center p-8'>
-                <Loader2 className='animate-spin text-purple-600' size={32} />
-              </div>
-            ) : staffData?.staff.length === 0 ? (
-              <div className='text-center p-8 text-gray-500'>
-                No staff members found.
-              </div>
-            ) : (
-              staffData?.staff.map((user) => (
-                <div key={user._id} className='relative group'>
-                  <Link href={`/admin/staff/${user._id}`}>
-                    <Card className='hover:shadow-md transition-shadow cursor-pointer border-gray-100'>
-                      <CardContent className='p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
-                        <div className='flex items-center gap-4'>
-                          <div className='h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold shrink-0'>
-                            {user.name?.charAt(0) || "?"}
-                          </div>
-                          <div className='space-y-1'>
-                            <div className='font-semibold text-gray-900'>
-                              {user.name}
-                            </div>
-                            <div className='text-sm text-gray-500'>
-                              {user.email}
-                            </div>
-                            <div className='flex flex-wrap items-center gap-2 text-xs'>
-                              <span
-                                className={`px-2 py-0.5 rounded-full uppercase tracking-wider font-bold text-[10px] ${getRoleBadgeColor(user.role)}`}
-                              >
-                                {user.role.replace("_", " ")}
-                              </span>
-                              <span className='text-gray-400'>
-                                Joined{" "}
-                                {format(new Date(user.createdAt), "MM/dd/yyyy")}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className='flex items-center gap-4'>
-                          <Badge
-                            variant='secondary'
-                            className={`${
-                              user.isActive
-                                ? "bg-green-100 text-green-700 hover:bg-green-100"
-                                : "bg-red-100 text-red-700 hover:bg-red-100"
-                            } font-medium mr-10 md:mr-0`}
-                          >
-                            {user.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                  <div className='absolute right-4 top-1/2 -translate-y-1/2'>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='h-8 w-8 text-gray-400 hover:text-gray-600'
-                        >
-                          <MoreVertical size={16} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align='end' className='w-40'>
-                        <Link href={`/admin/staff/${user._id}`}>
-                          <DropdownMenuItem className='gap-2 cursor-pointer font-bold text-xs'>
-                            <ExternalLink size={14} /> View Details
-                          </DropdownMenuItem>
-                        </Link>
-                        <DropdownMenuItem className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'>
-                          {user.isActive ? "Deactivate" : "Activate"}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+        <div className='grid gap-4'>
+          {staffLoading ? (
+            <div className='flex justify-center p-8'>
+              <Loader2 className='animate-spin text-purple-600' size={32} />
+            </div>
+          ) : staffData?.staff.length === 0 ? (
+            <div className='text-center p-8 text-gray-500'>
+              No staff members found.
+            </div>
+          ) : (
+            staffData?.staff.map((user, index) => (
+              <div key={user._id} className='relative group'>
+                <div className="absolute -top-1 -left-1 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-[10px] font-bold text-gray-400 z-10 border border-white">
+                  {(page - 1) * limit + index + 1}
                 </div>
-              ))
-            )}
-          </div>
+                <Link href={`/admin/staff/${user._id}`}>
+                  <Card className='hover:shadow-md transition-shadow cursor-pointer border-gray-100'>
+                    <CardContent className='p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
+                      <div className='flex items-center gap-4'>
+                        <div className='h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold shrink-0'>
+                          {user.name?.charAt(0) || "?"}
+                        </div>
+                        <div className='space-y-1'>
+                          <div className='font-semibold text-gray-900'>
+                            {user.name}
+                          </div>
+                          <div className='text-sm text-gray-500'>
+                            {user.email}
+                          </div>
+                          <div className='flex flex-wrap items-center gap-2 text-xs'>
+                            <span
+                              className={`px-2 py-0.5 rounded-full uppercase tracking-wider font-bold text-[10px] ${getRoleBadgeColor(user.role)}`}
+                            >
+                              {user.role.replace("_", " ")}
+                            </span>
+                            <span className='text-gray-400'>
+                              Joined{" "}
+                              {format(new Date(user.createdAt), "MM/dd/yyyy")}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-4'>
+                        <Badge
+                          variant='secondary'
+                          className={`${
+                            user.isActive
+                              ? "bg-green-100 text-green-700 hover:bg-green-100"
+                              : "bg-red-100 text-red-700 hover:bg-red-100"
+                          } font-medium mr-10 md:mr-0`}
+                        >
+                          {user.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <div className='absolute right-4 top-1/2 -translate-y-1/2'>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='h-8 w-8 text-gray-400 hover:text-gray-600'
+                      >
+                        <MoreVertical size={16} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align='end' className='w-40'>
+                      <Link href={`/admin/staff/${user._id}`}>
+                        <DropdownMenuItem className='gap-2 cursor-pointer font-bold text-xs'>
+                          <ExternalLink size={14} /> View Details
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuItem className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'>
+                        {user.isActive ? "Deactivate" : "Activate"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
 
-          <AdminPagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-            totalRecords={totalRecords}
-            label='staff members'
-          />
-        </ExpandableTableContainer>
+        <AdminPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          totalRecords={totalRecords}
+          label='staff'
+          className="mt-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+        />
       </div>
 
       {/* Invite Admin Modal */}

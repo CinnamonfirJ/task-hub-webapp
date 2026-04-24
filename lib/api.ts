@@ -182,6 +182,19 @@ export const apiData = async <T>(
     if (error instanceof ApiError) {
       throw error;
     }
+
+    // Detect network errors (connection issues, DNS failure, etc.)
+    const errorMsg = error?.message?.toLowerCase() || "";
+    const isNetworkError = 
+      error?.name === 'TypeError' || 
+      errorMsg.includes('failed to fetch') ||
+      errorMsg.includes('networkerror') ||
+      errorMsg.includes('load failed') ||
+      errorMsg.includes('aborted');
+
+    if (isNetworkError) {
+      throw new ApiError("Network Error. Try again.", 0, { code: "NETWORK_ERROR" });
+    }
     
     if (error?.message !== "Unauthorized") {
       console.error("API Request Failed:", error);

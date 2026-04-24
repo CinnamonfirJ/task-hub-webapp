@@ -13,6 +13,7 @@ import {
   Clock,
   Activity,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,7 @@ import {
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
 import { useReports, useActivityLogs } from "@/hooks/useAdmin";
+import { ApiError } from "@/lib/api";
 
 export default function ReportsManagementPage() {
   const [activeTab, setActiveTab] = useState<"reports" | "activity">("reports");
@@ -41,14 +43,14 @@ export default function ReportsManagementPage() {
   const resourceTypeParam = 
     activeLogFilter === "All" ? undefined : activeLogFilter;
 
-  const { data: reportsData, isLoading: loadingReports } = useReports({
+  const { data: reportsData, isLoading: loadingReports, error: reportsError } = useReports({
     status: statusParam,
     page,
     limit,
     search: searchTerm,
   });
 
-  const { data: logsData, isLoading: loadingLogs } = useActivityLogs({
+  const { data: logsData, isLoading: loadingLogs, error: logsError } = useActivityLogs({
     page: logPage,
     limit: 50,
     resourceType: resourceTypeParam,
@@ -56,20 +58,24 @@ export default function ReportsManagementPage() {
   });
 
   const reports = reportsData?.reports ?? [];
-  const reportsPagination = reportsData?.pagination;
+  const reportsPagination = reportsData?.pagination || ((reportsData as any)?.totalPages ? {
+    totalPages: (reportsData as any).totalPages,
+    totalRecords: (reportsData as any).totalRecords || (reportsData as any).count,
+    currentPage: (reportsData as any).currentPage || page
+  } : null);
 
   // FIX: API returns `logs` at root level, not `data.activities`
   const activities = logsData?.logs ?? [];
 
   // FIX: API returns pagination fields at root level, not nested under `pagination`
   const logsPagination =
-    logsData?.totalPages != null
+    (logsData as any)?.totalPages != null
       ? {
-          currentPage: logsData.currentPage ?? logPage,
-          totalPages: logsData.totalPages,
-          totalActivities: logsData.totalRecords,
-          hasNext: (logsData.currentPage ?? logPage) < logsData.totalPages,
-          hasPrev: (logsData.currentPage ?? logPage) > 1,
+          currentPage: (logsData as any).currentPage ?? logPage,
+          totalPages: (logsData as any).totalPages,
+          totalActivities: (logsData as any).totalRecords,
+          hasNext: ((logsData as any).currentPage ?? logPage) < (logsData as any).totalPages,
+          hasPrev: ((logsData as any).currentPage ?? logPage) > 1,
         }
       : null;
 
@@ -161,9 +167,27 @@ export default function ReportsManagementPage() {
             </div>
 
             <div className='overflow-x-auto min-h-[400px] relative'>
-              {loadingReports && (
+              {(loadingReports || reportsError) && (
                 <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
-                  <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                  {loadingReports ? (
+                    <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                  ) : (
+                    <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                      <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                        <div className='w-6 h-6 text-red-500 font-bold'>!</div>
+                      </div>
+                      <p className='text-gray-900 font-bold mb-1'>{(reportsError as any)?.message || "Request failed"}</p>
+                      <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => window.location.reload()}
+                        className="border-red-100 text-red-600 hover:bg-red-50"
+                      >
+                        Try again
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
               <table className='w-full text-left text-sm'>
@@ -250,34 +274,13 @@ export default function ReportsManagementPage() {
               </table>
             </div>
 
-            {reportsPagination && reportsPagination.totalPages > 1 && (
-              <div className='flex items-center justify-between px-6 py-4 border-t border-gray-100'>
-                <p className='text-xs text-gray-500'>
-                  Page {reportsPagination.currentPage} of{" "}
-                  {reportsPagination.totalPages}
-                </p>
-                <div className='flex gap-2'>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={!reportsPagination.hasPrev}
-                    className='h-8 w-8 p-0'
-                  >
-                    <ChevronLeft size={16} />
-                  </Button>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    onClick={() => setPage((p) => p + 1)}
-                    disabled={!reportsPagination.hasNext}
-                    className='h-8 w-8 p-0'
-                  >
-                    <ChevronRight size={16} />
-                  </Button>
-                </div>
-              </div>
-            )}
+            <AdminPagination
+              currentPage={page}
+              totalPages={reportsPagination?.totalPages || 1}
+              onPageChange={setPage}
+              totalRecords={(reportsPagination as any)?.totalRecords}
+              label='reports'
+            />
           </CardContent>
         </Card>
       )}
@@ -298,9 +301,27 @@ export default function ReportsManagementPage() {
             </div>
 
             <div className='overflow-x-auto min-h-[400px] relative'>
-              {loadingLogs && (
+              {(loadingLogs || logsError) && (
                 <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
-                  <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                  {loadingLogs ? (
+                    <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                  ) : (
+                    <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                      <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                        <div className='w-6 h-6 text-red-500 font-bold'>!</div>
+                      </div>
+                      <p className='text-gray-900 font-bold mb-1'>{(logsError as any)?.message || "Request failed"}</p>
+                      <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => window.location.reload()}
+                        className="border-red-100 text-red-600 hover:bg-red-50"
+                      >
+                        Try again
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
               <table className='w-full text-left text-sm'>
@@ -374,35 +395,13 @@ export default function ReportsManagementPage() {
               </table>
             </div>
 
-            {logsPagination && logsPagination.totalPages > 1 && (
-              <div className='flex items-center justify-between px-6 py-4 border-t border-gray-100'>
-                <p className='text-xs text-gray-500'>
-                  Page {logsPagination.currentPage} of{" "}
-                  {logsPagination.totalPages} ({logsPagination.totalActivities}{" "}
-                  logs)
-                </p>
-                <div className='flex gap-2'>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    onClick={() => setLogPage((p) => Math.max(1, p - 1))}
-                    disabled={!logsPagination.hasPrev}
-                    className='h-8 w-8 p-0'
-                  >
-                    <ChevronLeft size={16} />
-                  </Button>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    onClick={() => setLogPage((p) => p + 1)}
-                    disabled={!logsPagination.hasNext}
-                    className='h-8 w-8 p-0'
-                  >
-                    <ChevronRight size={16} />
-                  </Button>
-                </div>
-              </div>
-            )}
+            <AdminPagination
+              currentPage={logPage}
+              totalPages={logsPagination?.totalPages || 1}
+              onPageChange={setLogPage}
+              totalRecords={logsPagination?.totalActivities}
+              label='logs'
+            />
           </CardContent>
         </Card>
       )}

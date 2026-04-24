@@ -23,6 +23,8 @@ import {
   X,
 } from "lucide-react";
 import { AdminPagination } from "@/components/admin/AdminPagination";
+import { ApiError } from "@/lib/api";
+import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 import { useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -63,7 +65,7 @@ export default function AdminWithdrawalsPage() {
   const [methodFilter, setMethodFilter] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
-  const { data: withdrawalData, isLoading } = useAdminWithdrawals({
+  const { data: withdrawalData, isLoading, error } = useAdminWithdrawals({
     status: statusFilter || undefined,
     payoutMethod: methodFilter || undefined,
     page,
@@ -73,8 +75,8 @@ export default function AdminWithdrawalsPage() {
 
   const withdrawals: AdminWithdrawal[] = withdrawalData?.withdrawals ?? [];
   const pagination = withdrawalData?.pagination;
-  const totalRecords = pagination?.totalWithdrawals || 0;
-  const totalPages = Math.ceil(totalRecords / limit);
+  const totalRecords = (pagination as any)?.totalWithdrawals || (withdrawalData as any)?.totalRecords || (withdrawalData as any)?.count || (pagination as any)?.totalRecords || 0;
+  const totalPages = (pagination as any)?.totalPages || (withdrawalData as any)?.totalPages || Math.ceil(totalRecords / limit);
 
   const [rejectModalId, setRejectModalId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
@@ -230,16 +232,36 @@ export default function AdminWithdrawalsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className='flex justify-center p-8'>
-              <Loader2 className='animate-spin text-purple-600' size={32} />
+          {(isLoading || error) ? (
+            <div className='flex justify-center p-12'>
+              {isLoading ? (
+                <Loader2 className='animate-spin text-purple-600' size={32} />
+              ) : (
+                <div className='text-center max-w-xs mx-auto'>
+                  <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                    <span className='text-red-500 font-bold'>!</span>
+                  </div>
+                  <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
+                  <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => window.location.reload()}
+                    className="border-red-100 text-red-600 hover:bg-red-50"
+                  >
+                    Try again
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
-            <div className='overflow-x-auto'>
+            <>
+              <div className='overflow-x-auto min-h-[400px] relative'>
               <table className='w-full text-sm text-left'>
                 <thead className='text-xs text-gray-700 uppercase bg-gray-50 font-bold'>
-                  <tr>
-                    <th className='px-6 py-4'>Tasker</th>
+                  <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    <th className='px-6 py-4 w-12'>#</th>
+                    <th className='px-6 py-4'>USER</th>
                     <th className='px-6 py-4'>Amount</th>
                     <th className='px-6 py-4'>Method</th>
                     <th className='px-6 py-4'>Details</th>
@@ -249,60 +271,63 @@ export default function AdminWithdrawalsPage() {
                   </tr>
                 </thead>
                 <tbody className='divide-y divide-gray-100'>
-                  {withdrawals.map((item) => (
+                  {withdrawals.map((withdrawal, index) => (
                     <tr
-                      key={item._id}
-                      className='bg-white hover:bg-gray-50 transition-colors'
+                      key={withdrawal._id}
+                      className='group hover:bg-gray-50 transition-colors'
                     >
+                      <td className='px-6 py-4 text-xs font-medium text-gray-400'>
+                        {(page - 1) * limit + index + 1}
+                      </td>
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-2'>
                           <div className='w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-sm'>
-                            {item.tasker?.firstName?.[0] || "T"}
+                            {withdrawal.tasker?.firstName?.[0] || "T"}
                           </div>
                           <div>
                             <p className='font-bold text-gray-900'>
-                              {item.tasker?.firstName + " " + item.tasker?.lastName || "—"}
+                              {withdrawal.tasker?.firstName + " " + withdrawal.tasker?.lastName || "—"}
                             </p>
                             <p className='text-[10px] text-gray-500'>
-                              {item.tasker?.emailAddress || item.tasker?.email || ""}
+                              {withdrawal.tasker?.emailAddress || withdrawal.tasker?.email || ""}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className='px-6 py-4 font-black text-gray-900'>
-                        ₦{item.amount?.toLocaleString()}
+                        ₦{withdrawal.amount?.toLocaleString()}
                       </td>
                       <td className='px-6 py-4'>
                         <span
                           className={cn(
                             "px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-tight",
-                            isStellar(item.payoutMethod)
+                            isStellar(withdrawal.payoutMethod)
                               ? "bg-purple-100 text-purple-700 border border-purple-200"
                               : "bg-blue-100 text-blue-700 border border-blue-200"
                           )}
                         >
-                          {getMethodLabel(item.payoutMethod)}
+                          {getMethodLabel(withdrawal.payoutMethod)}
                         </span>
                       </td>
                       <td className='px-6 py-4'>
-                        {isStellar(item.payoutMethod) ? (
+                        {isStellar(withdrawal.payoutMethod) ? (
                           <>
                             <p className='font-medium text-gray-700'>Stellar Wallet</p>
                             <div 
                               className='flex items-center gap-1.5 cursor-pointer group/copy'
                               onClick={() => {
-                                if (item?.stellarDetails?.publicKey) {
-                                  navigator.clipboard.writeText(item.stellarDetails.publicKey);
+                                if (withdrawal?.stellarDetails?.publicKey) {
+                                  navigator.clipboard.writeText(withdrawal.stellarDetails.publicKey);
                                   toast.success("Address copied to clipboard");
                                 }
                               }}
                             >
-                              <p className='text-[10px] text-gray-500 font-mono' title={item?.stellarDetails?.publicKey}>
-                                {item?.stellarDetails?.publicKey 
-                                  ? `${item.stellarDetails.publicKey.slice(0, 6)}...${item.stellarDetails.publicKey.slice(-4)}`
+                              <p className='text-[10px] text-gray-500 font-mono' title={withdrawal?.stellarDetails?.publicKey}>
+                                {withdrawal?.stellarDetails?.publicKey 
+                                  ? `${withdrawal.stellarDetails.publicKey.slice(0, 6)}...${withdrawal.stellarDetails.publicKey.slice(-4)}`
                                   : "N/A"}
                               </p>
-                              {item?.stellarDetails?.publicKey && (
+                              {withdrawal?.stellarDetails?.publicKey && (
                                 <Copy size={12} className='text-gray-300 group-hover/copy:text-purple-500 transition-colors' />
                               )}
                             </div>
@@ -310,34 +335,34 @@ export default function AdminWithdrawalsPage() {
                         ) : (
                           <>
                             <p className='font-medium text-gray-700'>
-                              {item.bankDetails?.bankName || "—"}
+                              {withdrawal.bankDetails?.bankName || "—"}
                             </p>
                             <div 
                               className='flex items-center gap-1.5 cursor-pointer group/copy'
                               onClick={() => {
-                                if (item.bankDetails?.accountNumber) {
-                                  navigator.clipboard.writeText(item.bankDetails.accountNumber);
+                                if (withdrawal.bankDetails?.accountNumber) {
+                                  navigator.clipboard.writeText(withdrawal.bankDetails.accountNumber);
                                   toast.success("Account number copied");
                                 }
                               }}
                             >
                               <p className='text-xs text-gray-500 font-mono'>
-                                {item.bankDetails?.accountNumber || "—"}
+                                {withdrawal.bankDetails?.accountNumber || "—"}
                               </p>
-                              {item.bankDetails?.accountNumber && (
+                              {withdrawal.bankDetails?.accountNumber && (
                                 <Copy size={12} className='text-gray-300 group-hover/copy:text-blue-500 transition-colors' />
                               )}
                             </div>
-                            {item.bankDetails?.accountName && (
+                            {withdrawal.bankDetails?.accountName && (
                               <p className='text-[10px] text-gray-400 mt-0.5'>
-                                {item.bankDetails.accountName}
+                                {withdrawal.bankDetails.accountName}
                               </p>
                             )}
                           </>
                         )}
                       </td>
                       <td className='px-6 py-4 text-gray-500 text-xs'>
-                        {new Date(item.createdAt).toLocaleDateString("en-NG", {
+                        {new Date(withdrawal.createdAt).toLocaleDateString("en-NG", {
                           day: "numeric",
                           month: "short",
                           year: "numeric",
@@ -347,26 +372,26 @@ export default function AdminWithdrawalsPage() {
                         <span
                           className={cn(
                             "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
-                            item.status === "pending"
+                            withdrawal.status === "pending"
                               ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                              : item.status === "approved"
+                              : withdrawal.status === "approved"
                               ? "bg-blue-50 text-blue-700 border-blue-200"
-                              : item.status === "completed"
+                              : withdrawal.status === "completed"
                               ? "bg-green-50 text-green-700 border-green-200"
                               : "bg-red-50 text-red-700 border-red-200"
                           )}
                         >
-                          {item.status}
+                          {withdrawal.status}
                         </span>
                       </td>
                       <td className='px-6 py-4 text-right'>
                         <div className='flex justify-end gap-2'>
-                          {item.status === "pending" && (
+                          {withdrawal.status === "pending" && (
                             <>
                               <Button
                                 size='sm'
                                 className='bg-blue-600 hover:bg-blue-700 text-white rounded-xl'
-                                onClick={() => handleApprove(item._id)}
+                                onClick={() => handleApprove(withdrawal._id)}
                                 disabled={isApproving}
                               >
                                 {isApproving ? (
@@ -379,18 +404,18 @@ export default function AdminWithdrawalsPage() {
                                 size='sm'
                                 variant='destructive'
                                 className='rounded-xl'
-                                onClick={() => setRejectModalId(item._id)}
+                                onClick={() => setRejectModalId(withdrawal._id)}
                                 disabled={isRejecting}
                               >
                                 Reject
                               </Button>
                             </>
                           )}
-                          {item.status === "approved" && (
+                          {withdrawal.status === "approved" && (
                               <Button
                                 size='sm'
                                 className='bg-green-600 hover:bg-green-700 text-white rounded-xl'
-                                onClick={() => handleComplete(item._id)}
+                                onClick={() => handleComplete(withdrawal._id)}
                                 disabled={isCompleting}
                               >
                                 {isCompleting ? (
@@ -417,15 +442,16 @@ export default function AdminWithdrawalsPage() {
                 </tbody>
               </table>
             </div>
-          )}
 
-          <AdminPagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-            totalRecords={totalRecords}
-            label='withdrawals'
-          />
+            <AdminPagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              totalRecords={totalRecords}
+              label='withdrawals'
+            />
+          </>
+          )}
         </CardContent>
       </Card>
 

@@ -13,7 +13,11 @@ import {
   Unlock,
   Ban,
   Building,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { AdminPagination } from "@/components/admin/AdminPagination";
+import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
+import { ApiError } from "@/lib/api";
 import { useSearch } from "@/hooks/useSearch";
 import {
   useAdminUniversities,
@@ -92,7 +97,9 @@ export default function UniversitiesPage() {
 
   const list = universities || [];
   
-  // Use the reusable search hook
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
   const searchedList = useSearch(list, searchTerm, ["name", "abbreviation", "state", "location"]);
 
   const filtered = searchedList.filter((u: any) => {
@@ -103,13 +110,9 @@ export default function UniversitiesPage() {
     return matchesFilter;
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#6B46C1]" />
-      </div>
-    );
-  }
+  const totalRecords = filtered.length;
+  const totalPages = Math.ceil(totalRecords / limit);
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
 
   return (
     <div className="space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto">
@@ -133,16 +136,42 @@ export default function UniversitiesPage() {
         <AdminSearchFilter
           searchPlaceholder='Search university or abbreviation...'
           searchTerm={searchTerm}
-          onSearch={setSearchTerm}
+          onSearch={(v) => { setSearchTerm(v); setPage(1); }}
           filterOptions={["All", "Active", "Inactive"]}
           activeFilter={filter}
-          onFilterChange={setFilter}
+          onFilterChange={(f) => { setFilter(f); setPage(1); }}
         />
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((u: any) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative min-h-[400px]">
+        {(isLoading || error) && (
+          <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
+            {isLoading ? (
+              <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+            ) : (
+              <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                  <div className='w-6 h-6 text-red-500 font-bold'>!</div>
+                </div>
+                <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
+                <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.location.reload()}
+                  className="border-red-100 text-red-600 hover:bg-red-50"
+                >
+                  Try again
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+        {paginated.map((u: any, index: number) => (
           <Card key={u._id} className="group relative border border-gray-100 hover:border-purple-200 shadow-sm hover:shadow-md transition-all rounded-2xl overflow-hidden p-6">
+            <div className="absolute top-0 left-0 w-8 h-8 bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-400 rounded-br-lg z-10">
+              {(page - 1) * limit + index + 1}
+            </div>
             <div className="flex justify-between items-start mb-6">
               <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 border border-purple-100">
                 {u.logo ? (
@@ -191,8 +220,17 @@ export default function UniversitiesPage() {
               </div>
             </div>
           </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+
+      <AdminPagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        totalRecords={totalRecords}
+        label="universities"
+        className="mt-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+      />
 
       {filtered.length === 0 && (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">

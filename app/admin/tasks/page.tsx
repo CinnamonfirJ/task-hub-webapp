@@ -11,6 +11,7 @@ import {
   Ban,
 } from "lucide-react";
 import { AdminPagination } from "@/components/admin/AdminPagination";
+import { ApiError } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +29,7 @@ import { ExportModal } from "@/components/admin/ExportModal";
 
 export default function TasksManagementPage() {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
 
@@ -41,16 +42,16 @@ export default function TasksManagementPage() {
 
   const { data: taskStats } = useTaskStats();
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const { data: tasksData, isLoading } = useAdminTasks({
+  const { data: tasksData, isLoading, error } = useAdminTasks({
     page,
     limit,
-    search: searchQuery || undefined,
+    search: searchTerm || undefined,
     status: statusParam,
   });
 
   const tasks = tasksData?.tasks ?? [];
   const totalRecords = tasksData?.totalRecords ?? 0;
-  const totalPages = Math.ceil(totalRecords / limit);
+  const totalPages = tasksData?.totalPages ?? Math.ceil(totalRecords / limit);
 
   const taskMetrics = [
     { label: "Total Tasks", value: String(taskStats?.total ?? "—") },
@@ -82,7 +83,7 @@ export default function TasksManagementPage() {
   };
 
   const handleSearch = (value: string) => {
-    setSearchQuery(value);
+    setSearchTerm(value);
     setPage(1);
   };
   const handleFilterChange = (filter: string) => {
@@ -135,7 +136,7 @@ export default function TasksManagementPage() {
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
               searchPlaceholder='Search task title...'
-              searchTerm={searchQuery}
+              searchTerm={searchTerm}
               onSearch={handleSearch}
               filterOptions={[
                 "All",
@@ -150,15 +151,33 @@ export default function TasksManagementPage() {
           </div>
 
           <div className='overflow-x-auto min-h-[400px] relative'>
-            {isLoading && (
+            {(isLoading || error) && (
               <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
-                <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                {isLoading ? (
+                  <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+                ) : (
+                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                    <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                      <div className='w-6 h-6 text-red-500 font-bold'>!</div>
+                    </div>
+                    <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
+                    <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => window.location.reload()}
+                      className="border-red-100 text-red-600 hover:bg-red-50"
+                    >
+                      Try again
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
-            <ExpandableTableContainer>
-              <table className='w-full text-left text-sm'>
+            <table className='w-full text-left text-sm'>
                 <thead>
                   <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                    <th className='px-6 py-4 w-12'>#</th>
                     <th className='px-6 py-4'>TASK</th>
                     <th className='px-6 py-4'>POSTED BY</th>
                     <th className='px-6 py-4'>ASSIGNED TASKER</th>
@@ -169,11 +188,14 @@ export default function TasksManagementPage() {
                   </tr>
                 </thead>
                 <tbody className='divide-y'>
-                  {tasks.map((task: any) => (
+                  {tasks.map((task: any, index: number) => (
                     <tr
                       key={task._id}
                       className='group hover:bg-gray-50 transition-colors'
                     >
+                      <td className='px-6 py-4 text-xs font-medium text-gray-400'>
+                        {(page - 1) * limit + index + 1}
+                      </td>
                       <td className='px-6 py-5'>
                         <div className='flex flex-col gap-1'>
                           <Link
@@ -289,16 +311,15 @@ export default function TasksManagementPage() {
                   )}
                 </tbody>
               </table>
-            </ExpandableTableContainer>
-          </div>
+            </div>
 
-          <AdminPagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-            totalRecords={totalRecords}
-            label='tasks'
-          />
+            <AdminPagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              totalRecords={totalRecords}
+              label='tasks'
+            />
         </CardContent>
       </Card>
     </div>
