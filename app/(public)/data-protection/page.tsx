@@ -55,18 +55,6 @@ export default function DataProtectionPage() {
             </li>
           </ul>
         </section>
-
-        <div className="mt-12 pt-8 border-t-2 border-dashed border-gray-200">
-          <div className="max-w-md ml-auto text-right space-y-2">
-            <p className="text-gray-500 text-sm italic">Authorized Signature:</p>
-            <div className="h-12 flex items-end justify-end">
-               {/* Placeholder for signature visual */}
-               <p className="font-serif text-2xl text-gray-800 border-b border-gray-400 px-4">Ayuba Agiri</p>
-            </div>
-            <p className="font-bold text-gray-900">Head of Operations, TaskHub</p>
-            <p className="text-gray-500 text-sm">Date: 20th April 2026</p>
-          </div>
-        </div>
       </div>
     </LegalLayout>
   );

@@ -1,10 +1,12 @@
 import Image from "next/image";
+import Link from "next/link";
 
 interface LogoProps {
   className?: string;
   size?: "sm" | "md" | "lg";
   width?: number;
   height?: number;
+  href?: string;
 }
 
 export function Logo({
@@ -12,6 +14,7 @@ export function Logo({
   size = "lg",
   width: customWidth,
   height: customHeight,
+  href = "/",
 }: LogoProps) {
   const dimensions = {
     sm: { width: 120, height: 55 },
@@ -24,7 +27,10 @@ export function Logo({
   const height = customHeight || presetHeight;
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <Link 
+      href={href} 
+      className={`flex items-center gap-2 cursor-pointer ${className}`}
+    >
       <Image
         src='/assets/logo.png'
         alt='Taskhub Logo'
@@ -33,6 +39,6 @@ export function Logo({
         className='object-contain'
         priority
       />
-    </div>
+    </Link>
   );
 }
