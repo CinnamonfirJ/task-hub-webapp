@@ -18,7 +18,7 @@ export default function Navbar() {
       className='flex items-center justify-between px-6 py-4 max-w-7xl mx-auto bg-white'
     >
       {/* Logo */}
-      <div className='flex items-center gap-2'>
+      <Link href="/" className='flex items-center gap-2 cursor-pointer'>
         <Image
           src='/assets/task-hub-logo.png'
           alt='TaskHub'
@@ -26,7 +26,7 @@ export default function Navbar() {
           height={45}
           className='h-10 w-auto object-contain'
         />
-      </div>
+      </Link>
 
       {/* Center Links */}
       <div className='hidden md:flex items-center gap-8'>

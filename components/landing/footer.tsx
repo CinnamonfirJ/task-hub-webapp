@@ -19,13 +19,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
           {/* Column 1 - Brand & Contact (Span 4 columns) */}
           <motion.div variants={fadeInUp} className="md:col-span-4 space-y-8">
-            <Image
-              src="/assets/task-hub-logo-footer.png"
-              alt="TaskHub"
-              width={160}
-              height={50}
-              className="h-10 w-auto object-contain"
-            />
+            <Link href="/" className="inline-block cursor-pointer">
+              <Image
+                src="/assets/task-hub-logo-footer.png"
+                alt="TaskHub"
+                width={160}
+                height={50}
+                className="h-10 w-auto object-contain"
+              />
+            </Link>
             <p className="text-[14px] leading-relaxed text-gray-400 max-w-sm">
               Connecting you with trusted taskers and businesses for all your service needs. Get things done, the smarter way.
             </p>
