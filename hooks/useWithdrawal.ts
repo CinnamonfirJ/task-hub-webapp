@@ -108,8 +108,8 @@ export function useTaskerBankAccount() {
 export function useSetBankAccount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ accountNumber, bankCode }: { accountNumber: string; bankCode: string }) =>
-      walletApi.setBankAccount(accountNumber, bankCode),
+    mutationFn: ({ accountNumber, bankCode, bankName, accountName }: { accountNumber: string; bankCode: string; bankName?: string; accountName?: string }) =>
+      walletApi.setBankAccount(accountNumber, bankCode, bankName, accountName),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bankAccount"] });
       queryClient.invalidateQueries({ queryKey: ["taskerWallet"] });

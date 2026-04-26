@@ -50,6 +50,11 @@ export function useStellarDepositInfo() {
   return useQuery({
     queryKey: ["stellarDepositInfo"],
     queryFn: () => walletApi.getDepositInfo(),
-    enabled: !!user,
+    enabled: user?.role === "tasker",
+    retry: (failureCount, error: any) => {
+      // Don't retry on 404 (user not found) — it's a role/auth issue
+      if (error?.status === 404) return false;
+      return failureCount < 2;
+    },
   });
 }

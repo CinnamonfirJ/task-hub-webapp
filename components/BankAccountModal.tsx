@@ -38,8 +38,12 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
       return;
     }
 
+    // Find the selected bank's name from the banks list
+    const selectedBankObj = banks?.find((b: any) => b.code === selectedBank);
+    const bankName = selectedBankObj?.name || selectedBankObj?.bankName || "";
+
     setBank(
-      { accountNumber, bankCode: selectedBank },
+      { accountNumber, bankCode: selectedBank, bankName },
       {
         onSuccess: () => {
           toast.success("Bank account saved successfully!");

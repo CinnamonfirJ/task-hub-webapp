@@ -161,8 +161,10 @@ export function WithdrawFundsModal({
       toast.error("Please select a bank");
       return;
     }
+    const selectedBankObj = banks?.find((b: any) => b.code === selectedBank);
+    const bankName = selectedBankObj?.name || selectedBankObj?.bankName || "";
     setBank(
-      { accountNumber, bankCode: selectedBank },
+      { accountNumber, bankCode: selectedBank, bankName },
       {
         onSuccess: () => toast.success("Bank account updated successfully"),
       }
