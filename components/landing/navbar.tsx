@@ -20,7 +20,7 @@ export default function Navbar() {
       {/* Logo */}
       <Link href="/" className='flex items-center gap-2 cursor-pointer'>
         <Image
-          src='/assets/task-hub-logo.png'
+          src='/assets/taskhub-logo.svg'
           alt='TaskHub'
           width={140}
           height={45}

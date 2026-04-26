@@ -7,6 +7,7 @@ interface LogoProps {
   width?: number;
   height?: number;
   href?: string;
+  variant?: "default" | "footer";
 }
 
 export function Logo({
@@ -15,6 +16,7 @@ export function Logo({
   width: customWidth,
   height: customHeight,
   href = "/",
+  variant = "default",
 }: LogoProps) {
   const dimensions = {
     sm: { width: 120, height: 55 },
@@ -32,11 +34,11 @@ export function Logo({
       className={`flex items-center gap-2 cursor-pointer ${className}`}
     >
       <Image
-        src='/assets/logo.png'
-        alt='Taskhub Logo'
+        src='/assets/taskhub-logo.svg'
+        alt='TaskHub Logo'
         width={width}
         height={height}
-        className='object-contain'
+        className={`object-contain ${variant === "footer" ? "brightness-0 invert" : ""}`}
         priority
       />
     </Link>

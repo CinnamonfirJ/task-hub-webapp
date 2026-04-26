@@ -21,11 +21,11 @@ export default function Footer() {
           <motion.div variants={fadeInUp} className="md:col-span-4 space-y-8">
             <Link href="/" className="inline-block cursor-pointer">
               <Image
-                src="/assets/task-hub-logo-footer.png"
+                src="/assets/taskhub-logo.svg"
                 alt="TaskHub"
                 width={160}
                 height={50}
-                className="h-10 w-auto object-contain"
+                className="h-10 w-auto object-contain brightness-0 invert"
               />
             </Link>
             <p className="text-[14px] leading-relaxed text-gray-400 max-w-sm">

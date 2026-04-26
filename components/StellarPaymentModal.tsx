@@ -20,20 +20,13 @@ export function StellarPaymentModal({
 }: StellarPaymentModalProps) {
   const [copiedAddr, setCopiedAddr] = useState(false);
   const [copiedMemo, setCopiedMemo] = useState(false);
-  const { data: depositInfo, isLoading } = useStellarDepositInfo();
+  const { data: depositInfo, isLoading, error } = useStellarDepositInfo();
 
   if (!isOpen) return null;
 
   const handleCopyAddr = () => {
     if (!depositInfo?.walletAddress) return;
     navigator.clipboard.writeText(depositInfo.walletAddress);
-    setCopiedAddr(true);
-    setTimeout(() => setCopiedAddr(false), 2000);
-  };
-
-  const handleCopyAddr2 = () => {
-    if (!depositInfo?.walletAddress) return;
-    navigator.clipboard.writeText("GBEIY32WXRWJRKUAIL2BRWE4UMNNF55YCXZVHJRY7HQ725SXJ4RXTPQQ");
     setCopiedAddr(true);
     setTimeout(() => setCopiedAddr(false), 2000);
   };
@@ -69,6 +62,11 @@ export function StellarPaymentModal({
             <Loader2 className='animate-spin text-[#6B46C1]' size={40} />
             <p className='text-sm font-medium'>Fetching deposit details...</p>
           </div>
+        ) : error && !depositInfo ? (
+          <div className='flex flex-col items-center justify-center py-20 gap-4'>
+            <p className='text-red-500 text-sm font-medium'>Failed to load deposit details. Please try again.</p>
+            <p className='text-gray-400 text-xs'>Make sure you are logged in as a tasker.</p>
+          </div>
         ) : (
           <>
             {/* QR Code */}
@@ -94,8 +92,7 @@ export function StellarPaymentModal({
                 </div>
               </div>
 
-{/* LIVE */}
-              {/* <div className='bg-purple-50/50 p-4 rounded-2xl flex items-center justify-between group'>
+              <div className='bg-purple-50/50 p-4 rounded-2xl flex items-center justify-between group'>
                 <div className='space-y-1 flex-1 min-w-0 mr-4'>
                   <p className='text-gray-900 font-bold text-sm'>Master Wallet Address</p>
                   <p className='text-gray-400 text-[10px] md:text-xs font-medium break-all'>
@@ -104,21 +101,6 @@ export function StellarPaymentModal({
                 </div>
                 <button
                   onClick={handleCopyAddr}
-                  className='text-purple-600 hover:text-purple-700 transition-colors shrink-0'
-                >
-                  {copiedAddr ? <Check className='h-5 w-5' /> : <Copy className='h-5 w-5' />}
-                </button>
-              </div> */}
-
-              <div className='bg-purple-50/50 p-4 rounded-2xl flex items-center justify-between group'>
-                <div className='space-y-1 flex-1 min-w-0 mr-4'>
-                  <p className='text-gray-900 font-bold text-sm'>Master Wallet Address</p>
-                  <p className='text-gray-400 text-[10px] md:text-xs font-medium break-all'>
-                    {"GBEIY32WXRWJRKUAIL2BRWE4UMNNF55YCXZVHJRY7HQ725SXJ4RXTPQQ"}
-                  </p>
-                </div>
-                <button
-                  onClick={handleCopyAddr2}
                   className='text-purple-600 hover:text-purple-700 transition-colors shrink-0'
                 >
                   {copiedAddr ? <Check className='h-5 w-5' /> : <Copy className='h-5 w-5' />}

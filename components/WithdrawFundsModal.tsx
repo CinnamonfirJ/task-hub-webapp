@@ -411,7 +411,9 @@ export function WithdrawFundsModal({
                       disabled={isLoadingBanks}
                     >
                       <option value=''>Select Bank</option>
-                      {banks?.map((bank: any) => (
+                      {banks
+                        ?.filter((bank: any, index: number, self: any[]) => self.findIndex((b: any) => b.code === bank.code) === index)
+                        .map((bank: any) => (
                         <option key={bank.code} value={bank.code}>
                           {bank.name}
                         </option>
