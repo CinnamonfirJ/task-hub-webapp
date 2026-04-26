@@ -108,13 +108,10 @@ export const walletApi = {
     return res?.data || res;
   },
 
-  setBankAccount: async (accountNumber: string, bankCode: string, bankName?: string, accountName?: string): Promise<any> => {
-    const payload: Record<string, string> = { accountNumber, bankCode };
-    if (bankName) payload.bankName = bankName;
-    if (accountName) payload.accountName = accountName;
+  setBankAccount: async (accountNumber: string, bankCode: string): Promise<any> => {
     const res = await apiData<any>("/api/wallet/tasker/bank-account", {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ accountNumber, bankCode }),
     });
     return res?.data || res;
   },

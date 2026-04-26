@@ -38,20 +38,22 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
       return;
     }
 
-    // Find the selected bank's name from the banks list
-    const selectedBankObj = banks?.find((b: any) => b.code === selectedBank);
-    const bankName = selectedBankObj?.name || selectedBankObj?.bankName || "";
-
     setBank(
-      { accountNumber, bankCode: selectedBank, bankName },
+      { accountNumber, bankCode: selectedBank },
       {
         onSuccess: () => {
           toast.success("Bank account saved successfully!");
           onClose();
         },
         onError: (err: unknown) => {
-          const error = err as { message?: string };
-          toast.error(error.message || "Failed to save bank account");
+          const error = err as { message?: string; data?: { message?: string } };
+          const message = error?.data?.message || error?.message || "Failed to save bank account";
+          // Provide a more helpful message for common verification errors
+          if (message.toLowerCase().includes("could not verify") || message.toLowerCase().includes("verification")) {
+            toast.error("Could not verify bank account. Please double-check your account number and bank selection.");
+          } else {
+            toast.error(message);
+          }
         },
       }
     );
@@ -120,7 +122,9 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
                 disabled={isLoadingBanks}
               >
                 <option value="">{isLoadingBanks ? "Loading banks..." : "Select Bank"}</option>
-                {banks?.map((bank: any) => (
+                {banks
+                  ?.filter((bank: any, index: number, self: any[]) => self.findIndex((b: any) => b.code === bank.code) === index)
+                  .map((bank: any) => (
                   <option key={bank.code} value={bank.code}>
                     {bank.name}
                   </option>
