@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { Button } from "@/components/ui/button";
 
 interface MessageBubbleProps {
   message: Message;
@@ -18,7 +19,10 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, currentUser }: MessageBubbleProps) {
-  const isMine = message.senderType === currentUser?.role;
+  const isMine = 
+    message.senderType === currentUser?.role || 
+    (message.senderType === "admin" && currentUser?.role?.includes("admin")) ||
+    (message.senderType === "admin" && ["super_admin", "operations", "trust_safety", "finance"].includes(currentUser?.role || ""));
 
   const formatFileSize = (bytes?: number) => {
     if (!bytes) return "";

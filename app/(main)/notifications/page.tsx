@@ -66,12 +66,12 @@ export default function UserNotificationsPage() {
   const { mutate: markAllAsRead, isPending: isMarkingAll } = useMarkAllNotificationsAsRead();
   const { mutate: deleteNotification } = useDeleteNotification();
 
-  const notifications = notificationsData?.notifications || [];
+  const notifications = notificationsData?.data?.notifications || notificationsData?.notifications || [];
 
   const filteredNotifications = notifications.filter((n: any) => {
     const matchesSearch = 
-      n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      n.message.toLowerCase().includes(searchQuery.toLowerCase());
+      (n.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (n.message || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesSearch;
   });
@@ -162,10 +162,10 @@ export default function UserNotificationsPage() {
           filteredNotifications.map((notification: any) => (
             <Card 
               key={notification._id} 
-              onClick={() => !notification.isRead && markAsRead(notification._id)}
+              onClick={() => !notification.read && markAsRead(notification._id)}
               className={cn(
                 "group relative border-transparent hover:border-purple-100 transition-all cursor-pointer rounded-2xl overflow-hidden",
-                !notification.isRead ? "bg-white shadow-md shadow-purple-50/50 ring-1 ring-purple-50" : "bg-gray-50/50 grayscale-[0.5] opacity-80"
+                !notification.read ? "bg-white shadow-md shadow-purple-50/50 ring-1 ring-purple-50" : "bg-gray-50/50 grayscale-[0.5] opacity-80"
               )}
             >
               <CardContent className="p-0">
@@ -178,7 +178,7 @@ export default function UserNotificationsPage() {
                     )}>
                       <Bell size={20} />
                     </div>
-                    {!notification.isRead && (
+                    {!notification.read && (
                       <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#6B46C1] rounded-full border-2 border-white ring-2 ring-purple-100 animate-pulse" />
                     )}
                   </div>
@@ -189,7 +189,7 @@ export default function UserNotificationsPage() {
                       <div>
                         <h3 className={cn(
                           "font-bold text-gray-900 line-clamp-1 transition-colors group-hover:text-[#6B46C1]",
-                          !notification.isRead ? "text-base" : "text-sm"
+                          !notification.read ? "text-base" : "text-sm"
                         )}>
                           {notification.title}
                         </h3>

@@ -14,6 +14,7 @@ import {
   Loader2,
   Circle,
   Download,
+  Clock,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -178,11 +179,31 @@ export default function AdminDashboardPage() {
       label: "Total Revenue",
       value: formatCurrency(stats?.cards?.totalRevenue ?? 0),
       trend: growthLabel,
-      trendUp: false,
+      trendUp: true,
       icon: DollarSign,
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-700",
       valueColor: "text-emerald-700",
+    },
+    {
+      label: "Escrow Held",
+      value: formatCurrency(stats?.cards?.escrowHeld ?? 0),
+      trend: growthLabel,
+      trendUp: false,
+      icon: Clock,
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600",
+      valueColor: "text-blue-600",
+    },
+    {
+      label: "Outgoing Fees",
+      value: formatCurrency(stats?.cards?.outgoingFees ?? 0),
+      trend: growthLabel,
+      trendUp: false,
+      icon: TrendingDown,
+      iconBg: "bg-red-100",
+      iconColor: "text-red-500",
+      valueColor: "text-red-500",
     },
   ];
 
