@@ -63,7 +63,7 @@ export default function StaffDetailsPage({
   // API returns: { profile, permissions, accountInfo, recentActivities }
   const { profile, permissions, accountInfo, recentActivities } = detailData;
 
-  // API doesn't return a name field — derive display name from email username
+  // API doesn't return a name field derive display name from email username
   const displayName =
     profile.email.split("@")[0].replace(/[._-]/g, " ") || profile.email;
   const avatarInitial = displayName.charAt(0).toUpperCase();
@@ -188,7 +188,7 @@ export default function StaffDetailsPage({
                   <ShieldCheck size={16} className='text-gray-400' />
                   <span>{permissions.length} Permissions</span>
                 </div>
-                {/* API has no lastLogin — use accountInfo.lastUpdated instead */}
+                {/* API has no lastLogin use accountInfo.lastUpdated instead */}
                 {accountInfo?.lastUpdated && (
                   <div className='flex items-center justify-center md:justify-start gap-2.5 text-gray-600'>
                     <Calendar size={16} className='text-gray-400' />
@@ -234,7 +234,7 @@ export default function StaffDetailsPage({
           </CardContent>
         </Card>
 
-        {/* Account Info — replaces old Activity Stats card since API no longer returns login_count etc. */}
+        {/* Account Info replaces old Activity Stats card since API no longer returns login_count etc. */}
         <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] h-full'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>

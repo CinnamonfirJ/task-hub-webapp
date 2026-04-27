@@ -93,7 +93,7 @@ export function useAuth() {
         : authApi.registerUser(data);
     },
     onSuccess: (data, variables) => {
-      // Registration does NOT return a token — redirect to email verification
+      // Registration does NOT return a token redirect to email verification
       const role = variables.role || "user";
       const emailAddress =
         data.user?.emailAddress || data.tasker?.emailAddress || variables.email;
@@ -150,9 +150,6 @@ export function useVerifyEmail() {
 
   const verifyMutation = useMutation({
     mutationFn: (data: VerifyEmailInput) => authApi.verifyEmail(data),
-    onSuccess: () => {
-      router.push("/login");
-    },
   });
 
   const resendMutation = useMutation({

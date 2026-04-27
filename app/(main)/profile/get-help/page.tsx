@@ -68,11 +68,11 @@ export default function GetHelpPage() {
                 </div>
                 
                 <div className="bg-gray-50/50 p-4 rounded-xl flex items-center justify-between border border-gray-100">
-                    <span className="text-sm font-medium text-gray-500">hello@ngtaskhub.com</span>
+                    <span className="text-sm font-medium text-gray-500">support@ngtaskhub.com</span>
                     <Button 
                         variant="ghost" 
                         size="icon" 
-                        onClick={() => copyToClipboard("hello@ngtaskhub.com")}
+                        onClick={() => copyToClipboard("support@ngtaskhub.com")}
                         className="text-gray-400 hover:text-[#6B46C1]"
                     >
                         <Copy size={18} />

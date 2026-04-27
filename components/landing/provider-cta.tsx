@@ -62,7 +62,7 @@ export default function ProviderCTA() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           viewport={{ once: true }}
           id='for-taskers'
-          className='bg-gradient-to-br from-[#7C3AED] to-[#6D28D9] text-white rounded-[24px] p-8 md:p-10 scroll-mt-24'
+          className='bg-linear-to-br from-[#7C3AED] to-[#6D28D9] text-white rounded-[24px] p-8 md:p-10 scroll-mt-24'
         >
           <span className='inline-flex items-center gap-2 bg-white/20 text-white px-4 py-2 rounded-full text-[12px] font-medium mb-6'>
             <Briefcase className='w-4 h-4' />
@@ -153,7 +153,7 @@ export default function ProviderCTA() {
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
           viewport={{ once: true }}
           id='for-business'
-          className='bg-gradient-to-br from-[#F59E0B] to-[#F97316] text-white rounded-[24px] p-8 md:p-10 scroll-mt-24'
+          className='bg-linear-to-br from-[#F59E0B] to-[#F97316] text-white rounded-[24px] p-8 md:p-10 scroll-mt-24'
         >
           <span className='inline-flex items-center gap-2 bg-white/20 text-white px-4 py-2 rounded-full text-[12px] font-medium mb-6'>
             <Users className='w-4 h-4' />

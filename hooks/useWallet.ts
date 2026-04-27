@@ -52,7 +52,7 @@ export function useStellarDepositInfo() {
     queryFn: () => walletApi.getDepositInfo(),
     enabled: user?.role === "tasker",
     retry: (failureCount, error: any) => {
-      // Don't retry on 404 (user not found) — it's a role/auth issue
+      // Don't retry on 404 (user not found) it's a role/auth issue
       if (error?.status === 404) return false;
       return failureCount < 2;
     },

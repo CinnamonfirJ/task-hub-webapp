@@ -162,6 +162,7 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
               <div className="relative">
                 <Input
                   id="nin"
+                  type="text"
                   {...register("nin")}
                   placeholder="12345678901"
                   maxLength={11}
@@ -170,9 +171,6 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
                   }`}
                 />
               </div>
-              <p className="text-[10px] text-gray-400 pl-1 font-medium tracking-tight">
-                Your NIN is stored in a masked format for privacy.
-              </p>
               {errors.nin && (
                 <motion.p 
                   initial={{ opacity: 0, x: -10 }}

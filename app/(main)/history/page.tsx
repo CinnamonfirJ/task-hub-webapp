@@ -163,7 +163,7 @@ export default function HistoryPage() {
           )}
         </div>
       ) : (
-        // FIX 1: Removed `space-y-4` — it was adding margin-top on every child,
+        // FIX 1: Removed `space-y-4` it was adding margin-top on every child,
         //         fighting `gap-4` and making vertical spacing uneven.
         // FIX 2: Changed gap-4 → gap-6 for consistent spacing on both axes.
         // FIX 3: Added h-full to Link so it fills the grid cell height.

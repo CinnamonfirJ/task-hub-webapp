@@ -1074,7 +1074,7 @@ export interface ResolveReportResponse {
 
 export interface ActivityLogItem {
   _id: string;
-  /** Actual API field — use `resourceType` (e.g. "System", "User") */
+  /** Actual API field use `resourceType` (e.g. "System", "User") */
   resourceType: string;
   /** Kept for backwards-compat if ever returned by a different endpoint */
   type?: string;
@@ -1227,7 +1227,7 @@ export interface ConversationMessage {
   attachments: string[];
   status: string;
   readBy: ConversationReadBy[];
-  // Use createdAt as the message timestamp — there is no "timestamp" field
+  // Use createdAt as the message timestamp there is no "timestamp" field
   createdAt: string;
   updatedAt: string;
 }
@@ -1392,7 +1392,7 @@ export interface StaffDetailResponse {
       role: "super_admin" | "operations" | "trust_safety" | "finance";
       phone?: string;
       location?: string;
-      /** ISO date string — replaces the old createdAt */
+      /** ISO date string replaces the old createdAt */
       joinedAt: string;
       isActive: boolean;
     };
@@ -1736,7 +1736,7 @@ export interface ConversationMessage {
   attachments: string[];
   status: string;
   readBy: ConversationReadBy[];
-  // Use createdAt as the message timestamp — there is no "timestamp" field
+  // Use createdAt as the message timestamp there is no "timestamp" field
   createdAt: string;
   updatedAt: string;
 }
@@ -1772,11 +1772,11 @@ export interface AdminCategory {
   name: string;
   displayName?: string;
   description: string;
-  // Real API uses isActive boolean — NOT status: "Active"/"Closed"
+  // Real API uses isActive boolean NOT status: "Active"/"Closed"
   isActive: boolean;
-  // Real API field is "minimumPrice" — NOT "minPrice"
+  // Real API field is "minimumPrice" NOT "minPrice"
   minimumPrice: number;
-  // Real API field is "services" in list — NOT "serviceCount"
+  // Real API field is "services" in list NOT "serviceCount"
   services?: number;
   // Add support for subcategory hierarchy
   parentCategory?: string | any;
@@ -1810,7 +1810,7 @@ export interface AdminCategoryDetailStats {
   totalServices: number;
   subCategoryCount: number; // Added from redesign
   activeServices: number; // Added from redesign
-  // Real API returns activeTaskers + totalTaskers — NOT "taskers" or "activeServices"
+  // Real API returns activeTaskers + totalTaskers NOT "taskers" or "activeServices"
   activeTaskers: number;
   totalTaskers: number;
   revenue: number;
@@ -1871,7 +1871,7 @@ export interface UpdateCategoryRequest {
   displayName?: string;
   description?: string;
   minimumPrice?: number;
-  // Use isActive boolean — NOT status: "Active"/"Closed"
+  // Use isActive boolean NOT status: "Active"/"Closed"
   isActive?: boolean;
   parentCategory?: string;
 }

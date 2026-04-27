@@ -30,7 +30,7 @@ export function useBankWithdrawal() {
 }
 
 /**
- * Hook for taskers to request a withdrawal (legacy simple — kept for backward compat).
+ * Hook for taskers to request a withdrawal (legacy simple kept for backward compat).
  */
 export function useWithdrawal() {
   const queryClient = useQueryClient();

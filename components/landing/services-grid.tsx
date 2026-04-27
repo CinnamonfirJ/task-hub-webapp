@@ -44,7 +44,7 @@ export default function ServicesGrid() {
           Whatever you need, <span className="text-[#7C3AED]">we've got you</span>
         </motion.h2>
         <motion.p variants={fadeInUp} className="text-[#6B7280] text-[16px] max-w-2xl mx-auto">
-          From everyday tasks to special occasions — find the right help for any situation.
+          From everyday tasks to special occasions, find the right help for any situation.
         </motion.p>
       </motion.div>
 
@@ -114,7 +114,7 @@ export default function ServicesGrid() {
         transition={{ delay: 0.5 }}
         className="text-center text-[#6B7280] text-[14px] mt-10"
       >
-        And many more categories — <span className="font-semibold">50+ service</span> types available
+        And many more categories <span className="font-semibold">50+ service</span> types available
       </motion.p>
     </section>
   )

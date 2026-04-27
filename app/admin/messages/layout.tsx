@@ -42,7 +42,7 @@ export default function MessagesLayout({
   // admin.ts getConversations does: return response.data ?? response
   // Return type is ConversationListResponse (single object, NOT an array)
   // So useConversations().data === { conversations, totalPages, currentPage, ... }
-  // Fields are top-level — NOT nested under .data or .pagination
+  // Fields are top-level NOT nested under .data or .pagination
   const { data: convData, isLoading } = useConversations({
     page,
     limit: 30,
@@ -93,11 +93,11 @@ export default function MessagesLayout({
     return `${userName} ↔ ${tasker.firstName} ${tasker.lastName}`.trim();
   };
 
-  // unread = { user: number, tasker: number } — sum for badge
+  // unread = { user: number, tasker: number } sum for badge
   const getUnreadCount = (conv: ConversationListItem) =>
     (conv.unread?.user ?? 0) + (conv.unread?.tasker ?? 0);
 
-  // No lastActivity field — derive from lastMessageAt ?? updatedAt
+  // No lastActivity field derive from lastMessageAt ?? updatedAt
   const getLastActivity = (conv: ConversationListItem) => {
     const ts = conv.lastMessageAt ?? conv.updatedAt;
     return ts ? new Date(ts).toLocaleString() : "—";

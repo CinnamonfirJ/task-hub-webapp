@@ -35,7 +35,7 @@ const setupAdminSchema = z.object({
 
 type SetupAdminValues = z.infer<typeof setupAdminSchema>;
 
-// Inner component uses useSearchParams — must be wrapped in Suspense
+// Inner component uses useSearchParams must be wrapped in Suspense
 function AdminSetupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();

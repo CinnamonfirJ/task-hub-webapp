@@ -7,7 +7,7 @@ import WaitlistForm from "./WaitlistForm"
 
 export default function FinalCTA() {
   return (
-    <section id="final-cta" className="px-6 py-20 bg-gradient-to-br from-[#7C3AED] to-[#6D28D9] text-white">
+    <section id="final-cta" className="px-6 py-20 bg-linear-to-br from-[#7C3AED] to-[#6D28D9] text-white">
       <motion.div 
         variants={staggerContainer}
         initial="hidden"

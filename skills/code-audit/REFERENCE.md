@@ -1,4 +1,4 @@
-# Code Audit — Reference Checklists
+# Code Audit Reference Checklists
 
 Detailed patterns and anti-patterns to check during each audit phase.
 
@@ -6,52 +6,52 @@ Detailed patterns and anti-patterns to check during each audit phase.
 
 ### Conditional & Boolean Logic
 
-| Pattern | What to check |
-|---------|---------------|
-| `if (a && b)` | Should it be `\|\|`? Are both conditions necessary? |
-| `if (!a)` | Is the negation correct? Double-negatives? |
-| `x === undefined` | Should it also check `null`? Use `x == null` for both? |
-| `array.length` | Falsy when 0 — is that the intended behavior? |
+| Pattern                        | What to check                                             |
+| ------------------------------ | --------------------------------------------------------- |
+| `if (a && b)`                  | Should it be `\|\|`? Are both conditions necessary?       |
+| `if (!a)`                      | Is the negation correct? Double-negatives?                |
+| `x === undefined`              | Should it also check `null`? Use `x == null` for both?    |
+| `array.length`                 | Falsy when 0 is that the intended behavior?               |
 | `if (obj.status === 'active')` | Are all other statuses handled? Missing `else`/`default`? |
-| Ternary chains | Deeply nested ternaries hiding missed branches |
-| `switch` without `default` | What happens for unexpected values? |
+| Ternary chains                 | Deeply nested ternaries hiding missed branches            |
+| `switch` without `default`     | What happens for unexpected values?                       |
 
 ### Async & Concurrency
 
-| Pattern | What to check |
-|---------|---------------|
-| Missing `await` | Function returns Promise but caller doesn't await |
-| `Promise.all` with side effects | If one fails, others still execute — should it be `allSettled`? |
-| Race conditions in state | Two async operations updating the same state |
-| `useEffect` with async | Cleanup function won't cancel in-flight requests |
-| Stale closures | `useEffect`/`useCallback` missing dependencies |
-| `setTimeout`/`setInterval` | Not cleared on unmount |
-| Event listeners | Not removed on cleanup |
+| Pattern                         | What to check                                                 |
+| ------------------------------- | ------------------------------------------------------------- |
+| Missing `await`                 | Function returns Promise but caller doesn't await             |
+| `Promise.all` with side effects | If one fails, others still execute should it be `allSettled`? |
+| Race conditions in state        | Two async operations updating the same state                  |
+| `useEffect` with async          | Cleanup function won't cancel in-flight requests              |
+| Stale closures                  | `useEffect`/`useCallback` missing dependencies                |
+| `setTimeout`/`setInterval`      | Not cleared on unmount                                        |
+| Event listeners                 | Not removed on cleanup                                        |
 
 ### Data & Type Issues
 
-| Pattern | What to check |
-|---------|---------------|
-| `as any` / `as unknown as X` | Type assertion hiding real type mismatch |
-| Optional chaining `?.` chains | What value flows through when something is undefined? |
-| Array index access `arr[0]` | Could array be empty? |
-| Object spread `{...a, ...b}` | Does `b` accidentally overwrite important `a` properties? |
-| `parseInt` without radix | Always pass radix: `parseInt(x, 10)` |
-| Floating point math | `0.1 + 0.2 !== 0.3` — use integer cents for money |
-| String comparison for numbers | `"10" < "9"` is `true` (lexicographic) |
-| Date manipulation | Timezone issues, month 0-indexing, DST edge cases |
+| Pattern                       | What to check                                             |
+| ----------------------------- | --------------------------------------------------------- |
+| `as any` / `as unknown as X`  | Type assertion hiding real type mismatch                  |
+| Optional chaining `?.` chains | What value flows through when something is undefined?     |
+| Array index access `arr[0]`   | Could array be empty?                                     |
+| Object spread `{...a, ...b}`  | Does `b` accidentally overwrite important `a` properties? |
+| `parseInt` without radix      | Always pass radix: `parseInt(x, 10)`                      |
+| Floating point math           | `0.1 + 0.2 !== 0.3` use integer cents for money           |
+| String comparison for numbers | `"10" < "9"` is `true` (lexicographic)                    |
+| Date manipulation             | Timezone issues, month 0-indexing, DST edge cases         |
 
 ### React-Specific
 
-| Pattern | What to check |
-|---------|---------------|
-| `useEffect` missing deps | State referenced but not in dependency array |
-| `useEffect` running twice | Strict mode double-invocation — is it resilient? |
-| Inline objects in JSX props | `style={{}}` creates new ref every render |
-| Key prop issues | Using array index as key with dynamic lists |
-| State updates in render | Direct mutations or side effects during render phase |
-| Conditional hooks | Hooks called inside conditions violate rules of hooks |
-| `useMemo`/`useCallback` | Missing deps, or premature optimization with no benefit |
+| Pattern                     | What to check                                           |
+| --------------------------- | ------------------------------------------------------- |
+| `useEffect` missing deps    | State referenced but not in dependency array            |
+| `useEffect` running twice   | Strict mode double-invocation is it resilient?          |
+| Inline objects in JSX props | `style={{}}` creates new ref every render               |
+| Key prop issues             | Using array index as key with dynamic lists             |
+| State updates in render     | Direct mutations or side effects during render phase    |
+| Conditional hooks           | Hooks called inside conditions violate rules of hooks   |
+| `useMemo`/`useCallback`     | Missing deps, or premature optimization with no benefit |
 
 ---
 
@@ -60,7 +60,7 @@ Detailed patterns and anti-patterns to check during each audit phase.
 ### Authentication & Authorization
 
 - [ ] Are API routes protected with auth middleware?
-- [ ] Is authorization checked (not just authentication) — can user A access user B's data?
+- [ ] Is authorization checked (not just authentication) can user A access user B's data?
 - [ ] Are JWTs validated properly (signature, expiry, issuer)?
 - [ ] Is session invalidation handled on logout?
 - [ ] Are admin routes protected on both client AND server?
@@ -96,10 +96,10 @@ Detailed patterns and anti-patterns to check during each audit phase.
 
 ### Data Fetching
 
-- [ ] N+1 queries — loop with individual fetches instead of batch
-- [ ] Unbounded queries — missing `LIMIT` or pagination
+- [ ] N+1 queries loop with individual fetches instead of batch
+- [ ] Unbounded queries missing `LIMIT` or pagination
 - [ ] Refetching data already available in cache/context
-- [ ] Waterfalls — sequential fetches that could be parallel
+- [ ] Waterfalls sequential fetches that could be parallel
 - [ ] Missing error boundaries around data-dependent components
 
 ### Memory & Subscriptions
@@ -122,8 +122,8 @@ Detailed patterns and anti-patterns to check during each audit phase.
 
 - [ ] Full library imported when only one function is needed
 - [ ] Dynamic import (`next/dynamic`, `React.lazy`) for heavy components
-- [ ] SVGs inlined vs referenced — large SVGs should be external
-- [ ] Vendor chunks not split — one large bundle
+- [ ] SVGs inlined vs referenced large SVGs should be external
+- [ ] Vendor chunks not split one large bundle
 
 ---
 

@@ -49,6 +49,13 @@ export function useRegister(): {
 
   const onSubmit = async (data: RegisterValues) => {
     try {
+      // Store credentials temporarily for auto-login after OTP
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("pendingEmail", data.email);
+        sessionStorage.setItem("pendingPassword", data.password);
+        sessionStorage.setItem("pendingRole", data.role);
+      }
+      
       await registerAsync(data);
     } catch (err) {
       // Error handled by useMutation state
@@ -57,9 +64,9 @@ export function useRegister(): {
 
   const currentRole = form.watch("role");
 
-  // Helper to set role from Tabs
+  // Helper to set role
   const setRole = (role: string) => {
-    form.setValue("role", role as UserType);
+    form.setValue("role", role as UserType, { shouldValidate: true });
   };
 
   return {

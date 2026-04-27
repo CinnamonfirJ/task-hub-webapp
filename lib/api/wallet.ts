@@ -116,7 +116,7 @@ export const walletApi = {
     return res?.data || res;
   },
 
-  // ─── Withdrawal (unified endpoint — correct per API docs) ────────────────────
+  // ─── Withdrawal (unified endpoint correct per API docs) ────────────────────
 
   /**
    * Bank Transfer withdrawal
@@ -157,7 +157,7 @@ export const walletApi = {
   },
 
   /**
-   * Legacy simple withdrawal — kept for backward compat but now hits correct endpoint
+   * Legacy simple withdrawal kept for backward compat but now hits correct endpoint
    */
   requestWithdrawal: async (amount: number): Promise<any> => {
     const res = await apiData<any>("/api/wallet/withdraw", {

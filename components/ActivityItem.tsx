@@ -72,12 +72,12 @@ export function ActivityItem({
         </span>
       </div>
 
-      {/* Description — flex-1 expands to fill remaining space */}
+      {/* Description flex-1 expands to fill remaining space */}
       <p className='flex-1 text-sm text-gray-600 mb-4 line-clamp-2'>
         {description}
       </p>
 
-      {/* Footer — always pinned to the bottom */}
+      {/* Footer always pinned to the bottom */}
       <div className='flex items-center justify-between pt-3 gap-2 border-t border-gray-50'>
         <div className='flex items-center gap-1 text-gray-500'>
           <Calendar className='h-4 w-4 shrink-0' />

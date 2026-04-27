@@ -315,7 +315,7 @@ export default function FeedPage() {
                   )}
                 </div>
 
-                {/* Title & Description — flex-1 pushes footer to the bottom */}
+                {/* Title & Description flex-1 pushes footer to the bottom */}
                 <div className='flex-1 space-y-2  mb-2 md:mb-4'>
                   <h3 className='group-hover:text-[#6B46C1] font-bold text-gray-900 text-lg md:text-xl transition-colors line-clamp-2'>
                     {task.title}
@@ -325,7 +325,7 @@ export default function FeedPage() {
                   </p>
                 </div>
 
-                {/* Footer: Date & Price — pinned to bottom */}
+                {/* Footer: Date & Price pinned to bottom */}
                 <div className='flex justify-between items-center  border-t border-gray-50 pt-4'>
                   <div className='flex items-center gap-1.5 md:gap-2 text-gray-400 text-[10px] md:text-xs font-bold'>
                     <Calendar size={14} className='md:w-4 md:h-4' />

@@ -264,7 +264,7 @@ export function StellarWithdrawalModal({
                 </Button>
                 <Button
                   onClick={() => {
-                    // Backend always expects NGN — convert XLM → NGN (1 XLM = 1500 NGN)
+                    // Backend always expects NGN convert XLM → NGN (1 XLM = 1500 NGN)
                     const xlmAmount = Number(amount);
                     const ngnAmount = Math.round(xlmAmount * 1500);
                     withdraw(
