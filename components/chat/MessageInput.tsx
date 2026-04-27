@@ -39,12 +39,30 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    if (selectedFiles.length === 0) return;
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const validFiles: File[] = [];
+    const invalidFiles: string[] = [];
 
-    const newFiles = [...files, ...selectedFiles].slice(0, 5);
+    selectedFiles.forEach(file => {
+      if (file.size <= MAX_SIZE) {
+        validFiles.push(file);
+      } else {
+        invalidFiles.push(file.name);
+      }
+    });
+
+    if (invalidFiles.length > 0) {
+      import("sonner").then(({ toast }) => {
+        toast.error(`Some files are too large (max 10MB): ${invalidFiles.join(", ")}`);
+      });
+    }
+
+    if (validFiles.length === 0) return;
+
+    const newFiles = [...files, ...validFiles].slice(0, 5);
     setFiles(newFiles);
 
-    const newPreviews = selectedFiles.map((file) => ({
+    const newPreviews = validFiles.map((file) => ({
       url: URL.createObjectURL(file),
       name: file.name,
       type: file.type,
@@ -98,7 +116,7 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
           onChange={handleFileSelect}
           multiple
           className='hidden'
-          accept='image/*,.pdf,.doc,.docx'
+          accept='image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv'
         />
         <Button
           variant='ghost'
