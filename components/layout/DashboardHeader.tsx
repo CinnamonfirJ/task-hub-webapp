@@ -146,8 +146,9 @@ function NotificationsDropdown() {
   const { data: notificationsData, isLoading } = useNotifications({ limit: 5 });
   const { mutate: markAsRead } = useMarkNotificationAsRead();
   
-  const notifications = notificationsData?.notifications || [];
-  const unreadCount = notifications.filter((n: any) => !n.isRead).length;
+  // Handle both wrapped 'data' response and direct array response
+  const notifications = notificationsData?.data?.notifications || notificationsData?.notifications || [];
+  const unreadCount = notificationsData?.data?.unreadCount ?? notifications.filter((n: any) => !n.read).length;
 
   return (
     <DropdownMenu>
@@ -178,17 +179,17 @@ function NotificationsDropdown() {
             notifications.map((notification: any) => (
               <div 
                 key={notification._id} 
-                onClick={() => !notification.isRead && markAsRead(notification._id)}
+                onClick={() => !notification.read && markAsRead(notification._id)}
                 className={`p-5 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors flex gap-4 ${
-                  !notification.isRead ? "bg-purple-50/30" : ""
+                  !notification.read ? "bg-purple-50/30" : ""
                 }`}
               >
                 <div className={`h-2.5 w-2.5 mt-1.5 rounded-full shrink-0 ${
-                  !notification.isRead ? "bg-[#6B46C1]" : "bg-gray-200"
+                  !notification.read ? "bg-[#6B46C1]" : "bg-gray-200"
                 }`} />
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm leading-snug truncate ${
-                    !notification.isRead ? "font-bold text-gray-900" : "font-medium text-gray-600"
+                    !notification.read ? "font-bold text-gray-900" : "font-medium text-gray-600"
                   }`}>
                     {notification.title}
                   </p>

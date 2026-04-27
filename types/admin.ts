@@ -72,11 +72,13 @@ export interface AdminDashboardStats {
     cancelledTasks: number;
     pendingKyc: number;
     totalRevenue: number;
+    escrowHeld: number;
+    outgoingFees: number;
   };
   quickStats: {
     userToTaskerRatio: string;
     completionRate: string;
-    avgTaskValue: number;
+    avgTaskValue: string;
   };
   growth: number;
   recentTasks: any[];
@@ -867,22 +869,21 @@ export interface ForceCompleteTaskResponse {
 // ============================================================================
 
 export interface PaymentStats {
-  overview: {
+  totalTransactions: number;
+  totalCredits: number;
+  totalDebits: number;
+  netFlow: number;
+  totalPlatformFees: number;
+  platformFeeRate: string;
+  // Fallbacks for older UI implementations
+  overview?: {
     total_revenue: number;
-    this_month_revenue: number;
-    platform_fees_collected: number;
     escrow_held: number;
-    pending_withdrawals: number;
+    platform_fees_collected: number;
   };
-  transactions: {
+  transactions?: {
     total: number;
-    this_week: number;
-    this_month: number;
-    by_type: Record<string, number>;
   };
-  success_rate: number;
-  average_transaction_value: number;
-  payment_methods: Record<string, number>;
 }
 
 export interface PaymentStatsResponse {
@@ -892,30 +893,23 @@ export interface PaymentStatsResponse {
 
 export interface TransactionListItem {
   _id: string;
-  type: string;
-  amount: number;
-  status: string;
-  user?: {
+  user: {
     _id: string;
     fullName: string;
     emailAddress?: string;
+    profilePicture?: string;
   };
-  tasker?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-  };
+  description: string;
+  type: "credit" | "debit" | string;
+  amount: number;
+  date: string;
+  status: "held" | "released" | "refunded" | "completed" | string;
+  // Legacy fields
+  createdAt?: string;
   task?: {
     _id: string;
     title: string;
   };
-  description: string;
-  reference?: string;
-  paymentMethod?: string;
-  platformFee?: number;
-  balanceBefore?: number;
-  balanceAfter?: number;
-  createdAt: string;
 }
 
 export interface TransactionListResponse {
@@ -944,18 +938,36 @@ export interface TransactionDetail extends TransactionListItem {
   processedAt?: string;
 }
 
-export interface TransactionTimelineEvent {
-  event: string;
-  timestamp: string;
+export interface TransactionDetailData {
+  taskDetails: {
+    _id: string;
+    id?: string;
+    title: string;
+    totalAmount: number;
+    platformFee: number;
+    taskerPayout: number;
+    status: string;
+    postedBy: string;
+    assignedTo: string;
+  };
+  transactionHistory: TransactionListItem[];
+  // Fallbacks for legacy components
+  transaction?: TransactionListItem;
+  relatedTransactions?: TransactionListItem[];
+  timeline?: Array<{
+    event: string;
+    timestamp: string;
+  }>;
 }
 
 export interface TransactionDetailResponse {
   status: string;
-  data: {
-    transaction: TransactionDetail;
-    relatedTransactions: TransactionListItem[];
-    timeline: TransactionTimelineEvent[];
-  };
+  data: TransactionDetailData;
+}
+
+export interface TransactionTimelineEvent {
+  event: string;
+  timestamp: string;
 }
 
 // ============================================================================

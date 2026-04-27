@@ -38,17 +38,25 @@ export default function TransactionDetailsPage({
     );
   }
 
-  const { transaction: tx, relatedTransactions, timeline } = detailData;
+  const { taskDetails, transactionHistory, transaction, relatedTransactions, timeline } = detailData;
 
-  const isCredit = ["wallet_funding", "escrow_credit"].includes(tx.type);
+  // Use taskDetails if available (new API), otherwise fallback to transaction object
+  const displayTitle = taskDetails?.title || transaction?.description || "Transaction Details";
+  const displayId = taskDetails?._id || taskDetails?.id || transaction?._id || id;
+  const displayStatus = taskDetails?.status || transaction?.status || "pending";
+  const displayAmount = taskDetails?.totalAmount || transaction?.amount || 0;
+  
+  const history = transactionHistory || relatedTransactions || [];
+
+  const isCredit = transaction ? ["wallet_funding", "escrow_credit"].includes(transaction.type) : true;
   const statusIcon =
-    tx.status === "completed" ? (
+    displayStatus === "completed" ? (
       <CheckCircle2 size={18} className='text-green-600' />
     ) : (
       <Clock size={18} className='text-yellow-600' />
     );
   const statusBg =
-    tx.status === "completed"
+    displayStatus === "completed"
       ? "bg-green-100 text-green-600"
       : "bg-yellow-100 text-yellow-600";
 
@@ -76,185 +84,130 @@ export default function TransactionDetailsPage({
             <Button
               variant='outline'
               size='icon'
-              className='h-10 w-10 border-gray-200'
+              className='h-10 w-10 border-gray-200 rounded-xl'
             >
               <ArrowLeft size={18} className='text-gray-500' />
             </Button>
           </Link>
           <div>
-            <h1 className='text-xl md:text-2xl font-bold text-gray-900'>
-              Transaction Details
+            <h1 className='text-xl md:text-2xl font-black text-gray-900'>
+              Escrow Details
             </h1>
-            <p className='text-sm text-gray-500'>
-              View complete transaction information
+            <p className='text-sm text-gray-500 font-medium'>
+              {displayTitle}
             </p>
           </div>
         </div>
         <div
-          className={`${statusBg} px-4 py-2 rounded-lg flex items-center gap-2 font-bold text-sm capitalize`}
+          className={`${statusBg} px-4 py-2 rounded-xl flex items-center gap-2 font-bold text-xs uppercase tracking-wider`}
         >
-          {statusIcon} {tx.status}
+          {statusIcon} {displayStatus}
         </div>
       </div>
 
-      <Card className='border border-gray-100 shadow-sm'>
-        <CardContent className='p-6'>
-          <div className='text-xs text-gray-400 font-medium'>
-            Transaction Amount
+      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+        <CardContent className='p-8 bg-white'>
+          <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+            Total Escrow Amount
           </div>
           <div
-            className={`text-3xl font-bold mt-2 ${isCredit ? "text-green-500" : "text-red-500"}`}
+            className={`text-4xl font-black mt-2 ${isCredit ? "text-green-600" : "text-gray-900"}`}
           >
-            {isCredit ? "+ " : "- "}
-            {formatCurrency(tx.amount)}
+            {formatCurrency(displayAmount)}
           </div>
         </CardContent>
       </Card>
 
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        <Card className='border border-gray-100 shadow-sm'>
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
           <CardHeader>
-            <CardTitle className='text-lg font-bold'>
-              Transaction Information
+            <CardTitle className='text-base font-black'>
+              Escrow Information
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div>
-              <div className='text-xs text-gray-400 font-medium'>
-                Transaction ID
+              <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+                Task ID
               </div>
-              <div className='text-sm font-bold mt-1 font-mono'>{tx._id}</div>
+              <div className='text-sm font-bold mt-1 font-mono'>{displayId}</div>
             </div>
             <div>
-              <div className='text-xs text-gray-400 font-medium'>
-                Description
+              <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+                Title
               </div>
-              <div className='text-sm font-bold mt-1'>{tx.description}</div>
+              <div className='text-sm font-bold mt-1'>{displayTitle}</div>
             </div>
-            <div>
-              <div className='text-xs text-gray-400 font-medium'>
-                Transaction Type
-              </div>
-              <span
-                className={`mt-2 px-3 py-1 rounded-md text-[10px] font-bold inline-block ${typeLabel(tx.type).color}`}
-              >
-                {typeLabel(tx.type).label}
-              </span>
-            </div>
-            <div>
-              <div className='text-xs text-gray-400 font-medium'>
-                Payment Method
-              </div>
-              <div className='text-sm font-bold mt-1 capitalize'>
-                {tx.paymentMethod || "N/A"}
-              </div>
-            </div>
-            {tx.reference && (
+            {taskDetails?.postedBy && (
               <div>
-                <div className='text-xs text-gray-400 font-medium'>
+                <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+                  Posted By
+                </div>
+                <div className='text-sm font-bold mt-1'>{taskDetails.postedBy}</div>
+              </div>
+            )}
+            {taskDetails?.assignedTo && (
+              <div>
+                <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+                  Assigned To
+                </div>
+                <div className='text-sm font-bold mt-1'>{taskDetails.assignedTo}</div>
+              </div>
+            )}
+            {transaction?.reference && (
+              <div>
+                <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
                   Reference
                 </div>
                 <div className='text-sm font-bold mt-1 font-mono'>
-                  {tx.reference}
+                  {transaction.reference}
                 </div>
-              </div>
-            )}
-            {tx.paymentGateway && (
-              <div>
-                <div className='text-xs text-gray-400 font-medium'>
-                  Payment Gateway
-                </div>
-                <div className='text-sm font-bold mt-1 capitalize'>
-                  {tx.paymentGateway}
-                </div>
-              </div>
-            )}
-            {tx.task && (
-              <div>
-                <div className='text-xs text-gray-400 font-medium'>
-                  Related Task
-                </div>
-                <Link
-                  href={`/admin/tasks/${tx.task._id}`}
-                  className='text-sm font-bold mt-1 text-[#6B46C1] hover:underline flex items-center gap-1'
-                >
-                  {tx.task.title}
-                  <ExternalLink size={12} />
-                </Link>
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className='border border-gray-100 shadow-sm'>
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
           <CardHeader>
-            <CardTitle className='text-lg font-bold'>
-              User & Balance Details
+            <CardTitle className='text-base font-black'>
+              Financial Breakdown
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div>
-              <div className='text-xs text-gray-400 font-medium'>User</div>
+              <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>Total Budget</div>
               <div className='text-sm font-bold mt-1'>
-                {tx.user?.fullName ||
-                  (tx.tasker
-                    ? `${tx.tasker.firstName} ${tx.tasker.lastName}`
-                    : "N/A")}
+                {formatCurrency(taskDetails?.totalAmount || displayAmount)}
               </div>
-              {tx.user?.emailAddress && (
-                <div className='text-xs text-gray-400 mt-0.5'>
-                  {tx.user.emailAddress}
-                </div>
-              )}
             </div>
-            {tx.balanceBefore !== undefined && (
+            {taskDetails?.platformFee !== undefined && (
               <div>
-                <div className='text-xs text-gray-400 font-medium'>
-                  Previous Balance
-                </div>
-                <div className='text-sm font-bold mt-1'>
-                  {formatCurrency(tx.balanceBefore)}
-                </div>
-              </div>
-            )}
-            {tx.balanceAfter !== undefined && (
-              <div>
-                <div className='text-xs text-gray-400 font-medium'>
-                  Balance After Transaction
-                </div>
-                <div className='text-sm font-bold mt-1'>
-                  {formatCurrency(tx.balanceAfter)}
-                </div>
-              </div>
-            )}
-            {tx.platformFee !== undefined && (
-              <div>
-                <div className='text-xs text-gray-400 font-medium'>
+                <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
                   Platform Fee
                 </div>
-                <div className='text-sm font-bold mt-1 text-purple-600'>
-                  {formatCurrency(tx.platformFee)}
+                <div className='text-sm font-bold mt-1 text-[#6B46C1]'>
+                  {formatCurrency(taskDetails.platformFee)}
+                </div>
+              </div>
+            )}
+            {taskDetails?.taskerPayout !== undefined && (
+              <div>
+                <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+                  Tasker Payout
+                </div>
+                <div className='text-sm font-bold mt-1 text-green-600'>
+                  {formatCurrency(taskDetails.taskerPayout)}
                 </div>
               </div>
             )}
             <div>
-              <div className='text-xs text-gray-400 font-medium'>
-                Transaction Date
+              <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+                Last Updated
               </div>
               <div className='text-sm font-bold mt-1'>
-                {new Date(tx.createdAt).toLocaleString()}
+                {new Date(transaction?.date || transaction?.createdAt || Date.now()).toLocaleString()}
               </div>
             </div>
-            {tx.processedAt && (
-              <div>
-                <div className='text-xs text-gray-400 font-medium'>
-                  Processed At
-                </div>
-                <div className='text-sm font-bold mt-1'>
-                  {new Date(tx.processedAt).toLocaleString()}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -290,12 +243,11 @@ export default function TransactionDetailsPage({
         </Card>
       )}
 
-      {/* Related Transactions */}
-      {relatedTransactions && relatedTransactions.length > 0 && (
-        <Card className='border border-gray-100 shadow-sm'>
+    {history && history.length > 0 && (
+        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
           <CardHeader>
-            <CardTitle className='text-lg font-bold'>
-              Related Transactions
+            <CardTitle className='text-base font-black'>
+              Transaction History
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -310,25 +262,25 @@ export default function TransactionDetailsPage({
                   </tr>
                 </thead>
                 <tbody className='divide-y text-xs'>
-                  {relatedTransactions.map((rt) => {
+                  {history.map((rt) => {
                     const rtl = typeLabel(rt.type);
                     return (
-                      <tr key={rt._id}>
-                        <td className='py-4 font-medium text-gray-900'>
+                      <tr key={rt._id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className='py-5 font-bold text-gray-900 text-xs'>
                           {rt.description}
                         </td>
-                        <td className='py-4'>
+                        <td className='py-5'>
                           <span
-                            className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${rtl.color}`}
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter border ${rtl.color}`}
                           >
                             {rtl.label}
                           </span>
                         </td>
-                        <td className='py-4 font-bold text-gray-900'>
+                        <td className='py-5 font-black text-gray-900 text-xs'>
                           {formatCurrency(rt.amount)}
                         </td>
-                        <td className='py-4 text-gray-400 font-medium'>
-                          {new Date(rt.createdAt).toLocaleDateString()}
+                        <td className='py-5 text-gray-400 font-bold text-[10px] uppercase'>
+                          {new Date(rt.date || rt.createdAt).toLocaleDateString()}
                         </td>
                       </tr>
                     );

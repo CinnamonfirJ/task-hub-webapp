@@ -45,24 +45,18 @@ export default function PaymentsManagementPage() {
         : activeFilter === "Debit"
           ? "escrow_debit"
           : activeFilter === "Payout"
-            ? "tasker_payout"
-            : activeFilter === "Tasks"
-              ? "escrow_debit,tasker_payout,platform_fee"
-              : undefined;
+  const typeParam = activeFilter === "all" ? undefined : activeFilter;
 
-  const { data: paymentStats } = usePaymentStats();
-  const { data: txData, isLoading, error } = useTransactions({
+  const { data: paymentStats, isLoading: loadingStats } = usePaymentStats();
+  const { data: txData, isLoading: loadingTx, error } = useTransactions({
     page,
     limit,
     type: typeParam,
     search: searchTerm,
   });
 
-  const transactions = Array.isArray(txData)
-    ? txData
-    : (txData as any)?.transactions ?? [];
+  const transactions = (txData as any)?.transactions || [];
   const pagination = (txData as any)?.pagination;
-  const overview = paymentStats?.overview;
 
   const totalRecords = (pagination as any)?.totalTransactions || (txData as any)?.totalRecords || (txData as any)?.count || 0;
   const totalPages = (pagination as any)?.totalPages || (txData as any)?.totalPages || Math.ceil(totalRecords / limit);
@@ -70,27 +64,38 @@ export default function PaymentsManagementPage() {
   const paymentMetrics = [
     {
       label: "Total Transactions",
-      value: String(paymentStats?.transactions?.total ?? "—"),
-      trend: undefined,
-      color: undefined,
+      value: paymentStats?.totalTransactions?.toLocaleString() ?? "0",
+      icon: <DollarSign size={18} />,
+      color: "text-green-600",
+      bg: "bg-green-50",
     },
     {
-      label: "Total Revenue",
-      value: overview ? formatCurrency(overview.total_revenue) : "—",
-      trend: undefined,
-      color: "text-emerald-500",
+      label: "Total Credits (Inflow)",
+      value: formatCurrency(paymentStats?.totalCredits ?? 0),
+      icon: <ArrowUpRight size={18} />,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
     },
     {
-      label: "Escrow Held",
-      value: overview ? formatCurrency(overview.escrow_held) : "—",
-      trend: undefined,
-      color: "text-blue-500",
+      label: "Total Debits (Outflow)",
+      value: formatCurrency(paymentStats?.totalDebits ?? 0),
+      icon: <ArrowDownRight size={18} />,
+      color: "text-red-600",
+      bg: "bg-red-50",
     },
     {
-      label: "Platform Fees",
-      value: overview ? formatCurrency(overview.platform_fees_collected) : "—",
-      trend: undefined,
-      color: "text-purple-500",
+      label: "Net Flow",
+      value: formatCurrency(paymentStats?.netFlow ?? 0),
+      icon: <History size={18} />,
+      color: "text-purple-600",
+      bg: "bg-purple-50",
+    },
+    {
+      label: "Platform Revenue",
+      value: formatCurrency(paymentStats?.totalPlatformFees ?? 0),
+      icon: <Activity size={18} />,
+      color: "text-indigo-600",
+      bg: "bg-indigo-50",
     },
   ];
 
@@ -104,47 +109,24 @@ export default function PaymentsManagementPage() {
     setPage(1);
   };
 
-  const typeLabel = (type: string) => {
-    const labels: Record<string, { label: string; color: string }> = {
-      wallet_funding: { label: "Credit", color: "bg-green-50 text-green-500" },
-      escrow_debit: { label: "Debit", color: "bg-red-50 text-red-400" },
-      escrow_credit: { label: "Credit", color: "bg-green-50 text-green-500" },
-      escrow_release: { label: "Release", color: "bg-blue-50 text-blue-500" },
-      escrow_refund: { label: "Refund", color: "bg-orange-50 text-orange-500" },
-      tasker_payout: { label: "Payout", color: "bg-blue-50 text-blue-500" },
-      platform_fee: { label: "Fee", color: "bg-purple-50 text-purple-500" },
-      wallet_withdrawal: {
-        label: "Withdrawal",
-        color: "bg-red-50 text-red-500",
-      },
-    };
-    return (
-      labels[type] || {
-        label: type.replace("_", " "),
-        color: "bg-gray-50 text-gray-500",
-      }
-    );
-  };
-
   return (
-    <div className='space-y-6'>
+    <div className='p-0 space-y-6'>
+      {/* Header */}
       <div className='flex flex-col md:flex-row gap-3 md:items-center justify-between'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900'>
-            Payments & Transactions
-          </h1>
-          <p className='text-sm text-gray-500'>
-            Monitor all financial transactions
+          <h1 className='text-2xl font-black text-gray-900'>Financials</h1>
+          <p className='text-sm text-gray-500 font-medium'>
+            Monitor platform transactions and revenue
           </p>
         </div>
         <div className='flex gap-3'>
           <Button
             onClick={() => setIsExportModalOpen(true)}
             variant='outline'
-            className='text-sm h-10 px-4 gap-2 border-gray-200'
+            className='text-sm h-10 px-4 gap-2 border-gray-100 rounded-xl font-bold bg-white'
           >
             <Download size={16} />
-            Export
+            Export Data
           </Button>
         </div>
       </div>
@@ -155,160 +137,230 @@ export default function PaymentsManagementPage() {
         type="payments" 
       />
 
-      <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-        {paymentMetrics.map((metric, idx) => (
-          <Card key={idx} className='border border-gray-100 shadow-sm'>
-            <CardContent className='p-5'>
-              <div
-                className={`text-xl font-bold ${metric.color || "text-gray-900"}`}
-              >
-                {metric.value}
+      {/* Metrics Grid */}
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4'>
+        {paymentMetrics.map((metric, index) => (
+          <Card
+            key={index}
+            className='border-none shadow-sm bg-white overflow-hidden group hover:shadow-md transition-shadow'
+          >
+            <CardContent className='p-6'>
+              <div className='flex items-center justify-between mb-4'>
+                <div
+                  className={`p-2.5 rounded-xl ${metric.bg} ${metric.color} transition-transform group-hover:scale-110 duration-300`}
+                >
+                  {metric.icon}
+                </div>
               </div>
-              <div className='text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-400'>
-                {metric.label}
+              <div>
+                <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>
+                  {metric.label}
+                </p>
+                <h3 className='text-xl font-black text-gray-900 mt-1'>
+                  {loadingStats ? (
+                    <Loader2 className='h-5 w-5 animate-spin text-gray-400' />
+                  ) : (
+                    metric.value
+                  )}
+                </h3>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card className='border border-gray-100 shadow-sm overflow-hidden'>
-        <CardContent className='p-0'>
-          <div className='p-6 border-b border-gray-100'>
-            <AdminSearchFilter
-              searchPlaceholder='Search transactions...'
-              searchTerm={searchTerm}
-              onSearch={handleSearch}
-              filterOptions={["All", "Credit", "Debit", "Payout", "Tasks"]}
-              activeFilter={activeFilter}
-              onFilterChange={handleFilterChange}
-            />
-          </div>
+      {/* Filters and Table */}
+      <Card className='border border-gray-100 shadow-sm overflow-hidden bg-white'>
+        <div className='p-6 border-b border-gray-100'>
+          <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
+            <div className='flex items-center gap-2'>
+              <div className='h-8 w-1 bg-[#6B46C1] rounded-full' />
+              <h3 className='font-bold text-gray-900 text-xs uppercase tracking-wider'>
+                Transaction History
+              </h3>
+            </div>
 
-          <div className='p-6 pb-0'>
-            <h3 className='text-lg font-bold'>Transactions</h3>
-          </div>
-
-          <div className='overflow-x-auto min-h-[400px] relative'>
-            {(isLoading || error) && (
-              <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
-                {isLoading ? (
-                  <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
-                ) : (
-                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
-                    <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
-                      <div className='w-6 h-6 text-red-500 font-bold'>!</div>
-                    </div>
-                    <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
-                    <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => window.location.reload()}
-                      className="border-red-100 text-red-600 hover:bg-red-50"
-                    >
-                      Try again
-                    </Button>
-                  </div>
-                )}
+            <div className='flex items-center gap-3'>
+              <div className='relative'>
+                <Search
+                  className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
+                  size={14}
+                />
+                <input
+                  type='text'
+                  placeholder='Search by description...'
+                  className='pl-9 pr-4 py-2 bg-gray-50 border-0 rounded-xl text-xs focus:ring-1 focus:ring-[#6B46C1] w-64 font-medium'
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
               </div>
-            )}
-            <table className='w-full text-left text-sm'>
-              <thead>
-                <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
-                  <th className='px-6 py-4 w-12'>#</th>
-                  <th className='px-6 py-4'>USER</th>
-                  <th className='px-6 py-4'>DESCRIPTION</th>
-                  <th className='px-6 py-4'>TYPE</th>
-                  <th className='px-6 py-4'>TASK</th>
-                  <th className='px-6 py-4'>AMOUNT</th>
-                  <th className='px-6 py-4'>DATE</th>
-                  <th className='px-6 py-4 text-right'>ACTION</th>
-                </tr>
-              </thead>
-              <tbody className='divide-y'>
-                {transactions.map((tx: any, index: number) => {
-                  const tl = typeLabel(tx.type);
-                  const displayUser =
-                    tx.user?.fullName ||
-                    (tx.tasker
-                      ? `${tx.tasker.firstName} ${tx.tasker.lastName}`
-                      : "—");
-                  return (
-                    <tr
-                      key={tx._id}
-                      className='group hover:bg-gray-50 transition-colors'
-                    >
-                      <td className='px-6 py-5 text-xs font-medium text-gray-400'>
-                        {(page - 1) * limit + index + 1}
-                      </td>
-                      <td className='px-6 py-5 text-gray-900 font-medium text-xs'>
-                        {displayUser}
-                      </td>
-                      <td className='px-6 py-5 text-gray-500 text-xs max-w-[200px] truncate'>
-                        {tx.description}
-                      </td>
-                      <td className='px-6 py-5'>
-                        <span
-                          className={`px-2 py-1 rounded-md text-[10px] font-bold ${tl.color}`}
-                        >
-                          {tl.label}
-                        </span>
-                      </td>
-                      <td className='px-6 py-5 text-gray-900 font-bold text-[10px] max-w-[150px] truncate'>
-                        {tx.task?.title || "—"}
-                      </td>
-                      <td className='px-6 py-5 font-bold text-gray-900'>
-                        {formatCurrency(tx.amount)}
-                      </td>
-                      <td className='px-6 py-5 text-gray-500 text-xs'>
-                        {new Date(tx.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className='px-6 py-5 text-right'>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              className='h-8 w-8 text-gray-400'
-                            >
-                              <MoreVertical size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end' className='w-40'>
-                            <Link href={`/admin/payments/${tx._id}`}>
-                              <DropdownMenuItem className='gap-2 cursor-pointer text-xs'>
-                                <ExternalLink size={14} /> View Details
-                              </DropdownMenuItem>
-                            </Link>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {!isLoading && transactions.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className='py-12 text-center text-gray-400 font-medium'
-                    >
-                      No transactions found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+              <Select
+                value={activeFilter}
+                onValueChange={handleFilterChange}
+              >
+                <SelectTrigger className='w-32 h-9 text-xs font-bold border-0 bg-gray-50 rounded-xl'>
+                  <SelectValue placeholder='All Types' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All Types</SelectItem>
+                  <SelectItem value='credit'>Credits</SelectItem>
+                  <SelectItem value='debit'>Debits</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+        </div>
 
-          <AdminPagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-            totalRecords={totalRecords}
-            label='transactions'
-          />
-        </CardContent>
+        <div className='overflow-x-auto min-h-[400px] relative'>
+          {(loadingTx || error) && (
+            <div className='absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center'>
+              {loadingTx ? (
+                <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
+              ) : (
+                <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                  <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                    <div className='w-6 h-6 text-red-500 font-bold'>!</div>
+                  </div>
+                  <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
+                  <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => window.location.reload()}
+                    className="border-red-100 text-red-600 hover:bg-red-50 rounded-xl font-bold"
+                  >
+                    Try again
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+          <table className='w-full text-left text-sm'>
+            <thead>
+              <tr className='border-y bg-gray-50/50 text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+                <th className='px-6 py-4'>Transaction ID</th>
+                <th className='px-6 py-4'>User</th>
+                <th className='px-6 py-4'>Description</th>
+                <th className='px-6 py-4'>Amount</th>
+                <th className='px-6 py-4 text-center'>Type</th>
+                <th className='px-6 py-4'>Status</th>
+                <th className='px-6 py-4'>Date</th>
+                <th className='px-6 py-4 text-right'>Action</th>
+              </tr>
+            </thead>
+            <tbody className='divide-y divide-gray-50'>
+              {transactions.map((tx: any) => (
+                <tr
+                  key={tx._id}
+                  className='group hover:bg-[#6B46C1]/2 transition-colors'
+                >
+                  <td className='px-6 py-4 text-xs font-bold text-gray-500'>
+                    #{tx._id?.slice(-8).toUpperCase()}
+                  </td>
+                  <td className='px-6 py-4'>
+                    <div className='flex items-center gap-3'>
+                      <div className='h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400 overflow-hidden shrink-0 border border-white shadow-sm'>
+                        {tx.user?.profilePicture ? (
+                          <img
+                            src={tx.user.profilePicture}
+                            alt=''
+                            className='h-full w-full object-cover'
+                          />
+                        ) : (
+                          tx.user?.fullName?.[0] || "U"
+                        )}
+                      </div>
+                      <div className='flex flex-col'>
+                        <span className='font-bold text-gray-900 text-xs'>
+                          {tx.user?.fullName || "System"}
+                        </span>
+                        <span className='text-[10px] text-gray-400 font-medium'>
+                          {tx.user?.emailAddress}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className='px-6 py-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-xs font-bold text-gray-700 line-clamp-1'>
+                        {tx.description}
+                      </span>
+                    </div>
+                  </td>
+                  <td className='px-6 py-4'>
+                    <span
+                      className={`text-xs font-black ${
+                        tx.type === "credit" ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {tx.type === "credit" ? "+" : "-"}
+                      {formatCurrency(tx.amount)}
+                    </span>
+                  </td>
+                  <td className='px-6 py-4 text-center'>
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-tighter px-2.5 py-1 rounded-full border ${
+                        tx.type === "credit"
+                          ? "bg-green-50 text-green-600 border-green-100"
+                          : "bg-red-50 text-red-600 border-red-100"
+                      }`}
+                    >
+                      {tx.type}
+                    </span>
+                  </td>
+                  <td className='px-6 py-4'>
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-tighter px-2.5 py-1 rounded-full border ${
+                        tx.status === "held"
+                          ? "bg-blue-50 text-blue-600 border-blue-100"
+                          : tx.status === "released" ||
+                              tx.status === "completed"
+                            ? "bg-green-50 text-green-600 border-green-100"
+                            : "bg-gray-50 text-gray-600 border-gray-100"
+                      }`}
+                    >
+                      {tx.status}
+                    </span>
+                  </td>
+                  <td className='px-6 py-4 text-[10px] font-bold text-gray-500 uppercase'>
+                    {new Date(tx.date || tx.createdAt).toLocaleDateString(
+                      undefined,
+                      { month: "short", day: "numeric", year: "numeric" },
+                    )}
+                  </td>
+                  <td className='px-6 py-4 text-right'>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          className='h-8 w-8 text-gray-400'
+                        >
+                          <MoreVertical size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align='end' className='w-40'>
+                        <Link href={`/admin/payments/${tx._id}`}>
+                          <DropdownMenuItem className='gap-2 cursor-pointer text-xs'>
+                            <ExternalLink size={14} /> View Details
+                          </DropdownMenuItem>
+                        </Link>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <AdminPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          totalRecords={totalRecords}
+          label='transactions'
+        />
       </Card>
     </div>
   );
