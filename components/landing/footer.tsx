@@ -73,15 +73,15 @@ export default function Footer() {
             </motion.div> */}
 
             {/* Support */}
-            {/* <motion.div variants={fadeInUp}>
+            <motion.div variants={fadeInUp}>
               <h3 className="text-white font-semibold mb-6 text-[15px]">Support</h3>
               <ul className="space-y-4 text-[14px]">
-                <li><a href="#" className="hover:text-white transition-colors">Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Safety</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+                <li><Link href="/#faq" className="hover:text-white transition-colors">FAQ</Link></li>
+                <li><Link href="/profile/get-help" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link href="/legal" className="hover:text-white transition-colors">Safety</Link></li>
+                <li><a href="mailto:support@ngtaskhub.com" className="hover:text-white transition-colors">Contact Us</a></li>
               </ul>
-            </motion.div> */}
+            </motion.div>
 
             {/* Legal */}
             <motion.div variants={fadeInUp}>

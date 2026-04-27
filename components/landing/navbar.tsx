@@ -33,6 +33,7 @@ export default function Navbar() {
         {[
           { href: "#how-it-works", label: "How it works" },
           { href: "#services", label: "Services" },
+          { href: "#faq", label: "FAQ" },
           { href: "#for-taskers", label: "For Taskers" },
           { href: "#for-business", label: "For Business" },
         ].map((link) => (

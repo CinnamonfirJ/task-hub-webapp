@@ -7,6 +7,7 @@ import SafetySection from "@/components/landing/safety-section";
 import ProviderCTA from "@/components/landing/provider-cta";
 import RewardsSection from "@/components/landing/rewards-section";
 import FinalCTA from "@/components/landing/final-cta";
+import FAQSection from "@/components/landing/faq-section";
 import Footer from "@/components/landing/footer";
 import TheProblem from "@/components/landing/the-problem";
 import { GuestGuard } from "@/components/auth/GuestGuard";
@@ -25,6 +26,7 @@ export default function Page() {
         <SafetySection />
         <ProviderCTA />
         <RewardsSection />
+        <FAQSection />
         <FinalCTA />
         <Footer />
       </main>
