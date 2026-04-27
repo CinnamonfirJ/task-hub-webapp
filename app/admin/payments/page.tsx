@@ -3,15 +3,17 @@
 import { useState } from "react";
 import {
   MoreVertical,
-  TrendingUp,
   Download,
   Loader2,
-  ChevronLeft,
-  ChevronRight,
   ExternalLink,
+  DollarSign,
+  ArrowUpRight,
+  ArrowDownRight,
+  History,
+  Activity,
+  Search,
 } from "lucide-react";
 import { AdminPagination } from "@/components/admin/AdminPagination";
-import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +22,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ExportModal } from "@/components/admin/ExportModal";
 import Link from "next/link";
 import {
@@ -38,14 +46,13 @@ export default function PaymentsManagementPage() {
   const limit = 20;
 
   const typeParam =
-    activeFilter === "All"
+    activeFilter === "All" || activeFilter === "all"
       ? undefined
-      : activeFilter === "Credit"
-        ? "wallet_funding"
-        : activeFilter === "Debit"
-          ? "escrow_debit"
-          : activeFilter === "Payout"
-  const typeParam = activeFilter === "all" ? undefined : activeFilter;
+      : activeFilter === "Credit" || activeFilter === "credit"
+        ? "credit"
+        : activeFilter === "Debit" || activeFilter === "debit"
+          ? "debit"
+          : activeFilter;
 
   const { data: paymentStats, isLoading: loadingStats } = usePaymentStats();
   const { data: txData, isLoading: loadingTx, error } = useTransactions({
