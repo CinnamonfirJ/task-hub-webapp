@@ -34,7 +34,7 @@ export default function SafetySection() {
             className='text-white/90 text-[16px] max-w-2xl mx-auto'
           >
             We've built multiple layers of protection so you can focus on
-            getting things done — worry-free.
+            getting things done worry-free.
           </motion.p>
         </div>
 

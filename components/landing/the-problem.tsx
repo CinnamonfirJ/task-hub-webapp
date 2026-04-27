@@ -27,7 +27,7 @@ export default function TheProblem() {
           Finding Reliable help shouldn't <span className="text-[#F43F5E]">be this Hard</span>
         </motion.h2>
         <motion.p variants={fadeInUp} className="text-[#4B5563] text-lg md:text-[18px] max-w-[720px] mx-auto font-medium leading-relaxed">
-          We've all been there — endless searching, confusing quotes, and hoping the person 
+          We've all been there endless searching, confusing quotes, and hoping the person 
           who shows up is actually qualified.
         </motion.p>
       </motion.div>

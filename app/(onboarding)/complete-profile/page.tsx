@@ -194,7 +194,7 @@ export default function CompleteProfilePage() {
                 </h3>
               </div>
               <div className='p-6 space-y-5'>
-                {/* Full name — shown as single label but backed by firstName + lastName */}
+                {/* Full name shown as single label but backed by firstName + lastName */}
                 <div className='grid grid-cols-2 gap-4'>
                   <div className='space-y-1.5'>
                     <Label className='text-sm text-gray-700 font-medium'>
@@ -322,7 +322,7 @@ export default function CompleteProfilePage() {
               </div>
             </div>
 
-            {/* Service Information — Taskers Only */}
+            {/* Service Information Taskers Only */}
             {user?.role === "tasker" && (
               <div className='bg-white rounded-xl border border-gray-100 overflow-hidden'>
                 <div className='px-6 py-4 border-b border-gray-50'>
@@ -468,7 +468,7 @@ export default function CompleteProfilePage() {
             </p>
           </div>
 
-          {/* Verification Action — shown after selection */}
+          {/* Verification Action shown after selection */}
           <AnimatePresence mode='wait'>
             {selectedMethod === "document" && (
               <div key='document-action' className='space-y-4 pt-1'>

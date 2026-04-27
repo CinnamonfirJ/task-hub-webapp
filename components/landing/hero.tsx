@@ -46,7 +46,7 @@ export default function Hero() {
             variants={fadeInUp}
             className='text-4xl md:text-[52px] font-bold text-[#1F2937] mb-6 leading-[1.15] tracking-tight'
           >
-            Get Trusted Services Done —{" "}
+            Get Trusted Services Done{" "}
             <span className='text-[#7C3AED]'>Fast,</span>
             <br />
             <span className='text-[#7C3AED]'>Affordable</span> & Reliable.
@@ -58,7 +58,7 @@ export default function Hero() {
             className='text-[#6B7280] text-[17px] mb-10 leading-relaxed'
           >
             Find verified taskers and businesses for cleaning, moving, events,
-            repairs, and more — all in one app.
+            repairs, and more all in one app.
           </motion.p>
 
           {/* Email form */}

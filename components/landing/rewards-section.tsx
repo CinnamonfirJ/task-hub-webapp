@@ -39,7 +39,7 @@ export default function RewardsSection() {
             variants={fadeInUp}
             className='text-[#6B7280] text-[16px] max-w-2xl mx-auto leading-relaxed'
           >
-            Our gamified experience keeps you engaged and rewarded — whether
+            Our gamified experience keeps you engaged and rewarded whether
             you're hiring or working.
           </motion.p>
         </div>

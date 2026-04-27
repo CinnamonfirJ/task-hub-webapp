@@ -729,7 +729,7 @@ export const adminApi = {
       method: "POST",
       body: JSON.stringify(data),
     });
-    // Response: { status, category } — at root, NOT under data
+    // Response: { status, category } at root, NOT under data
     return response.category ?? response;
   },
 
@@ -741,7 +741,7 @@ export const adminApi = {
       method: "PATCH",
       body: JSON.stringify(data),
     });
-    // Response: { status, category } — at root, NOT under data
+    // Response: { status, category } at root, NOT under data
     return response.category ?? response;
   },
 

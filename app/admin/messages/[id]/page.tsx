@@ -28,7 +28,7 @@ export default function MessageDetailsPage({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { mutate: sendMessage, isPending: isSending } = useSendAdminMessage();
 
-  // ↓ "details" not "conversation" — matches real API response
+  // ↓ "details" not "conversation" matches real API response
   const conversation = detailData?.details;
   const messages: ConversationMessage[] = detailData?.messages ?? [];
 
@@ -209,7 +209,7 @@ export default function MessageDetailsPage({
                 }`}
               >
                 <p className='text-sm leading-relaxed'>{message.text}</p>
-                {/* createdAt is the timestamp field — there is no "timestamp" field */}
+                {/* createdAt is the timestamp field there is no "timestamp" field */}
                 <div
                   className={`text-[10px] mt-1.5 font-medium ${
                     isAdmin

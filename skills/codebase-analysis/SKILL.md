@@ -89,13 +89,13 @@ Present the report using this structure:
 | ...  | ...  | ...      | ...     |
 
 ## Gaps & Incomplete Work
-- [ ] Description of gap — location/context
+- [ ] Description of gap location/context
 ```
 
 ## Tips
 
 - Start broad (dependencies, structure) then go deep (data flow, gaps)
-- Use search tools aggressively — grep for patterns like `TODO|FIXME|HACK|XXX`
-- Read config files first — they reveal the most about a project quickly
+- Use search tools aggressively grep for patterns like `TODO|FIXME|HACK|XXX`
+- Read config files first they reveal the most about a project quickly
 - Trace one complete user flow end-to-end to understand the data architecture
 - When reporting gaps, distinguish between "not started" vs "partially implemented"

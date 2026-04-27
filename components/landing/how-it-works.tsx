@@ -10,7 +10,7 @@ export default function HowItWorks() {
       icon: FileText,
       title: "Post Your Task",
       description:
-        "Describe what you need — from home cleaning to event photography. Add photos, set your budget, and pick a date.",
+        "Describe what you need from home cleaning to event photography. Add photos, set your budget, and pick a date.",
       image: "/assets/Frame 14.png",
       iconBg: "bg-[#F59E0B]",
     },

@@ -25,7 +25,7 @@ export function DashboardHeader() {
   const { user, logout } = useAuth();
   const { toggleSidebar } = useSidebar();
 
-  // Only call the admin profile API on admin routes — never for regular users/taskers
+  // Only call the admin profile API on admin routes never for regular users/taskers
   const { data: admin } = useAdminProfile();
   const activeUser = isAdminRoute ? admin : user;
 
@@ -62,7 +62,7 @@ export function DashboardHeader() {
         <Menu size={24} />
       </button>
 
-      {/* Search Bar — always visible */}
+      {/* Search Bar always visible */}
       <div className='flex-1 max-w-xl'>
         <div className='relative'>
           <Search

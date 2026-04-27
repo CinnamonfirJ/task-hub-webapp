@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
   const growth = stats?.growth ?? 0;
   const growthLabel = `${growth > 0 ? "+" : ""}${growth}%`;
 
-  // 8 metric cards — all driven by data.cards + data.growth
+  // 8 metric cards all driven by data.cards + data.growth
   const metrics = [
     {
       label: "Total Users",
@@ -274,7 +274,7 @@ export default function AdminDashboardPage() {
         type="dashboard" 
       />
 
-      {/* 8 Metric Cards — 4 columns */}
+      {/* 8 Metric Cards 4 columns */}
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
         {metrics.map((metric, idx) => (
           <Card
@@ -404,7 +404,7 @@ export default function AdminDashboardPage() {
 
       {/* Bottom Row: Recent Activity + Quick Stats */}
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-        {/* Recent Activity — takes 2/3 */}
+        {/* Recent Activity takes 2/3 */}
         <Card className='lg:col-span-2 border border-gray-100 shadow-sm rounded-2xl'>
           <CardHeader className='flex flex-row items-center justify-between pb-2 px-6 pt-6'>
             <CardTitle className='text-base font-bold text-gray-900'>
@@ -461,7 +461,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Quick Stats — takes 1/3 */}
+        {/* Quick Stats takes 1/3 */}
         <Card className='border border-gray-100 shadow-sm rounded-2xl'>
           <CardHeader className='pb-2 px-6 pt-6'>
             <CardTitle className='text-base font-bold text-gray-900'>

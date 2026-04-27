@@ -43,7 +43,7 @@ Break the PRD into **tracer bullet** phases. Each phase is a thin vertical slice
 
 ### 5. Write the plan file
 
-Present the proposed breakdown to the user AND write the plan file in a single step — do NOT wait for user confirmation before writing. Create `./plans/` if it doesn't exist. Write the plan as a Markdown file named after the feature (e.g. `./plans/user-onboarding.md`). Use the template below. After writing, ask the user if they want any phases merged, split, or adjusted.
+Present the proposed breakdown to the user AND write the plan file in a single step do NOT wait for user confirmation before writing. Create `./plans/` if it doesn't exist. Write the plan as a Markdown file named after the feature (e.g. `./plans/user-onboarding.md`). Use the template below. After writing, ask the user if they want any phases merged, split, or adjusted.
 
 <plan-template>
 # Plan: <Feature Name>

@@ -9,23 +9,28 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { UserType } from "@/types/auth";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 function VerifyEmailForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
   const [email, setEmail] = useState("");
   const type = (searchParams.get("type") as UserType) || "user";
   const [autoVerified, setAutoVerified] = useState(false);
   const [otp, setOtp] = useState("");
+  const [isLoggingInAfterVerify, setIsLoggingInAfterVerify] = useState(false);
 
   const {
-    verify,
     verifyAsync,
     isVerifying,
     verifyError,
     resendCode,
     isResending,
   } = useVerifyEmail();
+
+  const { loginAsync } = useAuth();
 
   // Initialize email from URL or localStorage
   useEffect(() => {
@@ -38,33 +43,78 @@ function VerifyEmailForm() {
     }
   }, [searchParams]);
 
+  const handlePostVerify = async () => {
+    try {
+      setIsLoggingInAfterVerify(true);
+      
+      // Try to auto-login using stored credentials
+      const pendingEmail = sessionStorage.getItem("pendingEmail");
+      const pendingPassword = sessionStorage.getItem("pendingPassword");
+      const pendingRole = sessionStorage.getItem("pendingRole") as UserType;
+
+      if (pendingEmail && pendingPassword) {
+        await loginAsync({ 
+          email: pendingEmail, 
+          password: pendingPassword, 
+          role: pendingRole || type 
+        });
+        
+        // Success! loginAsync will redirect to /home
+        sessionStorage.removeItem("pendingEmail");
+        sessionStorage.removeItem("pendingPassword");
+        sessionStorage.removeItem("pendingRole");
+      } else {
+        // Fallback if no credentials found
+        router.push("/login");
+      }
+    } catch (err) {
+      console.error("Auto-login failed:", err);
+      router.push("/login");
+    } finally {
+      setIsLoggingInAfterVerify(false);
+    }
+  };
+
   // Auto-verify when token is present in URL (user clicked link from email)
   useEffect(() => {
-    if (token && email && !autoVerified) {
-      setAutoVerified(true);
-      verify({ token, type, emailAddress: email });
-    }
-  }, [token, type, email, autoVerified, verify]);
+    const runAutoVerify = async () => {
+      if (token && email && !autoVerified) {
+        setAutoVerified(true);
+        try {
+          await verifyAsync({ token, type, emailAddress: email });
+          await handlePostVerify();
+        } catch (err) {
+          // Error handled by useMutation state
+        }
+      }
+    };
+    runAutoVerify();
+  }, [token, type, email, autoVerified, verifyAsync]);
 
   const handleResend = () => {
     if (email) resendCode({ email, type });
   };
 
-  const handleManualVerify = (e: React.FormEvent) => {
+  const handleManualVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (otp.length === 5 && email) {
-      verify({ token: otp, type, emailAddress: email });
+      try {
+        await verifyAsync({ token: otp, type, emailAddress: email });
+        await handlePostVerify();
+      } catch (err) {
+        // Error handled by useMutation state
+      }
     }
   };
 
-  // If token is in URL — show auto-verification state
+  // If token is in URL show auto-verification state
   if (token) {
     return (
       <div className='mx-auto px-4 py-10 w-full max-w-md'>
         <div className='flex flex-col items-center mb-8'>
           <div className='flex justify-center items-center bg-purple-50 mb-4 rounded-full w-16 h-16'>
             <div className='flex justify-center items-center bg-white shadow-sm rounded-full w-12 h-12'>
-              {isVerifying ? (
+              {isVerifying || isLoggingInAfterVerify ? (
                 <Loader2 className='w-6 h-6 text-primary animate-spin' />
               ) : verifyError ? (
                 <AlertTriangle className='w-6 h-6 text-red-500' />
@@ -77,14 +127,16 @@ function VerifyEmailForm() {
           <h1 className='font-extrabold text-[#111827] text-3xl'>
             {isVerifying
               ? "Verifying..."
+              : isLoggingInAfterVerify
+              ? "Logging you in..."
               : verifyError
                 ? "Verification Failed"
                 : "Email Verified!"}
           </h1>
 
-          {isVerifying && (
+          {(isVerifying || isLoggingInAfterVerify) && (
             <p className='mt-2 text-gray-500 text-sm text-center'>
-              Please wait while we verify your email address.
+              {isVerifying ? "Please wait while we verify your email address." : "Verification successful! Signing you in..."}
             </p>
           )}
 
@@ -102,14 +154,14 @@ function VerifyEmailForm() {
             </div>
           )}
 
-          {!isVerifying && !verifyError && (
+          {!isVerifying && !verifyError && !isLoggingInAfterVerify && (
             <div className='mt-4 space-y-4 w-full'>
               <div className='flex flex-col items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-6'>
                 <p className='font-semibold text-green-800 text-center'>
                   Your email has been verified successfully!
                 </p>
                 <p className='text-green-700 text-sm text-center'>
-                  Redirecting to login...
+                  Redirecting to home...
                 </p>
               </div>
             </div>
@@ -119,7 +171,7 @@ function VerifyEmailForm() {
     );
   }
 
-  // If no token — show "check your email" info screen (after registration)
+  // If no token show "check your email" info screen (after registration)
   return (
     <div className='mx-auto px-4 py-10 w-full max-w-md'>
       {/* Icon Header */}
@@ -222,13 +274,13 @@ function VerifyEmailForm() {
 
           <Button
             className='w-full h-12 text-lg font-bold shadow-lg shadow-purple-200'
-            disabled={otp.length !== 5 || isVerifying}
+            disabled={otp.length !== 5 || isVerifying || isLoggingInAfterVerify}
             onClick={handleManualVerify}
           >
-            {isVerifying ? (
+            {isVerifying || isLoggingInAfterVerify ? (
               <>
                 <Loader2 className='mr-2 w-5 h-5 animate-spin' />
-                Verifying...
+                {isVerifying ? "Verifying..." : "Logging in..."}
               </>
             ) : (
               "Verify Code"
@@ -272,10 +324,10 @@ function VerifyEmailForm() {
 
         <div className='text-center'>
           <Link
-            href='/login'
+            href='/register'
             className='text-sm font-medium text-primary hover:underline'
           >
-            Back to Login
+            Back to Signup
           </Link>
         </div>
       </div>
