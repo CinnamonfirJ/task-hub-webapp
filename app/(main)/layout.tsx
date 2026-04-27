@@ -5,6 +5,7 @@ import { AuthGuard } from "@/components/auth/AuthGuard";
 import { VerificationBanner } from "@/components/auth/VerificationBanner";
 import { SidebarProvider } from "@/components/admin/SidebarContext";
 import { PortfolioBanner } from "@/components/layout/PortfolioBanner";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 
 export default function MainLayout({
   children,
@@ -20,6 +21,7 @@ export default function MainLayout({
           <main className='lg:ml-64 min-h-screen'>
             <DashboardHeader />
             <VerificationBanner />
+            <OnboardingTour />
             {children}
             <PortfolioBanner />
           </main>

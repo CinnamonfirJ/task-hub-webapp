@@ -255,7 +255,7 @@ export default function HomePage() {
 
         {/* Verification Banner */}
         {!isVerified && (
-          <div className='bg-[#FFF9EA] border border-dashed border-[#FFE7A5] rounded-lg p-6 flex flex-col md:flex-row items-center gap-4 shadow-sm'>
+          <div id="verification-banner-home" className='bg-[#FFF9EA] border border-dashed border-[#FFE7A5] rounded-lg p-6 flex flex-col md:flex-row items-center gap-4 shadow-sm'>
             <div className='bg-[#FBBC05] p-4 rounded-full text-white shadow-lg shrink-0'>
               <Clock size={24} />
             </div>
@@ -277,7 +277,7 @@ export default function HomePage() {
         )}
 
         {/* Available Tasks */}
-        <div className='space-y-4'>
+        <div className='space-y-4' id="available-tasks-section">
           <div className='flex justify-between items-center'>
             <h3 className='font-bold text-gray-900 text-xl'>Available tasks</h3>
             <Link
@@ -365,7 +365,7 @@ export default function HomePage() {
         </div>
 
         {/* Tasker Recent Activities */}
-        <div className='space-y-4'>
+        <div className='space-y-4' id="recent-activities-section">
           <div className='flex justify-between items-center'>
             <h3 className='font-bold text-gray-900 text-xl'>
               Recent Activities
@@ -467,7 +467,7 @@ export default function HomePage() {
       </div>
 
       {/* ── Inline Search Bar ── */}
-      <div className='relative'>
+      <div id="search-bar-container" className='relative'>
         <Search
           className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
           size={16}
@@ -480,7 +480,7 @@ export default function HomePage() {
       </div>
 
       {/* ── Categories ── */}
-      <div className='space-y-3'>
+      <div className='space-y-3' id="categories-section">
         <h2 className='font-bold text-gray-900 text-lg md:text-xl'>
           Categories
         </h2>
@@ -525,7 +525,7 @@ export default function HomePage() {
       </div>
 
       {/* ── CTA Banner ── */}
-      <div className='bg-[#6B46C1] rounded-lg p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
+      <div id="post-task-cta" className='bg-[#6B46C1] rounded-lg p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
         <div className='space-y-1'>
           <h3 className='font-bold text-white text-lg md:text-xl'>
             Need Something done?
@@ -542,7 +542,7 @@ export default function HomePage() {
       </div>
 
       {/* ── Top Workers Near You ── */}
-      <div className='space-y-3'>
+      <div className='space-y-3' id="top-workers-section">
         <div className='flex justify-between items-center'>
           <h2 className='font-bold text-gray-900 text-lg md:text-xl'>
             Top Workers near you

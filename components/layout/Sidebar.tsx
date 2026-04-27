@@ -53,6 +53,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              id={`sidebar-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
               className={`flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-all ${
                 isActive
                   ? "bg-[#F5EEFF] text-[#6B46C1]"
@@ -81,6 +82,7 @@ export function Sidebar() {
           <Button
             onClick={() => logout()}
             variant='outline'
+            id="sidebar-logout"
             className='w-full py-6 text-sm font-bold flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-100'
           >
             <LogOut size={18} />
@@ -89,7 +91,7 @@ export function Sidebar() {
         </div>
       ) : (
         <div className='p-4 border-t'>
-          <Link href='/post-task'>
+          <Link href='/post-task' id="sidebar-post-task-btn">
             <Button className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-6 text-sm font-bold flex items-center justify-center gap-2'>
               <Plus size={18} />
               Post a task
