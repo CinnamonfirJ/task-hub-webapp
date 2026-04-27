@@ -163,7 +163,7 @@ export default function ProfilePage() {
       </Link>
 
       {/* Wallet balance Card (Universal) */}
-      <Card className='bg-linear-to-br from-[#673AB7] to-[#512DA8] border-none shadow-xl rounded-[2rem] md:rounded-[2.5rem] overflow-hidden text-white'>
+      <Card id="wallet-card" className='bg-linear-to-br from-[#673AB7] to-[#512DA8] border-none shadow-xl rounded-[2rem] md:rounded-[2.5rem] overflow-hidden text-white'>
         <CardContent className='p-6 md:p-8 space-y-6 md:space-y-8'>
           <div className='flex justify-between items-center'>
             <div className='flex items-center gap-2 opacity-90'>
@@ -175,6 +175,7 @@ export default function ProfilePage() {
             {user?.role === "tasker" ? (
               <Button
                 variant='secondary'
+                id="withdraw-funds-btn"
                 onClick={() => setIsWithdrawOpen(true)}
                 className='bg-white/20 hover:bg-white/30 text-white border-none rounded-xl px-4 md:px-6 h-9 md:h-11 text-xs md:text-base flex items-center gap-2'
               >
@@ -183,6 +184,7 @@ export default function ProfilePage() {
             ) : (
               <Button
                 variant='secondary'
+                id="fund-wallet-btn"
                 onClick={() => setIsFundOpen(true)}
                 className='bg-white/20 hover:bg-white/30 text-white border-none rounded-xl px-4 md:px-6 h-9 md:h-11 text-xs md:text-base flex items-center gap-2'
               >
@@ -210,6 +212,7 @@ export default function ProfilePage() {
       {user?.role === "tasker" && (
         <button
           onClick={() => setIsBankModalOpen(true)}
+          id="bank-account-section"
           className="w-full text-left bg-white hover:bg-purple-50/60 transition-colors border-2 border-dashed border-purple-200 p-5 md:p-6 rounded-[2rem] space-y-4 group"
         >
           <div className="flex items-center justify-between border-b border-purple-50 pb-3">
@@ -279,7 +282,7 @@ export default function ProfilePage() {
 
       {/* Upload Previous Work Section (For Taskers with no portfolio) */}
       {user?.role === "tasker" && (!user?.previousWork || user.previousWork.length === 0) && (
-        <Link href='/profile/details#service-info' className="block mt-4">
+        <Link href='/profile/details#service-info' id="portfolio-section" className="block mt-4">
           <div className='bg-white border border-gray-200 p-5 rounded-md flex items-center justify-between group hover:border-[#6B46C1] transition-colors'>
             <div className='flex items-center gap-4'>
               <div className='bg-purple-50 p-3 rounded-md text-[#6B46C1]'>
@@ -430,6 +433,7 @@ export default function ProfilePage() {
             icon={<ShieldCheck size={20} className='md:w-[22px] md:h-[22px]' />}
             label='Verification'
             href='/profile/verification'
+            id="verification-link"
           />
           <ProfileMenuItem
             icon={<HelpCircle size={20} className='md:w-[22px] md:h-[22px]' />}
@@ -529,6 +533,7 @@ function ProfileMenuItem({
   amount,
   iconColor = "text-gray-400",
   iconBg = "bg-gray-50",
+  id,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -536,10 +541,12 @@ function ProfileMenuItem({
   amount?: string;
   iconColor?: string;
   iconBg?: string;
+  id?: string;
 }) {
   return (
     <Link
       href={href}
+      id={id}
       className='flex items-center justify-between p-5 md:p-6 hover:bg-gray-50 transition-colors group'
     >
       <div className='flex items-center gap-4 md:gap-5'>
