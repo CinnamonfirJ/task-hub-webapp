@@ -9,10 +9,12 @@ import {
   Loader2,
   ShieldCheck,
   Info,
+  Copy,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useInitializeFunding } from "@/hooks/useWallet";
+import { useInitializeFunding, useStellarDepositInfo } from "@/hooks/useWallet";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -31,10 +33,23 @@ export function FundWalletModal({
 }: FundWalletModalProps) {
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<"paystack" | "stellar">("paystack");
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const { mutate: initializeFunding, isPending } = useInitializeFunding();
+  const { 
+    data: stellarInfo, 
+    isLoading: isStellarLoading, 
+    isError: stellarError 
+  } = useStellarDepositInfo(method === "stellar");
 
   if (!isOpen) return null;
+
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+    toast.success(`${field} copied to clipboard`);
+  };
 
   const handleFund = () => {
     if (method === "stellar") {
@@ -89,20 +104,96 @@ export function FundWalletModal({
         </div>
 
         <div className='space-y-6'>
-          <div className='space-y-2'>
-            <p className='text-gray-400 text-sm font-bold tracking-tight px-1'>
-              ENTER AMOUNT TO ADD TO YOUR WALLET
-            </p>
-            <input
-              type='number'
-              value={amount}
-              min={100}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder='e.g. 5000'
-              className='w-full px-6 py-4 bg-purple-50/50 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 border-none font-semibold text-lg'
-            />
-            <p className='text-xs text-gray-400 px-1'>Minimum: ₦100</p>
-          </div>
+          {method !== "stellar" ? (
+            <div className="space-y-2">
+              <p className="text-gray-400 text-sm font-bold tracking-tight px-1">
+                ENTER AMOUNT TO ADD TO YOUR WALLET
+              </p>
+              <input
+                type="number"
+                value={amount}
+                min={100}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="e.g. 5000"
+                className="w-full px-6 py-4 bg-purple-50/50 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 border-none font-semibold text-lg"
+              />
+              <p className="text-xs text-gray-400 px-1">Minimum: ₦100</p>
+            </div>
+          ) : (
+            <div className='space-y-4 p-5 bg-purple-50/50 rounded-2xl border border-purple-100 animate-in fade-in slide-in-from-top-4 duration-300'>
+              <div className='flex items-center justify-between mb-2'>
+                <p className='text-purple-900 font-bold text-sm'>Stellar Deposit Details</p>
+                <div className='px-2 py-1 bg-purple-100 rounded-md'>
+                  <p className='text-[10px] font-bold text-purple-600 uppercase'>{stellarInfo?.network || "TESTNET"}</p>
+                </div>
+              </div>
+
+              <div className='space-y-3'>
+                {/* Wallet Address */}
+                <div className='space-y-1'>
+                  <p className='text-[10px] text-gray-500 font-bold uppercase px-1'>Wallet Address</p>
+                  <div className='flex gap-2'>
+                    <div className='flex-1 bg-white p-3 rounded-xl border border-purple-100 break-all text-xs font-mono text-gray-600 min-h-[40px] flex items-center'>
+                      {isStellarLoading ? (
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <Loader2 size={12} className="animate-spin" />
+                          <span>Fetching...</span>
+                        </div>
+                      ) : stellarInfo?.walletAddress}
+                    </div>
+                    <button
+                      onClick={() => stellarInfo && copyToClipboard(stellarInfo.walletAddress, "Wallet Address")}
+                      className='p-3 bg-white rounded-xl border border-purple-100 text-purple-600 hover:bg-purple-50 transition-colors shrink-0'
+                    >
+                      {copiedField === "Wallet Address" ? <Check size={18} /> : <Copy size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Memo ID */}
+                <div className='space-y-1'>
+                  <p className='text-[10px] text-gray-500 font-bold uppercase px-1'>Memo ID (Required)</p>
+                  <div className='flex gap-2'>
+                    <div className='flex-1 bg-white p-3 rounded-xl border border-purple-100 text-sm font-mono font-bold text-purple-700 min-h-[40px] flex items-center'>
+                      {isStellarLoading ? (
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <Loader2 size={12} className="animate-spin" />
+                          <span>Fetching...</span>
+                        </div>
+                      ) : stellarInfo?.memoId}
+                    </div>
+                    <button
+                      onClick={() => stellarInfo && copyToClipboard(stellarInfo.memoId, "Memo ID")}
+                      className='p-3 bg-white rounded-xl border border-purple-100 text-purple-600 hover:bg-purple-50 transition-colors shrink-0'
+                    >
+                      {copiedField === "Memo ID" ? <Check size={18} /> : <Copy size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                {stellarInfo?.exchangeRate && (
+                  <div className='flex items-center gap-2 px-1'>
+                    <Info size={14} className='text-purple-400' />
+                    <p className='text-[11px] text-gray-500 font-medium'>
+                      Current rate: <span className='font-bold text-purple-600'>1 XLM = ₦{stellarInfo.exchangeRate}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {stellarError && (
+                <div className='p-3 bg-red-50 border border-red-100 rounded-xl'>
+                  <p className='text-xs text-red-600 font-medium'>
+                    Failed to load deposit info. Please try again later.
+                  </p>
+                </div>
+              )}
+              
+              <p className='text-[10px] text-purple-400 font-medium italic px-1'>
+                * Send XLM to this address with the exact Memo ID. Your wallet will be credited automatically.
+              </p>
+            </div>
+          )}
 
           <div className='space-y-3'>
             <p className='text-gray-400 text-sm font-bold tracking-tight px-1 uppercase'>

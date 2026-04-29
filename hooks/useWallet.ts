@@ -45,14 +45,12 @@ export function useTaskerWallet() {
   });
 }
 
-export function useStellarDepositInfo() {
-  const { user } = useAuth();
+export function useStellarDepositInfo(enabled = true) {
   return useQuery({
     queryKey: ["stellarDepositInfo"],
     queryFn: () => walletApi.getDepositInfo(),
-    enabled: user?.role === "tasker",
+    enabled: enabled,
     retry: (failureCount, error: any) => {
-      // Don't retry on 404 (user not found) it's a role/auth issue
       if (error?.status === 404) return false;
       return failureCount < 2;
     },
