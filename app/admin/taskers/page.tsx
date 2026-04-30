@@ -30,6 +30,8 @@ import {
   useAdminTaskers,
   useAdminDashboard,
   useExportTaskers,
+  useLockTasker,
+  useUnlockTasker,
 } from "@/hooks/useAdmin";
 import { formatCurrency } from "@/lib/utils";
 
@@ -49,20 +51,50 @@ export default function TaskersManagementPage() {
     limit,
     search: searchQuery || undefined,
     status:
-      activeFilter === "All"
+      activeFilter === "All" ||
+      activeFilter === "Verified" ||
+      activeFilter === "Unverified"
         ? undefined
-        : activeFilter === "Suspended"
-          ? "suspended"
-          : activeFilter === "Active"
-            ? "active"
-            : undefined,
+        : activeFilter.toLowerCase(),
     verified: activeFilter === "Verified" ? true : undefined,
   });
+
+  const { mutate: lockTasker } = useLockTasker();
+  const { mutate: unlockTasker } = useUnlockTasker();
 
   const taskers = taskersData?.taskers ?? [];
   const pagination = taskersData?.pagination;
   const totalRecords = pagination?.totalTaskers || (taskersData as any)?.totalRecords || (taskersData as any)?.count || 0;
   const totalPages = pagination?.totalPages || (taskersData as any)?.totalPages || Math.ceil(totalRecords / limit);
+
+  // Process taskers for client-side filter validation (e.g. strict Locked time check, Unverified check fallback)
+  const processedTaskers = taskers.filter((tasker) => {
+    // 1. Unverified Filter
+    if (activeFilter === "Unverified") {
+      return tasker.verifyIdentity === false;
+    }
+
+    // 2. Locked Filter
+    if (activeFilter === "Locked") {
+      if (!tasker.lockUntil) return false;
+      const lockDate = new Date(tasker.lockUntil);
+      return !isNaN(lockDate.getTime()) && lockDate > new Date();
+    }
+
+    // 3. Active Filter (Exclude locked taskers)
+    if (activeFilter === "Active") {
+      if (tasker.lockUntil) {
+        const lockDate = new Date(tasker.lockUntil);
+        if (!isNaN(lockDate.getTime()) && lockDate > new Date()) {
+          return false; // Tasker is locked, so they shouldn't be in the Active list
+        }
+      }
+      return true; // Rely on the API's isActive filtering for the rest
+    }
+
+    // 4. Verified, All (Rely on API)
+    return true;
+  });
   const summaryMetrics = [
     {
       label: "Total Taskers",
@@ -150,7 +182,7 @@ export default function TaskersManagementPage() {
               searchPlaceholder='Search name or email...'
               searchTerm={searchQuery}
               onSearch={handleSearch}
-              filterOptions={["All", "Active", "Suspended", "Verified"]}
+              filterOptions={["All", "Active", "Locked", "Verified", "Unverified"]}
               activeFilter={activeFilter}
               onFilterChange={handleFilterChange}
             />
@@ -189,12 +221,12 @@ export default function TaskersManagementPage() {
                     <th className='px-6 py-4'>RATING</th>
                     <th className='px-6 py-4'>STATUS</th>
                     <th className='px-6 py-4'>VERIFICATION</th>
-                    <th className='px-6 py-4'>LAST ACTIVE</th>
+                    {/* <th className='px-6 py-4'>LAST ACTIVE</th> */}
                     <th className='px-6 py-4 text-right'>ACTION</th>
                   </tr>
                 </thead>
                 <tbody className='divide-y'>
-                  {taskers.map((tasker, index) => (
+                  {processedTaskers.map((tasker, index) => (
                     <tr
                       key={tasker._id}
                       className='group hover:bg-gray-50 transition-colors'
@@ -205,7 +237,11 @@ export default function TaskersManagementPage() {
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-3'>
                           <div className='w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 shrink-0'>
-                            <UserCircle2 size={24} />
+                             {tasker.profilePicture ? (
+                                  <img src={tasker.profilePicture} alt="Profile" className="w-full h-full items-center"/>
+                                ) : (
+                                  <UserCircle2 size={24} />
+                                )}
                           </div>
                           <div>
                             <div className='font-bold text-gray-900'>
@@ -224,7 +260,7 @@ export default function TaskersManagementPage() {
                               key={cat._id}
                               className='px-2 py-0.5 bg-gray-50 text-gray-600 text-[10px] rounded-full font-medium border border-gray-100'
                             >
-                              {cat.displayName}
+                              {cat.name}
                             </span>
                           ))}
                           {tasker.categories.length > 2 && (
@@ -246,15 +282,17 @@ export default function TaskersManagementPage() {
                       <td className='px-6 py-4'>
                         <span
                           className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
-                            tasker.isSuspended
+                            tasker.lockUntil &&
+                            new Date(tasker.lockUntil) > new Date()
                               ? "bg-red-50 text-red-500"
                               : tasker.isActive
                                 ? "bg-green-50 text-green-500"
                                 : "bg-gray-50 text-gray-500"
                           }`}
                         >
-                          {tasker.isSuspended
-                            ? "Suspended"
+                          {tasker.lockUntil &&
+                          new Date(tasker.lockUntil) > new Date()
+                            ? "Locked"
                             : tasker.isActive
                               ? "Active"
                               : "Inactive"}
@@ -271,11 +309,11 @@ export default function TaskersManagementPage() {
                           {tasker.verifyIdentity ? "Verified" : "Not verified"}
                         </span>
                       </td>
-                      <td className='px-6 py-4 text-xs text-gray-500'>
+                      {/* <td className='px-6 py-4 text-xs text-gray-500'>
                         {tasker.lastLogin
                           ? new Date(tasker.lastLogin).toLocaleDateString()
                           : "—"}
-                      </td>
+                      </td> */}
                       <td className='px-6 py-4 text-right'>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -293,15 +331,28 @@ export default function TaskersManagementPage() {
                                 <ExternalLink size={14} /> View Details
                               </DropdownMenuItem>
                             </Link>
-                            <DropdownMenuItem className='gap-2 cursor-pointer text-red-600 focus:text-red-600'>
-                              <Ban size={14} /> Suspend
+                            <DropdownMenuItem 
+                              className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'
+                              onClick={() => {
+                                if (tasker.lockUntil) {
+                                  unlockTasker(tasker._id);
+                                } else {
+                                  lockTasker({
+                                    id: tasker._id,
+                                    reason: "Locked by admin",
+                                  });
+                                }
+                              }}
+                            >
+                              <Ban size={14} /> 
+                              {tasker.lockUntil ? "Unlock" : "Lock Account"}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
                     </tr>
                   ))}
-                  {!taskersLoading && taskers.length === 0 && (
+                  {!taskersLoading && processedTaskers.length === 0 && (
                     <tr>
                       <td
                         colSpan={7}

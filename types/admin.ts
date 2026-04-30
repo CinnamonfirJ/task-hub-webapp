@@ -82,6 +82,10 @@ export interface AdminDashboardStats {
   growth: number;
   recentTasks: any[];
   recentActivity: any[];
+  analytics?: {
+    locations?: { state: string; taskCount: number }[];
+    categories?: { categoryName: string; taskerCount: number }[];
+  };
 }
 
 export interface AdminDashboardStatsResponse {
@@ -124,6 +128,7 @@ export interface AdminUserListItem {
   _id: string;
   fullName: string;
   emailAddress: string;
+  profilePicture: string;
   phoneNumber?: string;
   country?: string;
   residentState?: string;
@@ -353,11 +358,13 @@ export interface AdminTaskerListItem {
   firstName: string;
   lastName: string;
   emailAddress: string;
+  profilePicture: string;
   phoneNumber?: string;
   categories: TaskerCategory[];
   verifyIdentity: boolean;
   isActive: boolean;
-  isSuspended: boolean;
+  isLocked: boolean;
+  lockUntil?: string;
   wallet: number;
   averageRating: number;
   completedTasks: number;
@@ -403,8 +410,9 @@ export interface AdminTaskerDetail {
   wallet: number;
   isEmailVerified: boolean;
   isActive: boolean;
-  isSuspended: boolean;
-  suspensionReason: string | null;
+  isLocked: boolean;
+  lockReason: string | null;
+  lockUntil?: string | null;
   rating: number;
   completedTasks: number;
   lastActive?: string;
@@ -499,34 +507,34 @@ export interface VerifyTaskerResponse {
   };
 }
 
-export interface SuspendTaskerInput {
+export interface LockTaskerInput {
   reason: string;
   duration?: number;
 }
 
-export interface SuspendTaskerResponse {
+export interface LockTaskerResponse {
   status: string;
   message: string;
   data: {
     taskerId: string;
-    isSuspended: boolean;
-    suspensionReason: string;
-    suspendedUntil?: string;
-    suspendedBy: string;
-    suspendedAt: string;
+    isLocked: boolean;
+    lockReason: string;
+    lockUntil?: string;
+    lockedBy: string;
+    lockedAt: string;
   };
 }
 
-export interface ActivateTaskerResponse {
+export interface UnlockTaskerResponse {
   status: string;
   message: string;
   data: {
     taskerId: string;
-    isSuspended: boolean;
-    suspensionReason: null;
-    suspendedUntil: null;
-    activatedBy: string;
-    activatedAt: string;
+    isLocked: boolean;
+    lockReason: null;
+    lockUntil: null;
+    unlockedBy: string;
+    unlockedAt: string;
   };
 }
 

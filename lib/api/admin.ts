@@ -398,7 +398,7 @@ export const adminApi = {
           if (key === "status") {
             if (value === "active") query.append("isActive", "true");
             else if (value === "inactive") query.append("isActive", "false");
-            else if (value === "suspended") query.append("isSuspended", "true");
+            else if (value === "locked") query.append("isLocked", "true");
             else query.append(key, String(value));
           } else {
             query.append(key, String(value));
@@ -432,18 +432,18 @@ export const adminApi = {
     });
   },
 
-  suspendTasker: async (
+  lockTasker: async (
     id: string,
     data: { reason: string; duration?: number },
   ): Promise<any> => {
-    return apiData<any>(`/api/admin/taskers/${id}/suspend`, {
+    return apiData<any>(`/api/admin/taskers/${id}/lock`, {
       method: "PATCH",
       body: JSON.stringify(data),
     });
   },
 
-  activateTasker: async (id: string): Promise<any> => {
-    return apiData<any>(`/api/admin/taskers/${id}/activate`, {
+  unlockTasker: async (id: string): Promise<any> => {
+    return apiData<any>(`/api/admin/taskers/${id}/unlock`, {
       method: "PATCH",
     });
   },

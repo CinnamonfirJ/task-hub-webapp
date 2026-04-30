@@ -65,7 +65,7 @@ export default function AdminDashboardPage() {
                 <Link 
                   key={item.href} 
                   href={item.href}
-                  className="flex items-center gap-4 p-5 bg-gray-50 hover:bg-purple-50 rounded-2xl border border-transparent hover:border-purple-100 transition-all group"
+                  className="flex items-center gap-4 p-5 bg-gray-50 hover:bg-purple-50 rounded-sm border border-transparent hover:border-purple-100 transition-all group"
                 >
                   <div className="bg-white p-3 rounded-xl shadow-sm group-hover:bg-[#6B46C1] transition-colors">
                     <item.icon size={24} className="text-[#6B46C1] group-hover:text-white" />
@@ -101,6 +101,16 @@ export default function AdminDashboardPage() {
 
   const growth = stats?.growth ?? 0;
   const growthLabel = `${growth > 0 ? "+" : ""}${growth}%`;
+  const isGrowthPositive = growth >= 0;
+
+  const topLocations = [...(stats?.analytics?.locations || [])]
+    .sort((a, b) => b.taskCount - a.taskCount)
+    .slice(0, 5);
+  const maxLocationCount = topLocations.length > 0 ? topLocations[0].taskCount : 1;
+
+  const topCategories = [...(stats?.analytics?.categories || [])]
+    .sort((a, b) => b.taskerCount - a.taskerCount)
+    .slice(0, 5);
 
   // 8 metric cards all driven by data.cards + data.growth
   const metrics = [
@@ -108,7 +118,7 @@ export default function AdminDashboardPage() {
       label: "Total Users",
       value: stats?.cards?.totalUsers?.toLocaleString() ?? "0",
       trend: growthLabel,
-      trendUp: true,
+      trendUp: isGrowthPositive,
       icon: Users,
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
@@ -118,7 +128,7 @@ export default function AdminDashboardPage() {
       label: "Total Taskers",
       value: stats?.cards?.totalTaskers?.toLocaleString() ?? "0",
       trend: growthLabel,
-      trendUp: true,
+      trendUp: isGrowthPositive,
       icon: Briefcase,
       iconBg: "bg-orange-100",
       iconColor: "text-orange-500",
@@ -128,7 +138,7 @@ export default function AdminDashboardPage() {
       label: "Total Tasks",
       value: stats?.cards?.totalTasks?.toLocaleString() ?? "0",
       trend: growthLabel,
-      trendUp: true,
+      trendUp: isGrowthPositive,
       icon: BarChart3,
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
@@ -137,9 +147,8 @@ export default function AdminDashboardPage() {
     {
       label: "Active Tasks",
       value: stats?.cards?.activeTasks?.toLocaleString() ?? "0",
-      // Active tasks trending down if low
       trend: growthLabel,
-      trendUp: false,
+      trendUp: isGrowthPositive,
       icon: Users2,
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
@@ -149,7 +158,7 @@ export default function AdminDashboardPage() {
       label: "Completed Tasks",
       value: stats?.cards?.completedTasks?.toLocaleString() ?? "0",
       trend: growthLabel,
-      trendUp: true,
+      trendUp: isGrowthPositive,
       icon: CheckCircle2,
       iconBg: "bg-green-100",
       iconColor: "text-green-600",
@@ -159,27 +168,17 @@ export default function AdminDashboardPage() {
       label: "Cancelled Tasks",
       value: stats?.cards?.cancelledTasks?.toLocaleString() ?? "0",
       trend: growthLabel,
-      trendUp: true,
+      trendUp: !isGrowthPositive, // Less cancellations is good
       icon: XCircle,
       iconBg: "bg-red-100",
       iconColor: "text-red-500",
       valueColor: "text-red-500",
     },
-    // {
-    //   label: "Pending KYC",
-    //   value: stats?.cards?.pendingKyc?.toLocaleString() ?? "0",
-    //   trend: growthLabel,
-    //   trendUp: true,
-    //   icon: AlertCircle,
-    //   iconBg: "bg-purple-100",
-    //   iconColor: "text-purple-600",
-    //   valueColor: "text-purple-600",
-    // },
     {
       label: "Total Revenue",
       value: formatCurrency(stats?.cards?.totalRevenue ?? 0),
       trend: growthLabel,
-      trendUp: true,
+      trendUp: isGrowthPositive,
       icon: DollarSign,
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-700",
@@ -189,7 +188,7 @@ export default function AdminDashboardPage() {
       label: "Total Transactions",
       value: formatCurrency(stats?.cards?.totalTransaction ?? 0),
       trend: growthLabel,
-      trendUp: true,
+      trendUp: isGrowthPositive,
       icon: TrendingUp,
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
@@ -206,7 +205,7 @@ export default function AdminDashboardPage() {
       case "assigned":
         return "bg-yellow-100 text-yellow-700";
       case "open":
-        return "bg-green-100 text-green-700";
+        return "bg-yellow-100 text-yellow-700";
       case "completed":
         return "bg-emerald-100 text-emerald-700";
       case "cancelled":
@@ -290,7 +289,7 @@ export default function AdminDashboardPage() {
         {metrics.map((metric, idx) => (
           <Card
             key={idx}
-            className='border border-gray-100 shadow-sm rounded-2xl'
+            className='border border-gray-100 shadow-sm rounded-sm'
           >
             <CardContent className='p-5'>
               {/* Icon + Trend row */}
@@ -325,8 +324,74 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
+      {/* Analytics Grid: Top Locations & Top Categories */}
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+        {/* Top Locations */}
+        <Card className='border border-gray-100 shadow-sm rounded-sm'>
+          <CardHeader className='pb-2 px-6 pt-6'>
+            <CardTitle className='text-base font-bold text-gray-900'>
+              Top Locations by Task
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='px-6 pb-6'>
+            <div className='space-y-4 mt-2'>
+              {topLocations.length === 0 ? (
+                <p className='text-sm text-gray-400 text-center py-4'>No location data available</p>
+              ) : (
+                topLocations.map((loc, idx) => (
+                  <div key={idx} className='flex items-center justify-between'>
+                    <div className='flex-1'>
+                      <div className='flex justify-between mb-1.5 text-sm'>
+                        <span className='font-semibold text-gray-800'>{loc.state}</span>
+                        <span className='text-gray-500 font-bold'>{loc.taskCount}</span>
+                      </div>
+                      <div className='w-full bg-gray-100 rounded-full h-2'>
+                        <div 
+                          className='bg-[#3B82F6] h-2 rounded-full' 
+                          style={{ width: `${(loc.taskCount / maxLocationCount) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Top Categories */}
+        <Card className='border border-gray-100 shadow-sm rounded-sm'>
+          <CardHeader className='pb-2 px-6 pt-6'>
+            <CardTitle className='text-base font-bold text-gray-900'>
+              Top Categories by Taskers
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='px-6 pb-6'>
+            <div className='flex flex-col gap-3 mt-2'>
+              {topCategories.length === 0 ? (
+                <p className='text-sm text-gray-400 text-center py-4'>No category data available</p>
+              ) : (
+                topCategories.map((cat, idx) => (
+                  <div key={idx} className='flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-100'>
+                    <div className='flex items-center gap-3'>
+                      <div className='w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-[#6B46C1] text-[10px] font-bold'>
+                        {idx + 1}
+                      </div>
+                      <span className='text-sm font-semibold text-gray-800 line-clamp-1'>{cat.categoryName}</span>
+                    </div>
+                    <span className='text-xs font-bold bg-white px-2.5 py-1 rounded-full shadow-sm border border-gray-100 text-gray-600'>
+                      {cat.taskerCount} taskers
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Recent Tasks Table */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100 shadow-sm rounded-sm'>
         <CardHeader className='flex flex-row items-center justify-between pb-2 px-6 pt-6'>
           <CardTitle className='text-base font-bold text-gray-900'>
             Recent Tasks
@@ -416,7 +481,7 @@ export default function AdminDashboardPage() {
       {/* Bottom Row: Recent Activity + Quick Stats */}
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         {/* Recent Activity takes 2/3 */}
-        <Card className='lg:col-span-2 border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='lg:col-span-2 border border-gray-100 shadow-sm rounded-sm'>
           <CardHeader className='flex flex-row items-center justify-between pb-2 px-6 pt-6'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Recent activity
@@ -473,7 +538,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* Quick Stats takes 1/3 */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100 shadow-sm rounded-sm'>
           <CardHeader className='pb-2 px-6 pt-6'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Quick Stats

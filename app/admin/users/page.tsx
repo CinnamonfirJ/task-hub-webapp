@@ -51,11 +51,12 @@ export default function UsersManagementPage() {
     search: searchQuery,
     status:
       activeFilter === "All" ||
-      activeFilter === "Suspended" ||
-      activeFilter === "Verified"
+      activeFilter === "Verified" ||
+      activeFilter === "Unverified"
         ? undefined
-        : activeFilter.toLowerCase(),
+        : activeFilter.toLowerCase(), // "active", "locked"
     verified: activeFilter === "Verified" ? true : undefined,
+    kycVerified: activeFilter === "Unverified" ? false : undefined,
   });
 
   const users = usersData?.users || [];
@@ -65,14 +66,34 @@ export default function UsersManagementPage() {
   const totalRecords = pagination?.totalUsers || (usersData as any)?.totalRecords || (usersData as any)?.count || 0;
   const totalPages = pagination?.totalPages || (usersData as any)?.totalPages || Math.ceil(totalRecords / limit);
 
-  // Process users for client-side filter (e.g. Suspended)
-  const processedUsers =
-    activeFilter === "Suspended"
-      ? users.filter((user) => {
-          if (!user.lockUntil) return false;
-          return new Date(user.lockUntil) > new Date();
-        })
-      : users;
+  // Process users for client-side filter validation (e.g. strict Locked time check, Unverified check fallback)
+  const processedUsers = users.filter((user) => {
+    // 1. Unverified Filter
+    if (activeFilter === "Unverified") {
+      return user.isKYCVerified === false;
+    }
+
+    // 2. Locked Filter
+    if (activeFilter === "Locked") {
+      if (!user.lockUntil) return false;
+      const lockDate = new Date(user.lockUntil);
+      return !isNaN(lockDate.getTime()) && lockDate > new Date();
+    }
+
+    // 3. Active Filter (Exclude locked users)
+    if (activeFilter === "Active") {
+      if (user.lockUntil) {
+        const lockDate = new Date(user.lockUntil);
+        if (!isNaN(lockDate.getTime()) && lockDate > new Date()) {
+          return false; // User is locked, so they shouldn't be in the Active list
+        }
+      }
+      return true; // Rely on the API's isActive filtering for the rest
+    }
+
+    // 4. Verified, All (Rely on API)
+    return true;
+  });
 
   const { mutate: lockUser } = useLockUser();
   const { mutate: unlockUser } = useUnlockUser();
@@ -186,9 +207,9 @@ export default function UsersManagementPage() {
               filterOptions={[
                 "All",
                 "Active",
-                // "Inactive",
                 "Locked",
                 "Verified",
+                "Unverified",
               ]}
               activeFilter={activeFilter}
               onFilterChange={handleFilterChange}
@@ -244,7 +265,11 @@ export default function UsersManagementPage() {
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-3'>
                           <div className='w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-[#6B46C1] overflow-hidden border border-purple-100'>
-                              <UserCircle2 size={24} />
+                              {user.profilePicture ? (
+                                  <img src={user.profilePicture} alt="Profile" className="w-full h-full items-center"/>
+                                ) : (
+                                  <UserCircle2 size={24} />
+                                )}
                           </div>
                           <div>
                             <div className='font-bold text-gray-900'>

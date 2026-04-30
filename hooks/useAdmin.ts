@@ -275,7 +275,7 @@ export function useVerifyTasker() {
   });
 }
 
-export function useSuspendTasker() {
+export function useLockTasker() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -286,7 +286,7 @@ export function useSuspendTasker() {
       id: string;
       reason: string;
       duration?: number;
-    }) => adminApi.suspendTasker(id, { reason, duration }),
+    }) => adminApi.lockTasker(id, { reason, duration }),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["admin", "taskers"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "taskers", id] });
@@ -294,10 +294,10 @@ export function useSuspendTasker() {
   });
 }
 
-export function useActivateTasker() {
+export function useUnlockTasker() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => adminApi.activateTasker(id),
+    mutationFn: (id: string) => adminApi.unlockTasker(id),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["admin", "taskers"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "taskers", id] });
