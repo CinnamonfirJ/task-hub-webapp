@@ -180,6 +180,79 @@ export default function TaskerDetailsPage({
         </Button>
       </div>
 
+      {/* ── Profile Card ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <CardContent className='p-5 md:p-6'>
+          <div className='flex items-center gap-4'>
+            {/* Avatar */}
+            <div className='w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-lg font-bold shrink-0 overflow-hidden border border-gray-100'>
+              {tasker?.profilePicture ? (
+                <img
+                  src={tasker.profilePicture}
+                  alt={fullName}
+                  className='w-full h-full object-cover'
+                />
+              ) : (
+                <span>
+                  {fullName
+                    ?.split(" ")
+                    .map((w: string) => w[0])
+                    .join("")
+                    .toUpperCase()
+                    .substring(0, 2) || "T"}
+                </span>
+              )}
+            </div>
+
+            {/* Name + badges + contact */}
+            <div className='flex-1 min-w-0'>
+              <div className='flex flex-wrap items-center gap-2 mb-2'>
+                <h2 className='text-base md:text-lg font-bold text-gray-900'>
+                  {fullName}
+                </h2>
+                <span
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                    tasker?.verifyIdentity
+                      ? "bg-blue-50 text-blue-600 border border-blue-200"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
+                >
+                  {tasker?.verifyIdentity ? "Verified" : "Unverified"}
+                </span>
+                <span
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                    tasker?.isActive
+                      ? "bg-green-50 text-green-600 border border-green-200"
+                      : "bg-red-50 text-red-500 border border-red-200"
+                  }`}
+                >
+                  {tasker?.isActive ? "Active" : "Inactive"}
+                </span>
+              </div>
+
+              {/* Contact row */}
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-1.5 text-sm text-gray-600'>
+                <div className='flex items-center gap-2'>
+                  <Mail size={14} className='text-gray-400 shrink-0' />
+                  <span className='truncate'>{tasker?.emailAddress}</span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <Phone size={14} className='text-gray-400 shrink-0' />
+                  <span>{tasker?.phoneNumber || "Not provided"}</span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <MapPin size={14} className='text-gray-400 shrink-0' />
+                  <span>
+                    {tasker?.residentState || "N/A"}, {tasker?.country || "N/A"}
+                  </span>
+                </div>
+              
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* ── Three info cards ── */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         {/* KYC Information */}

@@ -222,25 +222,49 @@ export default function TasksManagementPage() {
                         </div>
                       </td>
                       <td className='px-6 py-5'>
-                        <div className='flex flex-col'>
-                          <span className='text-xs font-bold text-gray-900'>
-                            {task.user?.fullName || "Unknown User"}
-                          </span>
-                          <span className='text-[10px] text-gray-500 font-medium'>
-                            {task.user?.emailAddress || "—"}
-                          </span>
-                        </div>
+                        <Link 
+                          href={`/admin/users/${task.user?._id || task.user?.id || task.userId}`}
+                          className='flex items-center gap-3 group/user'
+                        >
+                          <div className='w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-[#6B46C1] overflow-hidden border border-purple-100 shrink-0'>
+                            {task.user?.profilePicture ? (
+                              <img src={task.user.profilePicture} alt="User" className="w-full h-full object-cover"/>
+                            ) : (
+                              <span className='text-[10px] font-bold uppercase'>{(task.user?.fullName || "U").charAt(0)}</span>
+                            )}
+                          </div>
+                          <div className='flex flex-col'>
+                            <span className='text-xs font-bold text-gray-900 group-hover/user:text-[#6B46C1] group-hover/user:underline'>
+                              {task.user?.fullName || "Unknown User"}
+                            </span>
+                            <span className='text-[10px] text-gray-500 font-medium'>
+                              {task.user?.emailAddress || "—"}
+                            </span>
+                          </div>
+                        </Link>
                       </td>
                       <td className='px-6 py-5'>
                         {task.assignedTo ? (
-                          <div className='flex flex-col'>
-                            <span className='text-xs font-bold text-gray-900'>
-                              {task.assignedTo.firstName} {task.assignedTo.lastName}
-                            </span>
-                            <span className='text-[10px] text-gray-500 font-medium'>
-                              {task.assignedTo.emailAddress}
-                            </span>
-                          </div>
+                          <Link 
+                            href={`/admin/taskers/${task.assignedTo._id || task.assignedTo.id || task.taskerId}`}
+                            className='flex items-center gap-3 group/tasker'
+                          >
+                            <div className='w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 overflow-hidden border border-emerald-100 shrink-0'>
+                              {task.assignedTo.profilePicture ? (
+                                <img src={task.assignedTo.profilePicture} alt="Tasker" className="w-full h-full object-cover"/>
+                              ) : (
+                                <span className='text-[10px] font-bold uppercase'>{(task.assignedTo.firstName || "T").charAt(0)}</span>
+                              )}
+                            </div>
+                            <div className='flex flex-col'>
+                              <span className='text-xs font-bold text-gray-900 group-hover/tasker:text-[#6B46C1] group-hover/tasker:underline'>
+                                {task.assignedTo.firstName} {task.assignedTo.lastName}
+                              </span>
+                              <span className='text-[10px] text-gray-500 font-medium'>
+                                {task.assignedTo.emailAddress}
+                              </span>
+                            </div>
+                          </Link>
                         ) : (
                           <span className='text-xs text-gray-400 italic font-medium'>Unassigned</span>
                         )}

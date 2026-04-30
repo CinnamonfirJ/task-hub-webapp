@@ -191,12 +191,30 @@ export default function TaskDetailsPage({
             </CardTitle>
           </CardHeader>
           <CardContent className='p-6 pt-0 space-y-5'>
-            <div>
-              <div className='text-xs text-gray-500 font-medium mb-1'>
-                Posted By
+            <div className='flex items-center gap-3'>
+              <div className='w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-[#6B46C1] overflow-hidden border border-purple-100 shrink-0'>
+                {task.postedBy?.profilePicture || task.user?.profilePicture ? (
+                  <img 
+                    src={task.postedBy?.profilePicture || task.user?.profilePicture} 
+                    alt="Poster" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className='text-xs font-bold uppercase'>
+                    {(task.postedBy?.fullName || task.user?.fullName || "U").charAt(0)}
+                  </span>
+                )}
               </div>
-              <div className='text-sm font-semibold text-gray-900'>
-                {task.postedBy?.emailAddress || task.user?.emailAddress}
+              <div>
+                <div className='text-xs text-gray-500 font-medium mb-0.5'>
+                  Posted By
+                </div>
+                <Link 
+                  href={`/admin/users/${task.postedBy?._id || task.user?._id || task.postedBy?.userId || task.user?.userId}`}
+                  className='text-sm font-bold text-gray-900 hover:text-[#6B46C1] hover:underline transition-colors block leading-tight'
+                >
+                  {task.postedBy?.fullName || task.user?.fullName || task.postedBy?.emailAddress || task.user?.emailAddress}
+                </Link>
               </div>
             </div>
 
@@ -245,13 +263,31 @@ export default function TaskDetailsPage({
           <CardContent className='p-6 pt-0 space-y-5'>
             {task.assignedTo ? (
               <>
-                <div>
-                  <div className='text-xs text-gray-500 font-medium mb-1'>
-                    Assigned Tasker
+                <div className='flex items-center gap-3'>
+                  <div className='w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 overflow-hidden border border-emerald-100 shrink-0'>
+                    {task.assignedTo.profilePicture || task.assignedTo.taskerImage ? (
+                      <img 
+                        src={task.assignedTo.profilePicture || task.assignedTo.taskerImage} 
+                        alt="Tasker" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className='text-xs font-bold uppercase'>
+                        {(task.assignedTo.taskerName || task.assignedTo.firstName || "T").charAt(0)}
+                      </span>
+                    )}
                   </div>
-                  <div className='text-sm font-semibold text-gray-900'>
-                    {task.assignedTo.emailAddress ||
-                      task.assignedTo.taskerName}
+                  <div>
+                    <div className='text-xs text-gray-500 font-medium mb-0.5'>
+                      Assigned Tasker
+                    </div>
+                    <Link 
+                      href={`/admin/taskers/${task.assignedTo._id || task.assignedTo.userId || task.assignedTo.id}`}
+                      className='text-sm font-bold text-gray-900 hover:text-[#6B46C1] hover:underline transition-colors block leading-tight'
+                    >
+                      {task.assignedTo.taskerName ||
+                        (task.assignedTo.firstName ? `${task.assignedTo.firstName} ${task.assignedTo.lastName}` : task.assignedTo.emailAddress || "Tasker Profile")}
+                    </Link>
                   </div>
                 </div>
                 <div>
@@ -365,14 +401,17 @@ export default function TaskDetailsPage({
               </div>
 
               {/* Name + applied */}
-              <div className='flex-1 min-w-0'>
-                <div className='text-sm font-bold text-gray-900'>
+              <Link 
+                href={`/admin/taskers/${bid.taskerId || bid.userId || bid.id || bid._id}`}
+                className='flex-1 min-w-0 group/link'
+              >
+                <div className='text-sm font-bold text-gray-900 group-hover/link:text-[#6B46C1] group-hover/link:underline transition-colors'>
                   {bid.taskerName}
                 </div>
                 <div className='text-xs text-gray-400 mt-0.5'>
                   Applied {timeAgo(bid.date)}
                 </div>
-              </div>
+              </Link>
 
               {/* Bid amount */}
               <div className='text-sm font-semibold text-gray-900 shrink-0'>

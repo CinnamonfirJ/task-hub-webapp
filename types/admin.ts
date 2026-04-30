@@ -426,8 +426,11 @@ export interface AdminTaskerDetailResponse {
     account?: {
       userId?: string;
       fullName: string;
+      emailAddress: string;
       role: string;
       lastUpdated?: string;
+      verifyIdentity: string;
+      isActive: string;
     };
     kyc: {
       type: string;
