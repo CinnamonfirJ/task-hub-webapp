@@ -74,12 +74,12 @@ export default function TaskersManagementPage() {
       return tasker.verifyIdentity === false;
     }
 
-    // 2. Locked Filter
-    if (activeFilter === "Locked") {
-      if (!tasker.lockUntil) return false;
-      const lockDate = new Date(tasker.lockUntil);
-      return !isNaN(lockDate.getTime()) && lockDate > new Date();
-    }
+    // // 2. Locked Filter
+    // if (activeFilter === "Locked") {
+    //   if (!tasker.lockUntil) return false;
+    //   const lockDate = new Date(tasker.lockUntil);
+    //   return !isNaN(lockDate.getTime()) && lockDate > new Date();
+    // }
 
     // 3. Active Filter (Exclude locked taskers)
     if (activeFilter === "Active") {
@@ -187,7 +187,7 @@ export default function TaskersManagementPage() {
               searchPlaceholder='Search name or email...'
               searchTerm={searchQuery}
               onSearch={handleSearch}
-              filterOptions={["All", "Active", "Locked", "Verified", "Unverified"]}
+              filterOptions={["All", "Active", "Verified", "Unverified"]}
               activeFilter={activeFilter}
               onFilterChange={handleFilterChange}
             />

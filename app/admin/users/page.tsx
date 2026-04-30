@@ -73,12 +73,12 @@ export default function UsersManagementPage() {
       return user.isKYCVerified === false;
     }
 
-    // 2. Locked Filter
-    if (activeFilter === "Locked") {
-      if (!user.lockUntil) return false;
-      const lockDate = new Date(user.lockUntil);
-      return !isNaN(lockDate.getTime()) && lockDate > new Date();
-    }
+    // // 2. Locked Filter
+    // if (activeFilter === "Locked") {
+    //   if (!user.lockUntil) return false;
+    //   const lockDate = new Date(user.lockUntil);
+    //   return !isNaN(lockDate.getTime()) && lockDate > new Date();
+    // }
 
     // 3. Active Filter (Exclude locked users)
     if (activeFilter === "Active") {
@@ -212,7 +212,7 @@ export default function UsersManagementPage() {
               filterOptions={[
                 "All",
                 "Active",
-                "Locked",
+                // "Locked",
                 "Verified",
                 "Unverified",
               ]}
