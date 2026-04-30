@@ -222,18 +222,18 @@ export default function NotificationsPage() {
                     <td className='px-6 py-5 text-center'>
                       <div className='flex items-center justify-center gap-1.5'>
                         <span className={cn(
-                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight",
-                          (notification as any).sentThrough === "both" || (notification as any).sentThrough === "email" 
-                            ? "bg-blue-50 text-blue-600 border border-blue-100" 
-                            : "bg-gray-50 text-gray-400 border border-gray-100 opacity-50"
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight transition-all",
+                          notification.isEmail || notification.sendEmail || notification.email || (notification.sentThrough?.some(s => s.toLowerCase().includes('email')))
+                            ? "bg-blue-50 text-blue-600 border border-blue-100 shadow-sm" 
+                            : "bg-gray-50 text-gray-300 border border-gray-100 opacity-50"
                         )}>
                           Email
                         </span>
                         <span className={cn(
-                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight",
-                          (notification as any).sentThrough === "both" || (notification as any).sentThrough === "in-app" 
-                            ? "bg-purple-50 text-purple-600 border border-purple-100" 
-                            : "bg-gray-50 text-gray-400 border border-gray-100 opacity-50"
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight transition-all",
+                          notification.isInApp || notification.sendInApp || notification.inApp || (notification.sentThrough?.some(s => s.toLowerCase().includes('app')))
+                            ? "bg-purple-50 text-purple-600 border border-purple-100 shadow-sm" 
+                            : "bg-gray-50 text-gray-300 border border-gray-100 opacity-50"
                         )}>
                           In-App
                         </span>

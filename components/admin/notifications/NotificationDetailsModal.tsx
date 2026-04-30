@@ -116,7 +116,7 @@ export function NotificationDetailsModal({
                  <div className="flex items-center gap-2">
                     <span className={cn(
                       "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
-                      (notification as any).sentThrough === "both" || (notification as any).sentThrough === "email" 
+                      notification.isEmail || notification.sendEmail || notification.email || (notification.sentThrough?.some(s => s.toLowerCase().includes('email')))
                         ? "bg-blue-50 text-blue-600 border-blue-100 shadow-sm shadow-blue-100/50" 
                         : "bg-gray-100/50 text-gray-300 border-gray-200 grayscale opacity-50"
                     )}>
@@ -124,7 +124,7 @@ export function NotificationDetailsModal({
                     </span>
                     <span className={cn(
                       "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
-                      (notification as any).sentThrough === "both" || (notification as any).sentThrough === "in-app" 
+                      notification.isInApp || notification.sendInApp || notification.inApp || (notification.sentThrough?.some(s => s.toLowerCase().includes('app')))
                         ? "bg-purple-50 text-purple-600 border-purple-100 shadow-sm shadow-purple-100/50" 
                         : "bg-gray-100/50 text-gray-300 border-gray-200 grayscale opacity-50"
                     )}>
@@ -132,9 +132,11 @@ export function NotificationDetailsModal({
                     </span>
                  </div>
                  <p className="text-[10px] font-bold text-gray-400 italic">
-                   { (notification as any).sentThrough === 'both' ? 'Delivered via both channels' : 
-                     (notification as any).sentThrough === 'email' ? 'Delivered via Email only' : 
-                     (notification as any).sentThrough === 'in-app' ? 'Delivered via In-App only' : 'Delivery channel data pending'}
+                   { (notification.isEmail && notification.isInApp) ? 'Delivered via both channels' : 
+                     notification.isEmail ? 'Delivered via Email only' : 
+                     notification.isInApp ? 'Delivered via In-App only' : 
+                     notification.sentThrough && notification.sentThrough.length > 0 ? 'Delivered via multiple channels' :
+                     'Delivery channel data pending'}
                  </p>
               </div>
             </div>

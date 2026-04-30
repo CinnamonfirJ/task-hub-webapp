@@ -2003,9 +2003,19 @@ export interface AdminNotification {
   openedCount: number;
   sentBy: {
     _id: string;
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
   };
+  sentThrough?: string[];
+  channels?: string[];
+  deliveryChannels?: string[];
+  isEmail?: boolean;
+  isInApp?: boolean;
+  sendEmail?: boolean;
+  sendInApp?: boolean;
+  email?: boolean;
+  inApp?: boolean;
   createdAt: string;
   updatedAt: string;
 }
