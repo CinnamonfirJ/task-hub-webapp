@@ -27,4 +27,14 @@ export const taskersApi = {
       }
     );
   },
+
+  getTaskerReviews: async (id: string, params: { page?: number; limit?: number } = {}): Promise<any> => {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.append("page", params.page.toString());
+    if (params.limit) searchParams.append("limit", params.limit.toString());
+    
+    return apiData<any>(`/api/taskers/${id}/reviews?${searchParams.toString()}`, {
+      method: "GET",
+    });
+  },
 };

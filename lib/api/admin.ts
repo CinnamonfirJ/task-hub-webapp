@@ -876,18 +876,37 @@ export const adminApi = {
     return response.data;
   },
 
-  getNotifications: async (): Promise<AdminNotification[]> => {
+  getNotifications: async (params?: { page?: number; limit?: number }): Promise<any> => {
+    const query = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) query.append(key, String(value));
+      });
+    }
     const response = await apiData<AdminNotificationListResponse>(
-      "/api/admin/notifications",
+      `/api/admin/notifications?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
-  sendNotification: async (data: SendNotificationRequest & { sendEmail?: boolean }): Promise<any> => {
+  sendNotification: async (data: SendNotificationRequest & { sendEmail?: boolean; sendInApp?: boolean }): Promise<any> => {
     return apiData<any>("/api/admin/notifications/send", {
       method: "POST",
       body: JSON.stringify(data),
     });
+  },
+
+  resendNotification: async (id: string): Promise<any> => {
+    return apiData<any>(`/api/admin/notifications/${id}/resend`, {
+      method: "POST",
+    });
+  },
+
+  getNotificationUsers: async (): Promise<any> => {
+    const response = await apiData<any>("/api/admin/notifications/all-users", {
+      method: "GET",
+    });
+    return response.data ?? response;
   },
 };

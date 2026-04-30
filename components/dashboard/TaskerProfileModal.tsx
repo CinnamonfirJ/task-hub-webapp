@@ -13,12 +13,16 @@ interface TaskerProfileModalProps {
   tasker: Partial<User> | null;
 }
 
+import { TaskerReviews } from "@/components/taskers/TaskerReviews";
+
 export function TaskerProfileModal({
   isOpen,
   onClose,
   tasker,
 }: TaskerProfileModalProps) {
   if (!tasker) return null;
+
+  const taskerId = tasker._id || (tasker as any).id;
 
   const taskerName =
     tasker?.fullName ||
@@ -168,6 +172,16 @@ export function TaskerProfileModal({
                   </div>
                 ))}
               </div>
+            </section>
+          )}
+
+          {/* REVIEWS Section */}
+          {taskerId && (
+            <section className='space-y-4 pt-4 border-t border-gray-50'>
+              <h3 className='text-sm font-bold text-gray-700 tracking-wider'>
+                REVIEWS
+              </h3>
+              <TaskerReviews taskerId={taskerId} />
             </section>
           )}
         </div>

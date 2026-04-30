@@ -876,7 +876,7 @@ export interface ForceCompleteTaskResponse {
 // ============================================================================
 
 export interface PaymentStats {
-  totalTransactions: number;
+  totalTransactionVolume: number;
   totalCredits: number;
   totalDebits: number;
   netFlow: number;
@@ -2007,14 +2007,25 @@ export interface AdminNotificationStats {
   totalTaskers: number;
   totalSent: number;
   openRate: string;
+  delivered?: number;
+  failed?: number;
+  pending?: number;
 }
 
 export interface SendNotificationRequest {
   title: string;
   message: string;
-  type?: "Announcement" | "Alert" | "Warning" | "Update";
+  type?: "Announcement" | "Alert" | "Warning" | "Update" | "Promotional" | "Maintenance";
   audience: "All Users" | "All Taskers" | "Selected Users" | "Everyone";
   selectedUserIds?: string[];
+}
+
+export interface AdminNotificationAllUsersResponse {
+  status: string;
+  data: {
+    users: Array<{ _id: string; fullName: string; role: string }>;
+    taskers: Array<{ _id: string; fullName: string; role: string }>;
+  };
 }
 
 export interface AdminNotificationListResponse {

@@ -778,10 +778,10 @@ export function useNotificationStats() {
   });
 }
 
-export function useNotifications() {
+export function useNotifications(params?: { page?: number; limit?: number }) {
   return useQuery({
-    queryKey: ["admin", "notifications", "list"],
-    queryFn: () => adminApi.getNotifications(),
+    queryKey: ["admin", "notifications", "list", params],
+    queryFn: () => adminApi.getNotifications(params),
   });
 }
 
@@ -793,5 +793,22 @@ export function useSendNotification() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "notifications"] });
     },
+  });
+}
+
+export function useResendNotification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.resendNotification(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "notifications"] });
+    },
+  });
+}
+
+export function useNotificationUsers() {
+  return useQuery({
+    queryKey: ["admin", "notifications", "all-users"],
+    queryFn: () => adminApi.getNotificationUsers(),
   });
 }

@@ -62,16 +62,36 @@ export default function PaymentsManagementPage() {
     search: searchTerm,
   });
 
-  const transactions = (txData as any)?.transactions || [];
-  const pagination = (txData as any)?.pagination;
+  const transactions = 
+    (txData as any)?.transactions || 
+    (txData as any)?.data?.transactions || 
+    (Array.isArray((txData as any)?.data) ? (txData as any).data : null) ||
+    (Array.isArray(txData) ? txData : []) || 
+    [];
 
-  const totalRecords = (pagination as any)?.totalTransactions || (txData as any)?.totalRecords || (txData as any)?.count || 0;
-  const totalPages = (pagination as any)?.totalPages || (txData as any)?.totalPages || Math.ceil(totalRecords / limit);
+  const pagination = (txData as any)?.pagination || (txData as any)?.data?.pagination;
+
+  const totalRecords = 
+    (pagination as any)?.totalTransactionVolume || 
+    (txData as any)?.totalRecords || 
+    (txData as any)?.results || 
+    (txData as any)?.count || 
+    (txData as any)?.data?.totalRecords || 
+    (txData as any)?.data?.results ||
+    transactions.length ||
+    0;
+
+  const totalPages = 
+    (pagination as any)?.totalPages || 
+    (txData as any)?.totalPages || 
+    (txData as any)?.data?.totalPages || 
+    (txData as any)?.data?.pages ||
+    Math.ceil(totalRecords / limit);
 
   const paymentMetrics = [
     {
       label: "Total Transactions",
-      value: paymentStats?.totalTransactions?.toLocaleString() ?? "0",
+      value: paymentStats?.totalTransactionVolume?.toLocaleString() ?? "0",
       icon: <DollarSign size={18} />,
       color: "text-green-600",
       bg: "bg-green-50",

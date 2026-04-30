@@ -92,7 +92,12 @@ export default function TaskersManagementPage() {
       return true; // Rely on the API's isActive filtering for the rest
     }
 
-    // 4. Verified, All (Rely on API)
+    // 4. Verified Filter
+    if (activeFilter === "Verified") {
+      return tasker.verifyIdentity === true;
+    }
+
+    // 5. All (Rely on API)
     return true;
   });
   const summaryMetrics = [

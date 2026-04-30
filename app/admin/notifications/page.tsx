@@ -12,6 +12,7 @@ import {
   MoreVertical,
   Eye,
   Trash2,
+  XCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,21 +22,37 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useNotificationStats, useNotifications } from "@/hooks/useAdmin";
+import { useNotificationStats, useNotifications, useResendNotification } from "@/hooks/useAdmin";
 import { SendNotificationModal } from "@/components/admin/notifications/SendNotificationModal";
 import { NotificationDetailsModal } from "@/components/admin/notifications/NotificationDetailsModal";
+import { NotificationBadge } from "@/components/admin/notifications/NotificationBadge";
+import { NotificationActions } from "@/components/admin/notifications/NotificationActions";
+import { toast } from "sonner";
+import { AdminNotification } from "@/types/admin";
 
 export default function NotificationsPage() {
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
-  const [selectedNotification, setSelectedNotification] = useState<any>(null);
+  const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   const { data: stats, isLoading: loadingStats } = useNotificationStats();
   const { data: notifications, isLoading: loadingNotifications } = useNotifications();
+  const { mutate: resendNotification, isPending: isResending } = useResendNotification();
 
-  const handleViewDetails = (notification: any) => {
+  const handleViewDetails = (notification: AdminNotification) => {
     setSelectedNotification(notification);
     setIsDetailsModalOpen(true);
+  };
+
+  const handleResend = (id: string) => {
+    resendNotification(id, {
+      onSuccess: () => {
+        toast.success("Notification resent successfully");
+      },
+      onError: (error: any) => {
+        toast.error(error?.message || "Failed to resend notification");
+      },
+    });
   };
 
   const statsCards = [
@@ -58,12 +75,34 @@ export default function NotificationsPage() {
       color: "bg-green-50 text-green-600",
     },
     {
+      title: "Delivered",
+      value: stats?.delivered ?? 0,
+      icon: UserCheck,
+      color: "bg-blue-50 text-blue-600",
+    },
+    {
+      title: "Failed",
+      value: stats?.failed ?? 0,
+      icon: XCircle,
+      color: "bg-red-50 text-red-600",
+    },
+    {
       title: "Open Rate",
       value: stats?.openRate ?? "0%",
       icon: BarChart2,
       color: "bg-orange-50 text-orange-600",
     },
   ];
+
+  // Add Pending card if available
+  if (stats?.pending !== undefined) {
+    statsCards.push({
+      title: "Pending",
+      value: stats.pending,
+      icon: Bell,
+      color: "bg-amber-50 text-amber-600",
+    });
+  }
 
   return (
     <div className='space-y-6'>
@@ -136,7 +175,7 @@ export default function NotificationsPage() {
                 </tr>
               </thead>
               <tbody className='divide-y'>
-                {notifications?.map((notification) => (
+                {notifications?.map((notification: AdminNotification) => (
                   <tr
                     key={notification._id}
                     className='group hover:bg-[#6B46C1]/2 transition-colors'
@@ -152,14 +191,7 @@ export default function NotificationsPage() {
                       </div>
                     </td>
                     <td className='px-6 py-5 text-center'>
-                      <span className={`text-[10px] font-black uppercase tracking-tighter px-2.5 py-1 rounded-full border ${
-                        notification.type === 'Warning' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                        notification.type === 'Alert' ? 'bg-red-50 text-red-600 border-red-100' :
-                        notification.type === 'Announcement' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                        'bg-purple-50 text-purple-600 border-purple-100'
-                      }`}>
-                        {notification.type}
-                      </span>
+                      <NotificationBadge type={notification.type} />
                     </td>
                     <td className='px-6 py-5'>
                       <div className='flex items-center gap-2'>
@@ -195,27 +227,12 @@ export default function NotificationsPage() {
                         </span>
                       </div>
                     </td>
-                    {/* <td className='px-6 py-5 text-right'>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            className='h-8 w-8 text-gray-400'
-                          >
-                            <MoreVertical size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end' className='w-40'>
-                          <DropdownMenuItem
-                            onClick={() => handleViewDetails(notification)}
-                            className='gap-2 cursor-pointer text-xs'
-                          >
-                            <Eye size={14} /> View Details
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td> */}
+                    <td className='px-6 py-5 text-right'>
+                      <NotificationActions 
+                        onViewDetails={() => handleViewDetails(notification)}
+                        onResend={() => handleResend(notification._id)}
+                      />
+                    </td>
                   </tr>
                 ))}
                 {!loadingNotifications && notifications?.length === 0 && (
@@ -239,13 +256,11 @@ export default function NotificationsPage() {
         onClose={() => setIsSendModalOpen(false)}
       />
 
-      {/* 
       <NotificationDetailsModal
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
         notification={selectedNotification}
       /> 
-      */}
     </div>
   );
 }

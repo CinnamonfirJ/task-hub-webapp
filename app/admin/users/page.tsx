@@ -91,7 +91,12 @@ export default function UsersManagementPage() {
       return true; // Rely on the API's isActive filtering for the rest
     }
 
-    // 4. Verified, All (Rely on API)
+    // 4. Verified Filter
+    if (activeFilter === "Verified") {
+      return user.isKYCVerified === true;
+    }
+
+    // 5. All (Rely on API)
     return true;
   });
 

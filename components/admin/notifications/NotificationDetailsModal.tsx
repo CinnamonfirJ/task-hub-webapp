@@ -42,95 +42,88 @@ export function NotificationDetailsModal({
         </DialogHeader>
 
         <div className='space-y-6'>
-          {/* Header Info */}
-          <div className='flex items-start justify-between'>
-            <div className='space-y-1'>
-              <h2 className='text-lg font-bold text-gray-900 leading-tight'>
-                {notification.title}
-              </h2>
-              <div className='flex items-center gap-2'>
-                <span className='px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 text-[10px] font-bold border border-purple-100 uppercase tracking-tight'>
-                  {notification.type}
-                </span>
-                <span className='text-[11px] text-gray-400'>
-                  Sent on {new Date(notification.createdAt).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* Message Content */}
-          <div className='bg-gray-50 border border-gray-100 rounded-xl p-4'>
-            <div className='flex gap-2 mb-2'>
-              <MessageSquare size={14} className='text-gray-400' />
-              <span className='text-[11px] uppercase font-bold text-gray-400 tracking-wider'>
-                Message Content
-              </span>
+          <div className='space-y-2'>
+            <span className='text-[10px] uppercase font-bold text-gray-400 tracking-wider'>
+              Message
+            </span>
+            <div className='bg-gray-50 border border-gray-100 rounded-xl p-4'>
+              <p className='text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-medium'>
+                {notification.message}
+              </p>
             </div>
-            <p className='text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-medium'>
-              {notification.message}
-            </p>
           </div>
 
           {/* Stats Grid */}
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='p-3 bg-white border border-gray-100 rounded-xl'>
-              <div className='flex items-center gap-2 mb-1 text-gray-400'>
-                <Target size={14} />
-                <span className='text-[10px] uppercase font-bold tracking-wider'>
-                  Audience
-                </span>
+          <div className='grid grid-cols-2 gap-y-6 gap-x-4'>
+            <div className='space-y-1'>
+              <span className='text-[10px] uppercase font-bold text-gray-400 tracking-wider'>
+                Audience
+              </span>
+              <div className='p-3 bg-gray-50 border border-gray-100 rounded-xl'>
+                <p className='font-bold text-sm text-gray-900'>
+                  {notification.audience}
+                </p>
               </div>
-              <p className='font-bold text-sm text-gray-900'>
-                {notification.audience}
-              </p>
             </div>
-            <div className='p-3 bg-white border border-gray-100 rounded-xl'>
-              <div className='flex items-center gap-2 mb-1 text-gray-400'>
-                <User size={14} />
-                <span className='text-[10px] uppercase font-bold tracking-wider'>
-                  Sent By
-                </span>
+            <div className='space-y-1'>
+              <span className='text-[10px] uppercase font-bold text-gray-400 tracking-wider'>
+                Recipients
+              </span>
+              <div className='p-3 bg-gray-50 border border-gray-100 rounded-xl'>
+                <p className='font-bold text-sm text-gray-900'>
+                  {notification.recipientsCount}
+                </p>
               </div>
-              <p className='font-bold text-sm text-gray-900'>
-                {notification.sentBy.firstName} {notification.sentBy.lastName}
-              </p>
             </div>
-            <div className='p-3 bg-white border border-gray-100 rounded-xl'>
-              <div className='flex items-center gap-2 mb-1 text-gray-400'>
-                <Users size={14} />
-                <span className='text-[10px] uppercase font-bold tracking-wider'>
-                  Recipients
-                </span>
+            <div className='space-y-1'>
+              <span className='text-[10px] uppercase font-bold text-gray-400 tracking-wider'>
+                Sent On
+              </span>
+              <div className='p-3 bg-gray-50 border border-gray-100 rounded-xl'>
+                <p className='font-bold text-sm text-gray-900'>
+                  {new Date(notification.createdAt).toLocaleDateString()}
+                </p>
               </div>
-              <p className='font-bold text-sm text-gray-900'>
-                {notification.recipientsCount} Users
-              </p>
             </div>
-            <div className='p-3 bg-white border border-gray-100 rounded-xl'>
-              <div className='flex items-center gap-2 mb-1 text-gray-400'>
-                <BarChart size={14} />
-                <span className='text-[10px] uppercase font-bold tracking-wider'>
-                  Opened Rate
-                </span>
+            <div className='space-y-1'>
+              <span className='text-[10px] uppercase font-bold text-gray-400 tracking-wider'>
+                Delivered At
+              </span>
+              <div className='p-3 bg-gray-50 border border-gray-100 rounded-xl'>
+                <p className='font-bold text-sm text-gray-900'>
+                  {new Date(notification.createdAt).toLocaleDateString()} 10:00 AM
+                </p>
               </div>
-              <p className='font-bold text-sm text-gray-900'>
-                {notification.openedCount} (
-                {(
-                  (notification.openedCount / notification.recipientsCount ||
-                    0) * 100
-                ).toFixed(1)}
-                %)
-              </p>
+            </div>
+            <div className='space-y-1'>
+              <span className='text-[10px] uppercase font-bold text-gray-400 tracking-wider'>
+                Open Rate
+              </span>
+              <div className='p-3 bg-gray-50 border border-gray-100 rounded-xl'>
+                <p className='font-bold text-sm text-gray-900'>
+                  {Math.round((notification.openedCount / notification.recipientsCount) * 100) || 0}%
+                </p>
+              </div>
+            </div>
+            <div className='space-y-1'>
+              <span className='text-[10px] uppercase font-bold text-gray-400 tracking-wider'>
+                Delivered At
+              </span>
+              <div className='p-3 bg-gray-50 border border-gray-100 rounded-xl'>
+                <p className='font-bold text-sm text-gray-900'>
+                  Delivered
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <DialogFooter className='pt-2 border-t border-gray-100 mt-2'>
-          <Button variant='outline' onClick={onClose} className='h-10 px-8'>
-            Close Details
+        <div className='pt-2'>
+          <Button className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-12 rounded-xl font-bold'>
+            Resend this notification
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

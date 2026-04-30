@@ -56,10 +56,11 @@ const MOCK_NOTIFICATIONS = [
 export default function UserNotificationsPage() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { data: notificationsData, isLoading } = useNotifications({
     isRead: activeTab === "all" ? undefined : activeTab === "read",
-    limit: 50
+    limit: 100
   });
 
   const { mutate: markAsRead } = useMarkNotificationAsRead();
@@ -73,7 +74,13 @@ export default function UserNotificationsPage() {
       (n.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (n.message || "").toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch;
+    const isRead = n.read ?? n.isRead ?? false;
+    const matchesTab = 
+      activeTab === "all" || 
+      (activeTab === "unread" && !isRead) || 
+      (activeTab === "read" && isRead);
+
+    return matchesSearch && matchesTab;
   });
 
   const handleMarkAllAsRead = () => {
@@ -161,11 +168,15 @@ export default function UserNotificationsPage() {
         ) : (
           filteredNotifications.map((notification: any) => (
             <Card 
-              key={notification._id} 
-              onClick={() => !notification.read && markAsRead(notification._id)}
+              key={notification._id || notification.id} 
+              onClick={() => {
+                const isRead = notification.read ?? notification.isRead;
+                if (!isRead) markAsRead(notification._id || notification.id);
+                setExpandedId(expandedId === (notification._id || notification.id) ? null : (notification._id || notification.id));
+              }}
               className={cn(
                 "group relative border-transparent hover:border-purple-100 transition-all cursor-pointer rounded-2xl overflow-hidden",
-                !notification.read ? "bg-white shadow-md shadow-purple-50/50 ring-1 ring-purple-50" : "bg-gray-50/50 grayscale-[0.5] opacity-80"
+                !(notification.read ?? notification.isRead) ? "bg-white shadow-md shadow-purple-50/50 ring-1 ring-purple-50" : "bg-gray-50/50 grayscale-[0.5] opacity-80"
               )}
             >
               <CardContent className="p-0">
@@ -178,7 +189,7 @@ export default function UserNotificationsPage() {
                     )}>
                       <Bell size={20} />
                     </div>
-                    {!notification.read && (
+                    {! (notification.read ?? notification.isRead) && (
                       <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#6B46C1] rounded-full border-2 border-white ring-2 ring-purple-100 animate-pulse" />
                     )}
                   </div>
@@ -189,7 +200,7 @@ export default function UserNotificationsPage() {
                       <div>
                         <h3 className={cn(
                           "font-bold text-gray-900 line-clamp-1 transition-colors group-hover:text-[#6B46C1]",
-                          !notification.read ? "text-base" : "text-sm"
+                          !(notification.read ?? notification.isRead) ? "text-base" : "text-sm"
                         )}>
                           {notification.title}
                         </h3>
@@ -215,9 +226,17 @@ export default function UserNotificationsPage() {
                         </Button>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 mt-3 leading-relaxed">
+                    <p className={cn(
+                      "text-sm text-gray-600 mt-3 leading-relaxed transition-all",
+                      expandedId !== (notification._id || notification.id) && "line-clamp-2"
+                    )}>
                       {notification.message}
                     </p>
+                    {expandedId !== (notification._id || notification.id) && notification.message.length > 120 && (
+                      <button className="text-[10px] font-bold text-purple-600 mt-2 uppercase tracking-wider">
+                        Read full message
+                      </button>
+                    )}
                   </div>
                 </div>
               </CardContent>

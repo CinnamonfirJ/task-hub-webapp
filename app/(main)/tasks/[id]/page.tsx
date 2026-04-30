@@ -16,7 +16,7 @@ import {
   useRejectBid,
 } from "@/hooks/useBids";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { BidCard } from "@/components/dashboard/BidCard";
 import { ApplicationForm } from "@/components/dashboard/ApplicationForm";
@@ -30,6 +30,7 @@ import { useWalletBalance } from "@/hooks/useWallet";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { calculateNetEarnings, calculatePlatformFee } from "@/lib/constants";
+import { RatingModal } from "@/components/tasks/RatingModal";
 
 export default function TaskDetailsPage() {
   const router = useRouter();
@@ -53,6 +54,10 @@ export default function TaskDetailsPage() {
   const { data: myBids } = useMyBids(undefined, { enabled: !!isTasker });
 
   const bids = bidsData?.bids || [];
+  const acceptedBid = bids.find((b: any) => b.status === "accepted");
+  const assignedTasker = acceptedBid ? (typeof acceptedBid.tasker === "object" ? acceptedBid.tasker : null) : null;
+  const taskerName = assignedTasker?.fullName || 
+    (assignedTasker?.firstName ? `${assignedTasker.firstName} ${assignedTasker.lastName || ""}` : "Tasker");
 
   // Find if current tasker has already bid on this task
   const existingBid =
@@ -172,6 +177,7 @@ export default function TaskDetailsPage() {
   });
   const [confirmCancelTask, setConfirmCancelTask] = useState(false);
   const [confirmDeleteBid, setConfirmDeleteBid] = useState(false);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
 
   const handleAcceptBid = (bidId: string) => {
     setConfirmAccept({ isOpen: true, bidId });
@@ -455,13 +461,53 @@ export default function TaskDetailsPage() {
             )}
 
             {task.status === "completed" && (
-              <div className='bg-blue-50 border border-blue-100 p-6 rounded-2xl'>
-                <h3 className='font-bold text-blue-800 text-lg'>
-                  Task Completed
-                </h3>
-                <p className='text-blue-700 text-sm'>
-                  This task has been verified and completed.
-                </p>
+              <div className='bg-blue-50 border border-blue-100 p-6 rounded-2xl space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <div className='space-y-1'>
+                    <h3 className='font-bold text-blue-800 text-lg'>
+                      Task Completed
+                    </h3>
+                    <p className='text-blue-700 text-sm'>
+                      This task has been verified and completed.
+                    </p>
+                  </div>
+                  
+                  {!(task as any).isRated && (
+                    <Button
+                      onClick={() => setIsRatingModalOpen(true)}
+                      className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl font-bold px-6 h-11 shadow-md shadow-purple-100'
+                    >
+                      Rate Tasker
+                    </Button>
+                  )}
+                </div>
+                
+                {(task as any).isRated && (
+                  <div className='pt-2 border-t border-blue-100/50'>
+                    <div className='flex items-center gap-1.5'>
+                      <div className='flex items-center'>
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star 
+                            key={s} 
+                            size={14} 
+                            className={cn(
+                              "fill-current",
+                              s <= ((task as any).rating?.rating || 0) ? "text-amber-400" : "text-gray-300"
+                            )} 
+                          />
+                        ))}
+                      </div>
+                      <span className='text-xs font-bold text-blue-800'>
+                        You rated this tasker {((task as any).rating?.rating || 0)}/5
+                      </span>
+                    </div>
+                    {((task as any).rating?.reviewText) && (
+                      <p className='text-xs text-blue-600 mt-2 italic'>
+                        "{((task as any).rating.reviewText)}"
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -572,9 +618,10 @@ export default function TaskDetailsPage() {
             </div>
 
             {/* Task Images (Tasker View) */}
-            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm'>
+            {task.images ? <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm'>
               <TaskImages images={task.images} title='Task Images' />
-            </div>
+            </div> : <></> }
+           
 
             {/* Application Form Section */}
             {isTasker && !hasApplied && (
@@ -860,6 +907,13 @@ export default function TaskDetailsPage() {
         confirmLabel='Withdraw Application'
         icon='warning'
         variant='danger'
+      />
+
+      <RatingModal
+        isOpen={isRatingModalOpen}
+        onClose={() => setIsRatingModalOpen(false)}
+        taskId={task._id}
+        taskerName={taskerName}
       />
     </div>
   );
