@@ -69,6 +69,19 @@ export default function PaymentsManagementPage() {
     (Array.isArray(txData) ? txData : []) || 
     [];
 
+  const processedTransactions = transactions.filter((tx: any) => {
+    if (activeFilter === "all" || activeFilter === "All") return true;
+    const type = (tx.type || "").toLowerCase();
+    const filter = activeFilter.toLowerCase();
+    
+    // Handle exact match or common aliases
+    if (type === filter) return true;
+    if (filter === "credit" && (type === "wallet_funding" || type === "escrow_credit" || type === "inflow")) return true;
+    if (filter === "debit" && (type === "escrow_debit" || type === "tasker_payout" || type === "outflow")) return true;
+    
+    return false;
+  });
+
   const pagination = (txData as any)?.pagination || (txData as any)?.data?.pagination;
 
   const totalRecords = 
@@ -276,7 +289,7 @@ export default function PaymentsManagementPage() {
               </tr>
             </thead>
             <tbody className='divide-y divide-gray-50'>
-              {transactions.map((tx: any) => (
+              {processedTransactions.map((tx: any) => (
                 <tr
                   key={tx._id}
                   className='group hover:bg-[#6B46C1]/2 transition-colors'
