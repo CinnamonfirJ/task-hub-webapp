@@ -38,13 +38,14 @@ export default function TransactionDetailsPage({
     );
   }
 
-  const data = detailData?.data || detailData;
+  const data = (detailData as any)?.data || detailData;
   const { 
     info, 
     user: userInfo, 
     recentTransactions, 
     status: apiStatus, 
-    amount: apiAmount 
+    amount: apiAmount,
+    timeline
   } = data;
 
   // Map fields from new or old structure
@@ -227,7 +228,7 @@ export default function TransactionDetailsPage({
           </CardHeader>
           <CardContent>
             <div className='space-y-4'>
-              {timeline.map((event, idx) => (
+              {timeline.map((event: any, idx: number) => (
                 <div
                   key={idx}
                   className='flex items-center gap-4 p-3 rounded-xl bg-gray-50/50'
@@ -267,7 +268,7 @@ export default function TransactionDetailsPage({
                   </tr>
                 </thead>
                 <tbody className='divide-y text-xs'>
-                  {history.map((rt) => {
+                  {history.map((rt: any) => {
                     const rtl = typeLabel(rt.type);
                     return (
                       <tr key={rt._id} className="hover:bg-gray-50/50 transition-colors">
