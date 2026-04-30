@@ -278,7 +278,6 @@ export default function ProfileDetailsPage() {
                 userInitials
               )}
             </div>
-            </div>
             <CloudinaryUpload
               onSuccess={handleProfilePictureUploadSuccess}
               folder="profile-pictures"
