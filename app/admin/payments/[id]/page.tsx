@@ -38,30 +38,47 @@ export default function TransactionDetailsPage({
     );
   }
 
-  const { taskDetails, transactionHistory, transaction, relatedTransactions, timeline } = detailData;
+  const data = detailData?.data || detailData;
+  const { 
+    info, 
+    user: userInfo, 
+    recentTransactions, 
+    status: apiStatus, 
+    amount: apiAmount 
+  } = data;
 
-  // Use taskDetails if available (new API), otherwise fallback to transaction object
-  const displayTitle = taskDetails?.title || transaction?.description || "Transaction Details";
-  const displayId = taskDetails?._id || taskDetails?.id || transaction?._id || id;
-  const displayStatus = taskDetails?.status || transaction?.status || "pending";
-  const displayAmount = taskDetails?.totalAmount || transaction?.amount || 0;
+  // Map fields from new or old structure
+  const displayTitle = info?.description || data?.description || "Transaction Details";
+  const displayId = info?.transactionId || data?._id || data?.id || id;
+  const displayStatus = (apiStatus || data?.status || "pending").toLowerCase();
+  const displayAmount = apiAmount || data?.amount || 0;
   
-  const history = transactionHistory || relatedTransactions || [];
+  const history = recentTransactions || data?.transactionHistory || data?.relatedTransactions || [];
 
-  const isCredit = transaction ? ["wallet_funding", "escrow_credit"].includes(transaction.type) : true;
+  const type = info?.type || data?.type;
+  const isCredit = type === "credit" || data?.amountSign === "+";
+  
   const statusIcon =
-    displayStatus === "completed" ? (
+    displayStatus === "completed" || displayStatus === "released" || displayStatus === "success" ? (
       <CheckCircle2 size={18} className='text-green-600' />
+    ) : displayStatus === "failed" || displayStatus === "cancelled" ? (
+      <XCircle size={18} className='text-red-600' />
     ) : (
       <Clock size={18} className='text-yellow-600' />
     );
-  const statusBg =
-    displayStatus === "completed"
-      ? "bg-green-100 text-green-600"
-      : "bg-yellow-100 text-yellow-600";
 
-  const typeLabel = (type: string) => {
+  const statusBg =
+    displayStatus === "completed" || displayStatus === "released" || displayStatus === "success"
+      ? "bg-green-100 text-green-600"
+      : displayStatus === "failed" || displayStatus === "cancelled"
+        ? "bg-red-100 text-red-600"
+        : "bg-yellow-100 text-yellow-600";
+
+  const typeLabel = (typeStr: string) => {
+    const t = (typeStr || "").toLowerCase();
     const labels: Record<string, { label: string; color: string }> = {
+      credit: { label: "Credit", color: "bg-green-50 text-green-500" },
+      debit: { label: "Debit", color: "bg-red-50 text-red-400" },
       wallet_funding: { label: "Credit", color: "bg-green-50 text-green-500" },
       escrow_debit: { label: "Debit", color: "bg-red-50 text-red-400" },
       escrow_credit: { label: "Credit", color: "bg-green-50 text-green-500" },
@@ -69,8 +86,8 @@ export default function TransactionDetailsPage({
       platform_fee: { label: "Fee", color: "bg-purple-50 text-purple-500" },
     };
     return (
-      labels[type] || {
-        label: type.replace("_", " "),
+      labels[t] || {
+        label: t.replace("_", " "),
         color: "bg-gray-50 text-gray-500",
       }
     );
@@ -122,46 +139,36 @@ export default function TransactionDetailsPage({
         <Card className='border border-gray-100 shadow-sm rounded-2xl'>
           <CardHeader>
             <CardTitle className='text-base font-black'>
-              Escrow Information
+              Transaction Details
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div>
               <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
-                Task ID
+                Transaction ID
               </div>
               <div className='text-sm font-bold mt-1 font-mono'>{displayId}</div>
             </div>
             <div>
               <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
-                Title
+                Description
               </div>
               <div className='text-sm font-bold mt-1'>{displayTitle}</div>
             </div>
-            {taskDetails?.postedBy && (
+            {info?.paymentMethod && (
               <div>
                 <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
-                  Posted By
+                  Payment Method
                 </div>
-                <div className='text-sm font-bold mt-1'>{taskDetails.postedBy}</div>
+                <div className='text-sm font-bold mt-1 capitalize'>{info.paymentMethod}</div>
               </div>
             )}
-            {taskDetails?.assignedTo && (
+            {info?.type && (
               <div>
                 <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
-                  Assigned To
+                  Transaction Type
                 </div>
-                <div className='text-sm font-bold mt-1'>{taskDetails.assignedTo}</div>
-              </div>
-            )}
-            {transaction?.reference && (
-              <div>
-                <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
-                  Reference
-                </div>
-                <div className='text-sm font-bold mt-1 font-mono'>
-                  {transaction.reference}
-                </div>
+                <div className='text-sm font-bold mt-1 capitalize'>{info.type}</div>
               </div>
             )}
           </CardContent>
@@ -170,42 +177,40 @@ export default function TransactionDetailsPage({
         <Card className='border border-gray-100 shadow-sm rounded-2xl'>
           <CardHeader>
             <CardTitle className='text-base font-black'>
-              Financial Breakdown
+              Customer & Wallet Impact
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
-            <div>
-              <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>Total Budget</div>
-              <div className='text-sm font-bold mt-1'>
-                {formatCurrency(taskDetails?.totalAmount || displayAmount)}
+            {userInfo?.email && (
+              <div>
+                <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>Customer Email</div>
+                <div className='text-sm font-bold mt-1'>{userInfo.email}</div>
               </div>
-            </div>
-            {taskDetails?.platformFee !== undefined && (
+            )}
+            <div className='grid grid-cols-2 gap-4'>
               <div>
                 <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
-                  Platform Fee
+                  Previous Balance
+                </div>
+                <div className='text-sm font-bold mt-1 text-gray-500'>
+                  {formatCurrency(userInfo?.previousBalance || 0)}
+                </div>
+              </div>
+              <div>
+                <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
+                  Balance After
                 </div>
                 <div className='text-sm font-bold mt-1 text-[#6B46C1]'>
-                  {formatCurrency(taskDetails.platformFee)}
+                  {formatCurrency(userInfo?.balanceAfter || 0)}
                 </div>
               </div>
-            )}
-            {taskDetails?.taskerPayout !== undefined && (
-              <div>
-                <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
-                  Tasker Payout
-                </div>
-                <div className='text-sm font-bold mt-1 text-green-600'>
-                  {formatCurrency(taskDetails.taskerPayout)}
-                </div>
-              </div>
-            )}
+            </div>
             <div>
               <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
-                Last Updated
+                Transaction Date
               </div>
               <div className='text-sm font-bold mt-1'>
-                {new Date(transaction?.date || transaction?.createdAt || Date.now()).toLocaleString()}
+                {new Date(userInfo?.transactionDate || data?.date || Date.now()).toLocaleString()}
               </div>
             </div>
           </CardContent>
