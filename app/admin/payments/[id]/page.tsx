@@ -249,7 +249,7 @@ export default function TransactionDetailsPage({
         </Card>
       )}
 
-    {history && history.length > 0 && (
+    {/* {history && history.length > 0 && (
         <Card className='border border-gray-100 shadow-sm rounded-2xl'>
           <CardHeader>
             <CardTitle className='text-base font-black'>
@@ -296,7 +296,7 @@ export default function TransactionDetailsPage({
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
     </div>
   );
 }
