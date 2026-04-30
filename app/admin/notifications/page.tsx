@@ -29,6 +29,7 @@ import { NotificationBadge } from "@/components/admin/notifications/Notification
 import { NotificationActions } from "@/components/admin/notifications/NotificationActions";
 import { toast } from "sonner";
 import { AdminNotification } from "@/types/admin";
+import { cn } from "@/lib/utils";
 
 export default function NotificationsPage() {
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
@@ -170,6 +171,7 @@ export default function NotificationsPage() {
                   <th className='px-6 py-4 text-center'>Type</th>
                   <th className='px-6 py-4'>Audience</th>
                   <th className='px-6 py-4'>Performance</th>
+                  <th className='px-6 py-4 text-center'>Channels</th>
                   <th className='px-6 py-4'>Date Sent</th>
                   {/* <th className='px-6 py-4 text-right'>Action</th> */}
                 </tr>
@@ -215,6 +217,26 @@ export default function NotificationsPage() {
                             style={{ width: `${(notification.openedCount / notification.recipientsCount) * 100 || 0}%` }}
                           />
                         </div>
+                      </div>
+                    </td>
+                    <td className='px-6 py-5 text-center'>
+                      <div className='flex items-center justify-center gap-1.5'>
+                        <span className={cn(
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight",
+                          (notification as any).sentThrough === "both" || (notification as any).sentThrough === "email" 
+                            ? "bg-blue-50 text-blue-600 border border-blue-100" 
+                            : "bg-gray-50 text-gray-400 border border-gray-100 opacity-50"
+                        )}>
+                          Email
+                        </span>
+                        <span className={cn(
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight",
+                          (notification as any).sentThrough === "both" || (notification as any).sentThrough === "in-app" 
+                            ? "bg-purple-50 text-purple-600 border border-purple-100" 
+                            : "bg-gray-50 text-gray-400 border border-gray-100 opacity-50"
+                        )}>
+                          In-App
+                        </span>
                       </div>
                     </td>
                     <td className='px-6 py-5 text-xs text-gray-500'>
