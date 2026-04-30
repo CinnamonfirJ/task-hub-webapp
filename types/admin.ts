@@ -427,10 +427,15 @@ export interface AdminTaskerDetailResponse {
       userId?: string;
       fullName: string;
       emailAddress: string;
+      profilePicture: string;
+      phoneNumber: string;
+      country: string;
+      residentState: string;
       role: string;
       lastUpdated?: string;
       verifyIdentity: string;
       isActive: string;
+      createdAt: string;
     };
     kyc: {
       type: string;

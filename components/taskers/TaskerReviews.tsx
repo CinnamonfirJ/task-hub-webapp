@@ -19,7 +19,7 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
   const { data, isLoading, isError } = useTaskerReviews(taskerId, { page, limit });
 
   const reviews = data?.data?.reviews || data?.reviews || [];
-  const averageRating = data?.data?.averageRating || data?.averageRating || 0;
+  const averageRating = data?.data?.taskerAverageRating || data?.taskerAverageRating || 0;
   const pagination = data?.data?.pagination || data?.pagination;
   const totalReviews = pagination?.total || reviews.length;
 
@@ -110,7 +110,7 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
                         )}
                       </div>
                       <div>
-                        <h5 className='text-sm font-bold text-gray-900'>{review.user?.fullName || "Anonymous"}</h5>
+                        <h5 className='text-sm font-bold text-gray-900'>{review.reviewer?.name  || "Anonymous"}</h5>
                         <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>
                           {review.task?.category || "Task"} • {review.createdAt ? format(new Date(review.createdAt), "MMM d, yyyy") : ""}
                         </p>

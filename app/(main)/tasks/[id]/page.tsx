@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { calculateNetEarnings, calculatePlatformFee } from "@/lib/constants";
 import { RatingModal } from "@/components/tasks/RatingModal";
+import { UserProfileModal } from "@/components/tasks/UserProfileModal";
 
 export default function TaskDetailsPage() {
   const router = useRouter();
@@ -178,6 +179,7 @@ export default function TaskDetailsPage() {
   const [confirmCancelTask, setConfirmCancelTask] = useState(false);
   const [confirmDeleteBid, setConfirmDeleteBid] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
   const handleAcceptBid = (bidId: string) => {
     setConfirmAccept({ isOpen: true, bidId });
@@ -532,13 +534,20 @@ export default function TaskDetailsPage() {
                 </span>
               </div>
 
-              <div className='flex items-center gap-3 pt-2'>
-                <div className='w-10 h-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold text-sm shadow-sm'>
-                  {posterInitial}
+              <div 
+                className='flex items-center gap-3 pt-2 group cursor-pointer'
+                onClick={() => setIsUserModalOpen(true)}
+              >
+                <div className='w-10 h-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold text-sm shadow-sm overflow-hidden border-2 border-white ring-1 ring-purple-100 transition-transform group-hover:scale-105'>
+                  {task.user?.profilePicture ? (
+                    <img src={task.user.profilePicture} alt="User" className="w-full h-full object-cover" />
+                  ) : (
+                    posterInitial
+                  )}
                 </div>
                 <div className='flex flex-col'>
-                  <span className='text-gray-400 text-sm font-semibold'>
-                    Posted by {posterName}
+                  <span className='text-gray-400 text-sm font-semibold group-hover:text-[#6B46C1] transition-colors'>
+                    Posted by <span className="text-gray-700 font-bold underline decoration-gray-200 decoration-2 underline-offset-4 group-hover:decoration-[#6B46C1]">{posterName}</span>
                   </span>
 
                   {/* Assignment Status Message */}
@@ -912,8 +921,14 @@ export default function TaskDetailsPage() {
       <RatingModal
         isOpen={isRatingModalOpen}
         onClose={() => setIsRatingModalOpen(false)}
-        taskId={task._id}
+        taskId={task?._id || ""}
         taskerName={taskerName}
+      />
+
+      <UserProfileModal
+        isOpen={isUserModalOpen}
+        onClose={() => setIsUserModalOpen(false)}
+        user={task.user as any}
       />
     </div>
   );

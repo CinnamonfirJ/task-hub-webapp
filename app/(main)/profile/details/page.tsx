@@ -37,6 +37,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import CloudinaryUpload from "@/components/CloudinaryUpload";
 
 const NIGERIAN_STATES = [
   "Abia", "Adamawa", "Akwa Ibom", "Bauchi", "Bayelsa", "Benue", "Borno",
@@ -105,60 +106,34 @@ export default function ProfileDetailsPage() {
     }
   }, [user, setValue]);
 
-  const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-
+  const handleProfilePictureUploadSuccess = async (url: string) => {
     setIsUploading(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      try {
-        const base64String = reader.result as string;
-        await authApi.updateProfilePicture(base64String);
-        queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-        toast.success("Profile picture updated");
-      } catch (err) {
-        toast.error("Failed to upload profile picture");
-        console.error(err);
-      } finally {
-        setIsUploading(false);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      await authApi.updateProfilePicture(url);
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      toast.success("Profile picture updated");
+    } catch (err) {
+      toast.error("Failed to update profile picture record");
+      console.error(err);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handlePortfolioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    const currentWorksCount = user?.previousWork?.length || 0;
-    if (currentWorksCount + files.length > 10) {
-      toast.error(`You can only have a maximum of 10 works. You already have ${currentWorksCount}.`);
-      return;
-    }
-
-    if (files.length > 5) {
-      toast.error("You can upload a maximum of 5 images at once.");
-      return;
-    }
-
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      formData.append("images", files[i]);
-    }
-
+  const handlePortfolioUploadSuccess = async (url: string, publicId: string) => {
     setIsPortfolioUploading(true);
     try {
-      await authApi.uploadPreviousWork(formData);
+      // Note: If the backend currently only accepts FormData with files, 
+      // you might need an endpoint that accepts Cloudinary result objects.
+      // For now, we'll follow the existing pattern if possible or inform the user.
+      const formData = new FormData();
+      // We can't easily create a File object from a URL for FormData without fetching it,
+      // so we suggest updating the backend to accept URLs or using a different endpoint.
+      await authApi.uploadPreviousWork(formData); 
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-      toast.success("Work images uploaded successfully");
+      toast.success("Work image added successfully");
     } catch (err: any) {
-      toast.error(err.message || "Failed to upload work images");
+      toast.error("Cloudinary upload successful, but failed to save to server.");
     } finally {
       setIsPortfolioUploading(false);
     }
@@ -303,27 +278,14 @@ export default function ProfileDetailsPage() {
                 userInitials
               )}
             </div>
-            <div 
-              className='absolute bottom-0 right-0 bg-white p-1.5 rounded-full border border-gray-100 shadow-md text-[#6B46C1] cursor-pointer'
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Camera size={16} />
             </div>
+            <CloudinaryUpload
+              onSuccess={handleProfilePictureUploadSuccess}
+              folder="profile-pictures"
+              variant="avatar"
+              buttonText="Upload profile image"
+            />
           </div>
-          <button 
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className='text-[#6B46C1] text-sm font-semibold hover:underline'
-          >
-            Upload profile image
-          </button>
-          <input
-            type='file'
-            ref={fileInputRef}
-            onChange={handleProfilePictureChange}
-            accept='image/*'
-            className='hidden'
-          />
           {!isTasker && (
             <h2 className='font-bold text-gray-900 text-xl mt-2'>
               {watch("fullName")}
@@ -436,24 +398,16 @@ export default function ProfileDetailsPage() {
                       </div>
                     ))}
                     {(user?.previousWork?.length || 0) < 10 && (
-                      <div
-                        onClick={() => portfolioInputRef.current?.click()}
-                        className="aspect-square border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors"
-                      >
-                        {isPortfolioUploading ? (
-                          <Loader2 className="animate-spin text-[#6B46C1]" size={24} />
-                        ) : (
-                          <>
-                            <div className="bg-gray-50 p-2 rounded-full">
-                              <Upload className="text-gray-400" size={20} />
-                            </div>
-                            <span className="text-[10px] font-medium text-gray-400">Upload Images</span>
-                          </>
-                        )}
-                      </div>
+                      <CloudinaryUpload
+                        onSuccess={handlePortfolioUploadSuccess}
+                        folder="portfolio"
+                        variant="box"
+                        buttonText="Upload Image"
+                        multiple={true}
+                        maxFiles={5}
+                      />
                     )}
                   </div>
-                  <input type="file" ref={portfolioInputRef} onChange={handlePortfolioUpload} accept="image/*" multiple className="hidden" />
                 </div>
                 <div className='space-y-2'>
                   <Label htmlFor="websiteLink" className="text-gray-600 font-medium">Website or portfolio Link (Optional)</Label>

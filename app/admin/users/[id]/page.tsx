@@ -285,8 +285,9 @@ export default function UserDetailsPage({
                 />
               ) : (
                 <span>
-                  {user.fullName
-                    ?.split(" ")
+                  {(user.fullName || "U")
+                    .split(" ")
+                    .filter(Boolean)
                     .map((w: string) => w[0])
                     .join("")
                     .toUpperCase()

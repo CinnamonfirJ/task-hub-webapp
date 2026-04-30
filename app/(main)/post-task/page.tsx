@@ -20,6 +20,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { useCategories, useUniversities } from "@/hooks/useCategories";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import CloudinaryUpload from "@/components/CloudinaryUpload";
 
 function PostTaskForm() {
   const { form, onSubmit, isSubmitting } = usePostTask();
@@ -41,27 +42,13 @@ function PostTaskForm() {
     }
   }, [searchParams, form]);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-
+  const handleTaskImageUploadSuccess = (url: string, publicId: string) => {
     const currentImages = form.getValues("images") || [];
-    if (currentImages.length + files.length > 5) {
+    if (currentImages.length >= 5) {
       toast.error("Maximum 5 images allowed");
       return;
     }
-
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        const currentImages = form.getValues("images") || [];
-        form.setValue("images", [...currentImages, { url: base64, file: file }]);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    form.setValue("images", [...currentImages, { url, publicId }]);
   };
 
   const handleAddTag = () => {
@@ -348,23 +335,15 @@ function PostTaskForm() {
 
             {showImages && (
               <div className='space-y-4 mt-2'>
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className='border border-dashed border-purple-200 rounded-xl p-8 flex flex-col items-center justify-center space-y-2 cursor-pointer hover:bg-purple-50 transition-colors bg-gray-50/50'
-                >
-                  <input
-                    type='file'
-                    ref={fileInputRef}
-                    className='hidden'
-                    multiple
-                    accept='image/*'
-                    onChange={handleImageSelect}
-                  />
-                  <Upload className='text-purple-400 mb-1' size={24} />
-                  <span className='text-xs font-bold text-[#6B46C1] bg-purple-100 px-6 py-2 rounded-full'>
-                    Upload photos
-                  </span>
-                </div>
+                <CloudinaryUpload
+                  onSuccess={handleTaskImageUploadSuccess}
+                  folder="task-images"
+                  variant="box"
+                  buttonText="Upload Task Photos"
+                  multiple={true}
+                  maxFiles={5}
+                  className="bg-purple-50/30 border-purple-100"
+                />
 
                 {form.watch("images") && form.watch("images")!.length > 0 && (
                   <div className='grid grid-cols-3 md:grid-cols-4 gap-3'>

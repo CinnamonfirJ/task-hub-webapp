@@ -313,7 +313,7 @@ export const adminApi = {
   },
 
   getSecuritySummary: async (userId: string): Promise<any> => {
-    return apiData<any>(`/api/admin/reports/summary/${userId}`, {
+    return apiData<any>(`/api/admin/reports/activity-logs/summary/${userId}`, {
       method: "GET",
     });
   },
