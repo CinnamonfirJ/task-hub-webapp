@@ -153,22 +153,22 @@ export default function TaskerDetailsPage({
         </div>
 
         {/* Suspend / Activate button */}
-        {/* <Button
+        <Button
           onClick={
-            tasker.lockUntil
+            tasker?.lockUntil && new Date(tasker.lockUntil) > new Date()
               ? handleUnlock
               : () => setIsLockModalOpen(true)
           }
           disabled={isLocking || isUnlocking}
           className={`${
-            tasker.lockUntil
+            tasker?.lockUntil && new Date(tasker.lockUntil) > new Date()
               ? "bg-[#10B981] hover:bg-[#059669]"
               : "bg-[#EF4444] hover:bg-[#DC2626]"
           } text-white gap-2 h-10 px-6 font-semibold rounded-xl min-w-[160px] transition-all`}
         >
           {isLocking || isUnlocking ? (
             <Loader2 size={18} className="animate-spin" />
-          ) : tasker.lockUntil ? (
+          ) : tasker?.lockUntil && new Date(tasker.lockUntil) > new Date() ? (
             <>
               <ShieldCheck size={18} /> Unlock Tasker
             </>
@@ -177,7 +177,7 @@ export default function TaskerDetailsPage({
               <Ban size={18} /> Lock Tasker
             </>
           )}
-        </Button> */}
+        </Button>
       </div>
 
       {/* ── Three info cards ── */}
