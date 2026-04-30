@@ -187,7 +187,7 @@ export default function UsersManagementPage() {
                 "All",
                 "Active",
                 // "Inactive",
-                "Suspended",
+                "Locked",
                 "Verified",
               ]}
               activeFilter={activeFilter}
@@ -228,7 +228,7 @@ export default function UsersManagementPage() {
                     <th className='px-6 py-4'>CONTACT</th>
                     <th className='px-6 py-4'>STATUS</th>
                     <th className='px-6 py-4'>VERIFICATION</th>
-                    <th className='px-6 py-4'>LAST ACTIVE</th>
+                    {/* <th className='px-6 py-4'>LAST ACTIVE</th> */}
                     <th className='px-6 py-4 text-right'>ACTION</th>
                   </tr>
                 </thead>
@@ -271,7 +271,7 @@ export default function UsersManagementPage() {
                         >
                           {user.lockUntil &&
                           new Date(user.lockUntil) > new Date()
-                            ? "Suspended"
+                            ? "Locked"
                             : user.isActive
                               ? "Active"
                               : "Inactive"}
@@ -299,13 +299,13 @@ export default function UsersManagementPage() {
                           </span>
                         </div>
                       </td>
-                      <td className='px-6 py-4 text-xs font-bold text-gray-900'>
+                      {/* <td className='px-6 py-4 text-xs font-bold text-gray-900'>
                         <div className='flex justify-center items-center'>
                           {user.lastLogin
                             ? new Date(user.lastLogin).toLocaleDateString()
                             : "—"}
                         </div>
-                      </td>
+                      </td> */}
                       <td className='px-6 py-4 text-right'>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

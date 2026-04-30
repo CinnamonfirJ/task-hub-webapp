@@ -165,16 +165,16 @@ export default function AdminDashboardPage() {
       iconColor: "text-red-500",
       valueColor: "text-red-500",
     },
-    {
-      label: "Pending KYC",
-      value: stats?.cards?.pendingKyc?.toLocaleString() ?? "0",
-      trend: growthLabel,
-      trendUp: true,
-      icon: AlertCircle,
-      iconBg: "bg-purple-100",
-      iconColor: "text-purple-600",
-      valueColor: "text-purple-600",
-    },
+    // {
+    //   label: "Pending KYC",
+    //   value: stats?.cards?.pendingKyc?.toLocaleString() ?? "0",
+    //   trend: growthLabel,
+    //   trendUp: true,
+    //   icon: AlertCircle,
+    //   iconBg: "bg-purple-100",
+    //   iconColor: "text-purple-600",
+    //   valueColor: "text-purple-600",
+    // },
     {
       label: "Total Revenue",
       value: formatCurrency(stats?.cards?.totalRevenue ?? 0),
@@ -186,24 +186,14 @@ export default function AdminDashboardPage() {
       valueColor: "text-emerald-700",
     },
     {
-      label: "Escrow Held",
-      value: formatCurrency(stats?.cards?.escrowHeld ?? 0),
+      label: "Total Transactions",
+      value: formatCurrency(stats?.cards?.totalTransaction ?? 0),
       trend: growthLabel,
-      trendUp: false,
-      icon: Clock,
+      trendUp: true,
+      icon: TrendingUp,
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
       valueColor: "text-blue-600",
-    },
-    {
-      label: "Outgoing Fees",
-      value: formatCurrency(stats?.cards?.outgoingFees ?? 0),
-      trend: growthLabel,
-      trendUp: false,
-      icon: TrendingDown,
-      iconBg: "bg-red-100",
-      iconColor: "text-red-500",
-      valueColor: "text-red-500",
     },
   ];
 
@@ -518,7 +508,7 @@ export default function AdminDashboardPage() {
                   Average Task Value
                 </span>
                 <span className='text-sm font-semibold text-gray-800'>
-                  {formatCurrency(stats?.quickStats?.avgTaskValue ?? 0)}
+                  {/* {formatCurrency(stats?.quickStats?.avgTaskValue ?? 0)} */}
                 </span>
               </div>
             </div>

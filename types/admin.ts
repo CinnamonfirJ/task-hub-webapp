@@ -72,8 +72,7 @@ export interface AdminDashboardStats {
     cancelledTasks: number;
     pendingKyc: number;
     totalRevenue: number;
-    escrowHeld: number;
-    outgoingFees: number;
+    totalTransaction: number;
   };
   quickStats: {
     userToTaskerRatio: string;
