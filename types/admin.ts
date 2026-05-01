@@ -593,7 +593,7 @@ export interface KYCRecord {
     phoneNumber?: string;
   } | null;
   nin: string; // Legacy masked string
-  maskedNin?: string; // New field from API
+  nin?: string; // New field from API
   status: "pending" | "approved" | "approve" | "rejected";
   submittedDocuments?: KYCDocument[];
   approvedBy?: {
