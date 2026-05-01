@@ -80,7 +80,7 @@ export default function KYCManagementPage() {
         const phone = (record.user?.phoneNumber || "").toLowerCase();
         
         // KYC Info
-        const nin = (record.maskedNin || record.nin || "").toLowerCase();
+        const nin = (record.nin || record.nin || "").toLowerCase();
         const status = (record.status || "").toLowerCase();
         const id = (record._id || "").toLowerCase();
         
@@ -267,14 +267,14 @@ export default function KYCManagementPage() {
                       </td>
                       <td className='px-6 py-4 text-gray-500 font-mono text-xs'>
                         <div className="flex items-center gap-2">
-                          {record.maskedNin || record.nin || "N/A"}
-                          {(record.nin || record.maskedNin) && (
+                          {record.nin || record.nin || "N/A"}
+                          {(record.nin || record.nin) && (
                             <Button
                               variant="ghost"
                               size="icon"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigator.clipboard.writeText(record.nin || record.maskedNin || "");
+                                navigator.clipboard.writeText(record.nin || record.nin || "");
                                 toast.success("NIN copied to clipboard");
                               }}
                               className="h-6 w-6 text-gray-400 hover:text-[#6B46C1] hover:bg-gray-100"
