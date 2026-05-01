@@ -94,13 +94,25 @@ export function useAcceptBid() {
       return { previousBids, previousTaskBids };
     },
     onSuccess: (data) => {
-      const taskId = data.task?._id || data.task;
-      queryClient.invalidateQueries({ queryKey: ["taskBids", taskId] });
-      queryClient.invalidateQueries({ queryKey: ["task", taskId] });
+      // Robustly extract taskId from various possible response structures
+      const taskId = 
+        data?.task?._id || 
+        data?.task?.id || 
+        data?.task || 
+        data?.bid?.task?._id || 
+        data?.bid?.task;
+
+      if (taskId) {
+        queryClient.invalidateQueries({ queryKey: ["task", taskId] });
+        queryClient.refetchQueries({ queryKey: ["task", taskId] });
+        queryClient.invalidateQueries({ queryKey: ["taskBids", taskId] });
+      }
+      
       queryClient.invalidateQueries({ queryKey: ["myBids"] });
       queryClient.invalidateQueries({ queryKey: ["userTasks"] });
-      queryClient.invalidateQueries({ queryKey: ["bid", data.bid?._id] });
+      queryClient.invalidateQueries({ queryKey: ["bid", data?.bid?._id || data?._id] });
       queryClient.invalidateQueries({ queryKey: ["taskerFeed"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (err, bidId, context) => {
       if (context?.previousBids) {
@@ -108,10 +120,16 @@ export function useAcceptBid() {
       }
     },
     onSettled: (data) => {
-      const taskId = data?.task?._id || data?.task;
+      const taskId = 
+        data?.task?._id || 
+        data?.task?.id || 
+        data?.task || 
+        data?.bid?.task?._id || 
+        data?.bid?.task;
+
       if (taskId) {
-        queryClient.invalidateQueries({ queryKey: ["taskBids", taskId] });
         queryClient.invalidateQueries({ queryKey: ["task", taskId] });
+        queryClient.invalidateQueries({ queryKey: ["taskBids", taskId] });
       }
       queryClient.invalidateQueries({ queryKey: ["myBids"] });
     },

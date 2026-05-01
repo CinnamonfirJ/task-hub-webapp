@@ -585,7 +585,7 @@ export default function HomePage() {
                 worker.averageRating ||
                 (worker as any)?.stats?.ratings ||
                 (worker as any)?.rating ||
-                "4.9";
+                "0";
               const jobs =
                 worker.completedJobs !== undefined
                   ? worker.completedJobs

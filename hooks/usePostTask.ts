@@ -106,11 +106,14 @@ export function usePostTask() {
     // Images
     if (data.images && data.images.length > 0) {
       data.images.forEach((img: any) => {
-        // Appends each file object
+        // Appends file object if present (legacy/direct)
         if (img.file) {
           formData.append("images", img.file);
         } else if (img instanceof File) {
           formData.append("images", img);
+        } else if (img.url) {
+          // Send Cloudinary URL string
+          formData.append("images", img.url);
         }
       });
     }

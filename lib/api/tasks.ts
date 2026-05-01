@@ -211,4 +211,10 @@ export const tasksApi = {
     });
     return res?.task || res?.data?.task || res;
   },
+  rateTask: async (id: string, data: { rating: number; reviewText?: string }): Promise<any> => {
+    return apiData<any>(`/api/tasks/${id}/rate`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
 };

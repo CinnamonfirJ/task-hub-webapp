@@ -23,6 +23,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import { ExportModal } from "@/components/admin/ExportModal";
+import { SendEmailModal } from "@/components/admin/users/SendEmailModal";
+import { SendBulkEmailModal } from "@/components/admin/users/SendBulkEmailModal";
+import { Mail, Users } from "lucide-react";
 import Link from "next/link";
 import {
   useAdminUsers,
@@ -39,6 +42,9 @@ export default function UsersManagementPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isBulkEmailModalOpen, setIsBulkEmailModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; email: string } | null>(null);
   const limit = 20;
 
   // Fetch stats
@@ -51,11 +57,12 @@ export default function UsersManagementPage() {
     search: searchQuery,
     status:
       activeFilter === "All" ||
-      activeFilter === "Suspended" ||
-      activeFilter === "Verified"
+      activeFilter === "Verified" ||
+      activeFilter === "Unverified"
         ? undefined
-        : activeFilter.toLowerCase(),
+        : activeFilter.toLowerCase(), // "active", "locked"
     verified: activeFilter === "Verified" ? true : undefined,
+    kycVerified: activeFilter === "Unverified" ? false : undefined,
   });
 
   const users = usersData?.users || [];
@@ -65,14 +72,39 @@ export default function UsersManagementPage() {
   const totalRecords = pagination?.totalUsers || (usersData as any)?.totalRecords || (usersData as any)?.count || 0;
   const totalPages = pagination?.totalPages || (usersData as any)?.totalPages || Math.ceil(totalRecords / limit);
 
-  // Process users for client-side filter (e.g. Suspended)
-  const processedUsers =
-    activeFilter === "Suspended"
-      ? users.filter((user) => {
-          if (!user.lockUntil) return false;
-          return new Date(user.lockUntil) > new Date();
-        })
-      : users;
+  // Process users for client-side filter validation (e.g. strict Locked time check, Unverified check fallback)
+  const processedUsers = users.filter((user) => {
+    // 1. Unverified Filter
+    if (activeFilter === "Unverified") {
+      return user.isKYCVerified === false;
+    }
+
+    // // 2. Locked Filter
+    // if (activeFilter === "Locked") {
+    //   if (!user.lockUntil) return false;
+    //   const lockDate = new Date(user.lockUntil);
+    //   return !isNaN(lockDate.getTime()) && lockDate > new Date();
+    // }
+
+    // 3. Active Filter (Exclude locked users)
+    if (activeFilter === "Active") {
+      if (user.lockUntil) {
+        const lockDate = new Date(user.lockUntil);
+        if (!isNaN(lockDate.getTime()) && lockDate > new Date()) {
+          return false; // User is locked, so they shouldn't be in the Active list
+        }
+      }
+      return true; // Rely on the API's isActive filtering for the rest
+    }
+
+    // 4. Verified Filter
+    if (activeFilter === "Verified") {
+      return user.isKYCVerified === true;
+    }
+
+    // 5. All (Rely on API)
+    return true;
+  });
 
   const { mutate: lockUser } = useLockUser();
   const { mutate: unlockUser } = useUnlockUser();
@@ -150,6 +182,14 @@ export default function UsersManagementPage() {
         </div>
         <div className='flex gap-3'>
           <Button
+            onClick={() => setIsBulkEmailModalOpen(true)}
+            variant='outline'
+            className='text-sm h-10 px-4 gap-2 border-gray-200 text-purple-600 hover:text-purple-700'
+          >
+            <Users size={16} />
+            Bulk Email
+          </Button>
+          <Button
             onClick={() => setIsExportModalOpen(true)}
             variant='outline'
             className='text-sm h-10 px-4 gap-2 border-gray-200'
@@ -186,9 +226,9 @@ export default function UsersManagementPage() {
               filterOptions={[
                 "All",
                 "Active",
-                // "Inactive",
-                "Suspended",
+                // "Locked",
                 "Verified",
+                "Unverified",
               ]}
               activeFilter={activeFilter}
               onFilterChange={handleFilterChange}
@@ -228,7 +268,7 @@ export default function UsersManagementPage() {
                     <th className='px-6 py-4'>CONTACT</th>
                     <th className='px-6 py-4'>STATUS</th>
                     <th className='px-6 py-4'>VERIFICATION</th>
-                    <th className='px-6 py-4'>LAST ACTIVE</th>
+                    {/* <th className='px-6 py-4'>LAST ACTIVE</th> */}
                     <th className='px-6 py-4 text-right'>ACTION</th>
                   </tr>
                 </thead>
@@ -244,7 +284,11 @@ export default function UsersManagementPage() {
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-3'>
                           <div className='w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-[#6B46C1] overflow-hidden border border-purple-100'>
-                              <UserCircle2 size={24} />
+                              {user.profilePicture ? (
+                                  <img src={user.profilePicture} alt="Profile" className="w-full h-full items-center"/>
+                                ) : (
+                                  <UserCircle2 size={24} />
+                                )}
                           </div>
                           <div>
                             <div className='font-bold text-gray-900'>
@@ -271,7 +315,7 @@ export default function UsersManagementPage() {
                         >
                           {user.lockUntil &&
                           new Date(user.lockUntil) > new Date()
-                            ? "Suspended"
+                            ? "Locked"
                             : user.isActive
                               ? "Active"
                               : "Inactive"}
@@ -299,13 +343,13 @@ export default function UsersManagementPage() {
                           </span>
                         </div>
                       </td>
-                      <td className='px-6 py-4 text-xs font-bold text-gray-900'>
+                      {/* <td className='px-6 py-4 text-xs font-bold text-gray-900'>
                         <div className='flex justify-center items-center'>
                           {user.lastLogin
                             ? new Date(user.lastLogin).toLocaleDateString()
                             : "—"}
                         </div>
-                      </td>
+                      </td> */}
                       <td className='px-6 py-4 text-right'>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -323,6 +367,19 @@ export default function UsersManagementPage() {
                                 <ExternalLink size={14} /> View Details
                               </DropdownMenuItem>
                             </Link>
+                            <DropdownMenuItem
+                              className='gap-2 cursor-pointer text-purple-600 focus:text-purple-600 font-bold text-xs'
+                              onClick={() => {
+                                setSelectedUser({
+                                  id: user._id,
+                                  name: user.fullName,
+                                  email: user.emailAddress,
+                                });
+                                setIsEmailModalOpen(true);
+                              }}
+                            >
+                              <Mail size={14} /> Send Email
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                               className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'
                               onClick={() => {
@@ -375,6 +432,19 @@ export default function UsersManagementPage() {
         isOpen={isExportModalOpen} 
         onClose={() => setIsExportModalOpen(false)} 
         type="users" 
+      />
+      {selectedUser && (
+        <SendEmailModal
+          isOpen={isEmailModalOpen}
+          onClose={() => setIsEmailModalOpen(false)}
+          userId={selectedUser.id}
+          userName={selectedUser.name}
+          userEmail={selectedUser.email}
+        />
+      )}
+      <SendBulkEmailModal
+        isOpen={isBulkEmailModalOpen}
+        onClose={() => setIsBulkEmailModalOpen(false)}
       />
     </div>
   );

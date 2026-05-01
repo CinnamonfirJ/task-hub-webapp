@@ -79,3 +79,15 @@ export function useTaskerTasks(
     ...options,
   });
 }
+
+export function useRateTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { rating: number; reviewText?: string } }) =>
+      tasksApi.rateTask(id, data),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["task", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["userTasks"] });
+    },
+  });
+}

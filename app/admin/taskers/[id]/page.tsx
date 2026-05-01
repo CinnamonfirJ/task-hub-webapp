@@ -26,11 +26,12 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import {
   useTaskerDetails,
-  useSuspendTasker,
-  useActivateTasker,
+  useLockTasker,
+  useUnlockTasker,
   useVerifyTasker,
   useSecuritySummary,
   useActivityLogs,
+  useSendUserEmail,
 } from "@/hooks/useAdmin";
 import { formatCurrency } from "@/lib/utils";
 import {
@@ -41,7 +42,9 @@ import {
   MousePointerClick,
   AlertCircle,
   ChevronDown,
+  Send,
 } from "lucide-react";
+import { SendEmailModal } from "@/components/admin/users/SendEmailModal";
 
 export default function TaskerDetailsPage({
   params,
@@ -51,14 +54,15 @@ export default function TaskerDetailsPage({
   const { id } = use(params);
   const { data: detailData, isLoading, isError } = useTaskerDetails(id);
 
-  const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
-  const [suspendReason, setSuspendReason] = useState("");
-  const [suspendDuration, setSuspendDuration] = useState(7);
+  const [isLockModalOpen, setIsLockModalOpen] = useState(false);
+  const [lockReason, setLockReason] = useState("");
+  const [lockDuration, setLockDuration] = useState(7);
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [verificationNotes, setVerificationNotes] = useState("");
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
-  const { mutate: suspend, isPending: isSuspending } = useSuspendTasker();
-  const { mutate: activate, isPending: isActivating } = useActivateTasker();
+  const { mutate: lockTasker, isPending: isLocking } = useLockTasker();
+  const { mutate: unlockTasker, isPending: isUnlocking } = useUnlockTasker();
   const { mutate: verify, isPending: isVerifying } = useVerifyTasker();
 
   const [logPage, setLogPage] = useState(1);
@@ -94,20 +98,20 @@ export default function TaskerDetailsPage({
   const activityLog = detailData?.activityLog ?? [];
   const fullName = account?.fullName;
 
-  const handleSuspend = () => {
-    suspend(
-      { id, reason: suspendReason, duration: suspendDuration },
+  const handleLock = () => {
+    lockTasker(
+      { id, reason: lockReason, duration: lockDuration },
       {
         onSuccess: () => {
-          setIsSuspendModalOpen(false);
-          setSuspendReason("");
+          setIsLockModalOpen(false);
+          setLockReason("");
         },
       },
     );
   };
 
-  const handleActivate = () => {
-    activate(id);
+  const handleUnlock = () => {
+    unlockTasker(id);
   };
 
   const handleVerify = () => {
@@ -152,33 +156,127 @@ export default function TaskerDetailsPage({
           </div>
         </div>
 
-        {/* Suspend / Activate button */}
-        {/* <Button
+        <div className='flex items-center gap-3'>
+          {/* Send Email Button */}
+          <Button
+            variant='outline'
+            onClick={() => setIsEmailModalOpen(true)}
+            className='hidden md:flex items-center gap-2 h-10 px-4 rounded-xl border-gray-200 text-gray-700 font-semibold hover:bg-gray-50'
+          >
+            <Mail size={18} className='text-purple-600' />
+            Send Email
+          </Button>
+
+          {/* Suspend / Activate button */}
+        <Button
           onClick={
-            tasker.isSuspended
-              ? handleActivate
-              : () => setIsSuspendModalOpen(true)
+            tasker?.lockUntil && new Date(tasker.lockUntil) > new Date()
+              ? handleUnlock
+              : () => setIsLockModalOpen(true)
           }
-          disabled={isSuspending || isActivating}
+          disabled={isLocking || isUnlocking}
           className={`${
-            tasker.isSuspended
+            tasker?.lockUntil && new Date(tasker.lockUntil) > new Date()
               ? "bg-[#10B981] hover:bg-[#059669]"
               : "bg-[#EF4444] hover:bg-[#DC2626]"
           } text-white gap-2 h-10 px-6 font-semibold rounded-xl min-w-[160px] transition-all`}
         >
-          {isSuspending || isActivating ? (
+          {isLocking || isUnlocking ? (
             <Loader2 size={18} className="animate-spin" />
-          ) : tasker.isSuspended ? (
+          ) : tasker?.lockUntil && new Date(tasker.lockUntil) > new Date() ? (
             <>
-              <ShieldCheck size={18} /> Activate Tasker
+              <ShieldCheck size={18} /> Unlock Tasker
             </>
           ) : (
             <>
-              <Ban size={18} /> Suspend Tasker
+              <Ban size={18} /> Lock Tasker
             </>
           )}
-        </Button> */}
+        </Button>
       </div>
+    </div>
+
+      {/* ── Profile Card ── */}
+      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <CardContent className='p-5 md:p-6'>
+          <div className='flex items-center gap-4'>
+            {/* Avatar */}
+            <div className='w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-lg font-bold shrink-0 overflow-hidden border border-gray-100'>
+              {account?.profilePicture ? (
+                <img
+                  src={account.profilePicture}
+                  alt={fullName}
+                  className='w-full h-full object-cover'
+                />
+              ) : (
+                <span>
+                  {(fullName || "T")
+                    .split(" ")
+                    .filter(Boolean)
+                    .map((w: string) => w[0])
+                    .join("")
+                    .toUpperCase()
+                    .substring(0, 2) || "T"}
+                </span>
+              )}
+            </div>
+
+            {/* Name + badges + contact */}
+            <div className='flex-1 min-w-0'>
+              <div className='flex flex-wrap items-center gap-2 mb-2'>
+                <h2 className='text-base md:text-lg font-bold text-gray-900'>
+                  {fullName}
+                </h2>
+                <span
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                    account?.verifyIdentity
+                      ? "bg-blue-50 text-blue-600 border border-blue-200"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
+                >
+                  {account?.verifyIdentity ? "Verified" : "Unverified"}
+                </span>
+                <span
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                    account?.isActive
+                      ? "bg-green-50 text-green-600 border border-green-200"
+                      : "bg-red-50 text-red-500 border border-red-200"
+                  }`}
+                >
+                  {account?.isActive ? "Active" : "Inactive"}
+                </span>
+              </div>
+
+              {/* Contact row */}
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-1.5 text-sm text-gray-600'>
+                <div className='flex items-center gap-2'>
+                  <Mail size={14} className='text-gray-400 shrink-0' />
+                  <span className='truncate'>{account?.emailAddress}</span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <Phone size={14} className='text-gray-400 shrink-0' />
+                  <span>{account?.phoneNumber || "Not provided"}</span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <MapPin size={14} className='text-gray-400 shrink-0' />
+                  <span>
+                    {account?.residentState || "N/A"}, {account?.country || "N/A"}
+                  </span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <Calendar size={14} className='text-gray-400 shrink-0' />
+                  <span>
+                 {account?.createdAt
+  ? new Date(account.createdAt).toLocaleDateString()
+  : "N/A"}
+                  </span>
+                </div>
+              
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ── Three info cards ── */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
@@ -349,9 +447,9 @@ export default function TaskerDetailsPage({
                 <div className='text-right'>
                   <p className='text-[10px] text-gray-400 font-bold uppercase mb-1'>Status</p>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    tasker?.isSuspended ? "bg-red-50 text-red-500" : "bg-green-50 text-green-500"
+                    tasker?.lockUntil && new Date(tasker.lockUntil) > new Date() ? "bg-red-50 text-red-500" : "bg-green-50 text-green-500"
                   }`}>
-                    {tasker?.isSuspended ? "Flagged" : "Secure"}
+                    {tasker?.lockUntil && new Date(tasker.lockUntil) > new Date() ? "Locked" : "Active"}
                   </span>
                 </div>
               </div>
@@ -440,8 +538,9 @@ export default function TaskerDetailsPage({
             >
               {/* Avatar */}
               <div className='w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold shrink-0'>
-                {review.reviewer
+                {(review.reviewer || "U")
                   .split(" ")
+                  .filter(Boolean)
                   .map((n: string) => n[0])
                   .join("")
                   .toUpperCase()
@@ -584,21 +683,21 @@ export default function TaskerDetailsPage({
         </CardContent>
       </Card>
 
-      {/* ── Suspend Tasker Modal ── */}
-      {isSuspendModalOpen && (
+      {/* ── Lock Tasker Modal ── */}
+      {isLockModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
           <div className='bg-white rounded-2xl w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto no-scrollbar'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-gray-900'>
-                  Suspend Tasker
+                  Lock Tasker
                 </h2>
                 <p className='text-sm text-gray-500 mt-1'>
-                  Suspend access for {fullName}
+                  Lock access for {fullName}
                 </p>
               </div>
               <button
-                onClick={() => setIsSuspendModalOpen(false)}
+                onClick={() => setIsLockModalOpen(false)}
                 className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400'
               >
                 <X size={20} />
@@ -611,13 +710,13 @@ export default function TaskerDetailsPage({
               </p>
               <div className='space-y-2'>
                 <label className='text-xs font-bold text-gray-700 uppercase'>
-                  Suspension Duration (Days)
+                  Lock Duration (Days)
                 </label>
                 <Input
                   type='number'
-                  value={suspendDuration}
+                  value={lockDuration}
                   onChange={(e) =>
-                    setSuspendDuration(parseInt(e.target.value) || 0)
+                    setLockDuration(parseInt(e.target.value) || 0)
                   }
                   className='rounded-xl h-11'
                   min={0}
@@ -626,12 +725,12 @@ export default function TaskerDetailsPage({
               </div>
               <div className='space-y-2'>
                 <label className='text-xs font-bold text-gray-700 uppercase'>
-                  Reason for Suspension *
+                  Reason for Lock *
                 </label>
                 <Input
                   placeholder='e.g. Multiple customer complaints'
-                  value={suspendReason}
-                  onChange={(e) => setSuspendReason(e.target.value)}
+                  value={lockReason}
+                  onChange={(e) => setLockReason(e.target.value)}
                   className='rounded-xl h-11'
                 />
               </div>
@@ -639,22 +738,22 @@ export default function TaskerDetailsPage({
             <div className='p-6 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3'>
               <Button
                 variant='outline'
-                onClick={() => setIsSuspendModalOpen(false)}
+                onClick={() => setIsLockModalOpen(false)}
                 className='rounded-xl font-semibold'
               >
                 Cancel
               </Button>
               <Button
-                onClick={handleSuspend}
-                disabled={isSuspending || !suspendReason.trim()}
+                onClick={handleLock}
+                disabled={isLocking || !lockReason.trim()}
                 className='bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-xl gap-2 font-semibold'
               >
-                {isSuspending ? (
+                {isLocking ? (
                   <Loader2 size={16} className='animate-spin' />
                 ) : (
                   <Ban size={16} />
                 )}
-                Confirm Suspension
+                Confirm Lock
               </Button>
             </div>
           </div>
@@ -722,6 +821,15 @@ export default function TaskerDetailsPage({
           </div>
         </div>
       )}
+      {/* ── Send Email Modal ── */}
+      <SendEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        userId={id}
+        userName={fullName || "Tasker"}
+        userEmail={account?.emailAddress || ""}
+        type="tasker"
+      />
     </div>
   );
 }

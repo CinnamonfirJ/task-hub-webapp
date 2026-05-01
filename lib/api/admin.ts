@@ -313,7 +313,7 @@ export const adminApi = {
   },
 
   getSecuritySummary: async (userId: string): Promise<any> => {
-    return apiData<any>(`/api/admin/reports/summary/${userId}`, {
+    return apiData<any>(`/api/admin/reports/activity-logs/summary/${userId}`, {
       method: "GET",
     });
   },
@@ -398,7 +398,7 @@ export const adminApi = {
           if (key === "status") {
             if (value === "active") query.append("isActive", "true");
             else if (value === "inactive") query.append("isActive", "false");
-            else if (value === "suspended") query.append("isSuspended", "true");
+            else if (value === "locked") query.append("isLocked", "true");
             else query.append(key, String(value));
           } else {
             query.append(key, String(value));
@@ -432,18 +432,18 @@ export const adminApi = {
     });
   },
 
-  suspendTasker: async (
+  lockTasker: async (
     id: string,
     data: { reason: string; duration?: number },
   ): Promise<any> => {
-    return apiData<any>(`/api/admin/taskers/${id}/suspend`, {
+    return apiData<any>(`/api/admin/taskers/${id}/lock`, {
       method: "PATCH",
       body: JSON.stringify(data),
     });
   },
 
-  activateTasker: async (id: string): Promise<any> => {
-    return apiData<any>(`/api/admin/taskers/${id}/activate`, {
+  unlockTasker: async (id: string): Promise<any> => {
+    return apiData<any>(`/api/admin/taskers/${id}/unlock`, {
       method: "PATCH",
     });
   },
@@ -876,16 +876,77 @@ export const adminApi = {
     return response.data;
   },
 
-  getNotifications: async (): Promise<AdminNotification[]> => {
+  getNotifications: async (params?: { page?: number; limit?: number }): Promise<any> => {
+    const query = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) query.append(key, String(value));
+      });
+    }
     const response = await apiData<AdminNotificationListResponse>(
-      "/api/admin/notifications",
+      `/api/admin/notifications?${query.toString()}`,
       { method: "GET" },
     );
-    return response.data;
+    return response.data ?? response;
   },
 
-  sendNotification: async (data: SendNotificationRequest & { sendEmail?: boolean }): Promise<any> => {
+  sendNotification: async (data: SendNotificationRequest & { sendEmail?: boolean; sendInApp?: boolean }): Promise<any> => {
     return apiData<any>("/api/admin/notifications/send", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  resendNotification: async (id: string): Promise<any> => {
+    return apiData<any>(`/api/admin/notifications/${id}/resend`, {
+      method: "POST",
+    });
+  },
+
+  getNotificationUsers: async (): Promise<any> => {
+    const response = await apiData<any>("/api/admin/notifications/all-users", {
+      method: "GET",
+    });
+    return response.data ?? response;
+  },
+
+  sendUserEmail: async (
+    id: string,
+    data: { subject: string; message: string },
+  ): Promise<any> => {
+    return apiData<any>(`/api/admin/users/${id}/send-email`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  sendBulkEmail: async (data: {
+    targetGroup: "verified" | "unverified" | "all";
+    subject: string;
+    message: string;
+  }): Promise<any> => {
+    return apiData<any>("/api/admin/users/bulk-email", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  sendTaskerEmail: async (
+    id: string,
+    data: { subject: string; message: string },
+  ): Promise<any> => {
+    return apiData<any>(`/api/admin/taskers/${id}/send-email`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  sendBulkTaskerEmail: async (data: {
+    targetGroup: "verified" | "unverified" | "all";
+    subject: string;
+    message: string;
+  }): Promise<any> => {
+    return apiData<any>("/api/admin/taskers/bulk-email", {
       method: "POST",
       body: JSON.stringify(data),
     });

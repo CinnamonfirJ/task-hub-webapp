@@ -275,7 +275,7 @@ export function useVerifyTasker() {
   });
 }
 
-export function useSuspendTasker() {
+export function useLockTasker() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -286,7 +286,7 @@ export function useSuspendTasker() {
       id: string;
       reason: string;
       duration?: number;
-    }) => adminApi.suspendTasker(id, { reason, duration }),
+    }) => adminApi.lockTasker(id, { reason, duration }),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["admin", "taskers"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "taskers", id] });
@@ -294,10 +294,10 @@ export function useSuspendTasker() {
   });
 }
 
-export function useActivateTasker() {
+export function useUnlockTasker() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => adminApi.activateTasker(id),
+    mutationFn: (id: string) => adminApi.unlockTasker(id),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["admin", "taskers"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "taskers", id] });
@@ -778,10 +778,10 @@ export function useNotificationStats() {
   });
 }
 
-export function useNotifications() {
+export function useNotifications(params?: { page?: number; limit?: number }) {
   return useQuery({
-    queryKey: ["admin", "notifications", "list"],
-    queryFn: () => adminApi.getNotifications(),
+    queryKey: ["admin", "notifications", "list", params],
+    queryFn: () => adminApi.getNotifications(params),
   });
 }
 
@@ -793,5 +793,70 @@ export function useSendNotification() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "notifications"] });
     },
+  });
+}
+
+export function useResendNotification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.resendNotification(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "notifications"] });
+    },
+  });
+}
+
+export function useSendUserEmail() {
+  return useMutation({
+    mutationFn: ({
+      id,
+      subject,
+      message,
+    }: {
+      id: string;
+      subject: string;
+      message: string;
+    }) => adminApi.sendUserEmail(id, { subject, message }),
+  });
+}
+
+export function useSendBulkEmail() {
+  return useMutation({
+    mutationFn: (data: {
+      targetGroup: "verified" | "unverified" | "all";
+      subject: string;
+      message: string;
+    }) => adminApi.sendBulkEmail(data),
+  });
+}
+
+export function useSendTaskerEmail() {
+  return useMutation({
+    mutationFn: ({
+      id,
+      subject,
+      message,
+    }: {
+      id: string;
+      subject: string;
+      message: string;
+    }) => adminApi.sendTaskerEmail(id, { subject, message }),
+  });
+}
+
+export function useSendBulkTaskerEmail() {
+  return useMutation({
+    mutationFn: (data: {
+      targetGroup: "verified" | "unverified" | "all";
+      subject: string;
+      message: string;
+    }) => adminApi.sendBulkTaskerEmail(data),
+  });
+}
+
+export function useNotificationUsers() {
+  return useQuery({
+    queryKey: ["admin", "notifications", "all-users"],
+    queryFn: () => adminApi.getNotificationUsers(),
   });
 }

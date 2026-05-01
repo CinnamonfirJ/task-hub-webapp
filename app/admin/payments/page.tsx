@@ -62,41 +62,74 @@ export default function PaymentsManagementPage() {
     search: searchTerm,
   });
 
-  const transactions = (txData as any)?.transactions || [];
-  const pagination = (txData as any)?.pagination;
+  const transactions = 
+    (txData as any)?.transactions || 
+    (txData as any)?.data?.transactions || 
+    (Array.isArray((txData as any)?.data) ? (txData as any).data : null) ||
+    (Array.isArray(txData) ? txData : []) || 
+    [];
 
-  const totalRecords = (pagination as any)?.totalTransactions || (txData as any)?.totalRecords || (txData as any)?.count || 0;
-  const totalPages = (pagination as any)?.totalPages || (txData as any)?.totalPages || Math.ceil(totalRecords / limit);
+  const processedTransactions = transactions.filter((tx: any) => {
+    if (activeFilter === "all" || activeFilter === "All") return true;
+    const type = (tx.type || "").toLowerCase();
+    const filter = activeFilter.toLowerCase();
+    
+    // Handle exact match or common aliases
+    if (type === filter) return true;
+    if (filter === "credit" && (type === "wallet_funding" || type === "escrow_credit" || type === "inflow")) return true;
+    if (filter === "debit" && (type === "escrow_debit" || type === "tasker_payout" || type === "outflow")) return true;
+    
+    return false;
+  });
+
+  const pagination = (txData as any)?.pagination || (txData as any)?.data?.pagination;
+
+  const totalRecords = 
+    (pagination as any)?.totalTransactionVolume || 
+    (txData as any)?.totalRecords || 
+    (txData as any)?.results || 
+    (txData as any)?.count || 
+    (txData as any)?.data?.totalRecords || 
+    (txData as any)?.data?.results ||
+    transactions.length ||
+    0;
+
+  const totalPages = 
+    (pagination as any)?.totalPages || 
+    (txData as any)?.totalPages || 
+    (txData as any)?.data?.totalPages || 
+    (txData as any)?.data?.pages ||
+    Math.ceil(totalRecords / limit);
 
   const paymentMetrics = [
     {
       label: "Total Transactions",
-      value: paymentStats?.totalTransactions?.toLocaleString() ?? "0",
+      value: paymentStats?.totalTransactionVolume?.toLocaleString() ?? "0",
       icon: <DollarSign size={18} />,
       color: "text-green-600",
       bg: "bg-green-50",
     },
     {
-      label: "Total Credits (Inflow)",
+      label: "Escrow Held (Inflow)",
       value: formatCurrency(paymentStats?.totalCredits ?? 0),
       icon: <ArrowUpRight size={18} />,
       color: "text-blue-600",
       bg: "bg-blue-50",
     },
     {
-      label: "Total Debits (Outflow)",
+      label: "Tasker Payouts (Outflow)",
       value: formatCurrency(paymentStats?.totalDebits ?? 0),
       icon: <ArrowDownRight size={18} />,
       color: "text-red-600",
       bg: "bg-red-50",
     },
-    {
-      label: "Net Flow",
-      value: formatCurrency(paymentStats?.netFlow ?? 0),
-      icon: <History size={18} />,
-      color: "text-purple-600",
-      bg: "bg-purple-50",
-    },
+    // {
+    //   label: "Net Flow",
+    //   value: formatCurrency(paymentStats?.netFlow ?? 0),
+    //   icon: <History size={18} />,
+    //   color: "text-purple-600",
+    //   bg: "bg-purple-50",
+    // },
     {
       label: "Platform Revenue",
       value: formatCurrency(paymentStats?.totalPlatformFees ?? 0),
@@ -256,7 +289,7 @@ export default function PaymentsManagementPage() {
               </tr>
             </thead>
             <tbody className='divide-y divide-gray-50'>
-              {transactions.map((tx: any) => (
+              {processedTransactions.map((tx: any) => (
                 <tr
                   key={tx._id}
                   className='group hover:bg-[#6B46C1]/2 transition-colors'

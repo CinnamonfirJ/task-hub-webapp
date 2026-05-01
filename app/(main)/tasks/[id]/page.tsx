@@ -16,7 +16,7 @@ import {
   useRejectBid,
 } from "@/hooks/useBids";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { BidCard } from "@/components/dashboard/BidCard";
 import { ApplicationForm } from "@/components/dashboard/ApplicationForm";
@@ -30,6 +30,8 @@ import { useWalletBalance } from "@/hooks/useWallet";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { calculateNetEarnings, calculatePlatformFee } from "@/lib/constants";
+import { RatingModal } from "@/components/tasks/RatingModal";
+import { UserProfileModal } from "@/components/tasks/UserProfileModal";
 
 export default function TaskDetailsPage() {
   const router = useRouter();
@@ -53,6 +55,10 @@ export default function TaskDetailsPage() {
   const { data: myBids } = useMyBids(undefined, { enabled: !!isTasker });
 
   const bids = bidsData?.bids || [];
+  const acceptedBid = bids.find((b: any) => b.status === "accepted");
+  const assignedTasker = acceptedBid ? (typeof acceptedBid.tasker === "object" ? acceptedBid.tasker : null) : null;
+  const taskerName = assignedTasker?.fullName || 
+    (assignedTasker?.firstName ? `${assignedTasker.firstName} ${assignedTasker.lastName || ""}` : "Tasker");
 
   // Find if current tasker has already bid on this task
   const existingBid =
@@ -172,6 +178,8 @@ export default function TaskDetailsPage() {
   });
   const [confirmCancelTask, setConfirmCancelTask] = useState(false);
   const [confirmDeleteBid, setConfirmDeleteBid] = useState(false);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
   const handleAcceptBid = (bidId: string) => {
     setConfirmAccept({ isOpen: true, bidId });
@@ -455,13 +463,53 @@ export default function TaskDetailsPage() {
             )}
 
             {task.status === "completed" && (
-              <div className='bg-blue-50 border border-blue-100 p-6 rounded-2xl'>
-                <h3 className='font-bold text-blue-800 text-lg'>
-                  Task Completed
-                </h3>
-                <p className='text-blue-700 text-sm'>
-                  This task has been verified and completed.
-                </p>
+              <div className='bg-blue-50 border border-blue-100 p-6 rounded-2xl space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <div className='space-y-1'>
+                    <h3 className='font-bold text-blue-800 text-lg'>
+                      Task Completed
+                    </h3>
+                    <p className='text-blue-700 text-sm'>
+                      This task has been verified and completed.
+                    </p>
+                  </div>
+                  
+                  {!(task as any).isRated && (
+                    <Button
+                      onClick={() => setIsRatingModalOpen(true)}
+                      className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl font-bold px-6 h-11 shadow-md shadow-purple-100'
+                    >
+                      Rate Tasker
+                    </Button>
+                  )}
+                </div>
+                
+                {(task as any).isRated && (
+                  <div className='pt-2 border-t border-blue-100/50'>
+                    <div className='flex items-center gap-1.5'>
+                      <div className='flex items-center'>
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star 
+                            key={s} 
+                            size={14} 
+                            className={cn(
+                              "fill-current",
+                              s <= ((task as any).rating?.rating || 0) ? "text-amber-400" : "text-gray-300"
+                            )} 
+                          />
+                        ))}
+                      </div>
+                      <span className='text-xs font-bold text-blue-800'>
+                        You rated this tasker {((task as any).rating?.rating || 0)}/5
+                      </span>
+                    </div>
+                    {((task as any).rating?.reviewText) && (
+                      <p className='text-xs text-blue-600 mt-2 italic'>
+                        "{((task as any).rating.reviewText)}"
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -486,13 +534,20 @@ export default function TaskDetailsPage() {
                 </span>
               </div>
 
-              <div className='flex items-center gap-3 pt-2'>
-                <div className='w-10 h-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold text-sm shadow-sm'>
-                  {posterInitial}
+              <div 
+                className='flex items-center gap-3 pt-2 group cursor-pointer'
+                onClick={() => setIsUserModalOpen(true)}
+              >
+                <div className='w-10 h-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold text-sm shadow-sm overflow-hidden border-2 border-white ring-1 ring-purple-100 transition-transform group-hover:scale-105'>
+                  {task.user?.profilePicture ? (
+                    <img src={task.user.profilePicture} alt="User" className="w-full h-full object-cover" />
+                  ) : (
+                    posterInitial
+                  )}
                 </div>
                 <div className='flex flex-col'>
-                  <span className='text-gray-400 text-sm font-semibold'>
-                    Posted by {posterName}
+                  <span className='text-gray-400 text-sm font-semibold group-hover:text-[#6B46C1] transition-colors'>
+                    Posted by <span className="text-gray-700 font-bold underline decoration-gray-200 decoration-2 underline-offset-4 group-hover:decoration-[#6B46C1]">{posterName}</span>
                   </span>
 
                   {/* Assignment Status Message */}
@@ -572,9 +627,10 @@ export default function TaskDetailsPage() {
             </div>
 
             {/* Task Images (Tasker View) */}
-            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm'>
+            {task.images ? <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm'>
               <TaskImages images={task.images} title='Task Images' />
-            </div>
+            </div> : <></> }
+           
 
             {/* Application Form Section */}
             {isTasker && !hasApplied && (
@@ -860,6 +916,19 @@ export default function TaskDetailsPage() {
         confirmLabel='Withdraw Application'
         icon='warning'
         variant='danger'
+      />
+
+      <RatingModal
+        isOpen={isRatingModalOpen}
+        onClose={() => setIsRatingModalOpen(false)}
+        taskId={task?._id || ""}
+        taskerName={taskerName}
+      />
+
+      <UserProfileModal
+        isOpen={isUserModalOpen}
+        onClose={() => setIsUserModalOpen(false)}
+        user={task.user as any}
       />
     </div>
   );

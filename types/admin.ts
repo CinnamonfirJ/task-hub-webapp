@@ -72,8 +72,7 @@ export interface AdminDashboardStats {
     cancelledTasks: number;
     pendingKyc: number;
     totalRevenue: number;
-    escrowHeld: number;
-    outgoingFees: number;
+    totalTransaction: number;
   };
   quickStats: {
     userToTaskerRatio: string;
@@ -83,6 +82,10 @@ export interface AdminDashboardStats {
   growth: number;
   recentTasks: any[];
   recentActivity: any[];
+  analytics?: {
+    locations?: { state: string; taskCount: number }[];
+    categories?: { categoryName: string; taskerCount: number }[];
+  };
 }
 
 export interface AdminDashboardStatsResponse {
@@ -125,6 +128,7 @@ export interface AdminUserListItem {
   _id: string;
   fullName: string;
   emailAddress: string;
+  profilePicture: string;
   phoneNumber?: string;
   country?: string;
   residentState?: string;
@@ -354,11 +358,13 @@ export interface AdminTaskerListItem {
   firstName: string;
   lastName: string;
   emailAddress: string;
+  profilePicture: string;
   phoneNumber?: string;
   categories: TaskerCategory[];
   verifyIdentity: boolean;
   isActive: boolean;
-  isSuspended: boolean;
+  isLocked: boolean;
+  lockUntil?: string;
   wallet: number;
   averageRating: number;
   completedTasks: number;
@@ -404,8 +410,9 @@ export interface AdminTaskerDetail {
   wallet: number;
   isEmailVerified: boolean;
   isActive: boolean;
-  isSuspended: boolean;
-  suspensionReason: string | null;
+  isLocked: boolean;
+  lockReason: string | null;
+  lockUntil?: string | null;
   rating: number;
   completedTasks: number;
   lastActive?: string;
@@ -419,8 +426,16 @@ export interface AdminTaskerDetailResponse {
     account?: {
       userId?: string;
       fullName: string;
+      emailAddress: string;
+      profilePicture: string;
+      phoneNumber: string;
+      country: string;
+      residentState: string;
       role: string;
       lastUpdated?: string;
+      verifyIdentity: string;
+      isActive: string;
+      createdAt: string;
     };
     kyc: {
       type: string;
@@ -500,34 +515,34 @@ export interface VerifyTaskerResponse {
   };
 }
 
-export interface SuspendTaskerInput {
+export interface LockTaskerInput {
   reason: string;
   duration?: number;
 }
 
-export interface SuspendTaskerResponse {
+export interface LockTaskerResponse {
   status: string;
   message: string;
   data: {
     taskerId: string;
-    isSuspended: boolean;
-    suspensionReason: string;
-    suspendedUntil?: string;
-    suspendedBy: string;
-    suspendedAt: string;
+    isLocked: boolean;
+    lockReason: string;
+    lockUntil?: string;
+    lockedBy: string;
+    lockedAt: string;
   };
 }
 
-export interface ActivateTaskerResponse {
+export interface UnlockTaskerResponse {
   status: string;
   message: string;
   data: {
     taskerId: string;
-    isSuspended: boolean;
-    suspensionReason: null;
-    suspendedUntil: null;
-    activatedBy: string;
-    activatedAt: string;
+    isLocked: boolean;
+    lockReason: null;
+    lockUntil: null;
+    unlockedBy: string;
+    unlockedAt: string;
   };
 }
 
@@ -869,7 +884,7 @@ export interface ForceCompleteTaskResponse {
 // ============================================================================
 
 export interface PaymentStats {
-  totalTransactions: number;
+  totalTransactionVolume: number;
   totalCredits: number;
   totalDebits: number;
   netFlow: number;
@@ -1988,9 +2003,19 @@ export interface AdminNotification {
   openedCount: number;
   sentBy: {
     _id: string;
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
   };
+  sentThrough?: string[];
+  channels?: string[];
+  deliveryChannels?: string[];
+  isEmail?: boolean;
+  isInApp?: boolean;
+  sendEmail?: boolean;
+  sendInApp?: boolean;
+  email?: boolean;
+  inApp?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -2000,14 +2025,25 @@ export interface AdminNotificationStats {
   totalTaskers: number;
   totalSent: number;
   openRate: string;
+  delivered?: number;
+  failed?: number;
+  pending?: number;
 }
 
 export interface SendNotificationRequest {
   title: string;
   message: string;
-  type?: "Announcement" | "Alert" | "Warning" | "Update";
+  type?: "Announcement" | "Alert" | "Warning" | "Update" | "Promotional" | "Maintenance";
   audience: "All Users" | "All Taskers" | "Selected Users" | "Everyone";
   selectedUserIds?: string[];
+}
+
+export interface AdminNotificationAllUsersResponse {
+  status: string;
+  data: {
+    users: Array<{ _id: string; fullName: string; role: string }>;
+    taskers: Array<{ _id: string; fullName: string; role: string }>;
+  };
 }
 
 export interface AdminNotificationListResponse {
