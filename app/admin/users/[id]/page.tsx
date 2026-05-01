@@ -25,6 +25,7 @@ import {
   Key,
   MousePointerClick,
   AlertCircle,
+  Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +49,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SendEmailModal } from "@/components/admin/users/SendEmailModal";
 
 
 export default function UserDetailsPage({
@@ -63,6 +65,7 @@ export default function UserDetailsPage({
   const [lockReason, setLockReason] = useState("");
   const [lockDuration, setLockDuration] = useState(24);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [deleteReason, setDeleteReason] = useState("");
   const [logPage, setLogPage] = useState(1);
 
@@ -187,6 +190,15 @@ export default function UserDetailsPage({
         </div>
 
         <div className='flex items-center gap-3'>
+          {/* Send Email Button */}
+          <Button
+            variant='outline'
+            onClick={() => setIsEmailModalOpen(true)}
+            className='hidden md:flex items-center gap-2 h-10 px-4 rounded-xl border-gray-200 text-gray-700 font-semibold hover:bg-gray-50'
+          >
+            <Mail size={18} className='text-purple-600' />
+            Send Email
+          </Button>
           {/* Primary: Suspend / Activate */}
           <Button
             onClick={handleToggleStatus}
@@ -235,6 +247,13 @@ export default function UserDetailsPage({
               align='end'
               className='w-56 p-2 rounded-2xl shadow-xl border-gray-100'
             >
+              <DropdownMenuItem
+                onClick={() => setIsEmailModalOpen(true)}
+                className='flex md:hidden gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-gray-700 font-medium'
+              >
+                <Mail size={18} className='text-purple-600' />
+                <span>Send Direct Email</span>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={
                   user.isLocked ? handleUnlock : () => setIsLockModalOpen(true)
@@ -1008,6 +1027,14 @@ export default function UserDetailsPage({
           </div>
         </div>
       )}
+      {/* ── Send Email Modal ── */}
+      <SendEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        userId={id}
+        userName={user.fullName}
+        userEmail={user.emailAddress}
+      />
     </div>
   );
 }

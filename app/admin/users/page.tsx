@@ -23,6 +23,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import { ExportModal } from "@/components/admin/ExportModal";
+import { SendEmailModal } from "@/components/admin/users/SendEmailModal";
+import { SendBulkEmailModal } from "@/components/admin/users/SendBulkEmailModal";
+import { Mail, Users } from "lucide-react";
 import Link from "next/link";
 import {
   useAdminUsers,
@@ -39,6 +42,9 @@ export default function UsersManagementPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isBulkEmailModalOpen, setIsBulkEmailModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; email: string } | null>(null);
   const limit = 20;
 
   // Fetch stats
@@ -175,6 +181,14 @@ export default function UsersManagementPage() {
           </p>
         </div>
         <div className='flex gap-3'>
+          <Button
+            onClick={() => setIsBulkEmailModalOpen(true)}
+            variant='outline'
+            className='text-sm h-10 px-4 gap-2 border-gray-200 text-purple-600 hover:text-purple-700'
+          >
+            <Users size={16} />
+            Bulk Email
+          </Button>
           <Button
             onClick={() => setIsExportModalOpen(true)}
             variant='outline'
@@ -354,6 +368,19 @@ export default function UsersManagementPage() {
                               </DropdownMenuItem>
                             </Link>
                             <DropdownMenuItem
+                              className='gap-2 cursor-pointer text-purple-600 focus:text-purple-600 font-bold text-xs'
+                              onClick={() => {
+                                setSelectedUser({
+                                  id: user._id,
+                                  name: user.fullName,
+                                  email: user.emailAddress,
+                                });
+                                setIsEmailModalOpen(true);
+                              }}
+                            >
+                              <Mail size={14} /> Send Email
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'
                               onClick={() => {
                                 if (user.lockUntil) {
@@ -405,6 +432,19 @@ export default function UsersManagementPage() {
         isOpen={isExportModalOpen} 
         onClose={() => setIsExportModalOpen(false)} 
         type="users" 
+      />
+      {selectedUser && (
+        <SendEmailModal
+          isOpen={isEmailModalOpen}
+          onClose={() => setIsEmailModalOpen(false)}
+          userId={selectedUser.id}
+          userName={selectedUser.name}
+          userEmail={selectedUser.email}
+        />
+      )}
+      <SendBulkEmailModal
+        isOpen={isBulkEmailModalOpen}
+        onClose={() => setIsBulkEmailModalOpen(false)}
       />
     </div>
   );

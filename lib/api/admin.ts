@@ -909,4 +909,46 @@ export const adminApi = {
     });
     return response.data ?? response;
   },
+
+  sendUserEmail: async (
+    id: string,
+    data: { subject: string; message: string },
+  ): Promise<any> => {
+    return apiData<any>(`/api/admin/users/${id}/send-email`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  sendBulkEmail: async (data: {
+    targetGroup: "verified" | "unverified" | "all";
+    subject: string;
+    message: string;
+  }): Promise<any> => {
+    return apiData<any>("/api/admin/users/bulk-email", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  sendTaskerEmail: async (
+    id: string,
+    data: { subject: string; message: string },
+  ): Promise<any> => {
+    return apiData<any>(`/api/admin/taskers/${id}/send-email`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  sendBulkTaskerEmail: async (data: {
+    targetGroup: "verified" | "unverified" | "all";
+    subject: string;
+    message: string;
+  }): Promise<any> => {
+    return apiData<any>("/api/admin/taskers/bulk-email", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
 };

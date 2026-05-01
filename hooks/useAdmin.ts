@@ -806,6 +806,54 @@ export function useResendNotification() {
   });
 }
 
+export function useSendUserEmail() {
+  return useMutation({
+    mutationFn: ({
+      id,
+      subject,
+      message,
+    }: {
+      id: string;
+      subject: string;
+      message: string;
+    }) => adminApi.sendUserEmail(id, { subject, message }),
+  });
+}
+
+export function useSendBulkEmail() {
+  return useMutation({
+    mutationFn: (data: {
+      targetGroup: "verified" | "unverified" | "all";
+      subject: string;
+      message: string;
+    }) => adminApi.sendBulkEmail(data),
+  });
+}
+
+export function useSendTaskerEmail() {
+  return useMutation({
+    mutationFn: ({
+      id,
+      subject,
+      message,
+    }: {
+      id: string;
+      subject: string;
+      message: string;
+    }) => adminApi.sendTaskerEmail(id, { subject, message }),
+  });
+}
+
+export function useSendBulkTaskerEmail() {
+  return useMutation({
+    mutationFn: (data: {
+      targetGroup: "verified" | "unverified" | "all";
+      subject: string;
+      message: string;
+    }) => adminApi.sendBulkTaskerEmail(data),
+  });
+}
+
 export function useNotificationUsers() {
   return useQuery({
     queryKey: ["admin", "notifications", "all-users"],

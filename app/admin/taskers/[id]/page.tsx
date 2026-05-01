@@ -31,6 +31,7 @@ import {
   useVerifyTasker,
   useSecuritySummary,
   useActivityLogs,
+  useSendUserEmail,
 } from "@/hooks/useAdmin";
 import { formatCurrency } from "@/lib/utils";
 import {
@@ -41,7 +42,9 @@ import {
   MousePointerClick,
   AlertCircle,
   ChevronDown,
+  Send,
 } from "lucide-react";
+import { SendEmailModal } from "@/components/admin/users/SendEmailModal";
 
 export default function TaskerDetailsPage({
   params,
@@ -56,6 +59,7 @@ export default function TaskerDetailsPage({
   const [lockDuration, setLockDuration] = useState(7);
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [verificationNotes, setVerificationNotes] = useState("");
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const { mutate: lockTasker, isPending: isLocking } = useLockTasker();
   const { mutate: unlockTasker, isPending: isUnlocking } = useUnlockTasker();
@@ -152,7 +156,18 @@ export default function TaskerDetailsPage({
           </div>
         </div>
 
-        {/* Suspend / Activate button */}
+        <div className='flex items-center gap-3'>
+          {/* Send Email Button */}
+          <Button
+            variant='outline'
+            onClick={() => setIsEmailModalOpen(true)}
+            className='hidden md:flex items-center gap-2 h-10 px-4 rounded-xl border-gray-200 text-gray-700 font-semibold hover:bg-gray-50'
+          >
+            <Mail size={18} className='text-purple-600' />
+            Send Email
+          </Button>
+
+          {/* Suspend / Activate button */}
         <Button
           onClick={
             tasker?.lockUntil && new Date(tasker.lockUntil) > new Date()
@@ -179,6 +194,7 @@ export default function TaskerDetailsPage({
           )}
         </Button>
       </div>
+    </div>
 
       {/* ── Profile Card ── */}
       <Card className='border border-gray-100 shadow-sm rounded-2xl'>
@@ -805,6 +821,15 @@ export default function TaskerDetailsPage({
           </div>
         </div>
       )}
+      {/* ── Send Email Modal ── */}
+      <SendEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        userId={id}
+        userName={fullName || "Tasker"}
+        userEmail={account?.emailAddress || ""}
+        type="tasker"
+      />
     </div>
   );
 }

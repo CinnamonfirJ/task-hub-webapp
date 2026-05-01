@@ -25,6 +25,9 @@ import {
 import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import { ExpandableTableContainer } from "@/components/admin/ExpandableTableContainer";
 import { ExportModal } from "@/components/admin/ExportModal";
+import { SendEmailModal } from "@/components/admin/users/SendEmailModal";
+import { SendBulkEmailModal } from "@/components/admin/users/SendBulkEmailModal";
+import { Mail, Users } from "lucide-react";
 import Link from "next/link";
 import {
   useAdminTaskers,
@@ -40,6 +43,9 @@ export default function TaskersManagementPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isBulkEmailModalOpen, setIsBulkEmailModalOpen] = useState(false);
+  const [selectedTasker, setSelectedTasker] = useState<{ id: string; name: string; email: string } | null>(null);
   const limit = 20;
 
   // Fetch dashboard stats for summary metrics
@@ -153,9 +159,17 @@ export default function TaskersManagementPage() {
         </div>
         <div className='flex gap-3'>
           <Button
+            onClick={() => setIsBulkEmailModalOpen(true)}
+            variant='outline'
+            className='text-sm h-10 px-4 gap-2 border-gray-200 text-purple-600 hover:text-purple-700'
+          >
+            <Users size={16} />
+            Bulk Email
+          </Button>
+          <Button
             onClick={() => setIsExportModalOpen(true)}
             variant='outline'
-            className='text-sm h-10 px-4 gap-2'
+            className='text-sm h-10 px-4 gap-2 border-gray-200'
           >
             <Download size={16} />
             Export
@@ -336,6 +350,19 @@ export default function TaskersManagementPage() {
                                 <ExternalLink size={14} /> View Details
                               </DropdownMenuItem>
                             </Link>
+                            <DropdownMenuItem
+                              className='gap-2 cursor-pointer text-purple-600 focus:text-purple-600 font-bold text-xs'
+                              onClick={() => {
+                                setSelectedTasker({
+                                  id: tasker._id,
+                                  name: `${tasker.firstName} ${tasker.lastName}`,
+                                  email: tasker.emailAddress,
+                                });
+                                setIsEmailModalOpen(true);
+                              }}
+                            >
+                              <Mail size={14} /> Send Email
+                            </DropdownMenuItem>
                             <DropdownMenuItem 
                               className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'
                               onClick={() => {
@@ -380,6 +407,21 @@ export default function TaskersManagementPage() {
             />
         </CardContent>
       </Card>
+      {selectedTasker && (
+        <SendEmailModal
+          isOpen={isEmailModalOpen}
+          onClose={() => setIsEmailModalOpen(false)}
+          userId={selectedTasker.id}
+          userName={selectedTasker.name}
+          userEmail={selectedTasker.email}
+          type="tasker"
+        />
+      )}
+      <SendBulkEmailModal
+        isOpen={isBulkEmailModalOpen}
+        onClose={() => setIsBulkEmailModalOpen(false)}
+        type="tasker"
+      />
     </div>
   );
 }

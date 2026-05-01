@@ -13,6 +13,7 @@ import {
   Eye,
   Trash2,
   XCircle,
+  // Mail,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNotificationStats, useNotifications, useResendNotification } from "@/hooks/useAdmin";
 import { SendNotificationModal } from "@/components/admin/notifications/SendNotificationModal";
+// import { SendEmailModal } from "@/components/admin/users/SendEmailModal";
 import { NotificationDetailsModal } from "@/components/admin/notifications/NotificationDetailsModal";
 import { NotificationBadge } from "@/components/admin/notifications/NotificationBadge";
 import { NotificationActions } from "@/components/admin/notifications/NotificationActions";
@@ -35,6 +37,8 @@ export default function NotificationsPage() {
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  // const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  // const [selectedUserForEmail, setSelectedUserForEmail] = useState<{ id: string; name: string; email: string } | null>(null);
 
   const { data: stats, isLoading: loadingStats } = useNotificationStats();
   const { data: notifications, isLoading: loadingNotifications } = useNotifications();
@@ -114,12 +118,21 @@ export default function NotificationsPage() {
             Manage and send platform-wide notifications
           </p>
         </div>
-        <Button
-          onClick={() => setIsSendModalOpen(true)}
-          className='bg-[#6B46C1] hover:bg-[#553C9A] text-white h-10 px-4 gap-2'
-        >
-          <Plus size={16} /> Send Notifications
-        </Button>
+        <div className='flex items-center gap-3'>
+          {/* <Button
+            onClick={() => setIsEmailModalOpen(true)}
+            variant='outline'
+            className='h-10 px-4 gap-2 border-gray-200 text-gray-700 font-semibold'
+          >
+            <Mail size={16} className='text-purple-600' /> Direct Email
+          </Button> */}
+          <Button
+            onClick={() => setIsSendModalOpen(true)}
+            className='bg-[#6B46C1] hover:bg-[#553C9A] text-white h-10 px-4 gap-2 font-bold shadow-sm'
+          >
+            <Plus size={16} /> Broadcast
+          </Button>
+        </div>
       </div>
 
       {/* Stats Section */}
@@ -283,6 +296,17 @@ export default function NotificationsPage() {
         onClose={() => setIsDetailsModalOpen(false)}
         notification={selectedNotification}
       /> 
+
+      {/* <SendEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => {
+          setIsEmailModalOpen(false);
+          setSelectedUserForEmail(null);
+        }}
+        userId={selectedUserForEmail?.id || ""}
+        userName={selectedUserForEmail?.name || ""}
+        userEmail={selectedUserForEmail?.email || ""}
+      /> */}
     </div>
   );
 }
