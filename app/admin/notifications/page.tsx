@@ -37,6 +37,7 @@ export default function NotificationsPage() {
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [notificationToEdit, setNotificationToEdit] = useState<AdminNotification | null>(null);
   // const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   // const [selectedUserForEmail, setSelectedUserForEmail] = useState<{ id: string; name: string; email: string } | null>(null);
 
@@ -49,7 +50,16 @@ export default function NotificationsPage() {
     setIsDetailsModalOpen(true);
   };
 
+  const handleDuplicate = (notification: AdminNotification) => {
+    setNotificationToEdit(notification);
+    setIsSendModalOpen(true);
+  };
+
   const handleResend = (id: string) => {
+    if (!window.confirm("Are you sure you want to resend this notification to the same audience?")) {
+      return;
+    }
+    
     resendNotification(id, {
       onSuccess: () => {
         toast.success("Notification resent successfully");
@@ -266,6 +276,7 @@ export default function NotificationsPage() {
                       <NotificationActions 
                         onViewDetails={() => handleViewDetails(notification)}
                         onResend={() => handleResend(notification._id)}
+                        onDuplicate={() => handleDuplicate(notification)}
                       />
                     </td>
                   </tr>
@@ -288,13 +299,21 @@ export default function NotificationsPage() {
 
       <SendNotificationModal
         isOpen={isSendModalOpen}
-        onClose={() => setIsSendModalOpen(false)}
+        onClose={() => {
+          setIsSendModalOpen(false);
+          setNotificationToEdit(null);
+        }}
+        initialData={notificationToEdit}
       />
 
       <NotificationDetailsModal
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
         notification={selectedNotification}
+        onResend={(id) => {
+          setIsDetailsModalOpen(false);
+          handleResend(id);
+        }}
       /> 
 
       {/* <SendEmailModal

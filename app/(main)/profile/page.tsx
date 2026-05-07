@@ -350,7 +350,7 @@ export default function ProfilePage() {
                 />
               }
               label='Success Rate'
-              value='95%'
+              value='0%'
               color='bg-blue-50'
             />
           </div>

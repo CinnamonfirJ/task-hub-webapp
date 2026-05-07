@@ -80,13 +80,15 @@ export const walletApi = {
 
   getTaskerBalance: async (): Promise<{
     walletBalance: number;
-    withdrawableAmount: number;
-    canWithdraw: boolean;
-    nextWithdrawableAt: string | null;
-    minimumWithdrawal: number;
-    hasBankAccount: boolean;
-    hasPendingWithdrawal: boolean;
-    pendingWithdrawalAmount: number;
+    availableToWithdraw: number;
+    withdrawableAmount?: number;
+    canWithdraw?: boolean;
+    nextWithdrawableAt?: string | null;
+    minimumWithdrawal?: number;
+    hasBankAccount?: boolean;
+    pendingWithdrawals?: number;
+    hasPendingWithdrawal?: boolean;
+    pendingWithdrawalAmount?: number;
   }> => {
     const res = await apiData<any>("/api/wallet/tasker/balance", { method: "GET" });
     return res?.data || res;

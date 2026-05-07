@@ -24,12 +24,14 @@ interface NotificationDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   notification: AdminNotification | null;
+  onResend?: (id: string) => void;
 }
 
 export function NotificationDetailsModal({
   isOpen,
   onClose,
   notification,
+  onResend,
 }: NotificationDetailsModalProps) {
   if (!notification) return null;
 
@@ -144,7 +146,10 @@ export function NotificationDetailsModal({
         </div>
 
         <div className='pt-2'>
-          <Button className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-12 rounded-xl font-bold'>
+          <Button 
+            onClick={() => notification && onResend?.(notification._id)}
+            className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-12 rounded-xl font-bold'
+          >
             Resend this notification
           </Button>
         </div>

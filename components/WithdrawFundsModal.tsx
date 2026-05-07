@@ -96,21 +96,53 @@ export function WithdrawFundsModal({
       return;
     }
 
+    if (method === "bank") {
+      if (isLoadingWallet) {
+        toast.info("Loading wallet data, please wait...");
+        return;
+      }
+
+      if (!walletData?.hasBankAccount && !savedBank) {
+        toast.error("Please enter and save your bank details first.");
+        return;
+      }
+
+      // Detailed reason check - Only block if explicitly set to false by backend
+      if (walletData?.canWithdraw === false) {
+        if (walletData?.hasPendingWithdrawal || (walletData?.pendingWithdrawals && walletData.pendingWithdrawals > 0)) {
+          toast.error(`You have a pending withdrawal. Please wait for it to be processed before making another request.`);
+          return;
+        }
+        
+        if (walletData?.nextWithdrawableAt) {
+          const waitDate = new Date(walletData.nextWithdrawableAt).toLocaleString();
+          toast.error(`Withdrawal cooldown active. You can withdraw again after ${waitDate}.`);
+          return;
+        }
+
+        toast.error("Withdrawals are currently restricted for your account. Please contact support for more information.");
+        return;
+      }
+    }
+
+    const availableAmount = walletData?.availableToWithdraw ?? walletData?.withdrawableAmount ?? 0;
+
     if (!numAmount || numAmount < 5000) {
       toast.error("Minimum withdrawal is ₦5,000");
       return;
     }
-    if (numAmount > (walletData?.withdrawableAmount || 0)) {
+
+    if (numAmount > availableAmount) {
       toast.error("Insufficient withdrawable balance");
       return;
     }
 
-    setStep("pin");
+    handleConfirmWithdrawal("");
   };
 
-  const handleConfirmWithdrawal = () => {
-    const transactionPin = pin.join("");
-    if (transactionPin.length < 4) return;
+  const handleConfirmWithdrawal = (transactionPin: string = "") => {
+    // If no pin provided and not a bank transfer, it shouldn't proceed (safety)
+    if (method !== "bank" && transactionPin.length < 4) return;
 
     // Build bankDetails from saved bank data
     const bankDetails = {
@@ -123,7 +155,7 @@ export function WithdrawFundsModal({
       {
         amount: numAmount,
         payoutMethod: "bank_transfer",
-        transactionPin,
+        transactionPin: transactionPin || "0000", // Fallback if backend requires a string
         bankDetails,
       },
       {
@@ -284,8 +316,8 @@ export function WithdrawFundsModal({
               </div>
               <div className='text-4xl font-bold tracking-tight'>
                 {method === "stellar"
-                  ? `${((walletData?.withdrawableAmount || 0) / 1500).toFixed(2)} XLM`
-                  : `₦${walletData?.withdrawableAmount?.toLocaleString() || balance}`}
+                  ? `${((walletData?.availableToWithdraw || walletData?.withdrawableAmount || 0) / 1500).toFixed(2)} XLM`
+                  : `₦${(walletData?.availableToWithdraw || walletData?.withdrawableAmount || 0).toLocaleString() || balance}`}
               </div>
             </div>
 
@@ -498,16 +530,13 @@ export function WithdrawFundsModal({
               </Button>
               <Button
                 onClick={handleWithdraw}
-                disabled={
-                  isWithdrawing ||
-                  (method === "bank" && (!canWithdraw || !amount))
-                }
+                disabled={isWithdrawing || !amount}
                 className='flex-1 py-6 rounded-md bg-[#6B46C1] hover:bg-[#553C9A] text-white font-medium text-base transition-all'
               >
                 {isWithdrawing ? (
-                  <Loader2 className='animate-spin' />
+                  <Loader2 className='w-5 h-5 animate-spin' />
                 ) : (
-                  "Continue"
+                  method === "bank" ? "Withdraw Funds" : "Continue"
                 )}
               </Button>
             </div>

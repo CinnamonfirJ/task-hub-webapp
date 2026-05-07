@@ -10,11 +10,13 @@ import { MoreVertical, Eye, Send, Ban } from "lucide-react";
 interface NotificationActionsProps {
   onViewDetails: () => void;
   onResend?: () => void;
+  onDuplicate?: () => void;
 }
 
 export function NotificationActions({
   onViewDetails,
   onResend,
+  onDuplicate,
 }: NotificationActionsProps) {
   return (
     <DropdownMenu>
@@ -41,7 +43,15 @@ export function NotificationActions({
           className='flex items-center gap-3 px-3 py-2.5 cursor-pointer rounded-lg hover:bg-gray-50 group transition-colors'
         >
           <Send size={18} className="text-gray-400 group-hover:text-gray-600" />
-          <span className="text-sm font-medium text-gray-700">Resend</span>
+          <span className="text-sm font-medium text-gray-700">Resend Now</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onClick={onDuplicate}
+          className='flex items-center gap-3 px-3 py-2.5 cursor-pointer rounded-lg hover:bg-gray-50 group transition-colors border-t border-gray-50 mt-1'
+        >
+          <Ban size={18} className="text-gray-400 group-hover:text-gray-600 rotate-180" />
+          <span className="text-sm font-medium text-gray-700">Edit & Resend</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
