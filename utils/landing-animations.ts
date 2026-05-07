@@ -19,16 +19,16 @@ export const staggerContainer: Variants = {
   },
 };
 
-export const scaleOnVariants = {
+export const scaleOnHover = {
   initial: { scale: 1 },
-  {
-  scale: 1.05,
+  hover: {
+    scale: 1.05,
     transition: { type: "spring", stiffness: 400, damping: 10 }
-},
-tap: {
-  scale: 0.95,
+  },
+  tap: {
+    scale: 0.95,
     transition: { type: "spring", stiffness: 400, damping: 10 }
-}
+  }
 };
 
 export const slideInLeft: Variants = {
