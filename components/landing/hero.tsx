@@ -1,160 +1,117 @@
 "use client";
 
-import {
-  Sparkles,
-  ArrowRight,
-  CheckCircle2,
-  Star,
-  MapPin,
-  Apple,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import {
-  fadeInUp,
-  staggerContainer,
-  slideInRight,
-  scaleOnHover,
-} from "@/utils/landing-animations";
-import WaitlistForm from "./WaitlistForm";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
+const PROFESSIONS = [
+  "Plumbing",
+  "Tutoring",
+  "Cleaning",
+  "Delivery",
+  "Repairs",
+  "Errands",
+];
 
 export default function Hero() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((current) => (current + 1) % PROFESSIONS.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section className='relative px-6 py-16 md:py-24 max-w-7xl mx-auto overflow-hidden'>
-      {/* Subtle purple glow/gradient at bottom left */}
-      <div className='absolute bottom-0 left-0 w-2/3 h-2/3 bg-linear-to-tr from-purple-50 via-purple-25 to-transparent opacity-60 -z-10 pointer-events-none blur-3xl' />
+    <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
 
-      <div className='relative grid md:grid-cols-2 gap-16 items-center'>
-        {/* Left Column - Content */}
-        <motion.div
-          variants={staggerContainer}
-          initial='hidden'
-          whileInView='visible'
-          viewport={{ once: true }}
-          className='max-w-xl'
-        >
-          {/* Badge */}
-          <motion.span
-            variants={fadeInUp}
-            className='inline-flex items-center gap-2 bg-[#F3E8FF] text-[#7C3AED] px-4 py-2 rounded-full text-[12px] font-semibold mb-8'
-          >
-            <Sparkles className='w-4 h-4 fill-[#7C3AED]' />
-            Launching in Nigeria
-          </motion.span>
+      {/* Headlines */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-4xl mx-auto"
+      >
+        <h1 className="text-5xl md:text-7xl font-bold text-gray-900 tracking-tight leading-[1.1] mb-6">
+          Hire smarter. <span className="font-instrument font-light">Work faster.</span>
+          <br className="hidden md:block" />
+          <span className="flex items-center justify-center gap-3 flex-wrap mt-2">
+            Get
+            <div className="relative inline-flex h-[1.1em] font-light font-instrument overflow-hidden justify-center min-w-[200px] md:min-w-[250px]">
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={index}
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -50, opacity: 0 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="absolute text-[#6B46C1] font-instrument"
+                >
+                  {PROFESSIONS[index]}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+            done
+          </span>
+        </h1>
 
-          {/* Heading */}
-          <motion.h1
-            variants={fadeInUp}
-            className='text-4xl md:text-[52px] font-bold text-[#1F2937] mb-6 leading-[1.15] tracking-tight'
-          >
-            Get Trusted Services Done{" "}
-            <span className='text-[#7C3AED]'>Fast,</span>
-            <br />
-            <span className='text-[#7C3AED]'>Affordable</span> & Reliable.
-          </motion.h1>
+        {/* Subtitle */}
+        <p className="text-sm text-center  text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+          TaskHub connects you to verified people for local services, digital gigs, campus jobs, and everyday tasks, faster, safer, stress-free.
+        </p>
 
-          {/* Subtitle */}
-          <motion.p
-            variants={fadeInUp}
-            className='text-[#6B7280] text-[17px] mb-10 leading-relaxed'
-          >
-            Find verified taskers and businesses for cleaning, moving, events,
-            repairs, and more all in one app.
-          </motion.p>
-
-          {/* Email form */}
-          <motion.div variants={fadeInUp} className='mb-6'>
-            <WaitlistForm variant='hero' />
-          </motion.div>
-
-          {/* "Want to earn?" link */}
-          <motion.p
-            variants={fadeInUp}
-            className='text-[15px] text-[#374151] mb-10'
-          >
-            Want to earn?{" "}
-            <a href='#' className='text-[#7C3AED] hover:underline font-medium'>
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+          <Link href="/register">
+            <Button className="h-14 px-8 text-lg font-bold rounded-full bg-[#6B46C1] hover:bg-[#553C9A] text-white w-full sm:w-auto transition-all hover:scale-[1.02]">
+              Post a Task
+            </Button>
+          </Link>
+          <Link href="/register?type=tasker">
+            <Button variant="outline" className="h-14 px-8 text-lg font-bold rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 w-full sm:w-auto transition-all hover:scale-[1.02]">
               Become a Tasker
-            </a>
-          </motion.p>
-
-          {/* App store buttons - replaced with Coming Soon */}
-          <motion.div
-            variants={fadeInUp}
-            className='flex flex-wrap gap-4 mb-12'
-          >
-            <div className='inline-flex items-center gap-3 bg-gray-50 border border-gray-100 px-5 py-3 rounded-2xl shadow-sm'>
-              <div className='flex -space-x-2'>
-                <div className='w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center shadow-sm'>
-                  <img
-                    src='/assets/apple-app-store-icon.svg'
-                    alt='Apple'
-                    className='w-4 h-4'
-                  />
-                </div>
-                <div className='w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center shadow-sm'>
-                  <img
-                    src='/assets/google-play-store-icon.svg'
-                    alt='Google Play'
-                    className='w-4 h-4'
-                  />
-                </div>
-              </div>
-              <div className='flex flex-col'>
-                <span className='text-[11px] font-bold text-[#7C3AED] uppercase tracking-wider leading-none mb-1'>
-                  Coming Soon
-                </span>
-                <span className='text-[13px] text-gray-500 font-medium leading-none'>
-                  on App Store & Play Store
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Trust badges */}
-          <motion.div
-            variants={fadeInUp}
-            className='flex flex-wrap gap-x-8 gap-y-4 text-[15px] text-[#4B5563]'
-          >
-            <div className='flex items-center gap-2.5'>
-              <CheckCircle2
-                className='w-5 h-5 text-[#EF4444]'
-                strokeWidth={2.5}
-              />
-              <span className='font-medium'>Verified Taskers</span>
-            </div>
-            <div className='flex items-center gap-2.5'>
-              <Star
-                className='w-5 h-5 text-[#F59E0B] fill-[#F59E0B]'
-                strokeWidth={2.5}
-              />
-              <span className='font-medium'>Rated and Reviewed</span>
-            </div>
-            <div className='flex items-center gap-2.5'>
-              <MapPin className='w-5 h-5 text-[#7C3AED]' strokeWidth={2.5} />
-              <span className='font-medium'>Local Expert</span>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        {/* Right Column - Image */}
-        <div className='hidden md:block relative h-full'>
-          <motion.div
-            initial={{ opacity: 0, x: 50, scale: 0.95 }}
-            whileInView={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            viewport={{ once: true }}
-            className='relative h-full min-h-[650px] rounded-lg rounded-tr-[80px] rounded-bl-[80px] overflow-hidden shadow-2xl'
-          >
-            <img
-              src='/assets/professional-plumber-working.png'
-              alt='Professional working at kitchen sink'
-              className='w-full h-full object-cover object-center'
-            />
-            {/* Optional overlay for better image contrast */}
-            <div className='absolute inset-0 bg-linear-to-br from-transparent via-transparent to-black/5' />
-          </motion.div>
+            </Button>
+          </Link>
         </div>
-      </div>
+
+        {/* Social Proof */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <div className="flex -space-x-3">
+            <img src="/assets/person-1.png" alt="User 1" className="w-10 h-10 rounded-full border-2 border-white object-cover" />
+            <img src="/assets/person-2.png" alt="User 2" className="w-10 h-10 rounded-full border-2 border-white object-cover" />
+            <img src="/assets/person-3.png" alt="User 3" className="w-10 h-10 rounded-full border-2 border-white object-cover" />
+            <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-900 flex items-center justify-center text-white text-xs font-bold z-10">
+              5k+
+            </div>
+          </div>
+          <div className="flex flex-col text-left">
+            <div className="flex gap-1 text-yellow-400 text-sm">
+              ★★★★★
+            </div>
+            <p className="text-sm text-gray-600 font-medium">
+              Join 10,000+ others already using TaskHub
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Hero Image */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+        className="w-full max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-2xl relative"
+      >
+        <img
+          src="/assets/hero.jpg"
+          alt="People working and studying on campus"
+          className="w-full h-auto object-cover max-h-[600px]"
+        />
+        <div className="absolute inset-0 border border-black/5 rounded-2xl pointer-events-none" />
+      </motion.div>
+
     </section>
   );
 }

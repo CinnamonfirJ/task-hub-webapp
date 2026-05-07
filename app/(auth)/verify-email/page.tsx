@@ -156,7 +156,7 @@ function VerifyEmailForm() {
 
           {!isVerifying && !verifyError && !isLoggingInAfterVerify && (
             <div className='mt-4 space-y-4 w-full'>
-              <div className='flex flex-col items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-6'>
+              <div className='flex flex-col items-center gap-3 bg-green-50 border border-green-200 rounded-sm p-6'>
                 <p className='font-semibold text-green-800 text-center'>
                   Your email has been verified successfully!
                 </p>
@@ -193,8 +193,8 @@ function VerifyEmailForm() {
       <div className='space-y-6'>
         {/* Email Info Box */}
         {email && (
-          <div className='flex items-center gap-4 bg-[#F5F3FF] p-4 border border-[#DDD6FE] rounded-xl'>
-            <div className='flex justify-center items-center bg-[#E0E7FF] rounded-lg w-10 h-10 shrink-0'>
+          <div className='flex items-center gap-4 bg-[#F5F3FF] p-4 border border-[#DDD6FE] rounded-sm'>
+            <div className='flex justify-center items-center bg-[#E0E7FF] rounded-sm w-10 h-10 shrink-0'>
               <Mail className='w-5 h-5 text-primary' />
             </div>
             <div className='flex flex-col'>
@@ -221,14 +221,12 @@ function VerifyEmailForm() {
                   value={otp[index] || ""}
                   onChange={(e) => {
                     const val = e.target.value.replace(/[^0-9]/g, "");
-                    if (val) {
-                      setOtp((prev) => {
-                        const chars = prev.split("");
-                        while (chars.length < 5) chars.push("");
-                        chars[index] = val.slice(-1);
-                        return chars.join("");
-                      });
+                    const newOtpArr = otp.split("");
+                    while (newOtpArr.length < 5) newOtpArr.push("");
 
+                    if (val) {
+                      newOtpArr[index] = val.slice(-1);
+                      setOtp(newOtpArr.join(""));
                       // Auto focus next
                       if (index < 4) {
                         const nextInput = document.getElementById(
@@ -236,22 +234,41 @@ function VerifyEmailForm() {
                         );
                         nextInput?.focus();
                       }
+                    } else {
+                      // Handle deletion
+                      newOtpArr[index] = "";
+                      setOtp(newOtpArr.join(""));
                     }
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Backspace" && !otp[index] && index > 0) {
-                      const prevInput = document.getElementById(
-                        `otp-${index - 1}`,
+                    if (e.key === "Backspace") {
+                      if (!otp[index] && index > 0) {
+                        const prevInput = document.getElementById(
+                          `otp-${index - 1}`,
+                        );
+                        prevInput?.focus();
+                      }
+                    }
+                  }}
+                  onPaste={(e) => {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData
+                      .getData("text")
+                      .replace(/[^0-9]/g, "")
+                      .slice(0, 5);
+                    if (pastedData) {
+                      setOtp(pastedData);
+                      // Focus the last filled input or the next empty one
+                      const targetIndex =
+                        pastedData.length === 5 ? 4 : pastedData.length;
+                      const targetInput = document.getElementById(
+                        `otp-${targetIndex}`,
                       );
-                      prevInput?.focus();
-
-                      const newOtp = otp.split("");
-                      newOtp[index - 1] = "";
-                      setOtp(newOtp.join(""));
+                      targetInput?.focus();
                     }
                   }}
                   id={`otp-${index}`}
-                  className='w-12 h-14 text-center text-xl font-bold bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-primary focus:bg-white outline-none transition-all'
+                  className='w-12 h-14 text-center text-xl font-bold bg-gray-50 border-2 border-gray-100 rounded-sm focus:border-primary focus:bg-white outline-none transition-all'
                 />
               ))}
             </div>
@@ -265,7 +282,7 @@ function VerifyEmailForm() {
               <input
                 type='email'
                 placeholder='name@example.com'
-                className='w-full h-12 px-4 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-primary focus:bg-white outline-none transition-all'
+                className='w-full h-12 px-4 bg-gray-50 border-2 border-gray-100 rounded-sm focus:border-primary focus:bg-white outline-none transition-all'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -273,7 +290,7 @@ function VerifyEmailForm() {
           )}
 
           <Button
-            className='w-full h-12 text-lg font-bold shadow-lg shadow-purple-200'
+            className='w-full h-12 text-lg font-bold shadow-lg shadow-purple-200 rounded-sm'
             disabled={otp.length !== 5 || isVerifying || isLoggingInAfterVerify}
             onClick={handleManualVerify}
           >
@@ -297,8 +314,8 @@ function VerifyEmailForm() {
         </div>
 
         {/* Spam Alert Box */}
-        <div className='flex gap-3 bg-[#EFF6FF] p-4 border border-[#BFDBFE] rounded-lg text-[#1E40AF] text-sm'>
-          <div className='flex justify-center items-center bg-[#BFDBFE] rounded-md w-8 h-8 shrink-0'>
+        <div className='flex gap-3 bg-[#EFF6FF] p-4 border border-[#BFDBFE] rounded-sm text-[#1E40AF] text-sm'>
+          <div className='flex justify-center items-center bg-[#BFDBFE] rounded-sm w-8 h-8 shrink-0'>
             <AlertTriangle className='w-5 h-5' />
           </div>
           <div className='flex flex-col'>

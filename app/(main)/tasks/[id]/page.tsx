@@ -40,9 +40,18 @@ export default function TaskDetailsPage() {
   const queryClient = useQueryClient();
 
   const isTasker = user?.role === "tasker";
-  const isOwner =
-    user?._id ===
-    (typeof task?.user === "object" ? task?.user?._id : task?.creator);
+
+  const getTaskOwnerId = (t: any) => {
+    if (!t) return null;
+    if (t.user && typeof t.user === "object") return t.user._id || t.user.id;
+    if (typeof t.user === "string") return t.user;
+    if (t.creator && typeof t.creator === "object") return t.creator._id || t.creator.id;
+    if (typeof t.creator === "string") return t.creator;
+    return null;
+  };
+
+  const currentUserId = user?._id || user?.id;
+  const isOwner = currentUserId && currentUserId === getTaskOwnerId(task);
 
   const { balance } = useWalletBalance();
 
@@ -324,7 +333,7 @@ export default function TaskDetailsPage() {
 
       <div className='space-y-8'>
         {/* USER VIEW */}
-        {!isTasker && isOwner && (
+        {!isTasker && (
           <>
             {/* Budget Badge (Top Right for Tasker) */}
             {
@@ -421,9 +430,9 @@ export default function TaskDetailsPage() {
                       isRejecting={isRejecting}
                     />
                   ))}
-                </div>
-              )}
-            </div>
+                  </div>
+                )}
+              </div>
 
             {/* Task Owner Actions */}
             {task.status === "open" && (

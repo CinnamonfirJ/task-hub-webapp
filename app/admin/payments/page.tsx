@@ -354,8 +354,14 @@ export default function PaymentsManagementPage() {
                         tx.status === "held"
                           ? "bg-blue-50 text-blue-600 border-blue-100"
                           : tx.status === "released" ||
-                              tx.status === "completed"
+                              tx.status === "completed" ||
+                              tx.status === "success" ||
+                              tx.status === "successful"
                             ? "bg-green-50 text-green-600 border-green-100"
+                            : tx.status === "failed" || tx.status === "cancelled" || tx.status === "reversed"
+                            ? "bg-red-50 text-red-600 border-red-100"
+                            : tx.status === "pending"
+                            ? "bg-yellow-50 text-yellow-600 border-yellow-100"
                             : "bg-gray-50 text-gray-600 border-gray-100"
                       }`}
                     >
