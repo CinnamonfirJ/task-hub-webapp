@@ -209,11 +209,10 @@ export default function UserDetailsPage({
               isUnlocking ||
               isDeleting
             }
-            className={`${
-              user.isActive
-                ? "bg-[#EF4444] hover:bg-[#DC2626]"
-                : "bg-[#10B981] hover:bg-[#059669]"
-            } text-white gap-2 h-10 px-6 font-semibold rounded-xl min-w-[160px] transition-all`}
+            className={`${user.isActive
+              ? "bg-[#EF4444] hover:bg-[#DC2626]"
+              : "bg-[#10B981] hover:bg-[#059669]"
+              } text-white gap-2 h-10 px-6 font-semibold rounded-xl min-w-[160px] transition-all`}
           >
             {isDeactivating || isActivating ? (
               <Loader2 size={18} className='animate-spin' />
@@ -245,7 +244,7 @@ export default function UserDetailsPage({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align='end'
-              className='w-56 p-2 rounded-2xl shadow-xl border-gray-100'
+              className='w-56 p-2 rounded-2xl  border-gray-100'
             >
               <DropdownMenuItem
                 onClick={() => setIsEmailModalOpen(true)}
@@ -259,11 +258,10 @@ export default function UserDetailsPage({
                   user.isLocked ? handleUnlock : () => setIsLockModalOpen(true)
                 }
                 disabled={isLocking || isUnlocking}
-                className={`flex gap-3 px-3 py-2.5 rounded-xl cursor-pointer ${
-                  user.isLocked
-                    ? "text-green-600 focus:text-green-600"
-                    : "text-amber-600 focus:text-amber-600"
-                }`}
+                className={`flex gap-3 px-3 py-2.5 rounded-xl cursor-pointer ${user.isLocked
+                  ? "text-green-600 focus:text-green-600"
+                  : "text-amber-600 focus:text-amber-600"
+                  }`}
               >
                 {user.isLocked ? (
                   <>
@@ -291,7 +289,7 @@ export default function UserDetailsPage({
       </div>
 
       {/* ── Profile Card ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <CardContent className='p-5 md:p-6'>
           <div className='flex items-center gap-4'>
             {/* Avatar */}
@@ -322,20 +320,18 @@ export default function UserDetailsPage({
                   {user.fullName}
                 </h2>
                 <span
-                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                    user.isEmailVerified
-                      ? "bg-blue-50 text-blue-600 border border-blue-200"
-                      : "bg-gray-100 text-gray-400"
-                  }`}
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${user.isEmailVerified
+                    ? "bg-blue-50 text-blue-600 border border-blue-200"
+                    : "bg-gray-100 text-gray-400"
+                    }`}
                 >
                   {user.isEmailVerified ? "Verified" : "Unverified"}
                 </span>
                 <span
-                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                    user.isActive
-                      ? "bg-green-50 text-green-600 border border-green-200"
-                      : "bg-red-50 text-red-500 border border-red-200"
-                  }`}
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${user.isActive
+                    ? "bg-green-50 text-green-600 border border-green-200"
+                    : "bg-red-50 text-red-500 border border-red-200"
+                    }`}
                 >
                   {user.isActive ? "Active" : "Inactive"}
                 </span>
@@ -377,7 +373,7 @@ export default function UserDetailsPage({
       {/* ── Three info cards ── */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         {/* KYC Information */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-bold text-gray-900'>
               KYC Information
@@ -393,11 +389,10 @@ export default function UserDetailsPage({
             <div>
               <p className='text-xs text-gray-400 mb-1'>Verification Status</p>
               <span
-                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${
-                  verification?.status === "verified" || user.isKYCVerified
-                    ? "bg-blue-50 text-blue-600 border border-blue-200"
-                    : "bg-gray-100 text-gray-400"
-                }`}
+                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${verification?.status === "verified" || user.isKYCVerified
+                  ? "bg-blue-50 text-blue-600 border border-blue-200"
+                  : "bg-gray-100 text-gray-400"
+                  }`}
               >
                 {verification?.status === "verified" || user.isKYCVerified
                   ? "Verified"
@@ -408,7 +403,7 @@ export default function UserDetailsPage({
         </Card>
 
         {/* Statistics */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-bold text-gray-900'>
               Statistics
@@ -455,7 +450,7 @@ export default function UserDetailsPage({
         </Card>
 
         {/* Account Information */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-bold text-gray-900'>
               Account Information
@@ -488,7 +483,7 @@ export default function UserDetailsPage({
 
       {/* ── Security Summary ── */}
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2 flex flex-row items-center justify-between space-y-0'>
             <CardTitle className='text-sm font-bold text-gray-900 flex items-center gap-2'>
               <ShieldAlert size={16} className='text-purple-600' />
@@ -501,10 +496,9 @@ export default function UserDetailsPage({
               <div className='p-3 bg-gray-50 rounded-xl border border-gray-100'>
                 <p className='text-[10px] text-gray-400 font-bold uppercase mb-1'>Risk Score</p>
                 <div className='flex items-center gap-2'>
-                  <span className={`text-lg font-bold ${
-                    (securitySummary?.riskScore || 0) > 70 ? "text-red-500" : 
+                  <span className={`text-lg font-bold ${(securitySummary?.riskScore || 0) > 70 ? "text-red-500" :
                     (securitySummary?.riskScore || 0) > 30 ? "text-amber-500" : "text-green-500"
-                  }`}>
+                    }`}>
                     {securitySummary?.riskScore ?? "—"}
                   </span>
                   <span className='text-[10px] text-gray-400'>/ 100</span>
@@ -528,9 +522,8 @@ export default function UserDetailsPage({
                 </div>
                 <div className='text-right'>
                   <p className='text-[10px] text-gray-400 font-bold uppercase mb-1'>Status</p>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    user?.isLocked ? "bg-red-50 text-red-500" : "bg-green-50 text-green-500"
-                  }`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${user?.isLocked ? "bg-red-50 text-red-500" : "bg-green-50 text-green-500"
+                    }`}>
                     {user?.isLocked ? "Suspicious" : "Secure"}
                   </span>
                 </div>
@@ -540,7 +533,7 @@ export default function UserDetailsPage({
         </Card>
 
         {/* Security Alerts */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-bold text-gray-900 flex items-center gap-2'>
               <AlertCircle size={16} className='text-amber-500' />
@@ -552,9 +545,8 @@ export default function UserDetailsPage({
               <div className='space-y-3'>
                 {securitySummary.alerts.map((alert: any, idx: number) => (
                   <div key={idx} className='flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors'>
-                    <div className={`mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 ${
-                      alert.severity === "high" ? "bg-red-500" : "bg-amber-400"
-                    }`} />
+                    <div className={`mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 ${alert.severity === "high" ? "bg-red-500" : "bg-amber-400"
+                      }`} />
                     <div>
                       <p className='text-xs font-bold text-gray-800'>{alert.type}</p>
                       <p className='text-[10px] text-gray-500'>{alert.description}</p>
@@ -574,7 +566,7 @@ export default function UserDetailsPage({
       </div>
 
       {/* ── Address ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <CardContent className='p-5 md:p-6 space-y-3'>
           <h3 className='text-sm font-bold text-gray-900'>Address</h3>
           <div>
@@ -597,7 +589,7 @@ export default function UserDetailsPage({
       </Card>
 
       {/* ── Posted Tasks ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+      <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
         <div className='flex items-center justify-between px-6 pt-5 pb-3'>
           <h3 className='text-base font-bold text-gray-900'>
             Posted Tasks ({allTasks.length})
@@ -630,20 +622,19 @@ export default function UserDetailsPage({
                   </td>
                   <td className='py-4 px-6'>
                     <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${
-                        task.status === "completed"
-                          ? "bg-green-50 text-green-600"
-                          : task.status === "in_progress"
-                            ? "bg-blue-50 text-blue-600"
-                            : task.status === "open"
-                              ? "bg-green-50 text-green-600"
-                              : "bg-gray-50 text-gray-500"
-                      }`}
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${task.status === "completed"
+                        ? "bg-green-50 text-green-600"
+                        : task.status === "in_progress"
+                          ? "bg-blue-50 text-blue-600"
+                          : task.status === "open"
+                            ? "bg-green-50 text-green-600"
+                            : "bg-gray-50 text-gray-500"
+                        }`}
                     >
                       {task.status === "in_progress"
                         ? "In progress"
                         : task.status.charAt(0).toUpperCase() +
-                          task.status.slice(1)}
+                        task.status.slice(1)}
                     </span>
                   </td>
                   <td className='py-4 px-6 text-gray-500 whitespace-nowrap'>
@@ -669,7 +660,7 @@ export default function UserDetailsPage({
       </Card>
 
       {/* ── Transaction History ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+      <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
         <div className='flex items-center justify-between px-6 pt-5 pb-3'>
           <h3 className='text-base font-bold text-gray-900'>
             Transaction History
@@ -703,9 +694,8 @@ export default function UserDetailsPage({
                     </td>
                     <td className='py-4 px-6'>
                       <span
-                        className={`text-xs font-semibold ${
-                          isCredit ? "text-green-600" : "text-red-500"
-                        }`}
+                        className={`text-xs font-semibold ${isCredit ? "text-green-600" : "text-red-500"
+                          }`}
                       >
                         {isCredit ? "Credit" : "Debit"}
                       </span>
@@ -737,7 +727,7 @@ export default function UserDetailsPage({
       </Card>
 
       {/* ── Activity Log (History) ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <div className='flex items-center justify-between px-6 pt-5 pb-3'>
           <h3 className='text-base font-bold text-gray-900 flex items-center gap-2'>
             <History size={18} className='text-gray-400' />
@@ -756,7 +746,7 @@ export default function UserDetailsPage({
                 <Loader2 className='h-6 w-6 animate-spin text-purple-600' />
               </div>
             )}
-            
+
             {(logsData?.logs || []).map((log: any, idx: number) => (
               <div key={log._id || idx} className='group flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100'>
                 <div className='mt-1.5 w-2 h-2 rounded-full bg-purple-500 shrink-0 group-hover:scale-125 transition-transform' />
@@ -784,7 +774,7 @@ export default function UserDetailsPage({
                     {(log.performedBy || log.admin) && (
                       <div className='flex items-center gap-1'>
                         <ShieldCheck size={10} className='text-purple-400' />
-                        {log.performedBy 
+                        {log.performedBy
                           ? `${log.performedBy.firstName || ""} ${log.performedBy.lastName || ""}`.trim() || log.performedBy.emailAddress
                           : log.admin?.fullName ?? log.admin?.email}
                       </div>
@@ -836,7 +826,7 @@ export default function UserDetailsPage({
       {/* ── Deactivate / Suspend Modal ── */}
       {isDeactivateModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg shadow-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
+          <div className='bg-white rounded-2xl w-full max-w-lg  animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-gray-900'>
@@ -898,7 +888,7 @@ export default function UserDetailsPage({
       {/* ── Lock User Modal ── */}
       {isLockModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg shadow-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
+          <div className='bg-white rounded-2xl w-full max-w-lg  animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-amber-600'>
@@ -968,7 +958,7 @@ export default function UserDetailsPage({
       {/* ── Delete User Modal ── */}
       {isDeleteModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl animate-in fade-in zoom-in duration-200'>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden  animate-in fade-in zoom-in duration-200'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-red-600'>

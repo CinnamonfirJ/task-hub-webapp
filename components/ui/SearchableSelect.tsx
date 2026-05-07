@@ -68,7 +68,7 @@ export function SearchableSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full rounded-sm border border-gray-100 bg-white shadow-none animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute z-50 mt-1 w-full rounded-sm border border-gray-100 bg-white  animate-in fade-in zoom-in-95 duration-100">
           <div className="flex items-center border-b border-gray-50 px-3 py-2">
             <Search className="mr-2 h-4 w-4 shrink-0 text-gray-400" />
             <input
@@ -79,7 +79,7 @@ export function SearchableSelect({
               autoFocus
             />
             {searchQuery && (
-              <button 
+              <button
                 type="button"
                 onClick={() => setSearchQuery("")}
                 className="text-gray-400 hover:text-gray-600"

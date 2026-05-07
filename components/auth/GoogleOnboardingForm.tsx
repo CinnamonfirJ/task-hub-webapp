@@ -62,7 +62,7 @@ export function GoogleOnboardingForm() {
     // Inject originState if it's a tasker and missing
     const payload = { ...data };
     if (role === "tasker" && !payload.originState) {
-        payload.originState = data.residentState; // Fallback
+      payload.originState = data.residentState; // Fallback
     }
     await handleCompleteSignup({ ...payload, user_type: role });
   };
@@ -78,29 +78,27 @@ export function GoogleOnboardingForm() {
           <button
             type="button"
             onClick={() => setRole("user")}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-              role === "user"
-                ? "bg-white text-primary shadow-sm"
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === "user"
+                ? "bg-white text-primary "
                 : "text-muted-foreground hover:text-gray-700"
-            }`}
+              }`}
           >
             Customer
           </button>
           <button
             type="button"
             onClick={() => setRole("tasker")}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
-              role === "tasker"
-                ? "bg-[#6B46C1] text-white shadow-sm"
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === "tasker"
+                ? "bg-[#6B46C1] text-white "
                 : "text-muted-foreground hover:text-gray-700"
-            }`}
+              }`}
           >
             Tasker
           </button>
         </div>
         <p className="text-[10px] text-muted-foreground">
-          {role === 'tasker' 
-            ? "You'll be able to browse tasks and provide services." 
+          {role === 'tasker'
+            ? "You'll be able to browse tasks and provide services."
             : "You'll be able to post tasks and find help."}
         </p>
       </div>
@@ -230,7 +228,7 @@ export function GoogleOnboardingForm() {
           {/* Resident State */}
           <div className="space-y-2">
             <Label htmlFor="residentState">Resident State</Label>
-            <SearchableSelect 
+            <SearchableSelect
               options={NIGERIAN_STATES}
               value={form.watch("residentState") || ""}
               onValueChange={(value) => form.setValue("residentState", value, { shouldValidate: true })}
@@ -247,7 +245,7 @@ export function GoogleOnboardingForm() {
           {role === "tasker" && (
             <div className="space-y-2">
               <Label htmlFor="originState">Origin State</Label>
-              <SearchableSelect 
+              <SearchableSelect
                 options={NIGERIAN_STATES}
                 value={form.watch("originState") || ""}
                 onValueChange={(value) => form.setValue("originState", value, { shouldValidate: true })}

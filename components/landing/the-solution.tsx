@@ -75,26 +75,24 @@ export default function TheSolution() {
         <p className="text-gray-500 mt-4 text-sm md:text-base max-w-2xl mx-auto font-medium">
           Whether it's a campus errand or a home repair, finding someone you can actually trust feels impossible.
         </p>
-        
+
         {/* Tabs */}
-        <div className="mt-10 inline-flex items-center p-1 bg-white border border-gray-200 rounded-full shadow-sm">
+        <div className="mt-10 inline-flex items-center p-1 bg-white border border-gray-200 rounded-full ">
           <button
             onClick={() => setActiveTab("poster")}
-            className={`px-6 py-2.5 text-sm font-semibold rounded-full transition-all ${
-              activeTab === "poster"
-                ? "bg-[#0F172A] text-white shadow-md"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
+            className={`px-6 py-2.5 text-sm font-semibold rounded-full transition-all ${activeTab === "poster"
+              ? "bg-[#0F172A] text-white "
+              : "text-gray-600 hover:text-gray-900"
+              }`}
           >
             Poster
           </button>
           <button
             onClick={() => setActiveTab("tasker")}
-            className={`px-6 py-2.5 text-sm font-semibold rounded-full transition-all ${
-              activeTab === "tasker"
-                ? "bg-[#0F172A] text-white shadow-md"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
+            className={`px-6 py-2.5 text-sm font-semibold rounded-full transition-all ${activeTab === "tasker"
+              ? "bg-[#0F172A] text-white "
+              : "text-gray-600 hover:text-gray-900"
+              }`}
           >
             Tasker
           </button>
@@ -114,7 +112,7 @@ export default function TheSolution() {
             {currentSteps.map((step, idx) => (
               <div
                 key={idx}
-                className="flex flex-col p-8 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                className="flex flex-col p-8 bg-white rounded-2xl border border-gray-200  transition-shadow"
               >
                 <span className="text-sm font-bold text-[#6B46C1] mb-6 block">{step.number}</span>
                 <h3 className="text-lg font-bold text-gray-900 mb-3">{step.title}</h3>

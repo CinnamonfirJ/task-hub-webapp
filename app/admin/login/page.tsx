@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
           <Logo />
         </div>
 
-        <div className='bg-white rounded-2xl shadow-xl shadow-purple-100/50 border border-gray-100 overflow-hidden'>
+        <div className='bg-white rounded-2xl  /50 border border-gray-100 overflow-hidden'>
           <div className='bg-linear-to-r from-[#6B46C1] to-[#805AD5] p-6 text-white flex items-center justify-between'>
             <div>
               <h1 className='text-xl font-bold italic tracking-tight uppercase'>
@@ -141,7 +141,7 @@ export default function AdminLoginPage() {
               </div>
 
               <Button
-                className='w-full h-12 bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl text-sm font-bold uppercase tracking-widest shadow-lg shadow-purple-200 transition-all active:scale-95 disabled:opacity-70'
+                className='w-full h-12 bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl text-sm font-bold uppercase tracking-widest   transition-all active:scale-95 disabled:opacity-70'
                 type='submit'
                 disabled={isPending}
               >

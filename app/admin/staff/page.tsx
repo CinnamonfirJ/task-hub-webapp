@@ -128,29 +128,29 @@ export default function StaffPage() {
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
         {statsLoading
           ? [1, 2, 3].map((i) => (
-              <Card key={i} className='border shadow-sm animate-pulse'>
-                <CardContent className='p-6 h-24 bg-gray-50/50' />
-              </Card>
-            ))
+            <Card key={i} className='border  animate-pulse'>
+              <CardContent className='p-6 h-24 bg-gray-50/50' />
+            </Card>
+          ))
           : displayStats.map((stat, idx) => (
-              <Card key={idx} className='border shadow-sm'>
-                <CardContent className='p-6'>
-                  <div
-                    className={`text-3xl font-bold ${stat.color || "text-gray-900"}`}
-                  >
-                    {stat.value}
-                  </div>
-                  <div
-                    className={`text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-500`}
-                  >
-                    {stat.label}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <Card key={idx} className='border '>
+              <CardContent className='p-6'>
+                <div
+                  className={`text-3xl font-bold ${stat.color || "text-gray-900"}`}
+                >
+                  {stat.value}
+                </div>
+                <div
+                  className={`text-[10px] mt-1 font-semibold uppercase tracking-wider text-gray-500`}
+                >
+                  {stat.label}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
       </div>
 
-      <div className='bg-white p-4 rounded-lg shadow-sm border'>
+      <div className='bg-white p-4 rounded-lg  border'>
         <AdminSearchFilter
           searchPlaceholder='Search name or email...'
           searchTerm={searchQuery}
@@ -179,7 +179,7 @@ export default function StaffPage() {
                   {(page - 1) * limit + index + 1}
                 </div>
                 <Link href={`/admin/staff/${user._id}`}>
-                  <Card className='hover:shadow-md transition-shadow cursor-pointer border-gray-100'>
+                  <Card className='transition-shadow cursor-pointer border-gray-100'>
                     <CardContent className='p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
                       <div className='flex items-center gap-4'>
                         <div className='h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold shrink-0'>
@@ -208,11 +208,10 @@ export default function StaffPage() {
                       <div className='flex items-center gap-4'>
                         <Badge
                           variant='secondary'
-                          className={`${
-                            user.isActive
-                              ? "bg-green-100 text-green-700 hover:bg-green-100"
-                              : "bg-red-100 text-red-700 hover:bg-red-100"
-                          } font-medium mr-10 md:mr-0`}
+                          className={`${user.isActive
+                            ? "bg-green-100 text-green-700 hover:bg-green-100"
+                            : "bg-red-100 text-red-700 hover:bg-red-100"
+                            } font-medium mr-10 md:mr-0`}
                         >
                           {user.isActive ? "Active" : "Inactive"}
                         </Badge>
@@ -254,14 +253,14 @@ export default function StaffPage() {
           onPageChange={setPage}
           totalRecords={totalRecords}
           label='staff'
-          className="mt-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+          className="mt-6 bg-white rounded-2xl border border-gray-100 "
         />
       </div>
 
       {/* Invite Admin Modal */}
       {isInviteModalOpen && (
         <div className='fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg shadow-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
+          <div className='bg-white rounded-2xl w-full max-w-lg  animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
             <form onSubmit={handleInviteSubmit}>
               <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
                 <div>

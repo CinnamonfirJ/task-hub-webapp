@@ -12,7 +12,7 @@ export default function FinalCTA() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="bg-[#0B0914] rounded-2xl p-12 md:p-20 relative overflow-hidden shadow-2xl"
+        className="bg-[#0B0914] rounded-2xl p-12 md:p-20 relative overflow-hidden "
       >
         {/* Subtle background glow */}
         <div className="absolute -top-1 -right-1 -translate-y-1/2 w-[600px] h-[600px] bg-[#6C3BFF] blur-[150px] opacity-30 rounded-full pointer-events-none" />

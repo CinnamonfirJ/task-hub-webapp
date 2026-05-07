@@ -179,7 +179,7 @@ export default function AdminSettingsPage() {
 
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8'>
         {/* System Settings */}
-        <Card className='border border-gray-100 shadow-sm rounded-sm '>
+        <Card className='border border-gray-100  rounded-sm '>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               System Settings
@@ -217,7 +217,7 @@ export default function AdminSettingsPage() {
         </Card>
 
         {/* Notifications & Alerts */}
-        <Card className='border border-gray-100 shadow-sm rounded-sm'>
+        <Card className='border border-gray-100  rounded-sm'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               Notifications & Alerts
@@ -243,7 +243,7 @@ export default function AdminSettingsPage() {
         </Card>
 
         {/* Security */}
-        <Card className='border border-gray-100 shadow-sm rounded-sm '>
+        <Card className='border border-gray-100  rounded-sm '>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               Security Settings
@@ -265,7 +265,7 @@ export default function AdminSettingsPage() {
         </Card>
 
         {/* System Info */}
-        <Card className='border border-gray-100 shadow-sm rounded-sm '>
+        <Card className='border border-gray-100  rounded-sm '>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               System Information

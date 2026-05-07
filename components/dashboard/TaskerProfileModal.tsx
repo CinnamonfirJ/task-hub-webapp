@@ -42,8 +42,8 @@ export function TaskerProfileModal({
   const categories =
     tasker?.categories && tasker.categories.length > 0
       ? tasker.categories
-          .map((c: any) => c.displayName || c.name || c)
-          .join(" , ")
+        .map((c: any) => c.displayName || c.name || c)
+        .join(" , ")
       : "";
 
   const bio =
@@ -104,9 +104,9 @@ export function TaskerProfileModal({
               <h3 className='text-sm font-bold text-gray-700 tracking-wider'>
                 WEBSITE / PORTFOLIO
               </h3>
-              <a 
+              <a
                 href={websiteLink.startsWith('http') ? websiteLink : `https://${websiteLink}`}
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
                 className='inline-flex items-center gap-2 text-[#6B46C1] hover:text-[#553C9A] font-medium hover:underline text-[15px]'
               >
@@ -123,7 +123,7 @@ export function TaskerProfileModal({
               </h3>
               <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
                 {/* Stat Card 1 */}
-                <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
+                <div className='border border-gray-100 rounded-lg p-5  space-y-4 bg-white'>
                   <div className='w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-[#6B46C1]'>
                     <Briefcase size={20} strokeWidth={2.5} />
                   </div>
@@ -138,7 +138,7 @@ export function TaskerProfileModal({
                 </div>
 
                 {/* Stat Card 2 */}
-                <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
+                <div className='border border-gray-100 rounded-lg p-5  space-y-4 bg-white'>
                   <div className='w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500'>
                     <TrendingUp size={20} strokeWidth={2.5} />
                   </div>
@@ -153,7 +153,7 @@ export function TaskerProfileModal({
                 </div>
 
                 {/* Stat Card 3 */}
-                <div className='border border-gray-100 rounded-lg p-5 shadow-sm space-y-4 bg-white'>
+                <div className='border border-gray-100 rounded-lg p-5  space-y-4 bg-white'>
                   <div className='w-10 h-10 rounded-lg bg-yellow-50 flex items-center justify-center text-yellow-500'>
                     <Star size={20} strokeWidth={2.5} />
                   </div>

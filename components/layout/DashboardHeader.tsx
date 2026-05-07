@@ -99,7 +99,7 @@ export function DashboardHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className='flex items-center gap-2 hover:opacity-80 transition-opacity outline-none'>
-              <div className='h-9 w-9 rounded-full overflow-hidden shrink-0 border border-gray-200 shadow-sm bg-[#6B46C1] flex items-center justify-center'>
+              <div className='h-9 w-9 rounded-full overflow-hidden shrink-0 border border-gray-200  bg-[#6B46C1] flex items-center justify-center'>
                 {(activeUser as any)?.profilePicture ? (
                   <img
                     src={(activeUser as any).profilePicture}
@@ -145,7 +145,7 @@ export function DashboardHeader() {
 function NotificationsDropdown() {
   const { data: notificationsData, isLoading } = useNotifications({ limit: 5 });
   const { mutate: markAsRead } = useMarkNotificationAsRead();
-  
+
   // Handle both wrapped 'data' response and direct array response
   const notifications = notificationsData?.data?.notifications || notificationsData?.notifications || [];
   const unreadCount = notificationsData?.data?.unreadCount ?? notifications.filter((n: any) => !n.read).length;
@@ -160,7 +160,7 @@ function NotificationsDropdown() {
           )}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align='end' className='w-85 p-0 overflow-hidden rounded-2xl border-gray-100 shadow-xl'>
+      <DropdownMenuContent align='end' className='w-85 p-0 overflow-hidden rounded-2xl border-gray-100 '>
         <div className='p-5 border-b border-gray-50 flex items-center justify-between'>
           <h3 className='font-bold text-gray-900'>Notifications</h3>
           {unreadCount > 0 && (
@@ -169,7 +169,7 @@ function NotificationsDropdown() {
             </span>
           )}
         </div>
-        
+
         <div className='max-h-[400px] overflow-y-auto custom-scrollbar min-h-[100px] bg-white'>
           {isLoading ? (
             <div className="flex items-center justify-center py-10">
@@ -177,20 +177,17 @@ function NotificationsDropdown() {
             </div>
           ) : notifications.length > 0 ? (
             notifications.map((notification: any) => (
-              <div 
-                key={notification._id} 
+              <div
+                key={notification._id}
                 onClick={() => !notification.read && markAsRead(notification._id)}
-                className={`p-5 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors flex gap-4 ${
-                  !notification.read ? "bg-purple-50/30" : ""
-                }`}
+                className={`p-5 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors flex gap-4 ${!notification.read ? "bg-purple-50/30" : ""
+                  }`}
               >
-                <div className={`h-2.5 w-2.5 mt-1.5 rounded-full shrink-0 ${
-                  !notification.read ? "bg-[#6B46C1]" : "bg-gray-200"
-                }`} />
+                <div className={`h-2.5 w-2.5 mt-1.5 rounded-full shrink-0 ${!notification.read ? "bg-[#6B46C1]" : "bg-gray-200"
+                  }`} />
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm leading-snug truncate ${
-                    !notification.read ? "font-bold text-gray-900" : "font-medium text-gray-600"
-                  }`}>
+                  <p className={`text-sm leading-snug truncate ${!notification.read ? "font-bold text-gray-900" : "font-medium text-gray-600"
+                    }`}>
                     {notification.title}
                   </p>
                   <p className='text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed'>
@@ -211,7 +208,7 @@ function NotificationsDropdown() {
             </div>
           )}
         </div>
-        
+
         <Link
           href="/notifications"
           className='block w-full p-4 text-center text-xs font-black text-[#6B46C1] hover:bg-purple-50 transition-colors border-t border-gray-50 uppercase tracking-widest bg-gray-50/50'

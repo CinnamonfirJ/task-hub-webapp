@@ -122,8 +122,8 @@ export default function ProfilePage() {
 
       {/* User Info Card */}
       <Link href='/profile/details'>
-        <div className='bg-white border-none shadow-sm rounded-lg p-4 md:p-6 flex items-center gap-4 md:gap-5 hover:bg-gray-50 transition-colors cursor-pointer group'>
-          <div className='w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-xl md:text-2xl font-bold border-4 border-white shadow-sm overflow-hidden shrink-0'>
+        <div className='bg-white border-none  rounded-lg p-4 md:p-6 flex items-center gap-4 md:gap-5 hover:bg-gray-50 transition-colors cursor-pointer group'>
+          <div className='w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-xl md:text-2xl font-bold border-4 border-white  overflow-hidden shrink-0'>
             {isLoadingUser ? (
               <Skeleton className='w-full h-full' />
             ) : user?.profilePicture ? (
@@ -163,7 +163,7 @@ export default function ProfilePage() {
       </Link>
 
       {/* Wallet balance Card (Universal) */}
-      <Card id="wallet-card" className='bg-linear-to-br from-[#673AB7] to-[#512DA8] border-none shadow-xl rounded-[2rem] md:rounded-[2.5rem] overflow-hidden text-white'>
+      <Card id="wallet-card" className='bg-linear-to-br from-[#673AB7] to-[#512DA8] border-none  rounded-[2rem] md:rounded-[2.5rem] overflow-hidden text-white'>
         <CardContent className='p-6 md:p-8 space-y-6 md:space-y-8'>
           <div className='flex justify-between items-center'>
             <div className='flex items-center gap-2 opacity-90'>
@@ -262,7 +262,7 @@ export default function ProfilePage() {
 
       {/* Switch to Users Banner (For Taskers) - Moved below Wallet Card */}
       {/* {user?.role === "tasker" && (
-        <div className='bg-[#F5F3FF] border border-purple-100 p-4 md:p-5 rounded-lg flex items-center justify-between group cursor-pointer shadow-sm'>
+        <div className='bg-[#F5F3FF] border border-purple-100 p-4 md:p-5 rounded-lg flex items-center justify-between group cursor-pointer '>
           <div className='flex items-center gap-3 md:gap-4'>
             <div className='bg-[#6B46C1] p-2.5 md:p-3 rounded-xl text-white'>
               <UserIcon size={20} className='md:w-[22px] md:h-[22px]' />
@@ -362,7 +362,7 @@ export default function ProfilePage() {
         {/* Become a tasker (Only for regular users) */}
         {/* {user?.role === "user" && (
           <Link href='/profile/become-tasker'>
-            <div className='bg-white hover:bg-gray-50 transition-colors p-4 md:p-5 rounded-lg flex items-center justify-between group cursor-pointer shadow-sm border border-gray-50 mb-4 md:mb-6'>
+            <div className='bg-white hover:bg-gray-50 transition-colors p-4 md:p-5 rounded-lg flex items-center justify-between group cursor-pointer  border border-gray-50 mb-4 md:mb-6'>
               <div className='flex items-center gap-3 md:gap-4'>
                 <div className='bg-purple-100 p-2.5 md:p-3 rounded-xl text-[#6B46C1]'>
                   <Zap
@@ -389,7 +389,7 @@ export default function ProfilePage() {
         )} */}
 
         {/* Other menu items */}
-        <div className='bg-white border border-gray-50 rounded-[2rem] md:rounded-[2.5rem] shadow-sm divide-y divide-gray-50 overflow-hidden'>
+        <div className='bg-white border border-gray-50 rounded-[2rem] md:rounded-[2.5rem]  divide-y divide-gray-50 overflow-hidden'>
           {/* {user?.role === "tasker" && (
             <ProfileMenuItem
               icon={
@@ -413,12 +413,12 @@ export default function ProfilePage() {
           )}
           {user?.role === "tasker" && (
             <ProfileMenuItem
-            icon={<Lock size={20} className='md:w-[22px] md:h-[22px]' />}
-            label='Transaction Pin'
-            href='/profile/transaction-pin'
-          />
+              icon={<Lock size={20} className='md:w-[22px] md:h-[22px]' />}
+              label='Transaction Pin'
+              href='/profile/transaction-pin'
+            />
           )}
-          
+
           <ProfileMenuItem
             icon={
               <RectangleEllipsis
@@ -450,7 +450,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Logout */}
-        <div className='bg-white border border-gray-50 rounded-[2rem] shadow-sm overflow-hidden mt-6'>
+        <div className='bg-white border border-gray-50 rounded-[2rem]  overflow-hidden mt-6'>
           <button
             onClick={logout}
             className='w-full flex items-center justify-between p-5 md:p-6 hover:bg-red-50 transition-colors group'
@@ -591,7 +591,7 @@ function StatCard({
   color: string;
 }) {
   return (
-    <Card className='bg-white border border-gray-100 shadow-sm rounded-xl p-4 md:p-6 transition-all hover:border-purple-100'>
+    <Card className='bg-white border border-gray-100  rounded-xl p-4 md:p-6 transition-all hover:border-purple-100'>
       <div className='flex flex-col space-y-4'>
         <div className={`${color} p-2 rounded-xl w-fit`}>{icon}</div>
         <div className='space-y-1'>

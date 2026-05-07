@@ -48,26 +48,26 @@ export default function AdminDashboardPage() {
     const isForbidden = (statsError as any)?.status === 403 || (statsError as any)?.message?.includes("403");
 
     if (isForbidden) {
-       return (
+      return (
         <div className='p-8'>
-          <div className="bg-white border border-gray-100 rounded-[2rem] p-10 text-center shadow-sm">
+          <div className="bg-white border border-gray-100 rounded-[2rem] p-10 text-center ">
             <div className="bg-purple-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShieldCheck className="text-[#6B46C1] w-10 h-10" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Action Center</h1>
             <p className="text-gray-500 max-w-md mx-auto mb-8">
-              You are logged in as <span className="font-semibold text-[#6B46C1]">{user?.role?.replace("_", " ")}</span>. 
+              You are logged in as <span className="font-semibold text-[#6B46C1]">{user?.role?.replace("_", " ")}</span>.
               While you don't have access to global statistics, you can manage your assigned modules below.
             </p>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
               {navItems.filter(item => item.href !== "/admin/dashboard" && item.roles.includes(user?.role as any)).map(item => (
-                <Link 
-                  key={item.href} 
+                <Link
+                  key={item.href}
                   href={item.href}
                   className="flex items-center gap-4 p-5 bg-gray-50 hover:bg-purple-50 rounded-sm border border-transparent hover:border-purple-100 transition-all group"
                 >
-                  <div className="bg-white p-3 rounded-xl shadow-sm group-hover:bg-[#6B46C1] transition-colors">
+                  <div className="bg-white p-3 rounded-xl  group-hover:bg-[#6B46C1] transition-colors">
                     <item.icon size={24} className="text-[#6B46C1] group-hover:text-white" />
                   </div>
                   <div className="text-left">
@@ -278,10 +278,10 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <ExportModal 
-        isOpen={isExportModalOpen} 
-        onClose={() => setIsExportModalOpen(false)} 
-        type="dashboard" 
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        type="dashboard"
       />
 
       {/* 8 Metric Cards 4 columns */}
@@ -289,7 +289,7 @@ export default function AdminDashboardPage() {
         {metrics.map((metric, idx) => (
           <Card
             key={idx}
-            className='border border-gray-100 shadow-sm rounded-sm'
+            className='border border-gray-100  rounded-sm'
           >
             <CardContent className='p-5'>
               {/* Icon + Trend row */}
@@ -298,9 +298,8 @@ export default function AdminDashboardPage() {
                   <metric.icon size={18} className={metric.iconColor} />
                 </div>
                 <div
-                  className={`flex items-center gap-1 text-xs font-semibold ${
-                    metric.trendUp ? "text-green-500" : "text-red-500"
-                  }`}
+                  className={`flex items-center gap-1 text-xs font-semibold ${metric.trendUp ? "text-green-500" : "text-red-500"
+                    }`}
                 >
                   {metric.trendUp ? (
                     <TrendingUp size={13} />
@@ -327,7 +326,7 @@ export default function AdminDashboardPage() {
       {/* Analytics Grid: Top Locations & Top Categories */}
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         {/* Top Locations */}
-        <Card className='border border-gray-100 shadow-sm rounded-sm'>
+        <Card className='border border-gray-100  rounded-sm'>
           <CardHeader className='pb-2 px-6 pt-6'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Top Locations by Task
@@ -346,8 +345,8 @@ export default function AdminDashboardPage() {
                         <span className='text-gray-500 font-bold'>{loc.taskCount}</span>
                       </div>
                       <div className='w-full bg-gray-100 rounded-full h-2'>
-                        <div 
-                          className='bg-[#3B82F6] h-2 rounded-full' 
+                        <div
+                          className='bg-[#3B82F6] h-2 rounded-full'
                           style={{ width: `${(loc.taskCount / maxLocationCount) * 100}%` }}
                         />
                       </div>
@@ -360,7 +359,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* Top Categories */}
-        <Card className='border border-gray-100 shadow-sm rounded-sm'>
+        <Card className='border border-gray-100  rounded-sm'>
           <CardHeader className='pb-2 px-6 pt-6'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Top Categories by Taskers
@@ -379,7 +378,7 @@ export default function AdminDashboardPage() {
                       </div>
                       <span className='text-sm font-semibold text-gray-800 line-clamp-1'>{cat.categoryName}</span>
                     </div>
-                    <span className='text-xs font-bold bg-white px-2.5 py-1 rounded-full shadow-sm border border-gray-100 text-gray-600'>
+                    <span className='text-xs font-bold bg-white px-2.5 py-1 rounded-full  border border-gray-100 text-gray-600'>
                       {cat.taskerCount} taskers
                     </span>
                   </div>
@@ -391,7 +390,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Recent Tasks Table */}
-      <Card className='border border-gray-100 shadow-sm rounded-sm'>
+      <Card className='border border-gray-100  rounded-sm'>
         <CardHeader className='flex flex-row items-center justify-between pb-2 px-6 pt-6'>
           <CardTitle className='text-base font-bold text-gray-900'>
             Recent Tasks
@@ -460,13 +459,13 @@ export default function AdminDashboardPage() {
                       <td className='px-6 py-4 text-sm text-gray-500'>
                         {task.createdAt
                           ? new Date(task.createdAt).toLocaleDateString(
-                              "en-GB",
-                              {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                              },
-                            )
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            },
+                          )
                           : "—"}
                       </td>
                     </tr>
@@ -481,7 +480,7 @@ export default function AdminDashboardPage() {
       {/* Bottom Row: Recent Activity + Quick Stats */}
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         {/* Recent Activity takes 2/3 */}
-        <Card className='lg:col-span-2 border border-gray-100 shadow-sm rounded-sm'>
+        <Card className='lg:col-span-2 border border-gray-100  rounded-sm'>
           <CardHeader className='flex flex-row items-center justify-between pb-2 px-6 pt-6'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Recent activity
@@ -515,13 +514,13 @@ export default function AdminDashboardPage() {
                       <p className='text-xs text-gray-400 mt-0.5'>
                         {item.date
                           ? new Date(item.date).toLocaleString("en-US", {
-                              month: "numeric",
-                              day: "numeric",
-                              year: "numeric",
-                              hour: "numeric",
-                              minute: "2-digit",
-                              hour12: true,
-                            })
+                            month: "numeric",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
                           : ""}
                       </p>
                       {item.detail && (
@@ -538,7 +537,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* Quick Stats takes 1/3 */}
-        <Card className='border border-gray-100 shadow-sm rounded-sm'>
+        <Card className='border border-gray-100  rounded-sm'>
           <CardHeader className='pb-2 px-6 pt-6'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Quick Stats

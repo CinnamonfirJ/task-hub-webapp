@@ -21,7 +21,7 @@ export function ActivityItem({
   const isApplied = status.toLowerCase() === "applied";
 
   return (
-    <div className='flex items-center justify-between p-6 bg-white rounded-[1.5rem] border border-gray-100 hover:border-purple-100 transition-all gap-2 shadow-sm'>
+    <div className='flex items-center justify-between p-6 bg-white rounded-[1.5rem] border border-gray-100 hover:border-purple-100 transition-all gap-2 '>
       <div className='flex items-center gap-4'>
         <div className='h-12 w-12 rounded-2xl bg-purple-50 flex items-center justify-center text-[#6B46C1]'>
           <Calendar className='h-6 w-6 opacity-30' />

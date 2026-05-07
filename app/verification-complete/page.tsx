@@ -12,7 +12,7 @@ import Link from "next/link";
 export default function VerificationCompletePage() {
   return (
     <div className='flex min-h-screen items-center justify-center bg-gray-50/50 p-4'>
-      <Card className='w-full max-w-md border-none shadow-lg'>
+      <Card className='w-full max-w-md border-none '>
         <CardHeader className='text-center'>
           <div className='mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600'>
             <Clock className='h-6 w-6' />

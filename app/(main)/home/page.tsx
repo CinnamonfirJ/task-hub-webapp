@@ -189,7 +189,7 @@ export default function HomePage() {
       <div className='flex flex-col space-y-6 md:space-y-8 mx-auto p-4 md:p-8 w-full max-w-4xl min-h-screen'>
         {/* Category Setup Banner */}
         {!hasCategories && (
-          <div className='bg-[#6B46C1] rounded-[2rem] p-8 md:p-10 flex flex-col items-center text-center gap-6 shadow-xl shadow-purple-200 animate-in zoom-in-95 duration-500'>
+          <div className='bg-[#6B46C1] rounded-[2rem] p-8 md:p-10 flex flex-col items-center text-center gap-6   animate-in zoom-in-95 duration-500'>
             <div className='bg-white/20 p-5 rounded-full backdrop-blur-md'>
               <Stars size={40} className='text-white animate-pulse' />
             </div>
@@ -204,7 +204,7 @@ export default function HomePage() {
               </p>
             </div>
             <Link href='/profile/become-tasker' className='w-full sm:w-auto'>
-              <Button className='w-full sm:w-auto bg-white hover:bg-purple-50 text-[#6B46C1] px-10 h-14 rounded-2xl font-black text-lg shadow-lg flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95'>
+              <Button className='w-full sm:w-auto bg-white hover:bg-purple-50 text-[#6B46C1] px-10 h-14 rounded-2xl font-black text-lg  flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95'>
                 Select Categories <ArrowRight size={20} />
               </Button>
             </Link>
@@ -231,11 +231,10 @@ export default function HomePage() {
                 <>
                   <p className='text-gray-500 capitalize text-sm'>Tasker</p>
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black border transition-colors whitespace-nowrap ${
-                      isVerified
-                        ? "bg-[#E6FFFA] text-[#38A169] border-[#B2F5EA]"
-                        : "bg-[#FFF9EA] text-[#D69E2E] border-[#FFE7A5]"
-                    }`}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black border transition-colors whitespace-nowrap ${isVerified
+                      ? "bg-[#E6FFFA] text-[#38A169] border-[#B2F5EA]"
+                      : "bg-[#FFF9EA] text-[#D69E2E] border-[#FFE7A5]"
+                      }`}
                   >
                     {isVerified ? (
                       <>
@@ -255,8 +254,8 @@ export default function HomePage() {
 
         {/* Verification Banner */}
         {!isVerified && (
-          <div id="verification-banner-home" className='bg-[#FFF9EA] border border-dashed border-[#FFE7A5] rounded-lg p-6 flex flex-col md:flex-row items-center gap-4 shadow-sm'>
-            <div className='bg-[#FBBC05] p-4 rounded-full text-white shadow-lg shrink-0'>
+          <div id="verification-banner-home" className='bg-[#FFF9EA] border border-dashed border-[#FFE7A5] rounded-lg p-6 flex flex-col md:flex-row items-center gap-4 '>
+            <div className='bg-[#FBBC05] p-4 rounded-full text-white  shrink-0'>
               <Clock size={24} />
             </div>
             <div className='flex-1 space-y-1 text-center md:text-left'>
@@ -301,7 +300,7 @@ export default function HomePage() {
               {recentTasks.slice(0, 2).map((task: any) => (
                 <div
                   key={task._id}
-                  className='bg-white border border-gray-100 p-6 rounded-lg shadow-sm space-y-4'
+                  className='bg-white border border-gray-100 p-6 rounded-lg  space-y-4'
                 >
                   <div className='flex justify-between items-start'>
                     <span className='bg-[#F5EEFF] text-[#6B46C1] px-3 py-1 rounded-md font-bold text-[10px] uppercase tracking-wider'>
@@ -342,7 +341,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className='bg-white border border-gray-100 shadow-sm p-12 rounded-lg flex flex-col items-center justify-center text-center space-y-4'>
+            <div className='bg-white border border-gray-100  p-12 rounded-lg flex flex-col items-center justify-center text-center space-y-4'>
               <div className='bg-purple-50 p-4 rounded-full'>
                 <FilePlus size={24} className='text-[#6B46C1]' />
               </div>
@@ -384,7 +383,7 @@ export default function HomePage() {
                 activities...
               </div>
             ) : recentActivities.length === 0 ? (
-              <div className='bg-white border border-gray-100 rounded-lg py-16 flex flex-col items-center justify-center text-center space-y-3 shadow-sm'>
+              <div className='bg-white border border-gray-100 rounded-lg py-16 flex flex-col items-center justify-center text-center space-y-3 '>
                 <h3 className='font-bold text-lg text-gray-900'>
                   No recent activities
                 </h3>
@@ -399,7 +398,7 @@ export default function HomePage() {
                   <Link
                     key={bid._id}
                     href={`/tasks/${task?._id || bid._id}`}
-                    className='block bg-white border border-gray-100 rounded-lg p-4 shadow-sm hover:border-[#6B46C1]/30 transition-colors'
+                    className='block bg-white border border-gray-100 rounded-lg p-4  hover:border-[#6B46C1]/30 transition-colors'
                   >
                     <div className='flex justify-between items-center'>
                       <div>
@@ -498,7 +497,7 @@ export default function HomePage() {
                 <Link
                   key={cat._id}
                   href={`/post-task?mainCategory=${cat._id}`}
-                  className='flex items-center gap-4 bg-white border border-gray-100 rounded-lg p-4 shadow-sm hover:shadow-md hover:border-gray-200 transition-all cursor-pointer group'
+                  className='flex items-center gap-4 bg-white border border-gray-100 rounded-lg p-4  hover:border-gray-200 transition-all cursor-pointer group'
                 >
                   <div
                     className={`shrink-0 w-11 h-11 ${bg} rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform`}
@@ -576,10 +575,10 @@ export default function HomePage() {
               const role =
                 worker.primaryCategory ||
                 (Array.isArray(worker.categories) &&
-                worker.categories.length > 0
+                  worker.categories.length > 0
                   ? worker.categories[0]?.displayName ||
-                    worker.categories[0]?.name ||
-                    worker.categories[0]
+                  worker.categories[0]?.name ||
+                  worker.categories[0]
                   : "Tasker");
               const rating =
                 worker.averageRating ||
@@ -590,8 +589,8 @@ export default function HomePage() {
                 worker.completedJobs !== undefined
                   ? worker.completedJobs
                   : (worker as any)?.stats?.tasksCompleted ||
-                    (worker as any)?.completedTasks ||
-                    0;
+                  (worker as any)?.completedTasks ||
+                  0;
               const locationLabel =
                 worker.area ||
                 worker.residentState ||
@@ -602,7 +601,7 @@ export default function HomePage() {
               return (
                 <div
                   key={worker._id || idx}
-                  className='min-w-[220px] md:min-w-0 bg-white border border-gray-100 rounded-lg p-4 shadow-sm shrink-0 hover:shadow-md hover:border-gray-200 transition-all cursor-pointer'
+                  className='min-w-[220px] md:min-w-0 bg-white border border-gray-100 rounded-lg p-4  shrink-0 hover:border-gray-200 transition-all cursor-pointer'
                   onClick={() => setSelectedTasker(worker)}
                 >
                   <div className='flex items-center gap-3 mb-3'>
@@ -652,7 +651,7 @@ export default function HomePage() {
           </div>
         ) : (
           /* Empty state - no real workers found yet */
-          <div className='bg-white border border-gray-100 border-dashed rounded-lg p-8 flex flex-col items-center justify-center text-center space-y-3 shadow-sm'>
+          <div className='bg-white border border-gray-100 border-dashed rounded-lg p-8 flex flex-col items-center justify-center text-center space-y-3 '>
             <div className='bg-[#F5EEFF] p-3 rounded-full'>
               <Stars size={20} className='text-[#6B46C1]' />
             </div>
@@ -694,7 +693,7 @@ export default function HomePage() {
             <p className='text-gray-500'>Failed to load tasks.</p>
           </div>
         ) : recentTasks.length === 0 && !featuredTask ? (
-          <div className='bg-white border border-gray-100 rounded-lg py-14 flex flex-col items-center justify-center text-center space-y-3 shadow-sm'>
+          <div className='bg-white border border-gray-100 rounded-lg py-14 flex flex-col items-center justify-center text-center space-y-3 '>
             <div className='bg-purple-50 p-4 rounded-full'>
               <FilePlus size={22} className='text-[#6B46C1]' />
             </div>
@@ -736,7 +735,7 @@ export default function HomePage() {
                   <Link
                     key={task._id}
                     href={`/tasks/${task._id}`}
-                    className='block bg-white border border-gray-100 rounded-lg p-4 shadow-sm hover:shadow-md hover:border-gray-200 transition-all'
+                    className='block bg-white border border-gray-100 rounded-lg p-4  hover:border-gray-200 transition-all'
                   >
                     <div className='flex justify-between items-start gap-4'>
                       <div className='min-w-0'>

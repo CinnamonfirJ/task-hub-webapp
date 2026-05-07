@@ -105,7 +105,7 @@ export default function ChatPage() {
 
     return (
       <div className='h-[calc(100vh-64px)] flex items-center justify-center p-4 bg-gray-50/30'>
-        <div className='max-w-md w-full bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm text-center space-y-6'>
+        <div className='max-w-md w-full bg-white border border-gray-100 rounded-[2rem] p-8  text-center space-y-6'>
           <div className='w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500'>
             {isForbidden ? (
               <svg
@@ -155,7 +155,7 @@ export default function ChatPage() {
                 : isNotFound
                   ? "The conversation you're looking for doesn't exist or has been removed."
                   : errorObj?.message ||
-                    "There was an error loading the chat. Please try again later."}
+                  "There was an error loading the chat. Please try again later."}
             </p>
           </div>
 

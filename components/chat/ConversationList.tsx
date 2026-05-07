@@ -75,7 +75,7 @@ export function ConversationList({
               className={cn(
                 "flex items-center gap-3 md:gap-4 p-3 md:p-4 text-left transition-all rounded-xl hover:bg-purple-50 group border border-transparent",
                 activeId === conv._id &&
-                  "bg-purple-50 border-purple-100 shadow-sm",
+                "bg-purple-50 border-purple-100 ",
               )}
             >
               <div className='relative'>

@@ -37,14 +37,14 @@ export function ConfirmModal({
 }: ConfirmModalProps) {
   const confirmClass =
     variant === "danger"
-      ? "bg-red-500 hover:bg-red-600 text-white shadow-none"
+      ? "bg-red-500 hover:bg-red-600 text-white "
       : variant === "warning"
-        ? "bg-amber-500 hover:bg-amber-600 text-white shadow-none"
-        : "bg-[#6B46C1] hover:bg-[#553098] text-white shadow-none";
+        ? "bg-amber-500 hover:bg-amber-600 text-white "
+        : "bg-[#6B46C1] hover:bg-[#553098] text-white ";
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='rounded-2xl max-w-sm border border-gray-100 shadow-xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <DialogContent className='rounded-2xl max-w-sm border border-gray-100  p-6 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <DialogHeader className='space-y-2'>
           <DialogTitle className='text-base font-bold text-gray-900'>
             {title}

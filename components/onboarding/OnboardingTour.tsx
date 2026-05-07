@@ -157,7 +157,7 @@ export function CustomTourCard({
   skipTour,
 }: any) {
   return (
-    <div 
+    <div
       style={{
         background: "white",
         padding: "24px",
@@ -173,11 +173,11 @@ export function CustomTourCard({
     >
       {/* Top Section */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-        <div style={{ 
-          background: "#F5EEFF", 
-          padding: "10px", 
-          borderRadius: "12px", 
-          fontSize: "20px" 
+        <div style={{
+          background: "#F5EEFF",
+          padding: "10px",
+          borderRadius: "12px",
+          fontSize: "20px"
         }}>
           {step.icon}
         </div>
@@ -185,32 +185,32 @@ export function CustomTourCard({
           {step.title}
         </h3>
       </div>
-      
+
       {/* Content */}
-      <div style={{ 
-        marginBottom: "24px", 
-        fontSize: "14px", 
-        lineHeight: "1.6", 
+      <div style={{
+        marginBottom: "24px",
+        fontSize: "14px",
+        lineHeight: "1.6",
         color: "#4B5563",
-        fontWeight: "500" 
+        fontWeight: "500"
       }}>
         {step.content}
       </div>
-      
+
       {/* Controls */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", flexDirection: "column" }}>
-           <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <span style={{ fontSize: "11px", fontWeight: "700", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Progress
           </span>
           <span style={{ fontSize: "13px", fontWeight: "800", color: "#6B46C1" }}>
             {currentStep + 1} / {totalSteps}
           </span>
         </div>
-        
+
         <div style={{ display: "flex", gap: "10px" }}>
           {currentStep > 0 && (
-            <button 
+            <button
               onClick={prevStep}
               style={{
                 padding: "8px 16px",
@@ -226,7 +226,7 @@ export function CustomTourCard({
               Back
             </button>
           )}
-          <button 
+          <button
             onClick={nextStep}
             style={{
               padding: "8px 20px",
@@ -244,9 +244,9 @@ export function CustomTourCard({
           </button>
         </div>
       </div>
-      
+
       {/* Skip Button */}
-      <button 
+      <button
         onClick={skipTour}
         style={{
           marginTop: "16px",
@@ -267,7 +267,7 @@ export function CustomTourCard({
       </button>
 
       {/* Close Icon */}
-      <button 
+      <button
         onClick={skipTour}
         style={{
           position: "absolute",
@@ -310,7 +310,7 @@ export function OnboardingTour() {
     // Lock navigation while tour is active
     const sidebar = document.querySelector('aside');
     const mobileNav = document.querySelector('nav'); // Adjust selector if needed
-    
+
     if (isNextStepVisible) {
       if (sidebar) sidebar.style.pointerEvents = 'none';
       if (mobileNav) mobileNav.style.pointerEvents = 'none';
@@ -320,7 +320,7 @@ export function OnboardingTour() {
       if (mobileNav) mobileNav.style.pointerEvents = 'auto';
       document.body.style.overflow = 'auto';
     }
-    
+
     return () => {
       if (sidebar) sidebar.style.pointerEvents = 'auto';
       if (mobileNav) mobileNav.style.pointerEvents = 'auto';
@@ -366,10 +366,10 @@ export function OnboardingTour() {
             }}
             className="absolute inset-0 bg-[#6B46C1] rounded-full blur-xl pointer-events-none"
           />
-          
+
           <button
             onClick={handleStartTour}
-            className="relative flex items-center gap-2 bg-[#6B46C1] hover:bg-[#553C9A] text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-purple-200 transition-all hover:scale-105 active:scale-95 group"
+            className="relative flex items-center gap-2 bg-[#6B46C1] hover:bg-[#553C9A] text-white px-6 py-3 rounded-full font-bold   transition-all hover:scale-105 active:scale-95 group"
           >
             <div className="bg-white/20 p-1.5 rounded-full group-hover:rotate-12 transition-transform">
               <Play size={16} fill="currentColor" />

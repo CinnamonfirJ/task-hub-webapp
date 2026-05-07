@@ -101,7 +101,7 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
               )}
               <button
                 onClick={() => removeFile(idx)}
-                className='absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity'
+                className='absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5  opacity-0 group-hover:opacity-100 transition-opacity'
               >
                 <X size={10} />
               </button>
@@ -128,30 +128,30 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
           <Paperclip size={20} />
         </Button>
 
-      <div className='flex-1 relative'>
-        <Textarea
-          ref={textareaRef}
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            e.target.style.height = "auto";
-            e.target.style.height = `${e.target.scrollHeight}px`;
-          }}
-          onKeyDown={handleKeyDown}
-          placeholder='Type a message...'
-          className='min-h-[44px] max-h-[120px] py-3 px-4 resize-none bg-gray-50 border-none focus-visible:ring-1 focus-visible:ring-purple-200 rounded-xl text-sm placeholder:text-gray-400 overflow-y-auto'
-          disabled={disabled}
-        />
-      </div>
+        <div className='flex-1 relative'>
+          <Textarea
+            ref={textareaRef}
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value);
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder='Type a message...'
+            className='min-h-[44px] max-h-[120px] py-3 px-4 resize-none bg-gray-50 border-none focus-visible:ring-1 focus-visible:ring-purple-200 rounded-xl text-sm placeholder:text-gray-400 overflow-y-auto'
+            disabled={disabled}
+          />
+        </div>
 
-      <Button
-        onClick={handleSend}
-        disabled={(!text.trim() && files.length === 0) || disabled}
-        className='shrink-0 h-10 w-10 bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl shadow-md p-0'
-      >
-        <Send size={18} />
-      </Button>
+        <Button
+          onClick={handleSend}
+          disabled={(!text.trim() && files.length === 0) || disabled}
+          className='shrink-0 h-10 w-10 bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl  p-0'
+        >
+          <Send size={18} />
+        </Button>
+      </div>
     </div>
-  </div>
   );
 }

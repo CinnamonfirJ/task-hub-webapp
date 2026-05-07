@@ -54,7 +54,7 @@ export function TransactionDetailsModal({
       ? "Completed"
       : transaction.status
         ? transaction.status.charAt(0).toUpperCase() +
-          transaction.status.slice(1)
+        transaction.status.slice(1)
         : "Completed";
 
   const dateFormatted = transaction.createdAt
@@ -77,7 +77,7 @@ export function TransactionDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='max-w-md rounded-lg p-0 bg-white gap-0 border-none shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <DialogContent className='max-w-md rounded-lg p-0 bg-white gap-0 border-none  max-h-[90vh] overflow-y-auto no-scrollbar'>
         {/* Header */}
         <div className='flex items-center justify-between p-6 pb-2'>
           <DialogTitle className='text-xl font-bold text-gray-900'>

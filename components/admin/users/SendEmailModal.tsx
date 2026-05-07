@@ -42,15 +42,15 @@ export function SendEmailModal({
   const [userSearch, setUserSearch] = useState("");
 
   const { data: userData, isLoading: loadingUsers } = useNotificationUsers();
-  
+
   const userMutation = useSendUserEmail();
   const taskerMutation = useSendTaskerEmail();
-  
+
   // Determine if the selected user is a tasker to use the correct endpoint
   const isSelectedUserTasker = () => {
     if (type === "tasker") return true;
     if (type === "user") return false;
-    
+
     const taskers = userData?.taskers || userData?.data?.taskers || [];
     return taskers.some((t: any) => (t._id || t.id) === (initialUserId || selectedUserId));
   };
@@ -121,7 +121,7 @@ export function SendEmailModal({
             <Mail className='text-[#6B46C1]' size={24} />
             {initialUserId ? "Send Email to User" : "Compose Direct Email"}
           </DialogTitle>
-          
+
           {(initialUserId || selectedUserId) ? (
             <div className='flex items-center justify-between mt-2 p-3 bg-purple-50 rounded-xl border border-purple-100'>
               <div className='flex flex-col gap-0.5'>
@@ -129,9 +129,9 @@ export function SendEmailModal({
                 <p className='text-xs text-gray-500 font-medium'>{initialUserEmail || selectedUserEmail}</p>
               </div>
               {!initialUserId && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setSelectedUserId("")}
                   className="text-[10px] h-7 px-2 font-bold text-purple-600 hover:bg-purple-100"
                 >
@@ -153,8 +153,8 @@ export function SendEmailModal({
                   className='pl-10 rounded-xl h-11 bg-gray-50 border-gray-200'
                 />
               </div>
-              
-              <div className='max-h-[200px] overflow-y-auto border border-gray-100 rounded-xl divide-y divide-gray-50 bg-white no-scrollbar shadow-inner'>
+
+              <div className='max-h-[200px] overflow-y-auto border border-gray-100 rounded-xl divide-y divide-gray-50 bg-white no-scrollbar'>
                 {loadingUsers ? (
                   <div className='flex justify-center py-8'>
                     <Loader2 size={20} className='animate-spin text-purple-600' />
@@ -225,7 +225,7 @@ export function SendEmailModal({
           <Button
             onClick={handleSend}
             disabled={isPending}
-            className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl gap-2 px-8 h-12 font-bold shadow-lg shadow-purple-200 transition-all active:scale-95'
+            className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl gap-2 px-8 h-12 font-bold   transition-all active:scale-95'
           >
             {isPending ? (
               <Loader2 size={18} className='animate-spin' />

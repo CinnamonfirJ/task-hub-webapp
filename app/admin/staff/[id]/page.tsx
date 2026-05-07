@@ -118,11 +118,10 @@ export default function StaffDetailsPage({
             onClick={handleStatusToggle}
             disabled={isUpdating}
             variant='outline'
-            className={`h-10 gap-2 text-sm font-semibold rounded-xl border-gray-200 px-5 ${
-              profile.isActive
-                ? "text-red-600 hover:bg-red-50 hover:text-red-700"
-                : "text-green-600 hover:bg-green-50 hover:text-green-700"
-            }`}
+            className={`h-10 gap-2 text-sm font-semibold rounded-xl border-gray-200 px-5 ${profile.isActive
+              ? "text-red-600 hover:bg-red-50 hover:text-red-700"
+              : "text-green-600 hover:bg-green-50 hover:text-green-700"
+              }`}
           >
             {isUpdating ? (
               <Loader2 size={16} className='animate-spin' />
@@ -143,7 +142,7 @@ export default function StaffDetailsPage({
       </div>
 
       {/* Profile Card */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
+      <Card className='border border-gray-100  rounded-2xl md:rounded-[2rem]'>
         <CardContent className='p-6 md:p-8'>
           <div className='flex flex-col md:flex-row items-center gap-6'>
             <div className='w-20 h-20 md:w-24 md:h-24 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-3xl md:text-4xl shrink-0'>
@@ -162,11 +161,10 @@ export default function StaffDetailsPage({
                   </span>
                   <Badge
                     variant='secondary'
-                    className={`${
-                      profile.isActive
-                        ? "bg-green-100 text-green-700 hover:bg-green-100"
-                        : "bg-red-100 text-red-700 hover:bg-red-100"
-                    } font-medium`}
+                    className={`${profile.isActive
+                      ? "bg-green-100 text-green-700 hover:bg-green-100"
+                      : "bg-red-100 text-red-700 hover:bg-red-100"
+                      } font-medium`}
                   >
                     {profile.isActive ? "Active" : "Inactive"}
                   </Badge>
@@ -209,7 +207,7 @@ export default function StaffDetailsPage({
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         {/* Permissions Card */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] h-full'>
+        <Card className='border border-gray-100  rounded-2xl md:rounded-[2rem] h-full'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               Access & Permissions
@@ -222,7 +220,7 @@ export default function StaffDetailsPage({
                   key={idx}
                   className='flex items-center gap-3 text-sm text-gray-700 font-medium'
                 >
-                  <div className='h-2 w-2 rounded-full bg-[#6B46C1] shadow-[0_0_0_2px_rgba(107,70,193,0.2)]' />
+                  <div className='h-2 w-2 rounded-full bg-[#6B46C1] ' />
                   {permission}
                 </div>
               ))
@@ -235,7 +233,7 @@ export default function StaffDetailsPage({
         </Card>
 
         {/* Account Info replaces old Activity Stats card since API no longer returns login_count etc. */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem] h-full'>
+        <Card className='border border-gray-100  rounded-2xl md:rounded-[2rem] h-full'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               Account Information
@@ -301,7 +299,7 @@ export default function StaffDetailsPage({
       </div>
 
       {/* Recent Activities */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
+      <Card className='border border-gray-100  rounded-2xl md:rounded-[2rem]'>
         <CardHeader className='flex flex-row items-center justify-between p-6 md:p-8 pb-4'>
           <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
             Recent Activities
@@ -318,7 +316,7 @@ export default function StaffDetailsPage({
             {recentActivities.length > 0 ? (
               recentActivities.map((act, idx) => (
                 <div key={act.id ?? idx} className='relative pl-8'>
-                  <div className='absolute left-0 top-1.5 h-3 w-3 rounded-full bg-[#6B46C1] shadow-[0_0_0_4px_white]' />
+                  <div className='absolute left-0 top-1.5 h-3 w-3 rounded-full bg-[#6B46C1] ' />
                   <div className='flex flex-col gap-1.5'>
                     {/* API uses `action` (e.g. "ADMIN LOGIN"), not `type` */}
                     <span className='text-sm font-bold text-gray-900'>

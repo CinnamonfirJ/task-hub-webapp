@@ -13,7 +13,7 @@ interface TaskerCardProps {
 export function TaskerCard({ worker, onClick, className }: TaskerCardProps) {
   const name = `${worker.firstName} ${worker.lastName || ""}`.trim() || "Tasker";
   const initial = name[0]?.toUpperCase() || "T";
-  
+
   const role = worker.primaryCategory || "Tasker";
   const rating = worker.averageRating || 4.9;
   const jobs = worker.completedJobs || 0;
@@ -23,13 +23,13 @@ export function TaskerCard({ worker, onClick, className }: TaskerCardProps) {
     <div
       onClick={onClick}
       className={cn(
-        "bg-white border border-gray-100 rounded-md p-5 shadow-sm hover:shadow-md hover:border-purple-100 transition-all cursor-pointer group flex flex-col h-full",
+        "bg-white border border-gray-100 rounded-md p-5  hover:border-purple-100 transition-all cursor-pointer group flex flex-col h-full",
         className
       )}
     >
       <div className='flex items-center gap-4 mb-4'>
         <div className='relative w-14 h-14 shrink-0'>
-          <div className='w-full h-full rounded-full overflow-hidden border-2 border-white shadow-sm'>
+          <div className='w-full h-full rounded-full overflow-hidden border-2 border-white '>
             {worker.profilePicture ? (
               <img
                 src={worker.profilePicture}

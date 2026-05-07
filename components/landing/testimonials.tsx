@@ -87,7 +87,7 @@ export default function Testimonials() {
           className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           {reviews.map((review, idx) => (
-            <div key={idx} className="p-6 border border-gray-100 rounded-sm bg-gray-50 hover:bg-white hover:shadow-md transition-all flex flex-col">
+            <div key={idx} className="p-6 border border-gray-100 rounded-sm bg-gray-50 hover:bg-white transition-all flex flex-col">
               <div className="flex gap-1 text-yellow-400 mb-4">
                 {[...Array(review.rating)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current" />)}
               </div>

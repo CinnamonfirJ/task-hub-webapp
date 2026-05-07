@@ -39,10 +39,10 @@ export function SendBulkEmailModal({
   const [targetGroup, setTargetGroup] = useState<"verified" | "unverified" | "all">(defaultGroup);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  
+
   const userMutation = useSendBulkEmail();
   const taskerMutation = useSendBulkTaskerEmail();
-  
+
   const mutation = type === "tasker" ? taskerMutation : userMutation;
   const { mutate: sendBulkEmail, isPending } = mutation;
 
@@ -86,8 +86,8 @@ export function SendBulkEmailModal({
             <Label htmlFor='targetGroup' className='text-xs font-bold text-gray-700 uppercase tracking-wider'>
               Target Audience
             </Label>
-            <Select 
-              value={targetGroup} 
+            <Select
+              value={targetGroup}
               onValueChange={(value: any) => setTargetGroup(value)}
             >
               <SelectTrigger id='targetGroup' className='rounded-xl h-12 border-gray-200'>
@@ -139,7 +139,7 @@ export function SendBulkEmailModal({
           <Button
             onClick={handleSend}
             disabled={isPending}
-            className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl gap-2 px-8 h-12 font-bold shadow-lg shadow-purple-200 transition-all active:scale-95'
+            className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl gap-2 px-8 h-12 font-bold   transition-all active:scale-95'
           >
             {isPending ? (
               <Loader2 size={18} className='animate-spin' />

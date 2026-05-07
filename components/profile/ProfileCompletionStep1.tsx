@@ -92,7 +92,7 @@ export function ProfileCompletionStep1({
         {/* Profile Image */}
         <div className='flex flex-col items-center gap-3'>
           <div className='relative group cursor-pointer'>
-            <div className='w-24 h-24 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-3xl font-bold overflow-hidden border-4 border-white shadow-lg'>
+            <div className='w-24 h-24 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-3xl font-bold overflow-hidden border-4 border-white '>
               {user?.profilePicture ? (
                 <img
                   src={user.profilePicture}
@@ -105,7 +105,7 @@ export function ProfileCompletionStep1({
             </div>
             <label
               htmlFor='profile-upload'
-              className='absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md text-[#6B46C1] cursor-pointer hover:bg-gray-50 transition-colors'
+              className='absolute bottom-0 right-0 bg-white p-2 rounded-full  text-[#6B46C1] cursor-pointer hover:bg-gray-50 transition-colors'
             >
               <Camera size={16} />
               <input
@@ -123,7 +123,7 @@ export function ProfileCompletionStep1({
         </div>
 
         {/* Basic Information */}
-        <div className='bg-white p-6 rounded-lg space-y-6 shadow-sm border border-gray-50'>
+        <div className='bg-white p-6 rounded-lg space-y-6  border border-gray-50'>
           <h3 className='font-bold text-gray-900'>Basic Information</h3>
 
           <div className='space-y-4'>
@@ -227,7 +227,7 @@ export function ProfileCompletionStep1({
         </div>
 
         {/* Location */}
-        <div className='bg-white p-6 rounded-lg space-y-6 shadow-sm border border-gray-50'>
+        <div className='bg-white p-6 rounded-lg space-y-6  border border-gray-50'>
           <h3 className='font-bold text-gray-900'>Location</h3>
 
           <div className='space-y-4'>
@@ -277,7 +277,7 @@ export function ProfileCompletionStep1({
 
         <Button
           type='submit'
-          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-14 rounded-xl font-bold text-lg shadow-lg shadow-purple-200'
+          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-14 rounded-xl font-bold text-lg  '
         >
           Continue to Verification
         </Button>

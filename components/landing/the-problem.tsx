@@ -85,7 +85,7 @@ export default function TheProblem() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: idx * 0.08 }}
-            className="flex flex-col p-8 rounded-sm border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow group"
+            className="flex flex-col p-8 rounded-sm border border-gray-100 bg-white  transition-shadow group"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="group-hover:scale-110 transition-transform origin-left">

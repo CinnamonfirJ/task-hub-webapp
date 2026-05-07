@@ -72,7 +72,7 @@ export default function WaitlistManagementPage() {
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-        <Card className='border-none shadow-sm'>
+        <Card className='border-none '>
           <CardContent className='p-4 text-center'>
             <div className='text-xl font-bold text-[#6B46C1]'>
               {waitlistData?.count || 0}
@@ -84,7 +84,7 @@ export default function WaitlistManagementPage() {
         </Card>
       </div>
 
-      <Card className='border-none shadow-sm overflow-hidden'>
+      <Card className='border-none  overflow-hidden'>
         <CardContent className='p-0'>
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
@@ -94,7 +94,7 @@ export default function WaitlistManagementPage() {
               // Waitlist doesn't need complex filters for now
               filterOptions={["All"]}
               activeFilter='All'
-              onFilterChange={() => {}}
+              onFilterChange={() => { }}
             />
           </div>
 
@@ -104,15 +104,15 @@ export default function WaitlistManagementPage() {
                 {isLoading ? (
                   <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
                 ) : (
-                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                  <div className='text-center p-6 bg-white rounded-xl  border border-red-50 max-w-sm mx-auto'>
                     <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
                       <div className='w-6 h-6 text-red-500 font-bold'>!</div>
                     </div>
                     <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
                     <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => window.location.reload()}
                       className="border-red-100 text-red-600 hover:bg-red-50"
                     >
@@ -123,58 +123,58 @@ export default function WaitlistManagementPage() {
               </div>
             )}
             <table className='w-full text-left text-sm'>
-                <thead>
-                  <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
-                    <th className='px-6 py-4 w-12'>#</th>
-                    <th className='px-6 py-4'>EMAIL ADDRESS</th>
-                    <th className='px-6 py-4'>JOINED AT</th>
-                    <th className='px-6 py-4 text-right'>ID</th>
+              <thead>
+                <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                  <th className='px-6 py-4 w-12'>#</th>
+                  <th className='px-6 py-4'>EMAIL ADDRESS</th>
+                  <th className='px-6 py-4'>JOINED AT</th>
+                  <th className='px-6 py-4 text-right'>ID</th>
+                </tr>
+              </thead>
+              <tbody className='divide-y'>
+                {waitlistItems.map((item: any, index: number) => (
+                  <tr
+                    key={item._id}
+                    className='group hover:bg-gray-50 transition-colors'
+                  >
+                    <td className='px-6 py-4 text-xs font-medium text-gray-400'>
+                      {(page - 1) * limit + index + 1}
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='font-bold text-gray-900'>
+                        {item.email}
+                      </div>
+                    </td>
+                    <td className='px-6 py-4 text-xs font-bold text-gray-900'>
+                      {new Date(item.createdAt).toLocaleString()}
+                    </td>
+                    <td className='px-6 py-4 text-right text-[10px] text-gray-400 font-mono'>
+                      {item._id}
+                    </td>
                   </tr>
-                </thead>
-                <tbody className='divide-y'>
-                  {waitlistItems.map((item: any, index: number) => (
-                    <tr
-                      key={item._id}
-                      className='group hover:bg-gray-50 transition-colors'
+                ))}
+                {!isLoading && waitlistItems.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={3}
+                      className='py-20 text-center text-gray-400 font-medium'
                     >
-                      <td className='px-6 py-4 text-xs font-medium text-gray-400'>
-                        {(page - 1) * limit + index + 1}
-                      </td>
-                      <td className='px-6 py-4'>
-                        <div className='font-bold text-gray-900'>
-                          {item.email}
-                        </div>
-                      </td>
-                      <td className='px-6 py-4 text-xs font-bold text-gray-900'>
-                        {new Date(item.createdAt).toLocaleString()}
-                      </td>
-                      <td className='px-6 py-4 text-right text-[10px] text-gray-400 font-mono'>
-                        {item._id}
-                      </td>
-                    </tr>
-                  ))}
-                  {!isLoading && waitlistItems.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={3}
-                        className='py-20 text-center text-gray-400 font-medium'
-                      >
-                        <Users size={40} className='mx-auto mb-4 opacity-20' />
-                        <p>No entries found on the waitlist</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                      <Users size={40} className='mx-auto mb-4 opacity-20' />
+                      <p>No entries found on the waitlist</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-            <AdminPagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-              totalRecords={totalRecords}
-              label='entries'
-            />
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalRecords={totalRecords}
+            label='entries'
+          />
         </CardContent>
       </Card>
     </div>

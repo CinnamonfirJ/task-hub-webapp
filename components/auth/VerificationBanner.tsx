@@ -40,7 +40,7 @@ export function VerificationBanner() {
     if (!user.emailAddress && !user.email) return;
     const email = user.emailAddress || user.email || "";
     const role = user.role || "user";
-    
+
     // Redirect immediately so the user can input the OTP if they already have one
     router.push(`/verify-email?email=${encodeURIComponent(email)}&type=${role}`);
 
@@ -58,7 +58,7 @@ export function VerificationBanner() {
   const isEmailUnverified = !user.isEmailVerified;
 
   return (
-    <div className='sticky top-0 lg:top-0 z-50 bg-amber-50 border-b border-amber-200 px-4 py-3 shadow-sm'>
+    <div className='sticky top-0 lg:top-0 z-50 bg-amber-50 border-b border-amber-200 px-4 py-3 '>
       <div className='max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3'>
         <div className='flex items-center gap-3 text-amber-800'>
           <AlertCircle size={20} className='shrink-0' />
@@ -71,7 +71,7 @@ export function VerificationBanner() {
         {isEmailUnverified ? (
           <button
             onClick={handleResend}
-            className='flex items-center gap-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm shrink-0'
+            className='flex items-center gap-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all  shrink-0'
           >
             <Send size={14} />
             Verify Email
@@ -79,7 +79,7 @@ export function VerificationBanner() {
         ) : (
           <button
             onClick={() => router.push("/complete-profile")}
-            className='flex items-center gap-2 bg-[#6B46C1] hover:bg-[#553C9A] text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 shrink-0'
+            className='flex items-center gap-2 bg-[#6B46C1] hover:bg-[#553C9A] text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all  active:scale-95 shrink-0'
           >
             Complete Profile
             <ArrowRight size={14} />

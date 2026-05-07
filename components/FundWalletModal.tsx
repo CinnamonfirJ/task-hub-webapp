@@ -76,7 +76,7 @@ export function FundWalletModal({
 
   return (
     <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-[2.5rem] p-8 w-full max-w-xl shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <div className='bg-white rounded-[2.5rem] p-8 w-full max-w-xl  relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <div className='flex items-center justify-between mb-8'>
           <h2 className='text-2xl font-bold text-gray-900'>Fund wallet</h2>
           <button
@@ -89,7 +89,7 @@ export function FundWalletModal({
         </div>
 
         {/* Wallet Balance Card */}
-        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-lg p-6 text-white mb-8 shadow-lg shadow-purple-100 relative overflow-hidden'>
+        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-lg p-6 text-white mb-8   relative overflow-hidden'>
           <div className='relative z-10 flex items-center gap-3 mb-4 opacity-90'>
             <Wallet size={18} />
             <span className='text-sm font-medium'>Wallet balance</span>
@@ -313,7 +313,7 @@ export function FundWalletModal({
           <Button
             onClick={handleFund}
             disabled={isPending}
-            className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base shadow-lg shadow-purple-200 transition-all disabled:opacity-70'
+            className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base   transition-all disabled:opacity-70'
           >
             {isPending ? (
               <span className='flex items-center gap-2'>

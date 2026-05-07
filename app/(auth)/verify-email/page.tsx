@@ -46,19 +46,19 @@ function VerifyEmailForm() {
   const handlePostVerify = async () => {
     try {
       setIsLoggingInAfterVerify(true);
-      
+
       // Try to auto-login using stored credentials
       const pendingEmail = sessionStorage.getItem("pendingEmail");
       const pendingPassword = sessionStorage.getItem("pendingPassword");
       const pendingRole = sessionStorage.getItem("pendingRole") as UserType;
 
       if (pendingEmail && pendingPassword) {
-        await loginAsync({ 
-          email: pendingEmail, 
-          password: pendingPassword, 
-          role: pendingRole || type 
+        await loginAsync({
+          email: pendingEmail,
+          password: pendingPassword,
+          role: pendingRole || type
         });
-        
+
         // Success! loginAsync will redirect to /home
         sessionStorage.removeItem("pendingEmail");
         sessionStorage.removeItem("pendingPassword");
@@ -113,7 +113,7 @@ function VerifyEmailForm() {
       <div className='mx-auto px-4 py-10 w-full max-w-md'>
         <div className='flex flex-col items-center mb-8'>
           <div className='flex justify-center items-center bg-purple-50 mb-4 rounded-full w-16 h-16'>
-            <div className='flex justify-center items-center bg-white shadow-sm rounded-full w-12 h-12'>
+            <div className='flex justify-center items-center bg-white  rounded-full w-12 h-12'>
               {isVerifying || isLoggingInAfterVerify ? (
                 <Loader2 className='w-6 h-6 text-primary animate-spin' />
               ) : verifyError ? (
@@ -128,10 +128,10 @@ function VerifyEmailForm() {
             {isVerifying
               ? "Verifying..."
               : isLoggingInAfterVerify
-              ? "Logging you in..."
-              : verifyError
-                ? "Verification Failed"
-                : "Email Verified!"}
+                ? "Logging you in..."
+                : verifyError
+                  ? "Verification Failed"
+                  : "Email Verified!"}
           </h1>
 
           {(isVerifying || isLoggingInAfterVerify) && (
@@ -177,7 +177,7 @@ function VerifyEmailForm() {
       {/* Icon Header */}
       <div className='flex flex-col items-center mb-8'>
         <div className='flex justify-center items-center bg-purple-50 mb-4 rounded-full w-16 h-16'>
-          <div className='flex justify-center items-center bg-white shadow-sm rounded-full w-12 h-12'>
+          <div className='flex justify-center items-center bg-white  rounded-full w-12 h-12'>
             <Mail className='w-6 h-6 text-primary' />
           </div>
         </div>
@@ -290,7 +290,7 @@ function VerifyEmailForm() {
           )}
 
           <Button
-            className='w-full h-12 text-lg font-bold shadow-lg shadow-purple-200 rounded-sm'
+            className='w-full h-12 text-lg font-bold   rounded-sm'
             disabled={otp.length !== 5 || isVerifying || isLoggingInAfterVerify}
             onClick={handleManualVerify}
           >

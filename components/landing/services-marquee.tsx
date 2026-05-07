@@ -48,7 +48,7 @@ export default function ServicesMarquee() {
           {[...CATEGORIES, ...CATEGORIES, ...CATEGORIES].map((category, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-6 py-3 shrink-0 hover:border-purple-200 hover:bg-purple-50 transition-colors cursor-pointer shadow-sm"
+              className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-6 py-3 shrink-0 hover:border-purple-200 hover:bg-purple-50 transition-colors cursor-pointer "
             >
               <div className="text-[#6B46C1]">{category.icon}</div>
               <span className="font-bold text-gray-700">{category.name}</span>
@@ -70,7 +70,7 @@ export default function ServicesMarquee() {
           {[...CATEGORIES].reverse().concat([...CATEGORIES].reverse()).concat([...CATEGORIES].reverse()).map((category, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-6 py-3 shrink-0 hover:border-purple-200 hover:bg-purple-50 transition-colors cursor-pointer shadow-sm"
+              className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-6 py-3 shrink-0 hover:border-purple-200 hover:bg-purple-50 transition-colors cursor-pointer "
             >
               <div className="text-[#6B46C1]">{category.icon}</div>
               <span className="font-bold text-gray-700">{category.name}</span>

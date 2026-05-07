@@ -40,10 +40,10 @@ export default function AboutPage() {
             </div>
             <div className="relative">
               <div className="absolute -inset-4 bg-primary/10 rounded-2xl blur-2xl" />
-              <div className="relative overflow-hidden rounded-2xl shadow-2xl">
-                 <div className="aspect-video bg-linear-to-br from-purple-600 to-indigo-700 flex items-center justify-center">
-                    <span className="text-white text-2xl font-bold">TaskHub Innovation</span>
-                 </div>
+              <div className="relative overflow-hidden rounded-2xl ">
+                <div className="aspect-video bg-linear-to-br from-purple-600 to-indigo-700 flex items-center justify-center">
+                  <span className="text-white text-2xl font-bold">TaskHub Innovation</span>
+                </div>
               </div>
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function AboutPage() {
         <div className="container px-6 mx-auto">
           <div className="grid gap-8 md:grid-cols-3">
             {/* Story Card */}
-            <div className="p-8 transition-all bg-white border border-gray-100 rounded-3xl hover:shadow-xl group">
+            <div className="p-8 transition-all bg-white border border-gray-100 rounded-3xl group">
               <div className="flex items-center justify-center w-16 h-16 mb-6 transition-colors bg-purple-50 rounded-2xl group-hover:bg-primary group-hover:text-white text-primary">
                 <BookOpen className="w-8 h-8" />
               </div>
@@ -66,7 +66,7 @@ export default function AboutPage() {
             </div>
 
             {/* Mission Card */}
-            <div className="p-8 transition-all bg-white border border-gray-100 rounded-3xl hover:shadow-xl group">
+            <div className="p-8 transition-all bg-white border border-gray-100 rounded-3xl group">
               <div className="flex items-center justify-center w-16 h-16 mb-6 transition-colors bg-purple-50 rounded-2xl group-hover:bg-primary group-hover:text-white text-primary">
                 <Target className="w-8 h-8" />
               </div>
@@ -77,7 +77,7 @@ export default function AboutPage() {
             </div>
 
             {/* Vision Card */}
-            <div className="p-8 transition-all bg-white border border-gray-100 rounded-3xl hover:shadow-xl group">
+            <div className="p-8 transition-all bg-white border border-gray-100 rounded-3xl group">
               <div className="flex items-center justify-center w-16 h-16 mb-6 transition-colors bg-purple-50 rounded-2xl group-hover:bg-primary group-hover:text-white text-primary">
                 <Eye className="w-8 h-8" />
               </div>

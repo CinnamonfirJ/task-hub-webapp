@@ -84,7 +84,7 @@ export function CategoryModal({
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-300'>
-      <div className='bg-white rounded-[2.5rem] w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <div className='bg-white rounded-[2.5rem] w-full max-w-lg  animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         {/* Header */}
         <div className='p-8 pb-4 flex items-center justify-between'>
           <div>
@@ -193,7 +193,7 @@ export function CategoryModal({
           <Button
             onClick={handleSubmit}
             disabled={!formData.displayName || !formData.minimumPrice || isSaving}
-            className='h-12 px-10 rounded-2xl bg-black hover:bg-gray-800 text-white font-black transition-all shadow-lg shadow-black/10'
+            className='h-12 px-10 rounded-2xl bg-black hover:bg-gray-800 text-white font-black transition-all  '
           >
             {isSaving ? (
               <span className='flex items-center gap-2'>

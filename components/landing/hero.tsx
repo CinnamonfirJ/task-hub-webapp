@@ -102,7 +102,7 @@ export default function Hero() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-        className="w-full max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-2xl relative"
+        className="w-full max-w-6xl mx-auto rounded-2xl overflow-hidden  relative"
       >
         <img
           src="/assets/hero.jpg"

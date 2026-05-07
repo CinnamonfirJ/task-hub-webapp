@@ -63,11 +63,11 @@ export default function CompleteProfilePage() {
 
   const userInitials = user?.fullName
     ? user.fullName
-        .trim()
-        .split(/\s+/)
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
+      .trim()
+      .split(/\s+/)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
     : "U";
 
   const handleProfilePictureChange = (
@@ -90,9 +90,8 @@ export default function CompleteProfilePage() {
         <button
           type='button'
           onClick={() => step === 2 && setStep(1)}
-          className={`flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors text-gray-500 ${
-            step === 1 ? "opacity-0 pointer-events-none" : ""
-          }`}
+          className={`flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors text-gray-500 ${step === 1 ? "opacity-0 pointer-events-none" : ""
+            }`}
         >
           <ArrowLeft size={18} />
         </button>
@@ -128,19 +127,17 @@ export default function CompleteProfilePage() {
         {/* Step 2 */}
         <div className='flex items-center gap-3'>
           <div
-            className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-all ${
-              step >= 2
-                ? "bg-[#6B46C1] text-white"
-                : "bg-gray-100 text-gray-400"
-            }`}
+            className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-all ${step >= 2
+              ? "bg-[#6B46C1] text-white"
+              : "bg-gray-100 text-gray-400"
+              }`}
           >
             2
           </div>
           <div>
             <p
-              className={`text-sm font-bold leading-tight ${
-                step >= 2 ? "text-gray-900" : "text-gray-400"
-              }`}
+              className={`text-sm font-bold leading-tight ${step >= 2 ? "text-gray-900" : "text-gray-400"
+                }`}
             >
               Verification
             </p>
@@ -155,7 +152,7 @@ export default function CompleteProfilePage() {
           {/* Profile Image */}
           <div className='flex flex-col items-center gap-2'>
             <label className='relative cursor-pointer group'>
-              <div className='w-20 h-20 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-2xl font-bold overflow-hidden border-4 border-white shadow-md'>
+              <div className='w-20 h-20 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-2xl font-bold overflow-hidden border-4 border-white '>
                 {user?.profilePicture ? (
                   <img
                     src={user.profilePicture}
@@ -166,7 +163,7 @@ export default function CompleteProfilePage() {
                   userInitials
                 )}
               </div>
-              <span className='absolute bottom-0 right-0 bg-white border border-gray-100 rounded-full p-1.5 shadow-sm group-hover:bg-gray-50 transition-colors'>
+              <span className='absolute bottom-0 right-0 bg-white border border-gray-100 rounded-full p-1.5  group-hover:bg-gray-50 transition-colors'>
                 <Camera size={13} className='text-[#6B46C1]' />
               </span>
               <input
@@ -202,7 +199,7 @@ export default function CompleteProfilePage() {
                     </Label>
                     <Input
                       {...form.register("firstName")}
-                      className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] shadow-none'
+                      className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] '
                       placeholder='First name'
                     />
                     {form.formState.errors.firstName && (
@@ -217,7 +214,7 @@ export default function CompleteProfilePage() {
                     </Label>
                     <Input
                       {...form.register("lastName")}
-                      className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] shadow-none'
+                      className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] '
                       placeholder='Last name'
                     />
                     {form.formState.errors.lastName && (
@@ -234,7 +231,7 @@ export default function CompleteProfilePage() {
                   </Label>
                   <Input
                     {...form.register("phoneNumber")}
-                    className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] shadow-none'
+                    className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] '
                     placeholder='Enter phone number'
                   />
                   {form.formState.errors.phoneNumber && (
@@ -251,7 +248,7 @@ export default function CompleteProfilePage() {
                   <Input
                     type='date'
                     {...form.register("dateOfBirth")}
-                    className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] shadow-none'
+                    className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] '
                     placeholder='Select date of Birth'
                   />
                   {form.formState.errors.dateOfBirth && (
@@ -275,7 +272,7 @@ export default function CompleteProfilePage() {
                   </Label>
                   <Input
                     {...form.register("country")}
-                    className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] shadow-none opacity-80'
+                    className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1]  opacity-80'
                     placeholder='Nigeria'
                     readOnly
                   />
@@ -310,7 +307,7 @@ export default function CompleteProfilePage() {
                   </Label>
                   <Textarea
                     {...form.register("address")}
-                    className='bg-gray-100/60 border-0 rounded-xl ring-0 focus-visible:ring-1 focus-visible:ring-[#6B46C1] min-h-[100px] shadow-none resize-none'
+                    className='bg-gray-100/60 border-0 rounded-xl ring-0 focus-visible:ring-1 focus-visible:ring-[#6B46C1] min-h-[100px]  resize-none'
                     placeholder='Enter your full address'
                   />
                   {form.formState.errors.address && (
@@ -361,7 +358,7 @@ export default function CompleteProfilePage() {
                       />
                       <Input
                         {...form.register("portfolioLink")}
-                        className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] pl-10 shadow-none'
+                        className='bg-gray-100/60 border-0 h-12 rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] pl-10 '
                         placeholder='https://yourportfolio.com'
                       />
                     </div>
@@ -373,7 +370,7 @@ export default function CompleteProfilePage() {
             <Button
               type='submit'
               disabled={isSubmitting}
-              className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-13 rounded-xl font-bold text-white shadow-none text-sm'
+              className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-13 rounded-xl font-bold text-white  text-sm'
             >
               {isSubmitting ? (
                 <Loader2 className='mr-2 w-4 h-4 animate-spin' />
@@ -393,11 +390,10 @@ export default function CompleteProfilePage() {
           <button
             type='button'
             onClick={() => setSelectedMethod("document")}
-            className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left ${
-              selectedMethod === "document"
-                ? "border-[#6B46C1] bg-purple-50/30"
-                : "border-gray-200 bg-white hover:border-gray-300"
-            }`}
+            className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left ${selectedMethod === "document"
+              ? "border-[#6B46C1] bg-purple-50/30"
+              : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
           >
             <div className='flex items-center gap-3'>
               <div className='bg-purple-100 p-2.5 rounded-lg shrink-0'>
@@ -413,11 +409,10 @@ export default function CompleteProfilePage() {
               </div>
             </div>
             <div
-              className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${
-                selectedMethod === "document"
-                  ? "border-[#6B46C1]"
-                  : "border-gray-300"
-              }`}
+              className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${selectedMethod === "document"
+                ? "border-[#6B46C1]"
+                : "border-gray-300"
+                }`}
             >
               {selectedMethod === "document" && (
                 <div className='w-2.5 h-2.5 rounded-full bg-[#6B46C1]' />
@@ -429,11 +424,10 @@ export default function CompleteProfilePage() {
           <button
             type='button'
             onClick={() => setSelectedMethod("nin")}
-            className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left ${
-              selectedMethod === "nin"
-                ? "border-[#6B46C1] bg-purple-50/30"
-                : "border-gray-200 bg-white hover:border-gray-300"
-            }`}
+            className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left ${selectedMethod === "nin"
+              ? "border-[#6B46C1] bg-purple-50/30"
+              : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
           >
             <div className='flex items-center gap-3'>
               <div className='bg-purple-100 p-2.5 rounded-lg shrink-0'>
@@ -447,11 +441,10 @@ export default function CompleteProfilePage() {
               </div>
             </div>
             <div
-              className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${
-                selectedMethod === "nin"
-                  ? "border-[#6B46C1]"
-                  : "border-gray-300"
-              }`}
+              className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${selectedMethod === "nin"
+                ? "border-[#6B46C1]"
+                : "border-gray-300"
+                }`}
             >
               {selectedMethod === "nin" && (
                 <div className='w-2.5 h-2.5 rounded-full bg-[#6B46C1]' />
@@ -474,7 +467,7 @@ export default function CompleteProfilePage() {
               <div key='document-action' className='space-y-4 pt-1'>
                 <VerifyIdentityButton
                   userId={user?._id}
-                  className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-12 rounded-xl font-bold text-sm text-white shadow-none'
+                  className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-12 rounded-xl font-bold text-sm text-white '
                 />
               </div>
             )}
@@ -482,7 +475,7 @@ export default function CompleteProfilePage() {
               <div key='nin-action' className='space-y-4 pt-1'>
                 <Button
                   onClick={() => setVerificationMode("manual")}
-                  className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-12 rounded-xl font-bold text-sm text-white shadow-none'
+                  className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-12 rounded-xl font-bold text-sm text-white '
                 >
                   Enter 11-digit NIN
                 </Button>

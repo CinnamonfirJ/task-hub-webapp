@@ -168,36 +168,35 @@ export default function TaskerDetailsPage({
           </Button>
 
           {/* Suspend / Activate button */}
-        <Button
-          onClick={
-            tasker?.lockUntil && new Date(tasker.lockUntil) > new Date()
-              ? handleUnlock
-              : () => setIsLockModalOpen(true)
-          }
-          disabled={isLocking || isUnlocking}
-          className={`${
-            tasker?.lockUntil && new Date(tasker.lockUntil) > new Date()
+          <Button
+            onClick={
+              tasker?.lockUntil && new Date(tasker.lockUntil) > new Date()
+                ? handleUnlock
+                : () => setIsLockModalOpen(true)
+            }
+            disabled={isLocking || isUnlocking}
+            className={`${tasker?.lockUntil && new Date(tasker.lockUntil) > new Date()
               ? "bg-[#10B981] hover:bg-[#059669]"
               : "bg-[#EF4444] hover:bg-[#DC2626]"
-          } text-white gap-2 h-10 px-6 font-semibold rounded-xl min-w-[160px] transition-all`}
-        >
-          {isLocking || isUnlocking ? (
-            <Loader2 size={18} className="animate-spin" />
-          ) : tasker?.lockUntil && new Date(tasker.lockUntil) > new Date() ? (
-            <>
-              <ShieldCheck size={18} /> Unlock Tasker
-            </>
-          ) : (
-            <>
-              <Ban size={18} /> Lock Tasker
-            </>
-          )}
-        </Button>
+              } text-white gap-2 h-10 px-6 font-semibold rounded-xl min-w-[160px] transition-all`}
+          >
+            {isLocking || isUnlocking ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : tasker?.lockUntil && new Date(tasker.lockUntil) > new Date() ? (
+              <>
+                <ShieldCheck size={18} /> Unlock Tasker
+              </>
+            ) : (
+              <>
+                <Ban size={18} /> Lock Tasker
+              </>
+            )}
+          </Button>
+        </div>
       </div>
-    </div>
 
       {/* ── Profile Card ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <CardContent className='p-5 md:p-6'>
           <div className='flex items-center gap-4'>
             {/* Avatar */}
@@ -228,20 +227,18 @@ export default function TaskerDetailsPage({
                   {fullName}
                 </h2>
                 <span
-                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                    account?.verifyIdentity
-                      ? "bg-blue-50 text-blue-600 border border-blue-200"
-                      : "bg-gray-100 text-gray-400"
-                  }`}
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${account?.verifyIdentity
+                    ? "bg-blue-50 text-blue-600 border border-blue-200"
+                    : "bg-gray-100 text-gray-400"
+                    }`}
                 >
                   {account?.verifyIdentity ? "Verified" : "Unverified"}
                 </span>
                 <span
-                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                    account?.isActive
-                      ? "bg-green-50 text-green-600 border border-green-200"
-                      : "bg-red-50 text-red-500 border border-red-200"
-                  }`}
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${account?.isActive
+                    ? "bg-green-50 text-green-600 border border-green-200"
+                    : "bg-red-50 text-red-500 border border-red-200"
+                    }`}
                 >
                   {account?.isActive ? "Active" : "Inactive"}
                 </span>
@@ -266,12 +263,12 @@ export default function TaskerDetailsPage({
                 <div className='flex items-center gap-2'>
                   <Calendar size={14} className='text-gray-400 shrink-0' />
                   <span>
-                 {account?.createdAt
-  ? new Date(account.createdAt).toLocaleDateString()
-  : "N/A"}
+                    {account?.createdAt
+                      ? new Date(account.createdAt).toLocaleDateString()
+                      : "N/A"}
                   </span>
                 </div>
-              
+
               </div>
             </div>
           </div>
@@ -281,7 +278,7 @@ export default function TaskerDetailsPage({
       {/* ── Three info cards ── */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         {/* KYC Information */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-bold text-gray-900'>
               KYC Information
@@ -297,11 +294,10 @@ export default function TaskerDetailsPage({
             <div>
               <p className='text-xs text-gray-400 mb-1'>Verification Status</p>
               <span
-                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${
-                  kyc?.status === "verified"
-                    ? "bg-blue-50 text-blue-600 border border-blue-200"
-                    : "bg-gray-100 text-gray-400"
-                }`}
+                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${kyc?.status === "verified"
+                  ? "bg-blue-50 text-blue-600 border border-blue-200"
+                  : "bg-gray-100 text-gray-400"
+                  }`}
               >
                 {kyc?.status === "verified" ? "Verified" : "Unverified"}
               </span>
@@ -327,7 +323,7 @@ export default function TaskerDetailsPage({
         </Card>
 
         {/* Statistics */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-bold text-gray-900'>
               Statistics
@@ -373,7 +369,7 @@ export default function TaskerDetailsPage({
         </Card>
 
         {/* Account Information */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-bold text-gray-900'>
               Account Information
@@ -406,7 +402,7 @@ export default function TaskerDetailsPage({
 
       {/* ── Security Summary ── */}
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2 flex flex-row items-center justify-between space-y-0'>
             <CardTitle className='text-sm font-bold text-gray-900 flex items-center gap-2'>
               <ShieldAlertIcon size={16} className='text-purple-600' />
@@ -419,10 +415,9 @@ export default function TaskerDetailsPage({
               <div className='p-3 bg-gray-50 rounded-xl border border-gray-100'>
                 <p className='text-[10px] text-gray-400 font-bold uppercase mb-1'>Risk Score</p>
                 <div className='flex items-center gap-2'>
-                  <span className={`text-lg font-bold ${
-                    (securitySummary?.riskScore || 0) > 70 ? "text-red-500" : 
+                  <span className={`text-lg font-bold ${(securitySummary?.riskScore || 0) > 70 ? "text-red-500" :
                     (securitySummary?.riskScore || 0) > 30 ? "text-amber-500" : "text-green-500"
-                  }`}>
+                    }`}>
                     {securitySummary?.riskScore ?? "—"}
                   </span>
                   <span className='text-[10px] text-gray-400'>/ 100</span>
@@ -446,9 +441,8 @@ export default function TaskerDetailsPage({
                 </div>
                 <div className='text-right'>
                   <p className='text-[10px] text-gray-400 font-bold uppercase mb-1'>Status</p>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    tasker?.lockUntil && new Date(tasker.lockUntil) > new Date() ? "bg-red-50 text-red-500" : "bg-green-50 text-green-500"
-                  }`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tasker?.lockUntil && new Date(tasker.lockUntil) > new Date() ? "bg-red-50 text-red-500" : "bg-green-50 text-green-500"
+                    }`}>
                     {tasker?.lockUntil && new Date(tasker.lockUntil) > new Date() ? "Locked" : "Active"}
                   </span>
                 </div>
@@ -458,7 +452,7 @@ export default function TaskerDetailsPage({
         </Card>
 
         {/* Security Alerts List */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-bold text-gray-900 flex items-center gap-2'>
               <AlertCircle size={16} className='text-amber-500' />
@@ -470,9 +464,8 @@ export default function TaskerDetailsPage({
               <div className='space-y-3'>
                 {securitySummary.alerts.map((alert: any, idx: number) => (
                   <div key={idx} className='flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors'>
-                    <div className={`mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 ${
-                      alert.severity === "high" ? "bg-red-500" : "bg-amber-400"
-                    }`} />
+                    <div className={`mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 ${alert.severity === "high" ? "bg-red-500" : "bg-amber-400"
+                      }`} />
                     <div>
                       <p className='text-xs font-bold text-gray-800'>{alert.type}</p>
                       <p className='text-[10px] text-gray-500'>{alert.description}</p>
@@ -492,7 +485,7 @@ export default function TaskerDetailsPage({
       </div>
 
       {/* ── Service Category ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <CardHeader className='pb-3'>
           <CardTitle className='text-sm font-bold text-gray-900'>
             Service Category
@@ -521,7 +514,7 @@ export default function TaskerDetailsPage({
       </Card>
 
       {/* ── Recent Reviews ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+      <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
         <CardHeader className='flex flex-row items-center justify-between p-6 pb-4'>
           <CardTitle className='text-base font-bold text-gray-900'>
             Recent Reviews
@@ -534,7 +527,7 @@ export default function TaskerDetailsPage({
           {reviews.map((review: any) => (
             <div
               key={review._id}
-              className='flex items-start gap-4 p-4 border border-gray-100 rounded-2xl hover:shadow-sm transition-shadow'
+              className='flex items-start gap-4 p-4 border border-gray-100 rounded-2xl transition-shadow'
             >
               {/* Avatar */}
               <div className='w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold shrink-0'>
@@ -589,7 +582,7 @@ export default function TaskerDetailsPage({
       </Card>
 
       {/* ── Activity History ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <div className='flex items-center justify-between px-6 pt-5 pb-3'>
           <h3 className='text-base font-bold text-gray-900 flex items-center gap-2'>
             <History size={18} className='text-gray-400' />
@@ -606,7 +599,7 @@ export default function TaskerDetailsPage({
                 <Loader2 className='h-6 w-6 animate-spin text-purple-600' />
               </div>
             )}
-            
+
             {(logsData?.logs || []).map((log: any, idx: number) => (
               <div key={log._id || idx} className='group flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100'>
                 <div className='mt-1.5 w-2 h-2 rounded-full bg-purple-500 shrink-0 group-hover:scale-125 transition-transform' />
@@ -634,7 +627,7 @@ export default function TaskerDetailsPage({
                     {(log.performedBy || log.admin) && (
                       <div className='flex items-center gap-1'>
                         <ShieldCheck size={10} className='text-purple-400' />
-                        {log.performedBy 
+                        {log.performedBy
                           ? `${log.performedBy.firstName || ""} ${log.performedBy.lastName || ""}`.trim() || log.performedBy.emailAddress
                           : log.admin?.fullName ?? log.admin?.email}
                       </div>
@@ -686,7 +679,7 @@ export default function TaskerDetailsPage({
       {/* ── Lock Tasker Modal ── */}
       {isLockModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto no-scrollbar'>
+          <div className='bg-white rounded-2xl w-full max-w-lg  max-h-[90vh] overflow-y-auto no-scrollbar'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-gray-900'>
@@ -763,7 +756,7 @@ export default function TaskerDetailsPage({
       {/* ── Verify Tasker Modal ── */}
       {isVerifyModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl'>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden '>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-xl font-bold text-[#3B82F6]'>

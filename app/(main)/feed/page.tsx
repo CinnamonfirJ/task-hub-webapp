@@ -144,7 +144,7 @@ export default function FeedPage() {
           className={cn(
             "px-5 py-2.5 rounded-full text-xs md:text-sm font-bold transition-all whitespace-nowrap shrink-0",
             selectedCategory === "All"
-              ? "bg-[#6B46C1] text-white shadow-md shadow-purple-100"
+              ? "bg-[#6B46C1] text-white  "
               : "bg-gray-50 text-gray-400 hover:bg-gray-100 border border-transparent",
           )}
         >
@@ -185,7 +185,7 @@ export default function FeedPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align='start'
-                className='rounded-2xl p-2 min-w-[200px] border-none shadow-xl'
+                className='rounded-2xl p-2 min-w-[200px] border-none '
               >
                 {group.subs.map((sub: any) => (
                   <DropdownMenuItem
@@ -255,9 +255,8 @@ export default function FeedPage() {
             return (
               <div
                 key={task._id}
-                className={`relative flex flex-col h-full bg-white hover:bg-gray-50/50 p-5 md:p-8 border border-gray-100 rounded-lg shadow-sm transition-all group ${
-                  isAssignedToOther ? "opacity-60 grayscale-[0.5]" : ""
-                }`}
+                className={`relative flex flex-col h-full bg-white hover:bg-gray-50/50 p-5 md:p-8 border border-gray-100 rounded-lg  transition-all group ${isAssignedToOther ? "opacity-60 grayscale-[0.5]" : ""
+                  }`}
               >
                 {/* Card Top: Category Badge & Assignment Info */}
                 <div className='flex justify-between items-start mb-4 md:mb-6'>
@@ -298,13 +297,12 @@ export default function FeedPage() {
                   {/* Bid Status Badge */}
                   {task.taskerBidInfo?.hasBid && (
                     <span
-                      className={`px-2 py-0.5 rounded-md font-bold text-[8px] md:text-[9px] uppercase tracking-wider ${
-                        task.taskerBidInfo.status === "accepted"
-                          ? "bg-green-100 text-green-700"
-                          : task.taskerBidInfo.status === "rejected"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-[#F5EEFF] text-[#6B46C1]"
-                      }`}
+                      className={`px-2 py-0.5 rounded-md font-bold text-[8px] md:text-[9px] uppercase tracking-wider ${task.taskerBidInfo.status === "accepted"
+                        ? "bg-green-100 text-green-700"
+                        : task.taskerBidInfo.status === "rejected"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-[#F5EEFF] text-[#6B46C1]"
+                        }`}
                     >
                       {task.taskerBidInfo.status === "accepted"
                         ? "Accepted"
@@ -332,10 +330,10 @@ export default function FeedPage() {
                     <span>
                       {task.deadline
                         ? new Date(task.deadline).toLocaleDateString("en-US", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
                         : "Pending"}
                     </span>
                   </div>
@@ -375,7 +373,7 @@ export default function FeedPage() {
         /* Empty State */
         <div className='flex flex-col items-center justify-center py-16 md:py-32 text-center space-y-6'>
           <div className='flex justify-center items-center bg-purple-50 rounded-full w-24 h-24'>
-            <div className='bg-white p-4 rounded-lg shadow-sm'>
+            <div className='bg-white p-4 rounded-lg '>
               <Clock className='w-10 h-10 text-[#6B46C1] animate-pulse' />
             </div>
           </div>

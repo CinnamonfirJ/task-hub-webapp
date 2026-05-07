@@ -114,7 +114,7 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
       exit={{ opacity: 0, y: -10 }}
       className="w-full"
     >
-      <Card className="shadow-none border border-gray-100 rounded-sm overflow-hidden">
+      <Card className=" border border-gray-100 rounded-sm overflow-hidden">
         <CardHeader className="bg-white px-8 pt-8 pb-4">
           <div className="flex items-center gap-4 mb-2">
             <div className="bg-purple-50 p-2 rounded-sm">
@@ -184,7 +184,7 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-sm w-full font-bold text-sm uppercase tracking-widest shadow-none transition-all active:scale-[0.98]"
+                className="bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-sm w-full font-bold text-sm uppercase tracking-widest  transition-all active:scale-[0.98]"
               >
                 {isLoading ? (
                   <>

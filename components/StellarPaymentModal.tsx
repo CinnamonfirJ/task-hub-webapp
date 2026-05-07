@@ -40,7 +40,7 @@ export function StellarPaymentModal({
 
   return (
     <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-[2.5rem] p-6 md:p-8 w-full max-w-xl shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <div className='bg-white rounded-[2.5rem] p-6 md:p-8 w-full max-w-xl  relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <button
           onClick={onClose}
           className='absolute right-6 top-6 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full'
@@ -70,9 +70,9 @@ export function StellarPaymentModal({
         ) : (
           <>
             {/* QR Code */}
-            <div className='bg-white border border-purple-50 rounded-2xl p-6 mb-8 flex items-center justify-center aspect-square max-w-[200px] mx-auto shadow-sm'>
-              <div 
-                className="w-full h-full bg-no-repeat bg-center opacity-80" 
+            <div className='bg-white border border-purple-50 rounded-2xl p-6 mb-8 flex items-center justify-center aspect-square max-w-[200px] mx-auto '>
+              <div
+                className="w-full h-full bg-no-repeat bg-center opacity-80"
                 style={{ backgroundImage: `url('https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${depositInfo?.walletAddress || "Stellar"}')` }}
               />
             </div>
@@ -136,7 +136,7 @@ export function StellarPaymentModal({
               </Button>
               <Button
                 onClick={onContinue}
-                className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base shadow-lg shadow-purple-200 transition-all'
+                className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base   transition-all'
               >
                 I have sent the funds
               </Button>

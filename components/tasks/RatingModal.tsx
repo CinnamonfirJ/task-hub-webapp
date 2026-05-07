@@ -63,7 +63,7 @@ export function RatingModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='sm:max-w-[425px] gap-6 rounded-3xl border-none shadow-2xl'>
+      <DialogContent className='sm:max-w-[425px] gap-6 rounded-3xl border-none '>
         <DialogHeader>
           <div className='w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center mb-2'>
             <Star className='text-[#6B46C1]' size={24} fill='#6B46C1' />
@@ -132,7 +132,7 @@ export function RatingModal({
             <Button
               type='submit'
               disabled={isPending || rating === 0}
-              className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-2xl h-12 font-bold gap-2 shadow-lg shadow-purple-100'
+              className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-2xl h-12 font-bold gap-2  '
             >
               {isPending ? (
                 <Loader2 size={18} className='animate-spin' />

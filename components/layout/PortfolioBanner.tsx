@@ -34,7 +34,7 @@ export function PortfolioBanner() {
     <div className="fixed bottom-0 left-0 right-0 z-40 lg:left-64">
       <Link
         href="/profile/details#service-info"
-        className="group flex items-center gap-3 md:gap-4 w-full bg-linear-to-r from-[#6B46C1] to-[#7C3AED] px-4 md:px-6 py-3.5 shadow-[0_-4px_24px_rgba(107,70,193,0.25)] hover:from-[#5a3ba3] hover:to-[#6d28d9] transition-all"
+        className="group flex items-center gap-3 md:gap-4 w-full bg-linear-to-r from-[#6B46C1] to-[#7C3AED] px-4 md:px-6 py-3.5 hover:from-[#5a3ba3] hover:to-[#6d28d9] transition-all"
       >
         {/* Animated icon */}
         <div className="shrink-0 bg-white/15 p-2 rounded-xl group-hover:scale-110 transition-transform">

@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
       {/* Header */}
       <div className="flex flex-col items-center mb-8">
         <div className="flex justify-center items-center bg-purple-50 mb-4 rounded-full w-16 h-16">
-          <div className="flex justify-center items-center bg-white shadow-sm rounded-full w-12 h-12">
+          <div className="flex justify-center items-center bg-white  rounded-full w-12 h-12">
             <Mail className="w-6 h-6 text-primary" />
           </div>
         </div>
@@ -81,11 +81,10 @@ export default function ForgotPasswordPage() {
               <Button
                 type="button"
                 variant={form.watch("type") === "user" ? "default" : "outline"}
-                className={`w-full ${
-                  form.watch("type") === "user"
+                className={`w-full ${form.watch("type") === "user"
                     ? "bg-primary hover:bg-primary/90"
                     : "bg-transparent border-input hover:bg-accent hover:text-accent-foreground"
-                }`}
+                  }`}
                 onClick={() => form.setValue("type", "user")}
               >
                 User
@@ -93,11 +92,10 @@ export default function ForgotPasswordPage() {
               <Button
                 type="button"
                 variant={form.watch("type") === "tasker" ? "default" : "outline"}
-                className={`w-full ${
-                  form.watch("type") === "tasker"
+                className={`w-full ${form.watch("type") === "tasker"
                     ? "bg-[#6B46C1] hover:bg-[#553C9A] text-white"
                     : "bg-transparent border-input hover:bg-accent hover:text-accent-foreground"
-                }`}
+                  }`}
                 onClick={() => form.setValue("type", "tasker")}
               >
                 Tasker

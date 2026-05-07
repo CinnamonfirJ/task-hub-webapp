@@ -190,7 +190,7 @@ export default function TransactionPinPage() {
                   )
                 }
                 onKeyDown={(e) => handlePinKeyDown(pinRefs, pin, index, e)}
-                className='w-16 h-16 bg-gray-50 border-2 border-gray-200 rounded-2xl text-center text-2xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-[#6B46C1] transition-all shadow-sm'
+                className='w-16 h-16 bg-gray-50 border-2 border-gray-200 rounded-2xl text-center text-2xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-[#6B46C1] transition-all '
               />
             ))}
           </div>
@@ -240,7 +240,7 @@ export default function TransactionPinPage() {
                   )
                 }
                 onKeyDown={(e) => handlePinKeyDown(confirmRefs, confirmPin, index, e)}
-                className='w-16 h-16 bg-gray-50 border-2 border-gray-200 rounded-2xl text-center text-2xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-[#6B46C1] transition-all shadow-sm'
+                className='w-16 h-16 bg-gray-50 border-2 border-gray-200 rounded-2xl text-center text-2xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-[#6B46C1] transition-all '
               />
             ))}
           </div>

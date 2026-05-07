@@ -223,7 +223,7 @@ export default function CategoryDetailsPage() {
             <Button
               variant='outline'
               size='icon'
-              className='h-12 w-12 shrink-0 rounded-2xl border-gray-100 shadow-sm'
+              className='h-12 w-12 shrink-0 rounded-2xl border-gray-100 '
               onClick={() => router.push("/admin/categories")}
             >
               <ArrowLeft size={22} className='text-gray-600' />
@@ -234,11 +234,10 @@ export default function CategoryDetailsPage() {
                   {category.displayName || category.name}
                 </h1>
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                    category.isActive
-                      ? "bg-green-50 text-green-600"
-                      : "bg-red-50 text-red-600"
-                  }`}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${category.isActive
+                    ? "bg-green-50 text-green-600"
+                    : "bg-red-50 text-red-600"
+                    }`}
                 >
                   {category.isActive ? "Active" : "Closed"}
                 </span>
@@ -282,7 +281,7 @@ export default function CategoryDetailsPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align='end'
-                className='w-48 rounded-xl p-1.5 shadow-xl border-gray-100'
+                className='w-48 rounded-xl p-1.5  border-gray-100'
               >
                 <DropdownMenuItem
                   className='text-red-600 focus:text-red-700 focus:bg-red-50 py-2.5 rounded-lg cursor-pointer'
@@ -310,7 +309,7 @@ export default function CategoryDetailsPage() {
         ].map((stat, idx) => (
           <Card
             key={idx}
-            className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'
+            className='border border-gray-100  rounded-2xl overflow-hidden'
           >
             <CardContent className='p-6'>
               <div className='text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-2'>
@@ -334,29 +333,27 @@ export default function CategoryDetailsPage() {
             ...(category.parentCategory
               ? []
               : [
-                  {
-                    id: "subcategories",
-                    label: "Sub-categories",
-                    count: subcategories.length,
-                  },
-                ]),
+                {
+                  id: "subcategories",
+                  label: "Sub-categories",
+                  count: subcategories.length,
+                },
+              ]),
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-6 py-4 text-sm font-bold transition-all border-b-2 whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "border-black text-black"
-                  : "border-transparent text-gray-400 hover:text-gray-600"
-              }`}
+              className={`px-6 py-4 text-sm font-bold transition-all border-b-2 whitespace-nowrap ${activeTab === tab.id
+                ? "border-black text-black"
+                : "border-transparent text-gray-400 hover:text-gray-600"
+                }`}
             >
               {tab.label}
               <span
-                className={`ml-2 px-2 py-0.5 rounded-full text-[10px] ${
-                  activeTab === tab.id
-                    ? "bg-black text-white"
-                    : "bg-gray-100 text-gray-500"
-                }`}
+                className={`ml-2 px-2 py-0.5 rounded-full text-[10px] ${activeTab === tab.id
+                  ? "bg-black text-white"
+                  : "bg-gray-100 text-gray-500"
+                  }`}
               >
                 {tab.count}
               </span>
@@ -367,7 +364,7 @@ export default function CategoryDetailsPage() {
         {/* Tab Content */}
         <div className='pt-2'>
           {activeTab === "tasks" && (
-            <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+            <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
               <div className='p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4'>
                 <div className='relative w-full md:max-w-xs'>
                   <Search
@@ -387,11 +384,10 @@ export default function CategoryDetailsPage() {
                       <button
                         key={f}
                         onClick={() => setTaskFilter(f)}
-                        className={`px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
-                          taskFilter === f
-                            ? "bg-white text-black shadow-sm"
-                            : "text-gray-500 hover:text-gray-700"
-                        }`}
+                        className={`px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all ${taskFilter === f
+                          ? "bg-white text-black "
+                          : "text-gray-500 hover:text-gray-700"
+                          }`}
                       >
                         {f}
                       </button>
@@ -447,13 +443,12 @@ export default function CategoryDetailsPage() {
                           </td>
                           <td className='py-5 px-6'>
                             <span
-                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                task.status === "Completed"
-                                  ? "bg-green-50 text-green-600"
-                                  : task.status === "In progress"
-                                    ? "bg-blue-50 text-blue-600"
-                                    : "bg-gray-100 text-gray-600"
-                              }`}
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${task.status === "Completed"
+                                ? "bg-green-50 text-green-600"
+                                : task.status === "In progress"
+                                  ? "bg-blue-50 text-blue-600"
+                                  : "bg-gray-100 text-gray-600"
+                                }`}
                             >
                               {task.status}
                             </span>
@@ -473,7 +468,7 @@ export default function CategoryDetailsPage() {
           )}
 
           {activeTab === "taskers" && (
-            <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+            <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
               <div className='p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4'>
                 <div className='relative w-full md:max-w-xs'>
                   <Search
@@ -548,22 +543,20 @@ export default function CategoryDetailsPage() {
                           </td>
                           <td className='py-4 px-6'>
                             <span
-                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                tasker.status === "Active"
-                                  ? "bg-green-50 text-green-600"
-                                  : "bg-red-50 text-red-600"
-                              }`}
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${tasker.status === "Active"
+                                ? "bg-green-50 text-green-600"
+                                : "bg-red-50 text-red-600"
+                                }`}
                             >
                               {tasker.status}
                             </span>
                           </td>
                           <td className='py-4 px-6'>
                             <span
-                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                tasker.verification === "Verified"
-                                  ? "bg-blue-50 text-blue-600"
-                                  : "bg-purple-50 text-purple-600"
-                              }`}
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${tasker.verification === "Verified"
+                                ? "bg-blue-50 text-blue-600"
+                                : "bg-purple-50 text-purple-600"
+                                }`}
                             >
                               {tasker.verification}
                             </span>
@@ -605,7 +598,7 @@ export default function CategoryDetailsPage() {
                   <Plus size={16} className='mr-2' /> Add sub-category
                 </Button>
               </div>
-              <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+              <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
                 <div className='overflow-x-auto'>
                   <table className='w-full text-sm'>
                     <thead>
@@ -650,11 +643,10 @@ export default function CategoryDetailsPage() {
                             {/* <td className="py-5 px-6 font-medium">{formatCurrency(sub.minimumPrice || 0)}</td> */}
                             <td className='py-5 px-6'>
                               <span
-                                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                  sub.isActive
-                                    ? "bg-green-50 text-green-600"
-                                    : "bg-red-50 text-red-600"
-                                }`}
+                                className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${sub.isActive
+                                  ? "bg-green-50 text-green-600"
+                                  : "bg-red-50 text-red-600"
+                                  }`}
                               >
                                 {sub.isActive ? "Active" : "Closed"}
                               </span>

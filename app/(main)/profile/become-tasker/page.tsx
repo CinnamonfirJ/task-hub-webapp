@@ -16,7 +16,7 @@ export default function BecomeTaskerPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // State for selections
   const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
   const [expandedMainId, setExpandedMainId] = useState<string | null>(null);
@@ -31,16 +31,16 @@ export default function BecomeTaskerPage() {
   useEffect(() => {
     if (user && !isInitialized && allSubcategories) {
       const userCats = (user as any).subCategories || user.categories || [];
-      
+
       if (userCats && userCats.length > 0) {
         const categoryIds = userCats.map((cat: any) => {
           if (typeof cat === 'string') return cat;
           return cat._id || cat.id || (cat as any).subCategory || (cat as any).category;
         }).filter(Boolean);
-        
+
         setSelectedSubcatIds(categoryIds);
       }
-      
+
       if (user.university) {
         setSelectedUniversityId(typeof user.university === 'string' ? user.university : user.university._id);
       }
@@ -62,7 +62,7 @@ export default function BecomeTaskerPage() {
   const filteredNavigatableCategories: MainCategory[] = useMemo(() => {
     if (!mainCategories) return [];
     if (!searchQuery) return mainCategories;
-    
+
     return mainCategories.filter((main) => {
       // Check if main category matches
       if (main.name.toLowerCase().includes(searchQuery.toLowerCase()) || main.displayName.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -71,8 +71,8 @@ export default function BecomeTaskerPage() {
       // Check if any subcategory inside it matches
       const hasSubMatch = allSubcategories?.some(sub => {
         const parentId = sub.mainCategory?._id || (typeof sub.parentCategory === 'object' ? sub.parentCategory?._id : sub.parentCategory);
-        return parentId === main._id && 
-        (sub.name.toLowerCase().includes(searchQuery.toLowerCase()) || sub.displayName.toLowerCase().includes(searchQuery.toLowerCase()));
+        return parentId === main._id &&
+          (sub.name.toLowerCase().includes(searchQuery.toLowerCase()) || sub.displayName.toLowerCase().includes(searchQuery.toLowerCase()));
       });
       return hasSubMatch;
     });
@@ -162,9 +162,9 @@ export default function BecomeTaskerPage() {
         />
       </div>
 
-      <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 space-y-6">
+      <div className="bg-white rounded-[2rem] p-6  border border-gray-100 space-y-6">
         <h2 className="font-bold text-lg text-gray-900 px-2">Your Skills and Services</h2>
-        
+
         {/* Success Banner if selections exist */}
         {selectedSubcatIds.length > 0 && (
           <div className="flex items-center gap-2 bg-green-100/50 text-green-700 px-4 py-3 rounded-xl text-sm font-medium">
@@ -176,17 +176,17 @@ export default function BecomeTaskerPage() {
         <div className="space-y-4">
           {filteredNavigatableCategories.map((mainCat) => {
             const isExpanded = expandedMainId === mainCat._id;
-            
+
             // Subcategories belonging to this main category
             const subcats = allSubcategories?.filter(s => {
               const parentId = s.mainCategory?._id || (typeof s.parentCategory === 'object' ? s.parentCategory?._id : s.parentCategory);
               return parentId === mainCat._id;
-            }) || [];            
+            }) || [];
             // Filter further if search query exists
-            const displaySubcats = searchQuery 
+            const displaySubcats = searchQuery
               ? subcats.filter(s => s.displayName.toLowerCase().includes(searchQuery.toLowerCase()) || s.name.toLowerCase().includes(searchQuery.toLowerCase()))
               : subcats;
-              
+
             const selectedForThisMain = subcats.filter(s => selectedSubcatIds.includes(s._id)).length;
             // The circle represents expanded state primarily based on instructions, or maybe if it has selections? Let's use expanded state for the ring color, and the dot if it's expanded or selected.
             // Based on mockup image 2: the entire box is purple bordered when expanded, the radio is purple with dot. 
@@ -197,24 +197,22 @@ export default function BecomeTaskerPage() {
             return (
               <div
                 key={mainCat._id}
-                className={`transition-all overflow-hidden ${
-                  isActive 
-                    ? "border-[#6B46C1] bg-[#F5EEFF]/30 border-2 rounded-[2rem]" 
-                    : "border-gray-200 border rounded-[2rem] hover:border-purple-200"
-                }`}
+                className={`transition-all overflow-hidden ${isActive
+                  ? "border-[#6B46C1] bg-[#F5EEFF]/30 border-2 rounded-[2rem]"
+                  : "border-gray-200 border rounded-[2rem] hover:border-purple-200"
+                  }`}
               >
                 {/* Header (Clickable) */}
-                <div 
+                <div
                   className={`flex items-center gap-4 p-5 cursor-pointer ${isActive ? "pb-2" : ""}`}
                   onClick={() => toggleMainExpanded(mainCat._id)}
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                    isActive ? "bg-[#E9D8FF] text-[#6B46C1]" : "bg-gray-100 text-gray-400"
-                  }`}>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isActive ? "bg-[#E9D8FF] text-[#6B46C1]" : "bg-gray-100 text-gray-400"
+                    }`}>
                     {/* Placeholder icon, replace with dynamic icon if available */}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
                   </div>
-                  
+
                   <div className="flex-1">
                     <h4 className="font-bold text-gray-900 text-[17px]">{mainCat.displayName}</h4>
                     {isActive && (
@@ -225,9 +223,8 @@ export default function BecomeTaskerPage() {
                   </div>
 
                   {/* Circular radio indicator */}
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                    isExpanded ? "border-[#6B46C1]" : "border-gray-300"
-                  }`}>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isExpanded ? "border-[#6B46C1]" : "border-gray-300"
+                    }`}>
                     {isExpanded && <div className="w-3 h-3 rounded-full bg-[#6B46C1]" />}
                   </div>
                 </div>
@@ -244,11 +241,10 @@ export default function BecomeTaskerPage() {
                             key={sub._id}
                             type="button"
                             onClick={() => toggleSubcategory(sub._id)}
-                            className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                              isSelected 
-                                ? "bg-[#6B46C1] text-white shadow-md shadow-purple-200" 
-                                : "bg-white text-gray-600 border border-gray-200 hover:border-purple-300 hover:bg-purple-50"
-                            }`}
+                            className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${isSelected
+                              ? "bg-[#6B46C1] text-white  "
+                              : "bg-white text-gray-600 border border-gray-200 hover:border-purple-300 hover:bg-purple-50"
+                              }`}
                           >
                             {sub.displayName}
                           </button>
@@ -270,7 +266,7 @@ export default function BecomeTaskerPage() {
           <div className="mt-8 p-6 bg-blue-50/50 border border-blue-100 rounded-[2rem] space-y-4">
             <h3 className="font-bold text-gray-900 text-lg">University</h3>
             <p className="text-sm text-gray-500">You selected a campus-related service. Please select your university to receive tasks from students there.</p>
-            
+
             <select
               className="w-full h-14 bg-white border border-gray-200 rounded-xl px-4 text-gray-900 font-medium outline-none focus:ring-2 focus:ring-purple-400"
               value={selectedUniversityId}
@@ -289,7 +285,7 @@ export default function BecomeTaskerPage() {
         <Button
           disabled={selectedSubcatIds.length === 0 || updateCategoriesMutation.isPending || (requiresUniversity && !selectedUniversityId)}
           onClick={handleContinue}
-          className="w-full bg-[#6B46C1] hover:bg-[#553C9A] disabled:bg-purple-200 disabled:text-purple-400 disabled:cursor-not-allowed text-white h-[60px] rounded-2xl font-bold text-lg shadow-sm transition-all"
+          className="w-full bg-[#6B46C1] hover:bg-[#553C9A] disabled:bg-purple-200 disabled:text-purple-400 disabled:cursor-not-allowed text-white h-[60px] rounded-2xl font-bold text-lg  transition-all"
         >
           {updateCategoriesMutation.isPending ? (
             <Loader2 className="mr-2 h-6 w-6 animate-spin" />

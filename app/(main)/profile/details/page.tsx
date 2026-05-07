@@ -132,7 +132,7 @@ export default function ProfileDetailsPage() {
       const formData = new FormData();
       // We can't easily create a File object from a URL for FormData without fetching it,
       // so we suggest updating the backend to accept URLs or using a different endpoint.
-      await authApi.uploadPreviousWork(formData); 
+      await authApi.uploadPreviousWork(formData);
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast.success("Work image added successfully");
     } catch (err: any) {
@@ -181,11 +181,11 @@ export default function ProfileDetailsPage() {
 
   const userInitials = watch("fullName")
     ? watch("fullName")
-        .split(/\s+/)
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .substring(0, 2)
+      .split(/\s+/)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2)
     : "EE";
 
   if (isLoadingUser) {
@@ -197,16 +197,16 @@ export default function ProfileDetailsPage() {
   }
 
   // Helper for rendering editable items in User UI style
-  const EditableListItem = ({ icon, label, id, type = "text", placeholder, options }: { 
-    icon: React.ReactNode, 
-    label: string, 
-    id: keyof ProfileFormValues, 
+  const EditableListItem = ({ icon, label, id, type = "text", placeholder, options }: {
+    icon: React.ReactNode,
+    label: string,
+    id: keyof ProfileFormValues,
     type?: string,
     placeholder?: string,
     options?: string[]
   }) => (
     <div className='flex items-center gap-4 bg-gray-100/50 p-4 rounded-2xl transition-all hover:bg-gray-100 group'>
-      <div className='bg-white p-3 rounded-xl shadow-sm text-[#6B46C1]'>
+      <div className='bg-white p-3 rounded-xl  text-[#6B46C1]'>
         {icon}
       </div>
       <div className='flex flex-col flex-1'>
@@ -214,11 +214,11 @@ export default function ProfileDetailsPage() {
           {label}
         </span>
         {options ? (
-          <Select 
-            defaultValue={watch(id)} 
+          <Select
+            defaultValue={watch(id)}
             onValueChange={(val) => setValue(id, val)}
           >
-            <SelectTrigger className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm shadow-none focus:ring-0">
+            <SelectTrigger className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm  focus:ring-0">
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent className="max-h-60 rounded-xl">
@@ -235,7 +235,7 @@ export default function ProfileDetailsPage() {
             type={type}
             {...register(id)}
             disabled={id === "country"}
-            className={`bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm shadow-none focus-visible:ring-0 ${id === "country" ? "cursor-not-allowed opacity-70" : ""}`}
+            className={`bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm  focus-visible:ring-0 ${id === "country" ? "cursor-not-allowed opacity-70" : ""}`}
             placeholder={placeholder}
           />
         )}
@@ -262,8 +262,8 @@ export default function ProfileDetailsPage() {
         {/* Profile Avatar Center */}
         <div className='flex flex-col items-center justify-center py-4 space-y-4'>
           <div className='relative group'>
-            <div 
-              className='flex justify-center items-center bg-[#6B46C1] shadow-lg border-4 border-white rounded-full w-24 h-24 font-bold text-white text-3xl overflow-hidden relative transition-all cursor-pointer hover:brightness-95'
+            <div
+              className='flex justify-center items-center bg-[#6B46C1]  border-4 border-white rounded-full w-24 h-24 font-bold text-white text-3xl overflow-hidden relative transition-all cursor-pointer hover:brightness-95'
               onClick={() => fileInputRef.current?.click()}
             >
               {isUploading ? (
@@ -358,8 +358,8 @@ export default function ProfileDetailsPage() {
                 </div>
                 <div className='space-y-2'>
                   <Label className="text-gray-600 font-medium">State of residence</Label>
-                  <Select 
-                    defaultValue={user?.residentState} 
+                  <Select
+                    defaultValue={user?.residentState}
                     onValueChange={(val) => setValue("residentState", val)}
                   >
                     <SelectTrigger className="bg-gray-100/80 border-0 h-12 rounded-xl focus:ring-1 focus:ring-[#6B46C1]">
@@ -445,14 +445,14 @@ export default function ProfileDetailsPage() {
                 BASIC INFORMATION
               </h3>
               <div className='space-y-3'>
-                <EditableListItem 
-                  icon={<UserIcon size={20} />} 
-                  label="Full Name" 
-                  id="fullName" 
-                  placeholder="Full name" 
+                <EditableListItem
+                  icon={<UserIcon size={20} />}
+                  label="Full Name"
+                  id="fullName"
+                  placeholder="Full name"
                 />
                 <div className='flex items-center gap-4 bg-gray-100/50 p-4 rounded-2xl transition-all hover:bg-gray-100 opacity-80'>
-                  <div className='bg-white p-3 rounded-xl shadow-sm text-gray-400'>
+                  <div className='bg-white p-3 rounded-xl  text-gray-400'>
                     <Mail size={20} />
                   </div>
                   <div className='flex flex-col flex-1'>
@@ -464,20 +464,20 @@ export default function ProfileDetailsPage() {
                     </span>
                   </div>
                 </div>
-                <EditableListItem 
-                  icon={<Phone size={20} />} 
-                  label="Phone" 
-                  id="phoneNumber" 
-                  placeholder="Phone number" 
+                <EditableListItem
+                  icon={<Phone size={20} />}
+                  label="Phone"
+                  id="phoneNumber"
+                  placeholder="Phone number"
                 />
-                <EditableListItem 
-                  icon={<Calendar size={20} />} 
-                  label="Date of Birth" 
-                  id="dateOfBirth" 
+                <EditableListItem
+                  icon={<Calendar size={20} />}
+                  label="Date of Birth"
+                  id="dateOfBirth"
                   type="date"
                 />
                 <div className='flex items-start gap-4 bg-gray-100/50 p-4 rounded-2xl transition-all hover:bg-gray-100'>
-                  <div className='bg-white p-3 rounded-xl shadow-sm text-[#6B46C1]'>
+                  <div className='bg-white p-3 rounded-xl  text-[#6B46C1]'>
                     <UserIcon size={20} />
                   </div>
                   <div className='flex flex-col flex-1'>
@@ -487,7 +487,7 @@ export default function ProfileDetailsPage() {
                     <Textarea
                       id="bio"
                       {...register("bio")}
-                      className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm shadow-none focus-visible:ring-0 resize-none min-h-[60px]"
+                      className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm  focus-visible:ring-0 resize-none min-h-[60px]"
                       placeholder="Tell us about yourself"
                     />
                   </div>
@@ -500,16 +500,16 @@ export default function ProfileDetailsPage() {
                 NATIONALITY
               </h3>
               <div className='space-y-3'>
-                <EditableListItem 
-                  icon={<Flag size={20} />} 
-                  label="Country" 
-                  id="country" 
-                  placeholder="Country" 
+                <EditableListItem
+                  icon={<Flag size={20} />}
+                  label="Country"
+                  id="country"
+                  placeholder="Country"
                 />
-                <EditableListItem 
-                  icon={<MapPin size={20} />} 
-                  label="State" 
-                  id="residentState" 
+                <EditableListItem
+                  icon={<MapPin size={20} />}
+                  label="State"
+                  id="residentState"
                   options={NIGERIAN_STATES}
                   placeholder="Select state"
                 />
@@ -522,7 +522,7 @@ export default function ProfileDetailsPage() {
               </h3>
               <div className='space-y-3'>
                 <div className='flex items-start gap-4 bg-gray-100/50 p-4 rounded-2xl transition-all hover:bg-gray-100'>
-                  <div className='bg-white p-3 rounded-xl shadow-sm text-[#6B46C1]'>
+                  <div className='bg-white p-3 rounded-xl  text-[#6B46C1]'>
                     <MapPin size={20} />
                   </div>
                   <div className='flex flex-col flex-1'>
@@ -532,7 +532,7 @@ export default function ProfileDetailsPage() {
                     <Textarea
                       id="address"
                       {...register("address")}
-                      className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm shadow-none focus-visible:ring-0 resize-none min-h-[60px]"
+                      className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm  focus-visible:ring-0 resize-none min-h-[60px]"
                       placeholder="Full address"
                     />
                   </div>
@@ -547,7 +547,7 @@ export default function ProfileDetailsPage() {
           <Button
             type="submit"
             disabled={isSaving}
-            className='w-full bg-[#6B46C1] hover:bg-[#5a3ba3] text-white py-7 rounded-2xl font-bold text-lg shadow-md transition-all active:scale-[0.98]'
+            className='w-full bg-[#6B46C1] hover:bg-[#5a3ba3] text-white py-7 rounded-2xl font-bold text-lg  transition-all active:scale-[0.98]'
           >
             {isSaving ? (
               <Loader2 className="animate-spin mr-2" size={20} />

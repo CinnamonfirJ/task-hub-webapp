@@ -122,7 +122,7 @@ export default function KYCDetailsPage({
           <Button
             onClick={() => setIsApproveModalOpen(true)}
             disabled={isApproving || record.status === "approved" || record.status === "approve"}
-             className='bg-[#4CAF50] text-white rounded-sm gap-2 font-bold px-8 h-12'
+            className='bg-[#4CAF50] text-white rounded-sm gap-2 font-bold px-8 h-12'
           >
             {isApproving ? (
               <Loader2 size={20} className='animate-spin' />
@@ -146,7 +146,7 @@ export default function KYCDetailsPage({
         </div>
       </div>
 
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <CardContent className='p-6'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-4'>
@@ -179,7 +179,7 @@ export default function KYCDetailsPage({
       </Card>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='p-6 pb-4'>
             <CardTitle className='text-lg font-bold text-gray-900'>
               User Information
@@ -191,8 +191,8 @@ export default function KYCDetailsPage({
                 Full Name
               </div>
               <div className='text-sm font-bold text-gray-900'>
-                {record.user?.fullName || 
-                 (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "N/A")}
+                {record.user?.fullName ||
+                  (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "N/A")}
               </div>
             </div>
             <div>
@@ -224,7 +224,7 @@ export default function KYCDetailsPage({
           </CardContent>
         </Card>
 
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='p-6 pb-4'>
             <CardTitle className='text-lg font-bold text-gray-900'>
               KYC Information
@@ -266,9 +266,9 @@ export default function KYCDetailsPage({
                 <div className='text-xs text-gray-500 font-medium mb-1'>
                   Last Updated
                 </div>
-              <div className='text-sm font-bold text-gray-900'>
-                {record.updatedAt ? new Date(record.updatedAt).toLocaleString() : "N/A"}
-              </div>
+                <div className='text-sm font-bold text-gray-900'>
+                  {record.updatedAt ? new Date(record.updatedAt).toLocaleString() : "N/A"}
+                </div>
               </div>
             )}
             {record.approvedBy && (
@@ -277,8 +277,8 @@ export default function KYCDetailsPage({
                   Approved By
                 </div>
                 <div className='text-sm font-bold text-gray-900'>
-                  {record.approvedBy?.fullName || 
-                   (record.approvedBy?.firstName ? `${record.approvedBy.firstName} ${record.approvedBy.lastName || ""}`.trim() : "Staff")}
+                  {record.approvedBy?.fullName ||
+                    (record.approvedBy?.firstName ? `${record.approvedBy.firstName} ${record.approvedBy.lastName || ""}`.trim() : "Staff")}
                 </div>
               </div>
             )}
@@ -297,7 +297,7 @@ export default function KYCDetailsPage({
       </div>
 
       {record.submittedDocuments && record.submittedDocuments.length > 0 && (
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='p-6 pb-4'>
             <CardTitle className='text-lg font-bold text-gray-900'>
               Verification Documents
@@ -322,7 +322,7 @@ export default function KYCDetailsPage({
                   >
                     <Button
                       variant='secondary'
-                      className='bg-white shadow-sm text-sm font-bold h-9 px-6'
+                      className='bg-white  text-sm font-bold h-9 px-6'
                     >
                       <ExternalLink size={14} className='mr-2' /> View
                     </Button>
@@ -339,7 +339,7 @@ export default function KYCDetailsPage({
         <div className='fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4' onClick={(e) => {
           if (e.target === e.currentTarget) setIsApproveModalOpen(false);
         }}>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200'>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden  animate-in fade-in zoom-in duration-200'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between bg-white'>
               <h2 className='text-xl font-bold text-green-600 flex items-center gap-2'>
                 <CheckCircle size={24} /> Approve KYC
@@ -354,7 +354,7 @@ export default function KYCDetailsPage({
             <div className='p-8 space-y-6'>
               <div className='bg-green-50/50 p-4 rounded-2xl border border-green-100'>
                 <p className='text-sm text-gray-700 leading-relaxed'>
-                  Approving will grant KYC verified status to <strong className='text-gray-900'>{record.user?.fullName || (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "this user")}</strong>. 
+                  Approving will grant KYC verified status to <strong className='text-gray-900'>{record.user?.fullName || (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "this user")}</strong>.
                   This will grant them verified status across the platform.
                 </p>
               </div>
@@ -401,7 +401,7 @@ export default function KYCDetailsPage({
         <div className='fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4' onClick={(e) => {
           if (e.target === e.currentTarget) setIsRejectModalOpen(false);
         }}>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200'>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden  animate-in fade-in zoom-in duration-200'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between bg-white'>
               <h2 className='text-xl font-bold text-red-600 flex items-center gap-2'>
                 <XCircle size={24} /> Reject KYC
@@ -416,7 +416,7 @@ export default function KYCDetailsPage({
             <div className='p-8 space-y-6'>
               <div className='bg-red-50/50 p-4 rounded-2xl border border-red-100'>
                 <p className='text-sm text-gray-700 leading-relaxed'>
-                  Please provide a clear reason why <strong className='text-gray-900'>{record.user?.fullName || (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "this user")}</strong>'s 
+                  Please provide a clear reason why <strong className='text-gray-900'>{record.user?.fullName || (record.user?.firstName ? `${record.user.firstName} ${record.user.lastName || ""}`.trim() : "this user")}</strong>'s
                   verification is being rejected. This information may be shared with the user.
                 </p>
               </div>

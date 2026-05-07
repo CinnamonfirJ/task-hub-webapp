@@ -186,7 +186,7 @@ export default function CategoriesPage() {
             setParentCategoryForSub(null);
             setIsModalOpen(true);
           }}
-          className="bg-[#6B46C1] hover:bg-[#5A3AA3] text-white rounded-xl h-11 px-6 whitespace-nowrap shrink-0 transition-all shadow-sm"
+          className="bg-[#6B46C1] hover:bg-[#5A3AA3] text-white rounded-xl h-11 px-6 whitespace-nowrap shrink-0 transition-all "
         >
           <Plus size={18} className="mr-2" />
           Add category
@@ -196,7 +196,7 @@ export default function CategoriesPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {summaryMetrics.map((metric, idx) => (
-          <Card key={idx} className="border border-gray-100 shadow-sm rounded-2xl">
+          <Card key={idx} className="border border-gray-100  rounded-2xl">
             <CardContent className="p-6">
               <div className="text-sm font-medium text-gray-500 mb-2">
                 {metric.label}
@@ -210,7 +210,7 @@ export default function CategoriesPage() {
       </div>
 
       {/* Controls */}
-      <Card className="border border-gray-100 shadow-sm rounded-2xl p-6">
+      <Card className="border border-gray-100  rounded-2xl p-6">
         <AdminSearchFilter
           searchPlaceholder='Search categories...'
           searchTerm={searchTerm}
@@ -222,32 +222,32 @@ export default function CategoriesPage() {
       </Card>
 
       {/* Desktop Table */}
-      <Card className="hidden md:block border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto min-h-[400px] relative border-t border-gray-100">
-            {(isLoading || error) && (
-              <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
-                {isLoading ? (
-                  <Loader2 className="h-8 w-8 animate-spin text-[#6B46C1]" />
-                ) : (
-                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
-                    <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
-                      <div className='w-6 h-6 text-red-500 font-bold'>!</div>
-                    </div>
-                    <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
-                    <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => window.location.reload()}
-                      className="border-red-100 text-red-600 hover:bg-red-50"
-                    >
-                      Try again
-                    </Button>
+      <Card className="hidden md:block border border-gray-100  rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto min-h-[400px] relative border-t border-gray-100">
+          {(isLoading || error) && (
+            <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+              {isLoading ? (
+                <Loader2 className="h-8 w-8 animate-spin text-[#6B46C1]" />
+              ) : (
+                <div className='text-center p-6 bg-white rounded-xl  border border-red-50 max-w-sm mx-auto'>
+                  <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
+                    <div className='w-6 h-6 text-red-500 font-bold'>!</div>
                   </div>
-                )}
-              </div>
-            )}
-            <table className="w-full text-left text-sm">
+                  <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
+                  <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.reload()}
+                    className="border-red-100 text-red-600 hover:bg-red-50"
+                  >
+                    Try again
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+          <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b bg-gray-50/50 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                 <th className="px-6 py-4 w-12 text-left">#</th>
@@ -267,7 +267,7 @@ export default function CategoriesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-        {paginatedCategories.map((cat: any, index: number) => (
+              {paginatedCategories.map((cat: any, index: number) => (
                 <tr
                   key={cat._id}
                   onClick={() => router.push(`/admin/categories/${cat._id}`)}
@@ -291,11 +291,10 @@ export default function CategoriesPage() {
                   </td>
                   <td className="py-5 px-8">
                     <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        cat.isActive
-                          ? "bg-green-50 text-green-600"
-                          : "bg-red-50 text-red-600"
-                      }`}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${cat.isActive
+                        ? "bg-green-50 text-green-600"
+                        : "bg-red-50 text-red-600"
+                        }`}
                     >
                       {cat.isActive ? "Active" : "Closed"}
                     </span>
@@ -306,7 +305,7 @@ export default function CategoriesPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 text-gray-400 group-hover:text-gray-900 group-hover:bg-white shadow-none transition-all"
+                          className="h-9 w-9 text-gray-400 group-hover:text-gray-900 group-hover:bg-white  transition-all"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <MoreVertical size={18} />
@@ -314,7 +313,7 @@ export default function CategoriesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="w-48 rounded-xl shadow-xl border-gray-100 p-1.5"
+                        className="w-48 rounded-xl  border-gray-100 p-1.5"
                       >
                         <DropdownMenuItem
                           onClick={(e) => {
@@ -384,7 +383,7 @@ export default function CategoriesPage() {
         {paginatedCategories.map((cat, index) => (
           <Card
             key={cat._id}
-            className="p-5 border border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors shadow-sm relative overflow-hidden"
+            className="p-5 border border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors  relative overflow-hidden"
             onClick={() => router.push(`/admin/categories/${cat._id}`)}
           >
             <div className="absolute top-0 left-0 w-8 h-8 bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-400 rounded-br-lg">
@@ -394,11 +393,10 @@ export default function CategoriesPage() {
               <div>
                 <h3 className="font-bold text-gray-900">{cat.displayName || cat.name}</h3>
                 <span
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mt-2 ${
-                    cat.isActive
-                      ? "bg-green-50 text-green-600"
-                      : "bg-red-50 text-red-600"
-                  }`}
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mt-2 ${cat.isActive
+                    ? "bg-green-50 text-green-600"
+                    : "bg-red-50 text-red-600"
+                    }`}
                 >
                   {cat.isActive ? "Active" : "Closed"}
                 </span>
@@ -416,7 +414,7 @@ export default function CategoriesPage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="w-48 rounded-xl shadow-xl border-gray-100"
+                  className="w-48 rounded-xl  border-gray-100"
                 >
                   <DropdownMenuItem
                     onClick={(e) => {
@@ -489,11 +487,11 @@ export default function CategoriesPage() {
         onPageChange={setPage}
         totalRecords={totalRecords}
         label="categories"
-        className="mt-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+        className="mt-6 bg-white rounded-2xl border border-gray-100 "
       />
 
       {filteredCategories.length === 0 && (
-        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 ">
           <Folder size={64} className="mx-auto text-gray-100 mb-6" />
           <h3 className="text-xl font-bold text-gray-900">
             No categories found
@@ -501,8 +499,8 @@ export default function CategoriesPage() {
           <p className="text-sm text-gray-500 mt-2 max-w-sm mx-auto">
             Try adjusting your search or filters to find what you're looking for.
           </p>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="mt-6 rounded-xl"
             onClick={() => {
               setSearchTerm("");

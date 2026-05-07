@@ -113,7 +113,7 @@ export function WithdrawFundsModal({
           toast.error(`You have a pending withdrawal. Please wait for it to be processed before making another request.`);
           return;
         }
-        
+
         if (walletData?.nextWithdrawableAt) {
           const waitDate = new Date(walletData.nextWithdrawableAt).toLocaleString();
           toast.error(`Withdrawal cooldown active. You can withdraw again after ${waitDate}.`);
@@ -205,7 +205,7 @@ export function WithdrawFundsModal({
 
   return (
     <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <div className='bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg  relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <div className='flex items-center justify-between mb-6'>
           <h2 className='text-2xl font-bold text-gray-900'>
             {step === "pin" ? "Transaction PIN" : step === "success" ? "Success!" : "Withdraw Funds"}
@@ -242,7 +242,7 @@ export function WithdrawFundsModal({
                     handlePinChange(index, e.target.value.replace(/[^0-9]/g, ""))
                   }
                   onKeyDown={(e) => handlePinKeyDown(index, e)}
-                  className='w-14 h-14 bg-white border border-gray-200 rounded-xl text-center text-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-transparent transition-all shadow-sm'
+                  className='w-14 h-14 bg-white border border-gray-200 rounded-xl text-center text-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-transparent transition-all '
                 />
               ))}
             </div>
@@ -309,7 +309,7 @@ export function WithdrawFundsModal({
             )}
 
             {/* Balance card */}
-            <div className='bg-[#5C3B9E] rounded-[1rem] p-6 text-white mb-6 shadow-md'>
+            <div className='bg-[#5C3B9E] rounded-[1rem] p-6 text-white mb-6 '>
               <div className='flex items-center gap-2 opacity-90 mb-2'>
                 <Wallet size={16} />
                 <span className='text-sm font-medium'>Withdrawable balance</span>
@@ -446,10 +446,10 @@ export function WithdrawFundsModal({
                       {banks
                         ?.filter((bank: any, index: number, self: any[]) => self.findIndex((b: any) => b.code === bank.code) === index)
                         .map((bank: any) => (
-                        <option key={bank.code} value={bank.code}>
-                          {bank.name}
-                        </option>
-                      ))}
+                          <option key={bank.code} value={bank.code}>
+                            {bank.name}
+                          </option>
+                        ))}
                     </select>
 
                     <div className='flex gap-2'>

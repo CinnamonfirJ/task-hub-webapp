@@ -126,18 +126,18 @@ export default function AdminWithdrawalsPage() {
   const isStellar = (method: string) =>
     method === "stellar_crypto" || method === "stellar";
 
-    const handleFilterChange = (status: string) => {
-      setStatusFilter(status);
-      setPage(1);
-    };
+  const handleFilterChange = (status: string) => {
+    setStatusFilter(status);
+    setPage(1);
+  };
 
-    const handleMethodChange = (method: string) => {
-      setMethodFilter(method);
-      setPage(1);
-    };
+  const handleMethodChange = (method: string) => {
+    setMethodFilter(method);
+    setPage(1);
+  };
 
-    return (
-      <div className='p-4 md:p-8 space-y-8 max-w-[1400px] mx-auto'>
+  return (
+    <div className='p-4 md:p-8 space-y-8 max-w-[1400px] mx-auto'>
       {/* Header */}
       <div>
         <h1 className='text-2xl md:text-3xl font-bold text-gray-900'>
@@ -191,7 +191,7 @@ export default function AdminWithdrawalsPage() {
               className={cn(
                 "px-4 py-2 text-sm font-bold capitalize rounded-xl transition-all",
                 statusFilter === status
-                  ? "bg-[#6B46C1] text-white shadow-md shadow-purple-200"
+                  ? "bg-[#6B46C1] text-white  "
                   : "bg-white text-gray-600 border border-gray-100 hover:bg-gray-50"
               )}
             >
@@ -209,7 +209,7 @@ export default function AdminWithdrawalsPage() {
               className={cn(
                 "px-3 py-1.5 text-[11px] font-bold rounded-xl transition-all",
                 methodFilter === value
-                  ? "bg-gray-800 text-white shadow-md"
+                  ? "bg-gray-800 text-white "
                   : "bg-white text-gray-500 border border-gray-100 hover:bg-gray-50"
               )}
             >
@@ -220,7 +220,7 @@ export default function AdminWithdrawalsPage() {
       </div>
 
       {/* Table */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <CardHeader className='pb-2'>
           <CardTitle className='text-sm font-bold text-gray-900'>
             Withdrawal Requests
@@ -243,9 +243,9 @@ export default function AdminWithdrawalsPage() {
                   </div>
                   <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
                   <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => window.location.reload()}
                     className="border-red-100 text-red-600 hover:bg-red-50"
                   >
@@ -257,161 +257,161 @@ export default function AdminWithdrawalsPage() {
           ) : (
             <>
               <div className='overflow-x-auto min-h-[400px] relative'>
-              <table className='w-full text-sm text-left'>
-                <thead className='text-xs text-gray-700 uppercase bg-gray-50 font-bold'>
-                  <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
-                    <th className='px-6 py-4 w-12'>#</th>
-                    <th className='px-6 py-4'>USER</th>
-                    <th className='px-6 py-4'>Amount</th>
-                    <th className='px-6 py-4'>Method</th>
-                    <th className='px-6 py-4'>Details</th>
-                    <th className='px-6 py-4'>Date</th>
-                    <th className='px-6 py-4'>Status</th>
-                    <th className='px-6 py-4 text-right'>Actions</th>
-                  </tr>
-                </thead>
-                <tbody className='divide-y divide-gray-100'>
-                  {withdrawals.map((withdrawal, index) => (
-                    <tr
-                      key={withdrawal._id}
-                      className='group hover:bg-gray-50 transition-colors'
-                    >
-                      <td className='px-6 py-4 text-xs font-medium text-gray-400'>
-                        {(page - 1) * limit + index + 1}
-                      </td>
-                      <td className='px-6 py-4'>
-                        <div className='flex items-center gap-2'>
-                          <div className='w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-sm'>
-                            {withdrawal.tasker?.firstName?.[0] || "T"}
-                          </div>
-                          <div>
-                            <p className='font-bold text-gray-900'>
-                              {withdrawal.tasker?.firstName + " " + withdrawal.tasker?.lastName || "—"}
-                            </p>
-                            <p className='text-[10px] text-gray-500'>
-                              {withdrawal.tasker?.emailAddress || withdrawal.tasker?.email || ""}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className='px-6 py-4 font-black text-gray-900'>
-                        ₦{withdrawal.amount?.toLocaleString()}
-                      </td>
-                      <td className='px-6 py-4'>
-                        <span
-                          className={cn(
-                            "px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-tight",
-                            isStellar(withdrawal.payoutMethod)
-                              ? "bg-purple-100 text-purple-700 border border-purple-200"
-                              : "bg-blue-100 text-blue-700 border border-blue-200"
-                          )}
-                        >
-                          {getMethodLabel(withdrawal.payoutMethod)}
-                        </span>
-                      </td>
-                      <td className='px-6 py-4'>
-                        {isStellar(withdrawal.payoutMethod) ? (
-                          <>
-                            <p className='font-medium text-gray-700'>Stellar Wallet</p>
-                            <div 
-                              className='flex items-center gap-1.5 cursor-pointer group/copy'
-                              onClick={() => {
-                                if (withdrawal?.stellarDetails?.publicKey) {
-                                  navigator.clipboard.writeText(withdrawal.stellarDetails.publicKey);
-                                  toast.success("Address copied to clipboard");
-                                }
-                              }}
-                            >
-                              <p className='text-[10px] text-gray-500 font-mono' title={withdrawal?.stellarDetails?.publicKey}>
-                                {withdrawal?.stellarDetails?.publicKey 
-                                  ? `${withdrawal.stellarDetails.publicKey.slice(0, 6)}...${withdrawal.stellarDetails.publicKey.slice(-4)}`
-                                  : "N/A"}
-                              </p>
-                              {withdrawal?.stellarDetails?.publicKey && (
-                                <Copy size={12} className='text-gray-300 group-hover/copy:text-purple-500 transition-colors' />
-                              )}
+                <table className='w-full text-sm text-left'>
+                  <thead className='text-xs text-gray-700 uppercase bg-gray-50 font-bold'>
+                    <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                      <th className='px-6 py-4 w-12'>#</th>
+                      <th className='px-6 py-4'>USER</th>
+                      <th className='px-6 py-4'>Amount</th>
+                      <th className='px-6 py-4'>Method</th>
+                      <th className='px-6 py-4'>Details</th>
+                      <th className='px-6 py-4'>Date</th>
+                      <th className='px-6 py-4'>Status</th>
+                      <th className='px-6 py-4 text-right'>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className='divide-y divide-gray-100'>
+                    {withdrawals.map((withdrawal, index) => (
+                      <tr
+                        key={withdrawal._id}
+                        className='group hover:bg-gray-50 transition-colors'
+                      >
+                        <td className='px-6 py-4 text-xs font-medium text-gray-400'>
+                          {(page - 1) * limit + index + 1}
+                        </td>
+                        <td className='px-6 py-4'>
+                          <div className='flex items-center gap-2'>
+                            <div className='w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-sm'>
+                              {withdrawal.tasker?.firstName?.[0] || "T"}
                             </div>
-                          </>
-                        ) : (
-                          <>
-                            <p className='font-medium text-gray-700'>
-                              {withdrawal.bankDetails?.bankName || "—"}
-                            </p>
-                            <div 
-                              className='flex items-center gap-1.5 cursor-pointer group/copy'
-                              onClick={() => {
-                                if (withdrawal.bankDetails?.accountNumber) {
-                                  navigator.clipboard.writeText(withdrawal.bankDetails.accountNumber);
-                                  toast.success("Account number copied");
-                                }
-                              }}
-                            >
-                              <p className='text-xs text-gray-500 font-mono'>
-                                {withdrawal.bankDetails?.accountNumber || "—"}
+                            <div>
+                              <p className='font-bold text-gray-900'>
+                                {withdrawal.tasker?.firstName + " " + withdrawal.tasker?.lastName || "—"}
                               </p>
-                              {withdrawal.bankDetails?.accountNumber && (
-                                <Copy size={12} className='text-gray-300 group-hover/copy:text-blue-500 transition-colors' />
-                              )}
+                              <p className='text-[10px] text-gray-500'>
+                                {withdrawal.tasker?.emailAddress || withdrawal.tasker?.email || ""}
+                              </p>
                             </div>
-                            {withdrawal.bankDetails?.accountName && (
-                              <p className='text-[10px] text-gray-400 mt-0.5'>
-                                {withdrawal.bankDetails.accountName}
-                              </p>
+                          </div>
+                        </td>
+                        <td className='px-6 py-4 font-black text-gray-900'>
+                          ₦{withdrawal.amount?.toLocaleString()}
+                        </td>
+                        <td className='px-6 py-4'>
+                          <span
+                            className={cn(
+                              "px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-tight",
+                              isStellar(withdrawal.payoutMethod)
+                                ? "bg-purple-100 text-purple-700 border border-purple-200"
+                                : "bg-blue-100 text-blue-700 border border-blue-200"
                             )}
-                          </>
-                        )}
-                      </td>
-                      <td className='px-6 py-4 text-gray-500 text-xs'>
-                        {new Date(withdrawal.createdAt).toLocaleDateString("en-NG", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </td>
-                      <td className='px-6 py-4'>
-                        <span
-                          className={cn(
-                            "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
-                            withdrawal.status === "pending"
-                              ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                              : withdrawal.status === "approved"
-                              ? "bg-blue-50 text-blue-700 border-blue-200"
-                              : withdrawal.status === "completed"
-                              ? "bg-green-50 text-green-700 border-green-200"
-                              : "bg-red-50 text-red-700 border-red-200"
-                          )}
-                        >
-                          {withdrawal.status}
-                        </span>
-                      </td>
-                      <td className='px-6 py-4 text-right'>
-                        <div className='flex justify-end gap-2'>
-                          {withdrawal.status === "pending" && (
+                          >
+                            {getMethodLabel(withdrawal.payoutMethod)}
+                          </span>
+                        </td>
+                        <td className='px-6 py-4'>
+                          {isStellar(withdrawal.payoutMethod) ? (
                             <>
-                              <Button
-                                size='sm'
-                                className='bg-blue-600 hover:bg-blue-700 text-white rounded-xl'
-                                onClick={() => handleApprove(withdrawal._id)}
-                                disabled={isApproving}
+                              <p className='font-medium text-gray-700'>Stellar Wallet</p>
+                              <div
+                                className='flex items-center gap-1.5 cursor-pointer group/copy'
+                                onClick={() => {
+                                  if (withdrawal?.stellarDetails?.publicKey) {
+                                    navigator.clipboard.writeText(withdrawal.stellarDetails.publicKey);
+                                    toast.success("Address copied to clipboard");
+                                  }
+                                }}
                               >
-                                {isApproving ? (
-                                  <Loader2 size={14} className='animate-spin' />
-                                ) : (
-                                  "Approve"
+                                <p className='text-[10px] text-gray-500 font-mono' title={withdrawal?.stellarDetails?.publicKey}>
+                                  {withdrawal?.stellarDetails?.publicKey
+                                    ? `${withdrawal.stellarDetails.publicKey.slice(0, 6)}...${withdrawal.stellarDetails.publicKey.slice(-4)}`
+                                    : "N/A"}
+                                </p>
+                                {withdrawal?.stellarDetails?.publicKey && (
+                                  <Copy size={12} className='text-gray-300 group-hover/copy:text-purple-500 transition-colors' />
                                 )}
-                              </Button>
-                              <Button
-                                size='sm'
-                                variant='destructive'
-                                className='rounded-xl'
-                                onClick={() => setRejectModalId(withdrawal._id)}
-                                disabled={isRejecting}
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <p className='font-medium text-gray-700'>
+                                {withdrawal.bankDetails?.bankName || "—"}
+                              </p>
+                              <div
+                                className='flex items-center gap-1.5 cursor-pointer group/copy'
+                                onClick={() => {
+                                  if (withdrawal.bankDetails?.accountNumber) {
+                                    navigator.clipboard.writeText(withdrawal.bankDetails.accountNumber);
+                                    toast.success("Account number copied");
+                                  }
+                                }}
                               >
-                                Reject
-                              </Button>
+                                <p className='text-xs text-gray-500 font-mono'>
+                                  {withdrawal.bankDetails?.accountNumber || "—"}
+                                </p>
+                                {withdrawal.bankDetails?.accountNumber && (
+                                  <Copy size={12} className='text-gray-300 group-hover/copy:text-blue-500 transition-colors' />
+                                )}
+                              </div>
+                              {withdrawal.bankDetails?.accountName && (
+                                <p className='text-[10px] text-gray-400 mt-0.5'>
+                                  {withdrawal.bankDetails.accountName}
+                                </p>
+                              )}
                             </>
                           )}
-                          {withdrawal.status === "approved" && (
+                        </td>
+                        <td className='px-6 py-4 text-gray-500 text-xs'>
+                          {new Date(withdrawal.createdAt).toLocaleDateString("en-NG", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td className='px-6 py-4'>
+                          <span
+                            className={cn(
+                              "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                              withdrawal.status === "pending"
+                                ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+                                : withdrawal.status === "approved"
+                                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                                  : withdrawal.status === "completed"
+                                    ? "bg-green-50 text-green-700 border-green-200"
+                                    : "bg-red-50 text-red-700 border-red-200"
+                            )}
+                          >
+                            {withdrawal.status}
+                          </span>
+                        </td>
+                        <td className='px-6 py-4 text-right'>
+                          <div className='flex justify-end gap-2'>
+                            {withdrawal.status === "pending" && (
+                              <>
+                                <Button
+                                  size='sm'
+                                  className='bg-blue-600 hover:bg-blue-700 text-white rounded-xl'
+                                  onClick={() => handleApprove(withdrawal._id)}
+                                  disabled={isApproving}
+                                >
+                                  {isApproving ? (
+                                    <Loader2 size={14} className='animate-spin' />
+                                  ) : (
+                                    "Approve"
+                                  )}
+                                </Button>
+                                <Button
+                                  size='sm'
+                                  variant='destructive'
+                                  className='rounded-xl'
+                                  onClick={() => setRejectModalId(withdrawal._id)}
+                                  disabled={isRejecting}
+                                >
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                            {withdrawal.status === "approved" && (
                               <Button
                                 size='sm'
                                 className='bg-green-600 hover:bg-green-700 text-white rounded-xl'
@@ -425,32 +425,32 @@ export default function AdminWithdrawalsPage() {
                                 )}
                               </Button>
                             )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {withdrawals.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className='px-6 py-12 text-center text-gray-400 font-medium'
-                      >
-                        No withdrawal requests found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {withdrawals.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className='px-6 py-12 text-center text-gray-400 font-medium'
+                        >
+                          No withdrawal requests found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
-            <AdminPagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-              totalRecords={totalRecords}
-              label='withdrawals'
-            />
-          </>
+              <AdminPagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+                totalRecords={totalRecords}
+                label='withdrawals'
+              />
+            </>
           )}
         </CardContent>
       </Card>
@@ -458,7 +458,7 @@ export default function AdminWithdrawalsPage() {
       {/* Reject Modal */}
       {rejectModalId && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto no-scrollbar'>
+          <div className='bg-white rounded-2xl w-full max-w-md  max-h-[90vh] overflow-y-auto no-scrollbar'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <div>
                 <h2 className='text-lg font-bold text-gray-900'>Reject Withdrawal</h2>
@@ -535,7 +535,7 @@ function StatsCard({
   loading?: boolean;
 }) {
   return (
-    <div className='bg-white border border-gray-100 p-5 rounded-2xl shadow-sm flex flex-col gap-3'>
+    <div className='bg-white border border-gray-100 p-5 rounded-2xl  flex flex-col gap-3'>
       <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center", bg)}>
         {icon}
       </div>

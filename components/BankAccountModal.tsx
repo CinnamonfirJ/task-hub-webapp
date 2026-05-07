@@ -61,7 +61,7 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div className="bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg  relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -125,10 +125,10 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
                 {banks
                   ?.filter((bank: any, index: number, self: any[]) => self.findIndex((b: any) => b.code === bank.code) === index)
                   .map((bank: any) => (
-                  <option key={bank.code} value={bank.code}>
-                    {bank.name}
-                  </option>
-                ))}
+                    <option key={bank.code} value={bank.code}>
+                      {bank.name}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
