@@ -20,7 +20,6 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { useCategories, useUniversities } from "@/hooks/useCategories";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import CloudinaryUpload from "@/components/CloudinaryUpload";
 
 function PostTaskForm() {
   const { form, onSubmit, isSubmitting } = usePostTask();
@@ -42,13 +41,19 @@ function PostTaskForm() {
     }
   }, [searchParams, form]);
 
-  const handleTaskImageUploadSuccess = (url: string, publicId: string) => {
+  const handleTaskImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    
     const currentImages = form.getValues("images") || [];
-    if (currentImages.length >= 5) {
+    if (currentImages.length + files.length > 5) {
       toast.error("Maximum 5 images allowed");
       return;
     }
-    form.setValue("images", [...currentImages, { url, publicId }]);
+    
+    const newImages = Array.from(files);
+    form.setValue("images", [...currentImages, ...newImages]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleAddTag = () => {
@@ -335,15 +340,20 @@ function PostTaskForm() {
 
             {showImages && (
               <div className='space-y-4 mt-2'>
-                <CloudinaryUpload
-                  onSuccess={handleTaskImageUploadSuccess}
-                  folder="task-images"
-                  variant="box"
-                  buttonText="Upload Task Photos"
-                  multiple={true}
-                  maxFiles={5}
-                  className="bg-purple-50/30 border-purple-100"
-                />
+                <div className="relative aspect-auto rounded-xl overflow-hidden group border border-gray-100 border-dashed flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors p-4 mb-4" onClick={() => fileInputRef.current?.click()}>
+                  <div className="flex flex-col items-center justify-center text-gray-400 gap-2">
+                    <Upload size={24} />
+                    <span className="text-xs font-medium">Upload Task Photos</span>
+                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    multiple
+                    onChange={handleTaskImageFileChange}
+                  />
+                </div>
 
                 {form.watch("images") && form.watch("images")!.length > 0 && (
                   <div className='grid grid-cols-3 md:grid-cols-4 gap-3'>
@@ -353,7 +363,7 @@ function PostTaskForm() {
                         className='relative group aspect-square rounded-xl overflow-hidden border border-gray-200'
                       >
                         <img
-                          src={img.url}
+                          src={img instanceof File ? URL.createObjectURL(img) : img.url}
                           alt={`Task image ${index + 1}`}
                           className='w-full h-full object-cover'
                         />

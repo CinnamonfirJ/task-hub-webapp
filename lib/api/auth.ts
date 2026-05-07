@@ -375,11 +375,11 @@ export const authApi = {
   },
 
   updateProfilePicture: async (
-    url: string,
+    formData: FormData,
   ): Promise<{ profilePicture: string }> => {
     return apiData<{ profilePicture: string }>("/api/auth/profile-picture", {
       method: "PUT",
-      body: JSON.stringify({ profilePicture: url }),
+      body: formData,
     });
   },
 
@@ -496,8 +496,10 @@ export const authApi = {
         res?.data?.isVerified === true ||
         res?.user?.isKYCVerified === true ||
         res?.user?.verifyIdentity === true ||
+        res?.user?.isVerified === true ||
         res?.tasker?.isKYCVerified === true ||
         res?.tasker?.verifyIdentity === true ||
+        res?.tasker?.isVerified === true ||
         res?.data === true ||
         res?.status === "verified" ||
         (res?.status === "success" &&

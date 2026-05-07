@@ -32,7 +32,12 @@ export default function VerificationPage() {
     "sdk",
   );
 
-  const isVerified = data?.isVerified || false;
+  const isVerified = 
+    data?.isVerified || 
+    user?.isKYCVerified || 
+    user?.verifyIdentity || 
+    user?.isVerified || 
+    false;
 
   return (
     <div className='p-4 md:p-8 max-w-2xl mx-auto space-y-10 pb-20'>

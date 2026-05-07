@@ -37,7 +37,6 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import CloudinaryUpload from "@/components/CloudinaryUpload";
 
 const NIGERIAN_STATES = [
   "Abia", "Adamawa", "Akwa Ibom", "Bauchi", "Bayelsa", "Benue", "Borno",
@@ -109,36 +108,46 @@ export default function ProfileDetailsPage() {
     }
   }, [user, setValue]);
 
-  const handleProfilePictureUploadSuccess = async (url: string) => {
+  const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+
     setIsUploading(true);
     try {
-      await authApi.updateProfilePicture(url);
+      await authApi.updateProfilePicture(formData as any);
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast.success("Profile picture updated");
     } catch (err) {
-      toast.error("Failed to update profile picture record");
+      toast.error("Failed to update profile picture");
       console.error(err);
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const handlePortfolioUploadSuccess = async (url: string, publicId: string) => {
+  const handlePortfolioFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append("images", files[i]);
+    }
+
     setIsPortfolioUploading(true);
     try {
-      // Note: If the backend currently only accepts FormData with files, 
-      // you might need an endpoint that accepts Cloudinary result objects.
-      // For now, we'll follow the existing pattern if possible or inform the user.
-      const formData = new FormData();
-      // We can't easily create a File object from a URL for FormData without fetching it,
-      // so we suggest updating the backend to accept URLs or using a different endpoint.
       await authApi.uploadPreviousWork(formData);
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast.success("Work image added successfully");
     } catch (err: any) {
-      toast.error("Cloudinary upload successful, but failed to save to server.");
+      toast.error(err.message || "Failed to save to server.");
     } finally {
       setIsPortfolioUploading(false);
+      if (portfolioInputRef.current) portfolioInputRef.current.value = "";
     }
   };
 
@@ -168,7 +177,9 @@ export default function ProfileDetailsPage() {
   const handleRemovePicture = async () => {
     setIsUploading(true);
     try {
-      await authApi.updateProfilePicture("");
+      const formData = new FormData();
+      formData.append("profilePicture", "");
+      await authApi.updateProfilePicture(formData as any);
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast.success("Profile picture removed");
     } catch (err) {
@@ -281,12 +292,23 @@ export default function ProfileDetailsPage() {
                 userInitials
               )}
             </div>
-            <CloudinaryUpload
-              onSuccess={handleProfilePictureUploadSuccess}
-              folder="profile-pictures"
-              variant="avatar"
-              buttonText="Upload profile image"
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleProfilePictureChange}
             />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-2"
+              disabled={isUploading}
+            >
+              Upload profile image
+            </Button>
           </div>
           {!isTasker && (
             <h2 className='font-bold text-gray-900 text-xl mt-2'>
@@ -410,14 +432,24 @@ export default function ProfileDetailsPage() {
                       </div>
                     ))}
                     {(user?.previousWork?.length || 0) < 10 && (
-                      <CloudinaryUpload
-                        onSuccess={handlePortfolioUploadSuccess}
-                        folder="portfolio"
-                        variant="box"
-                        buttonText="Upload Image"
-                        multiple={true}
-                        maxFiles={5}
-                      />
+                      <div className="relative aspect-square rounded-xl overflow-hidden group border border-gray-100 border-dashed flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => portfolioInputRef.current?.click()}>
+                        {isPortfolioUploading ? (
+                          <Loader2 className="animate-spin text-gray-400" size={24} />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-gray-400 gap-2">
+                            <Plus size={24} />
+                            <span className="text-xs font-medium">Upload Image</span>
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          ref={portfolioInputRef}
+                          className="hidden"
+                          accept="image/*"
+                          multiple
+                          onChange={handlePortfolioFileChange}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
