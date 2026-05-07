@@ -21,6 +21,7 @@ interface UserProfileModalProps {
     completedTasksCount?: number;
     totalTasks?: number;
     spendingRange?: string;
+    bio?: string;
   } | null;
 }
 
@@ -115,6 +116,14 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
               </p>
             </div>
           </div>
+
+          {/* Bio Section */}
+          {user?.bio && (
+            <div className='bg-gray-50/50 p-4 rounded-2xl border border-gray-100 text-[13px] text-gray-600 leading-relaxed'>
+              <p className='font-bold text-gray-900 text-xs uppercase tracking-widest mb-1.5'>Bio</p>
+              <p>{user.bio}</p>
+            </div>
+          )}
 
           {/* Trust & Longevity Info */}
           <div className='space-y-4'>

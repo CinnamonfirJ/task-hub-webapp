@@ -60,6 +60,7 @@ export function TaskerProfileModal({
   const ratings = tasker?.stats?.ratings || "0";
 
   const works = tasker?.previousWork || [];
+  const websiteLink = tasker?.websiteLink || "";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -96,6 +97,23 @@ export function TaskerProfileModal({
             </h3>
             <p className='text-gray-600 leading-relaxed text-[15px]'>{bio}</p>
           </section>
+
+          {/* WEBSITE Section */}
+          {websiteLink && (
+            <section className='space-y-4'>
+              <h3 className='text-sm font-bold text-gray-700 tracking-wider'>
+                WEBSITE / PORTFOLIO
+              </h3>
+              <a 
+                href={websiteLink.startsWith('http') ? websiteLink : `https://${websiteLink}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className='inline-flex items-center gap-2 text-[#6B46C1] hover:text-[#553C9A] font-medium hover:underline text-[15px]'
+              >
+                {websiteLink}
+              </a>
+            </section>
+          )}
 
           {/* TASKER STATISTICS Section */}
           {hasStats && (

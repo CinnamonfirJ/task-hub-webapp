@@ -55,6 +55,7 @@ const profileSchema = z.object({
   residentState: z.string().min(1, "State is required"),
   address: z.string().min(5, "Full address is required"),
   websiteLink: z.string().url().optional().or(z.literal("")),
+  bio: z.string().optional().or(z.literal("")),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -88,6 +89,7 @@ export default function ProfileDetailsPage() {
       residentState: user?.residentState || "",
       address: user?.address || "",
       websiteLink: user?.websiteLink || "",
+      bio: user?.bio || "",
     },
   });
 
@@ -103,6 +105,7 @@ export default function ProfileDetailsPage() {
       setValue("residentState", user.residentState || "");
       setValue("address", user.address || "");
       setValue("websiteLink", user.websiteLink || "");
+      setValue("bio", user.bio || "");
     }
   }, [user, setValue]);
 
@@ -318,6 +321,16 @@ export default function ProfileDetailsPage() {
                   />
                   {errors.phoneNumber && <p className="text-red-500 text-xs mt-1">{errors.phoneNumber.message}</p>}
                 </div>
+                <div className='space-y-2'>
+                  <Label htmlFor="bio" className="text-gray-600 font-medium">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    {...register("bio")}
+                    className={`bg-gray-100/80 border-0 min-h-[100px] rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] resize-none p-4 ${errors.bio ? "ring-1 ring-red-500" : ""}`}
+                    placeholder="Tell us a little about yourself"
+                  />
+                  {errors.bio && <p className="text-red-500 text-xs mt-1">{errors.bio.message}</p>}
+                </div>
                 <div className='space-y-2 relative'>
                   <Label htmlFor="dateOfBirth" className="text-gray-600 font-medium">Date of Birth</Label>
                   <Input
@@ -463,6 +476,22 @@ export default function ProfileDetailsPage() {
                   id="dateOfBirth" 
                   type="date"
                 />
+                <div className='flex items-start gap-4 bg-gray-100/50 p-4 rounded-2xl transition-all hover:bg-gray-100'>
+                  <div className='bg-white p-3 rounded-xl shadow-sm text-[#6B46C1]'>
+                    <UserIcon size={20} />
+                  </div>
+                  <div className='flex flex-col flex-1'>
+                    <span className='font-medium text-gray-400 text-xs mb-1'>
+                      Bio
+                    </span>
+                    <Textarea
+                      id="bio"
+                      {...register("bio")}
+                      className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm shadow-none focus-visible:ring-0 resize-none min-h-[60px]"
+                      placeholder="Tell us about yourself"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
