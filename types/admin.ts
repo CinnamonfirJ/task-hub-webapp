@@ -592,7 +592,7 @@ export interface KYCRecord {
     emailAddress: string;
     phoneNumber?: string;
   } | null;
-  nin: string; // Legacy masked string
+  // nin: string; // Legacy masked string
   nin?: string; // New field from API
   status: "pending" | "approved" | "approve" | "rejected";
   submittedDocuments?: KYCDocument[];
@@ -915,6 +915,9 @@ export interface TransactionListItem {
     profilePicture?: string;
   };
   description: string;
+  provider: string;
+  paymentPurpose: string;
+  currency: string;
   type: "credit" | "debit" | string;
   amount: number;
   date: string;
@@ -1304,6 +1307,9 @@ export interface SystemSettings {
     version: string;
     lastBackup: string;
   };
+  payments: {
+    activeFiatGateway: string
+  };
   _id: string;
   createdAt: string;
   updatedAt: string;
@@ -1615,7 +1621,7 @@ export interface TransactionListQueryParams
   search?: string;
 }
 
-export interface AdminPaymentFilters extends TransactionListQueryParams {}
+export interface AdminPaymentFilters extends TransactionListQueryParams { }
 
 export interface ReportListQueryParams extends PaginationParams {
   status?: "pending" | "resolved" | "dismissed";

@@ -129,7 +129,7 @@ export default function TaskDetailsPage({
       </div>
 
       {/* ── Task Summary Card ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <CardContent className='p-6 md:p-8'>
           <div className='flex items-start justify-between gap-6'>
             {/* Left: title, badge, description, categories */}
@@ -184,7 +184,7 @@ export default function TaskDetailsPage({
       {/* ── Info Grid: Task Info / Assignment / Timeline ── */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         {/* Task Information */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='p-6 pb-3'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Task Information
@@ -194,9 +194,9 @@ export default function TaskDetailsPage({
             <div className='flex items-center gap-3'>
               <div className='w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-[#6B46C1] overflow-hidden border border-purple-100 shrink-0'>
                 {task.postedBy?.profilePicture || task.user?.profilePicture ? (
-                  <img 
-                    src={task.postedBy?.profilePicture || task.user?.profilePicture} 
-                    alt="Poster" 
+                  <img
+                    src={task.postedBy?.profilePicture || task.user?.profilePicture}
+                    alt="Poster"
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -209,7 +209,7 @@ export default function TaskDetailsPage({
                 <div className='text-xs text-gray-500 font-medium mb-0.5'>
                   Posted By
                 </div>
-                <Link 
+                <Link
                   href={`/admin/users/${task.postedBy?._id || task.user?._id || task.postedBy?.userId || task.user?.userId}`}
                   className='text-sm font-bold text-gray-900 hover:text-[#6B46C1] hover:underline transition-colors block leading-tight'
                 >
@@ -254,7 +254,7 @@ export default function TaskDetailsPage({
         </Card>
 
         {/* Assignment */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='p-6 pb-3'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Assignment
@@ -266,9 +266,9 @@ export default function TaskDetailsPage({
                 <div className='flex items-center gap-3'>
                   <div className='w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 overflow-hidden border border-emerald-100 shrink-0'>
                     {task.assignedTo.profilePicture || task.assignedTo.taskerImage ? (
-                      <img 
-                        src={task.assignedTo.profilePicture || task.assignedTo.taskerImage} 
-                        alt="Tasker" 
+                      <img
+                        src={task.assignedTo.profilePicture || task.assignedTo.taskerImage}
+                        alt="Tasker"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -281,7 +281,7 @@ export default function TaskDetailsPage({
                     <div className='text-xs text-gray-500 font-medium mb-0.5'>
                       Assigned Tasker
                     </div>
-                    <Link 
+                    <Link
                       href={`/admin/taskers/${task.assignedTo._id || task.assignedTo.userId || task.assignedTo.id}`}
                       className='text-sm font-bold text-gray-900 hover:text-[#6B46C1] hover:underline transition-colors block leading-tight'
                     >
@@ -315,7 +315,7 @@ export default function TaskDetailsPage({
         </Card>
 
         {/* Timeline */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='p-6 pb-3'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Timeline
@@ -368,7 +368,7 @@ export default function TaskDetailsPage({
       </div>
 
       {/* ── Applicants / Bids ── */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+      <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
         <CardHeader className='p-6 pb-3'>
           <CardTitle className='text-base font-bold text-gray-900'>
             Applicants/ Bids
@@ -401,7 +401,7 @@ export default function TaskDetailsPage({
               </div>
 
               {/* Name + applied */}
-              <Link 
+              <Link
                 href={`/admin/taskers/${bid.taskerId || bid.userId || bid.id || bid._id}`}
                 className='flex-1 min-w-0 group/link'
               >
@@ -424,7 +424,7 @@ export default function TaskDetailsPage({
 
       {/* ── Payment History (secondary) ── */}
       {payments?.length > 0 && (
-        <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+        <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
           <CardHeader className='p-6 pb-3'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Payment History ({payments.length})
@@ -449,11 +449,10 @@ export default function TaskDetailsPage({
                     {formatCurrency(p.amount)}
                   </div>
                   <span
-                    className={`text-[10px] font-bold ${
-                      p.status === "completed"
-                        ? "text-green-500"
-                        : "text-yellow-500"
-                    }`}
+                    className={`text-[10px] font-bold ${p.status === "completed"
+                      ? "text-green-500"
+                      : "text-yellow-500"
+                      }`}
                   >
                     {p.status}
                   </span>
@@ -466,7 +465,7 @@ export default function TaskDetailsPage({
 
       {/* ── Activity Timeline ── */}
       {timeline?.length > 0 && (
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='p-6 pb-3'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Activity Timeline
@@ -476,7 +475,7 @@ export default function TaskDetailsPage({
             <div className='space-y-6 relative before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px before:h-full before:w-[2px] before:bg-purple-100'>
               {timeline.map((event, idx) => (
                 <div key={idx} className='relative flex items-start pl-8'>
-                  <div className='absolute left-[3px] top-1 w-4 h-4 rounded-full bg-[#6B46C1] border-4 border-white shadow-sm z-10' />
+                  <div className='absolute left-[3px] top-1 w-4 h-4 rounded-full bg-[#6B46C1] border-4 border-white  z-10' />
                   <div className='space-y-1'>
                     <div className='text-sm font-bold text-gray-900 capitalize'>
                       {event.event.replace("_", " ")}
@@ -498,7 +497,7 @@ export default function TaskDetailsPage({
       {/* ── Cancel Task Modal ── */}
       {isCancelModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl'>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden '>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <h2 className='text-xl font-bold text-red-600'>
                 Force Cancel Task
@@ -566,7 +565,7 @@ export default function TaskDetailsPage({
       {/* ── Force Complete Modal ── */}
       {isCompleteModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl'>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden '>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <h2 className='text-xl font-bold text-green-600'>
                 Force Complete Task

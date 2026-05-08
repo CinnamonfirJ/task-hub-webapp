@@ -58,8 +58,8 @@ export default function TaskersManagementPage() {
     search: searchQuery || undefined,
     status:
       activeFilter === "All" ||
-      activeFilter === "Verified" ||
-      activeFilter === "Unverified"
+        activeFilter === "Verified" ||
+        activeFilter === "Unverified"
         ? undefined
         : activeFilter.toLowerCase(),
     verified: activeFilter === "Verified" ? true : undefined,
@@ -145,10 +145,10 @@ export default function TaskersManagementPage() {
 
   return (
     <div className='space-y-6'>
-      <ExportModal 
-        isOpen={isExportModalOpen} 
-        onClose={() => setIsExportModalOpen(false)} 
-        type="taskers" 
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        type="taskers"
       />
       <div className='flex flex-col md:flex-row gap-3 md:items-center justify-between'>
         <div>
@@ -179,7 +179,7 @@ export default function TaskersManagementPage() {
 
       <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
         {summaryMetrics.map((metric, idx) => (
-          <Card key={idx} className='border-none shadow-sm'>
+          <Card key={idx} className='border-none '>
             <CardContent className='p-4'>
               <div
                 className={`text-xl font-bold ${metric.color || "text-gray-900"}`}
@@ -194,7 +194,7 @@ export default function TaskersManagementPage() {
         ))}
       </div>
 
-      <Card className='border-none shadow-sm overflow-hidden'>
+      <Card className='border-none  overflow-hidden'>
         <CardContent className='p-0'>
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
@@ -213,15 +213,15 @@ export default function TaskersManagementPage() {
                 {taskersLoading ? (
                   <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
                 ) : (
-                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                  <div className='text-center p-6 bg-white rounded-xl  border border-red-50 max-w-sm mx-auto'>
                     <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
                       <div className='w-6 h-6 text-red-500 font-bold'>!</div>
                     </div>
                     <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
                     <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => window.location.reload()}
                       className="border-red-100 text-red-600 hover:bg-red-50"
                     >
@@ -232,179 +232,177 @@ export default function TaskersManagementPage() {
               </div>
             )}
             <table className='w-full text-left text-sm'>
-                <thead>
-                  <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
-                    <th className='px-6 py-4 w-12'>#</th>
-                    <th className='px-6 py-4'>TASKERS</th>
-                    <th className='px-6 py-4'>CATEGORIES</th>
-                    <th className='px-6 py-4'>RATING</th>
-                    <th className='px-6 py-4'>STATUS</th>
-                    <th className='px-6 py-4'>VERIFICATION</th>
-                    {/* <th className='px-6 py-4'>LAST ACTIVE</th> */}
-                    <th className='px-6 py-4 text-right'>ACTION</th>
-                  </tr>
-                </thead>
-                <tbody className='divide-y'>
-                  {processedTaskers.map((tasker, index) => (
-                    <tr
-                      key={tasker._id}
-                      className='group hover:bg-gray-50 transition-colors'
-                    >
-                      <td className='px-6 py-4 text-xs font-medium text-gray-400'>
-                        {(page - 1) * limit + index + 1}
-                      </td>
-                      <td className='px-6 py-4'>
-                        <div className='flex items-center gap-3'>
-                          <div className='w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 shrink-0'>
-                             {tasker.profilePicture ? (
-                                  <img src={tasker.profilePicture} alt="Profile" className="w-full h-full items-center"/>
-                                ) : (
-                                  <UserCircle2 size={24} />
-                                )}
-                          </div>
-                          <div>
-                            <div className='font-bold text-gray-900'>
-                              {tasker.firstName} {tasker.lastName}
-                            </div>
-                            <div className='text-xs text-gray-500'>
-                              {tasker.emailAddress}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className='px-6 py-4'>
-                        <div className='flex flex-wrap gap-1'>
-                          {tasker.categories.slice(0, 2).map((cat) => (
-                            <span
-                              key={cat._id}
-                              className='px-2 py-0.5 bg-gray-50 text-gray-600 text-[10px] rounded-full font-medium border border-gray-100'
-                            >
-                              {cat.name}
-                            </span>
-                          ))}
-                          {tasker.categories.length > 2 && (
-                            <span className='px-2 py-0.5 bg-purple-50 text-purple-600 text-[10px] rounded-full font-medium'>
-                              +{tasker.categories.length - 2}
-                            </span>
+              <thead>
+                <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                  <th className='px-6 py-4 w-12'>#</th>
+                  <th className='px-6 py-4'>TASKERS</th>
+                  <th className='px-6 py-4'>CATEGORIES</th>
+                  <th className='px-6 py-4'>RATING</th>
+                  <th className='px-6 py-4'>STATUS</th>
+                  <th className='px-6 py-4'>VERIFICATION</th>
+                  {/* <th className='px-6 py-4'>LAST ACTIVE</th> */}
+                  <th className='px-6 py-4 text-right'>ACTION</th>
+                </tr>
+              </thead>
+              <tbody className='divide-y'>
+                {processedTaskers.map((tasker, index) => (
+                  <tr
+                    key={tasker._id}
+                    className='group hover:bg-gray-50 transition-colors'
+                  >
+                    <td className='px-6 py-4 text-xs font-medium text-gray-400'>
+                      {(page - 1) * limit + index + 1}
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-3'>
+                        <div className='w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 shrink-0'>
+                          {tasker.profilePicture ? (
+                            <img src={tasker.profilePicture} alt="Profile" className="w-full h-full items-center" />
+                          ) : (
+                            <UserCircle2 size={24} />
                           )}
                         </div>
-                      </td>
-                      <td className='px-6 py-4'>
-                        <span className='flex items-center gap-1 text-sm font-bold text-gray-900'>
-                          <Star
-                            size={14}
-                            className='fill-[#F59E0B] text-[#F59E0B]'
-                          />
-                          {tasker.averageRating?.toFixed(1) ?? "—"}
-                        </span>
-                      </td>
-                      <td className='px-6 py-4'>
-                        <span
-                          className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
-                            tasker.lockUntil &&
-                            new Date(tasker.lockUntil) > new Date()
-                              ? "bg-red-50 text-red-500"
-                              : tasker.isActive
-                                ? "bg-green-50 text-green-500"
-                                : "bg-gray-50 text-gray-500"
-                          }`}
-                        >
-                          {tasker.lockUntil &&
+                        <div>
+                          <div className='font-bold text-gray-900'>
+                            {tasker.firstName} {tasker.lastName}
+                          </div>
+                          <div className='text-xs text-gray-500'>
+                            {tasker.emailAddress}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex flex-wrap gap-1'>
+                        {tasker.categories.slice(0, 2).map((cat) => (
+                          <span
+                            key={cat._id}
+                            className='px-2 py-0.5 bg-gray-50 text-gray-600 text-[10px] rounded-full font-medium border border-gray-100'
+                          >
+                            {cat.name}
+                          </span>
+                        ))}
+                        {tasker.categories.length > 2 && (
+                          <span className='px-2 py-0.5 bg-purple-50 text-purple-600 text-[10px] rounded-full font-medium'>
+                            +{tasker.categories.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <span className='flex items-center gap-1 text-sm font-bold text-gray-900'>
+                        <Star
+                          size={14}
+                          className='fill-[#F59E0B] text-[#F59E0B]'
+                        />
+                        {tasker.averageRating?.toFixed(1) ?? "—"}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <span
+                        className={`px-2 py-1 rounded-full text-[10px] font-semibold ${tasker.lockUntil &&
                           new Date(tasker.lockUntil) > new Date()
-                            ? "Locked"
-                            : tasker.isActive
-                              ? "Active"
-                              : "Inactive"}
-                        </span>
-                      </td>
-                      <td className='px-6 py-4'>
-                        <span
-                          className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
-                            tasker.verifyIdentity
-                              ? "bg-blue-50 text-blue-500"
-                              : "bg-purple-100 text-purple-600"
+                          ? "bg-red-50 text-red-500"
+                          : tasker.isActive
+                            ? "bg-green-50 text-green-500"
+                            : "bg-gray-50 text-gray-500"
                           }`}
-                        >
-                          {tasker.verifyIdentity ? "Verified" : "Not verified"}
-                        </span>
-                      </td>
-                      {/* <td className='px-6 py-4 text-xs text-gray-500'>
+                      >
+                        {tasker.lockUntil &&
+                          new Date(tasker.lockUntil) > new Date()
+                          ? "Locked"
+                          : tasker.isActive
+                            ? "Active"
+                            : "Inactive"}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <span
+                        className={`px-2 py-1 rounded-full text-[10px] font-semibold ${tasker.verifyIdentity
+                          ? "bg-blue-50 text-blue-500"
+                          : "bg-purple-100 text-purple-600"
+                          }`}
+                      >
+                        {tasker.verifyIdentity ? "Verified" : "Not verified"}
+                      </span>
+                    </td>
+                    {/* <td className='px-6 py-4 text-xs text-gray-500'>
                         {tasker.lastLogin
                           ? new Date(tasker.lastLogin).toLocaleDateString()
                           : "—"}
                       </td> */}
-                      <td className='px-6 py-4 text-right'>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              className='h-8 w-8 text-gray-400'
-                            >
-                              <MoreVertical size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end' className='w-40'>
-                            <Link href={`/admin/taskers/${tasker._id}`}>
-                              <DropdownMenuItem className='gap-2 cursor-pointer'>
-                                <ExternalLink size={14} /> View Details
-                              </DropdownMenuItem>
-                            </Link>
-                            <DropdownMenuItem
-                              className='gap-2 cursor-pointer text-purple-600 focus:text-purple-600 font-bold text-xs'
-                              onClick={() => {
-                                setSelectedTasker({
+                    <td className='px-6 py-4 text-right'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8 text-gray-400'
+                          >
+                            <MoreVertical size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end' className='w-40'>
+                          <Link href={`/admin/taskers/${tasker._id}`}>
+                            <DropdownMenuItem className='gap-2 cursor-pointer'>
+                              <ExternalLink size={14} /> View Details
+                            </DropdownMenuItem>
+                          </Link>
+                          <DropdownMenuItem
+                            className='gap-2 cursor-pointer text-purple-600 focus:text-purple-600 font-bold text-xs'
+                            onClick={() => {
+                              setSelectedTasker({
+                                id: tasker._id,
+                                name: `${tasker.firstName} ${tasker.lastName}`,
+                                email: tasker.emailAddress,
+                              });
+                              setIsEmailModalOpen(true);
+                            }}
+                          >
+                            <Mail size={14} /> Send Email
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'
+                            onClick={() => {
+                              if (tasker.lockUntil) {
+                                unlockTasker(tasker._id);
+                              } else {
+                                lockTasker({
                                   id: tasker._id,
-                                  name: `${tasker.firstName} ${tasker.lastName}`,
-                                  email: tasker.emailAddress,
+                                  reason: "Locked by admin",
                                 });
-                                setIsEmailModalOpen(true);
-                              }}
-                            >
-                              <Mail size={14} /> Send Email
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'
-                              onClick={() => {
-                                if (tasker.lockUntil) {
-                                  unlockTasker(tasker._id);
-                                } else {
-                                  lockTasker({
-                                    id: tasker._id,
-                                    reason: "Locked by admin",
-                                  });
-                                }
-                              }}
-                            >
-                              <Ban size={14} /> 
-                              {tasker.lockUntil ? "Unlock" : "Lock Account"}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  ))}
-                  {!taskersLoading && processedTaskers.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className='py-12 text-center text-gray-400 font-medium'
-                      >
-                        No taskers found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                              }
+                            }}
+                          >
+                            <Ban size={14} />
+                            {tasker.lockUntil ? "Unlock" : "Lock Account"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))}
+                {!taskersLoading && processedTaskers.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className='py-12 text-center text-gray-400 font-medium'
+                    >
+                      No taskers found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-            <AdminPagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-              totalRecords={totalRecords}
-              label='taskers'
-            />
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalRecords={totalRecords}
+            label='taskers'
+          />
         </CardContent>
       </Card>
       {selectedTasker && (

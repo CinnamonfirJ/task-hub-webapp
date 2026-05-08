@@ -50,7 +50,7 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
   return (
     <div className='space-y-8'>
       {/* Average Rating Header */}
-      <div className='bg-white border border-gray-100 p-6 rounded-3xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-6'>
+      <div className='bg-white border border-gray-100 p-6 rounded-3xl  flex flex-col md:flex-row items-center justify-between gap-6'>
         <div className='flex items-center gap-6'>
           <div className='w-20 h-20 bg-purple-50 rounded-2xl flex flex-col items-center justify-center border border-purple-100'>
             <span className='text-3xl font-black text-[#6B46C1]'>{averageRating.toFixed(1)}</span>
@@ -80,7 +80,7 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
       <div className='space-y-4'>
         {reviews.length === 0 ? (
           <div className='flex flex-col items-center justify-center py-20 text-center bg-gray-50/50 rounded-3xl border border-dashed border-gray-200'>
-            <div className='w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4'>
+            <div className='w-16 h-16 bg-white rounded-full flex items-center justify-center  mb-4'>
               <MessageSquare className='text-gray-300' size={28} />
             </div>
             <h4 className='text-gray-900 font-bold'>No reviews yet</h4>
@@ -94,7 +94,7 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
               {reviews.map((review: any) => (
                 <div
                   key={review._id || review.id}
-                  className='bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all'
+                  className='bg-white border border-gray-100 p-6 rounded-3xl  transition-all'
                 >
                   <div className='flex items-start justify-between mb-4'>
                     <div className='flex items-center gap-3'>
@@ -110,7 +110,7 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
                         )}
                       </div>
                       <div>
-                        <h5 className='text-sm font-bold text-gray-900'>{review.reviewer?.name  || "Anonymous"}</h5>
+                        <h5 className='text-sm font-bold text-gray-900'>{review.reviewer?.name || "Anonymous"}</h5>
                         <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>
                           {review.task?.category || "Task"} • {review.createdAt ? format(new Date(review.createdAt), "MMM d, yyyy") : ""}
                         </p>
@@ -121,13 +121,13 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
                       {review.rating.toFixed(1)}
                     </div>
                   </div>
-                  
+
                   {review.task?.title && (
                     <p className='text-xs font-bold text-[#6B46C1] bg-purple-50 px-2 py-1 rounded-md w-fit mb-3'>
                       Task: {review.task.title}
                     </p>
                   )}
-                  
+
                   <p className='text-sm text-gray-600 leading-relaxed italic'>
                     "{review.reviewText || "No review text provided."}"
                   </p>

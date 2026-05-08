@@ -82,7 +82,7 @@ export function MobileNavbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className='fixed top-0 right-0 bottom-0 w-[280px] bg-white shadow-2xl z-50 flex flex-col'
+              className='fixed top-0 right-0 bottom-0 w-[280px] bg-white  z-50 flex flex-col'
             >
               <div className='p-6 flex items-center justify-between border-b border-gray-50'>
                 <Logo size='sm' />
@@ -103,11 +103,10 @@ export function MobileNavbar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center justify-between rounded-xl px-4 py-4 text-sm font-bold transition-all ${
-                        isActive
-                          ? "bg-purple-50 text-[#6B46C1]"
-                          : "text-gray-500 hover:bg-gray-50 active:scale-[0.98]"
-                      }`}
+                      className={`flex items-center justify-between rounded-xl px-4 py-4 text-sm font-bold transition-all ${isActive
+                        ? "bg-purple-50 text-[#6B46C1]"
+                        : "text-gray-500 hover:bg-gray-50 active:scale-[0.98]"
+                        }`}
                     >
                       <div className='flex items-center gap-4'>
                         <item.icon
@@ -119,7 +118,7 @@ export function MobileNavbar() {
                         {item.label}
                       </div>
                       {item.badge && item.badge > 0 ? (
-                        <span className='flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm shadow-red-200'>
+                        <span className='flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white  '>
                           {item.badge > 9 ? "9+" : item.badge}
                         </span>
                       ) : null}
@@ -145,7 +144,7 @@ export function MobileNavbar() {
               ) : (
                 <div className='p-6 border-t border-gray-50'>
                   <Link href='/post-task'>
-                    <Button className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-7 rounded-2xl text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg shadow-purple-100 transition-all active:scale-95'>
+                    <Button className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-7 rounded-2xl text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3   transition-all active:scale-95'>
                       <Plus size={20} />
                       Post a task
                     </Button>
@@ -155,7 +154,7 @@ export function MobileNavbar() {
 
               <div className='p-6 bg-gray-50/50 mt-auto'>
                 <div className='flex items-center gap-3'>
-                  <div className='h-10 w-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-sm font-bold shadow-md shadow-purple-200'>
+                  <div className='h-10 w-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-sm font-bold  '>
                     {userInitial}
                   </div>
                   <div className='min-w-0'>

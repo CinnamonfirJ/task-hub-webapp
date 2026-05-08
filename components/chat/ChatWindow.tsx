@@ -72,7 +72,7 @@ export function ChatWindow({
   const task = typeof conversation.task === "object" ? conversation.task : null;
 
   return (
-    <div className='flex flex-col h-full bg-white md:rounded-2xl border-x-0 md:border-x border-y-0 md:border-y border-gray-100 shadow-sm'>
+    <div className='flex flex-col h-full bg-white md:rounded-2xl border-x-0 md:border-x border-y-0 md:border-y border-gray-100 '>
       {/* Header */}
       <div className='flex items-center justify-between p-3 md:p-4 border-b border-gray-100'>
         <div className='flex items-center gap-3'>

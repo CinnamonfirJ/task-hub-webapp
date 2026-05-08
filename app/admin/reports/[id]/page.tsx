@@ -150,7 +150,7 @@ export default function ReportDetailsPage({
       </div>
 
       {/* Report summary */}
-      <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      <Card className='border border-gray-100  rounded-2xl'>
         <CardContent className='p-6 md:p-8'>
           <div className='flex items-center justify-between gap-6'>
             <div className='flex items-center gap-4'>
@@ -185,7 +185,7 @@ export default function ReportDetailsPage({
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         {/* Report Info */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl h-full'>
+        <Card className='border border-gray-100  rounded-2xl h-full'>
           <CardHeader className='p-6 pb-4'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Report Information
@@ -243,7 +243,7 @@ export default function ReportDetailsPage({
         </Card>
 
         {/* Users Involved */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl h-full'>
+        <Card className='border border-gray-100  rounded-2xl h-full'>
           <CardHeader className='p-6 pb-4'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Users Involved
@@ -299,7 +299,7 @@ export default function ReportDetailsPage({
 
       {/* Evidence */}
       {report.evidence && report.evidence.length > 0 && (
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='p-6 pb-4'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Evidence ({report.evidence.length})
@@ -332,7 +332,7 @@ export default function ReportDetailsPage({
       {/* Timeline + Chat */}
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         {timeline && timeline.length > 0 && (
-          <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <Card className='border border-gray-100  rounded-2xl'>
             <CardHeader className='p-6 pb-4'>
               <CardTitle className='text-base font-bold text-gray-900'>
                 Report Timeline
@@ -367,7 +367,7 @@ export default function ReportDetailsPage({
         )}
 
         {chatMessages && chatMessages.length > 0 && (
-          <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+          <Card className='border border-gray-100  rounded-2xl'>
             <CardHeader className='p-6 pb-4'>
               <CardTitle className='text-base font-bold text-gray-900'>
                 Related Chat Messages
@@ -398,7 +398,7 @@ export default function ReportDetailsPage({
       {/* Resolve Modal */}
       {isResolveModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4'>
-          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl max-h-[90vh] overflow-y-auto'>
+          <div className='bg-white rounded-2xl w-full max-w-lg overflow-hidden  max-h-[90vh] overflow-y-auto'>
             <div className='p-6 border-b border-gray-100 flex items-center justify-between'>
               <h2 className='text-xl font-bold text-green-600'>
                 Resolve Report

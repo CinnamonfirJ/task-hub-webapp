@@ -13,8 +13,8 @@ export default function FAQPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredFAQs = FAQ_CONTENT.filter(
-    faq => 
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    faq =>
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -23,9 +23,9 @@ export default function FAQPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => router.back()}
             className="bg-white border text-gray-400 rounded-xl w-12 h-12 hover:text-[#6B46C1] hover:bg-purple-50"
           >
@@ -48,7 +48,7 @@ export default function FAQPage() {
           placeholder="Search questions or keywords..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-white border border-gray-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-[#6B46C1] transition-all shadow-sm"
+          className="w-full bg-white border border-gray-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-[#6B46C1] transition-all "
         />
       </div>
 
@@ -68,8 +68,8 @@ export default function FAQPage() {
               <Search size={24} />
             </div>
             <p className="text-gray-500 font-medium">No results found for &quot;{searchQuery}&quot;</p>
-            <Button 
-              variant="link" 
+            <Button
+              variant="link"
               onClick={() => setSearchQuery("")}
               className="text-[#6B46C1] font-bold"
             >
@@ -80,7 +80,7 @@ export default function FAQPage() {
       </div>
 
       {/* Support CTA */}
-      <div className="bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-[2rem] p-8 text-white text-center space-y-4 shadow-xl shadow-purple-100 mt-12">
+      <div className="bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-[2rem] p-8 text-white text-center space-y-4   mt-12">
         <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto">
           <HelpCircle size={24} />
         </div>
@@ -90,7 +90,7 @@ export default function FAQPage() {
             Can&apos;t find the answer you&apos;re looking for? Please chat with our friendly team.
           </p>
         </div>
-        <Button 
+        <Button
           onClick={() => router.push("/profile/get-help")}
           className="bg-white text-[#6B46C1] hover:bg-white/90 font-bold px-8 py-6 rounded-xl mt-2 w-full sm:w-auto"
         >

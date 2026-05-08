@@ -5,10 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Save, CheckCircle2 } from "lucide-react";
-import { useSystemSettings, useUpdateSystemSettings } from "@/hooks/useAdmin";
+import { Loader2, Save, CheckCircle2, Globe } from "lucide-react";
+import { useSystemSettings, useUpdateSystemSettings, useAdminProfile } from "@/hooks/useAdmin";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function AdminSettingsPage() {
+  const { data: admin } = useAdminProfile();
   const { data: settings, isLoading } = useSystemSettings();
   const {
     mutate: updateSettings,
@@ -38,6 +46,7 @@ export default function AdminSettingsPage() {
           settings.notifications?.reportAlerts ?? true,
         "notifications.kycSubmissionAlerts":
           settings.notifications?.kycSubmissionAlerts ?? true,
+        "payments.activeFiatGateway": settings.payments?.activeFiatGateway ?? "flutterwave",
       });
     }
   }, [settings]);
@@ -46,6 +55,11 @@ export default function AdminSettingsPage() {
     const newValue = !localSettings[key];
     setLocalSettings((prev) => ({ ...prev, [key]: newValue }));
     setPendingChanges((prev) => ({ ...prev, [key]: newValue }));
+  };
+
+  const handleValueChange = (key: string, value: string) => {
+    setLocalSettings((prev) => ({ ...prev, [key]: value }));
+    setPendingChanges((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleNumberChange = (key: string, value: string) => {
@@ -106,6 +120,31 @@ export default function AdminSettingsPage() {
     </div>
   );
 
+  const selectSetting = (key: string, label: string, options: { label: string, value: string }[]) => (
+    <div className='flex items-center justify-between gap-4'>
+      <div className='flex-1'>
+        <div className='text-sm font-bold text-gray-900'>{label}</div>
+      </div>
+      <div className='w-48'>
+        <Select
+          value={localSettings[key] || ""}
+          onValueChange={(value) => handleValueChange(key, value)}
+        >
+          <SelectTrigger className="h-9 rounded-lg">
+            <SelectValue placeholder="Select option" />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
   return (
     <div className='space-y-6 md:space-y-8 p-4 md:p-8 max-w-[1400px] mx-auto'>
       <div className='flex items-center justify-between'>
@@ -140,7 +179,7 @@ export default function AdminSettingsPage() {
 
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8'>
         {/* System Settings */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
+        <Card className='border border-gray-100  rounded-sm '>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               System Settings
@@ -162,11 +201,23 @@ export default function AdminSettingsPage() {
               "Task Posting Enabled",
               "Allow users to post new tasks",
             )}
+            {admin?.role === "super_admin" && (
+              <div className="pt-4 border-t border-gray-50">
+                {selectSetting(
+                  "payments.activeFiatGateway",
+                  "Active Fiat Gateway",
+                  [
+                    { label: "Flutterwave", value: "flutterwave" },
+                    { label: "Paystack", value: "paystack" },
+                  ]
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Notifications & Alerts */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
+        <Card className='border border-gray-100  rounded-sm'>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               Notifications & Alerts
@@ -192,7 +243,7 @@ export default function AdminSettingsPage() {
         </Card>
 
         {/* Security */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
+        <Card className='border border-gray-100  rounded-sm '>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               Security Settings
@@ -214,7 +265,7 @@ export default function AdminSettingsPage() {
         </Card>
 
         {/* System Info */}
-        <Card className='border border-gray-100 shadow-sm rounded-2xl md:rounded-[2rem]'>
+        <Card className='border border-gray-100  rounded-sm '>
           <CardHeader className='p-6 md:p-8 pb-4'>
             <CardTitle className='text-base md:text-lg font-bold text-gray-900'>
               System Information

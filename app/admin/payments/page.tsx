@@ -22,14 +22,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExportModal } from "@/components/admin/ExportModal";
+import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
 import {
   usePaymentStats,
@@ -46,13 +41,9 @@ export default function PaymentsManagementPage() {
   const limit = 20;
 
   const typeParam =
-    activeFilter === "All" || activeFilter === "all"
+    activeFilter === "All" || activeFilter === "all" || activeFilter === "Flutterwave" || activeFilter === "Paystack"
       ? undefined
-      : activeFilter === "Credit" || activeFilter === "credit"
-        ? "credit"
-        : activeFilter === "Debit" || activeFilter === "debit"
-          ? "debit"
-          : activeFilter;
+      : activeFilter.toLowerCase();
 
   const { data: paymentStats, isLoading: loadingStats } = usePaymentStats();
   const { data: txData, isLoading: loadingTx, error } = useTransactions({
@@ -62,42 +53,49 @@ export default function PaymentsManagementPage() {
     search: searchTerm,
   });
 
-  const transactions = 
-    (txData as any)?.transactions || 
-    (txData as any)?.data?.transactions || 
+  const transactions =
+    (txData as any)?.transactions ||
+    (txData as any)?.data?.transactions ||
     (Array.isArray((txData as any)?.data) ? (txData as any).data : null) ||
-    (Array.isArray(txData) ? txData : []) || 
+    (Array.isArray(txData) ? txData : []) ||
     [];
 
   const processedTransactions = transactions.filter((tx: any) => {
     if (activeFilter === "all" || activeFilter === "All") return true;
-    const type = (tx.type || "").toLowerCase();
-    const filter = activeFilter.toLowerCase();
     
-    // Handle exact match or common aliases
+    const provider = (tx.provider || "").toLowerCase();
+    const filter = activeFilter.toLowerCase();
+
+    // Provider filtering
+    if (filter === "flutterwave" || filter === "paystack") {
+      return provider === filter;
+    }
+
+    // Fallback for Credit/Debit (though removed from UI)
+    const type = (tx.type || "").toLowerCase();
     if (type === filter) return true;
     if (filter === "credit" && (type === "wallet_funding" || type === "escrow_credit" || type === "inflow")) return true;
     if (filter === "debit" && (type === "escrow_debit" || type === "tasker_payout" || type === "outflow")) return true;
-    
+
     return false;
   });
 
   const pagination = (txData as any)?.pagination || (txData as any)?.data?.pagination;
 
-  const totalRecords = 
-    (pagination as any)?.totalTransactionVolume || 
-    (txData as any)?.totalRecords || 
-    (txData as any)?.results || 
-    (txData as any)?.count || 
-    (txData as any)?.data?.totalRecords || 
+  const totalRecords =
+    (pagination as any)?.totalTransactionVolume ||
+    (txData as any)?.totalRecords ||
+    (txData as any)?.results ||
+    (txData as any)?.count ||
+    (txData as any)?.data?.totalRecords ||
     (txData as any)?.data?.results ||
     transactions.length ||
     0;
 
-  const totalPages = 
-    (pagination as any)?.totalPages || 
-    (txData as any)?.totalPages || 
-    (txData as any)?.data?.totalPages || 
+  const totalPages =
+    (pagination as any)?.totalPages ||
+    (txData as any)?.totalPages ||
+    (txData as any)?.data?.totalPages ||
     (txData as any)?.data?.pages ||
     Math.ceil(totalRecords / limit);
 
@@ -171,10 +169,10 @@ export default function PaymentsManagementPage() {
         </div>
       </div>
 
-      <ExportModal 
-        isOpen={isExportModalOpen} 
-        onClose={() => setIsExportModalOpen(false)} 
-        type="payments" 
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        type="payments"
       />
 
       {/* Metrics Grid */}
@@ -182,7 +180,7 @@ export default function PaymentsManagementPage() {
         {paymentMetrics.map((metric, index) => (
           <Card
             key={index}
-            className='border-none shadow-sm bg-white overflow-hidden group hover:shadow-md transition-shadow'
+            className='border-none  bg-white overflow-hidden group transition-shadow'
           >
             <CardContent className='p-6'>
               <div className='flex items-center justify-between mb-4'>
@@ -210,7 +208,7 @@ export default function PaymentsManagementPage() {
       </div>
 
       {/* Filters and Table */}
-      <Card className='border border-gray-100 shadow-sm overflow-hidden bg-white'>
+      <Card className='border border-gray-100  overflow-hidden bg-white'>
         <div className='p-6 border-b border-gray-100'>
           <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
             <div className='flex items-center gap-2'>
@@ -220,34 +218,14 @@ export default function PaymentsManagementPage() {
               </h3>
             </div>
 
-            <div className='flex items-center gap-3'>
-              <div className='relative'>
-                <Search
-                  className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
-                  size={14}
-                />
-                <input
-                  type='text'
-                  placeholder='Search by description...'
-                  className='pl-9 pr-4 py-2 bg-gray-50 border-0 rounded-xl text-xs focus:ring-1 focus:ring-[#6B46C1] w-64 font-medium'
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
-                />
-              </div>
-              <Select
-                value={activeFilter}
-                onValueChange={handleFilterChange}
-              >
-                <SelectTrigger className='w-32 h-9 text-xs font-bold border-0 bg-gray-50 rounded-xl'>
-                  <SelectValue placeholder='All Types' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>All Types</SelectItem>
-                  <SelectItem value='credit'>Credits</SelectItem>
-                  <SelectItem value='debit'>Debits</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <AdminSearchFilter
+              searchPlaceholder="Search name or email..."
+              searchTerm={searchTerm}
+              onSearch={handleSearch}
+              filterOptions={["All", "Flutterwave", "Paystack"]}
+              activeFilter={activeFilter}
+              onFilterChange={handleFilterChange}
+            />
           </div>
         </div>
 
@@ -257,15 +235,15 @@ export default function PaymentsManagementPage() {
               {loadingTx ? (
                 <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
               ) : (
-                <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                <div className='text-center p-6 bg-white rounded-xl  border border-red-50 max-w-sm mx-auto'>
                   <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
                     <div className='w-6 h-6 text-red-500 font-bold'>!</div>
                   </div>
                   <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
                   <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => window.location.reload()}
                     className="border-red-100 text-red-600 hover:bg-red-50 rounded-xl font-bold"
                   >
@@ -299,7 +277,7 @@ export default function PaymentsManagementPage() {
                   </td>
                   <td className='px-6 py-4'>
                     <div className='flex items-center gap-3'>
-                      <div className='h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400 overflow-hidden shrink-0 border border-white shadow-sm'>
+                      <div className='h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400 overflow-hidden shrink-0 border border-white '>
                         {tx.user?.profilePicture ? (
                           <img
                             src={tx.user.profilePicture}
@@ -323,15 +301,15 @@ export default function PaymentsManagementPage() {
                   <td className='px-6 py-4'>
                     <div className='flex flex-col'>
                       <span className='text-xs font-bold text-gray-700 line-clamp-1'>
-                        {tx.description}
+                        {tx.description || "Wallet Funding"}
+                        {/* {tx.provider && ` via ${tx.provider.toUpperCase()}`} */}
                       </span>
                     </div>
                   </td>
                   <td className='px-6 py-4'>
                     <span
-                      className={`text-xs font-black ${
-                        tx.type === "credit" ? "text-green-600" : "text-red-600"
-                      }`}
+                      className={`text-xs font-black ${tx.type === "credit" ? "text-green-600" : "text-red-600"
+                        }`}
                     >
                       {tx.type === "credit" ? "+" : "-"}
                       {formatCurrency(tx.amount)}
@@ -339,25 +317,29 @@ export default function PaymentsManagementPage() {
                   </td>
                   <td className='px-6 py-4 text-center'>
                     <span
-                      className={`text-[10px] font-black uppercase tracking-tighter px-2.5 py-1 rounded-full border ${
-                        tx.type === "credit"
-                          ? "bg-green-50 text-green-600 border-green-100"
-                          : "bg-red-50 text-red-600 border-red-100"
-                      }`}
+                      className={`text-[10px] font-black uppercase tracking-tighter px-2.5 py-1 rounded-full border ${tx.type === "credit"
+                        ? "bg-green-50 text-green-600 border-green-100"
+                        : "bg-red-50 text-red-600 border-red-100"
+                        }`}
                     >
                       {tx.type}
                     </span>
                   </td>
                   <td className='px-6 py-4'>
                     <span
-                      className={`text-[10px] font-black uppercase tracking-tighter px-2.5 py-1 rounded-full border ${
-                        tx.status === "held"
-                          ? "bg-blue-50 text-blue-600 border-blue-100"
-                          : tx.status === "released" ||
-                              tx.status === "completed"
-                            ? "bg-green-50 text-green-600 border-green-100"
-                            : "bg-gray-50 text-gray-600 border-gray-100"
-                      }`}
+                      className={`text-[10px] font-black uppercase tracking-tighter px-2.5 py-1 rounded-full border ${tx.status === "held"
+                        ? "bg-blue-50 text-blue-600 border-blue-100"
+                        : tx.status === "released" ||
+                          tx.status === "completed" ||
+                          tx.status === "success" ||
+                          tx.status === "successful"
+                          ? "bg-green-50 text-green-600 border-green-100"
+                          : tx.status === "failed" || tx.status === "cancelled" || tx.status === "reversed"
+                            ? "bg-red-50 text-red-600 border-red-100"
+                            : tx.status === "pending"
+                              ? "bg-yellow-50 text-yellow-600 border-yellow-100"
+                              : "bg-gray-50 text-gray-600 border-gray-100"
+                        }`}
                     >
                       {tx.status}
                     </span>

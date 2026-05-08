@@ -86,7 +86,7 @@ function AdminSetupContent() {
           <div className='flex justify-center mb-8'>
             <Logo />
           </div>
-          <div className='bg-white p-8 rounded-2xl shadow-xl border border-gray-100'>
+          <div className='bg-white p-8 rounded-2xl  border border-gray-100'>
             <div className='flex justify-center mb-4'>
               <AlertCircle size={48} className='text-red-500' />
             </div>
@@ -114,7 +114,7 @@ function AdminSetupContent() {
           <div className='flex justify-center mb-8'>
             <Logo />
           </div>
-          <div className='bg-white p-8 rounded-2xl shadow-xl border border-gray-100'>
+          <div className='bg-white p-8 rounded-2xl  border border-gray-100'>
             <div className='flex justify-center mb-4'>
               <CheckCircle2 size={48} className='text-green-500 animate-bounce' />
             </div>
@@ -141,7 +141,7 @@ function AdminSetupContent() {
           <Logo />
         </div>
 
-        <div className='bg-white rounded-2xl shadow-xl shadow-purple-100/50 border border-gray-100 overflow-hidden'>
+        <div className='bg-white rounded-2xl  /50 border border-gray-100 overflow-hidden'>
           <div className='bg-linear-to-r from-[#6B46C1] to-[#805AD5] p-6 text-white flex items-center justify-between'>
             <div>
               <h1 className='text-xl font-bold italic tracking-tight uppercase'>
@@ -273,7 +273,7 @@ function AdminSetupContent() {
               </div>
 
               <Button
-                className='w-full h-11 bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-purple-200 transition-all active:scale-95 disabled:opacity-70 mt-2'
+                className='w-full h-11 bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl text-xs font-bold uppercase tracking-widest   transition-all active:scale-95 disabled:opacity-70 mt-2'
                 type='submit'
                 disabled={isPending}
               >

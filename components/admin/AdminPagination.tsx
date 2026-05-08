@@ -100,7 +100,7 @@ export function AdminPagination({
                   className={cn(
                     "h-8 min-w-[32px] px-2 text-xs font-bold transition-all",
                     currentPage === p
-                      ? "bg-[#6B46C1] hover:bg-[#553C9A] text-white border-transparent shadow-sm"
+                      ? "bg-[#6B46C1] hover:bg-[#553C9A] text-white border-transparent "
                       : "border-gray-200 text-gray-600 hover:border-[#6B46C1] hover:text-[#6B46C1] bg-white"
                   )}
                 >

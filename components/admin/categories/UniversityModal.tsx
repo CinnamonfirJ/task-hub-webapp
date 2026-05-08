@@ -61,10 +61,10 @@ export function UniversityModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div className="bg-white rounded-[2rem] w-full max-w-lg  animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto no-scrollbar">
         <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-purple-50/30">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-purple-100 flex items-center justify-center text-purple-600 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-purple-100 flex items-center justify-center text-purple-600 ">
               <GraduationCap size={24} />
             </div>
             <div>
@@ -138,16 +138,16 @@ export function UniversityModal({
 
           <div className="flex items-center justify-between p-5 bg-gray-50/50 border border-gray-100 rounded-[1.5rem]">
             <div className="flex items-center gap-4">
-               {formData.isActive ? (
-                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                    <Unlock size={18} />
-                 </div>
-               ) : (
-                 <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                    <Ban size={18} />
-                 </div>
-               )}
-               <div>
+              {formData.isActive ? (
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                  <Unlock size={18} />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                  <Ban size={18} />
+                </div>
+              )}
+              <div>
                 <p className="text-sm font-black text-gray-900">Academic Status</p>
                 <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{formData.isActive ? "Institution Active" : "Institution Locked"}</p>
               </div>
@@ -166,12 +166,12 @@ export function UniversityModal({
             <Button
               type="submit"
               disabled={isSaving || !formData.name || !formData.abbreviation || !formData.state}
-              className="rounded-2xl h-12 px-10 bg-black hover:bg-gray-800 text-white font-black transition-all shadow-xl shadow-black/10 min-w-[160px]"
+              className="rounded-2xl h-12 px-10 bg-black hover:bg-gray-800 text-white font-black transition-all   min-w-[160px]"
             >
               {isSaving ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                   Saving...
+                  Saving...
                 </div>
               ) : university ? "Update Changes" : "Save Institution"}
             </Button>

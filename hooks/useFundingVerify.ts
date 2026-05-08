@@ -6,12 +6,12 @@ import { walletApi } from "@/lib/api/wallet";
  * Hook to verify wallet funding after redirect from Paystack.
  * Polls the backend every 3 seconds while status is "pending".
  */
-export function useFundingVerify(reference: string | null) {
+export function useFundingVerify(reference: string | null, transactionId?: string | null) {
   const queryClient = useQueryClient();
 
   return useQuery({
-    queryKey: ["wallet", "verify", reference],
-    queryFn: () => walletApi.verifyFunding(reference!),
+    queryKey: ["wallet", "verify", reference, transactionId],
+    queryFn: () => walletApi.verifyFunding(reference!, transactionId || undefined),
     enabled: !!reference,
     refetchInterval: (query) => {
       const data = query.state.data;

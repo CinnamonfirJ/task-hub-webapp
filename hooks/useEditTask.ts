@@ -142,6 +142,8 @@ export function useEditTask(taskId: string) {
           formData.append("images", img.file);
         } else if (img instanceof File) {
           formData.append("images", img);
+        } else if (img.url) {
+          formData.append("images", img.url);
         }
       });
     }

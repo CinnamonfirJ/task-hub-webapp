@@ -129,7 +129,7 @@ export default function TaskersPage() {
       </div>
 
       {/* Search & Filters Bar */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-3 md:p-4 shadow-sm space-y-4">
+      <div className="bg-white border border-gray-100 rounded-2xl p-3 md:p-4  space-y-4">
         <div className="flex flex-col md:flex-row gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
@@ -155,11 +155,11 @@ export default function TaskersPage() {
                   <ChevronDown size={16} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-xl p-2 shadow-xl border-none">
+              <DropdownMenuContent align="end" className="w-56 rounded-xl p-2  border-none">
                 <DropdownMenuLabel className="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 py-2">
                   Select Category
                 </DropdownMenuLabel>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setSelectedCategory("All")}
                   className={cn("rounded-lg px-3 py-2 cursor-pointer font-medium", selectedCategory === "All" && "bg-purple-50 text-[#6B46C1]")}
                 >
@@ -189,23 +189,23 @@ export default function TaskersPage() {
                   <ChevronDown size={16} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-xl p-2 shadow-xl border-none">
+              <DropdownMenuContent align="end" className="w-56 rounded-xl p-2  border-none">
                 <DropdownMenuLabel className="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 py-2">
                   Sort By
                 </DropdownMenuLabel>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setSortBy("nearest")}
                   className={cn("rounded-lg px-3 py-2 cursor-pointer font-medium", sortBy === "nearest" && "bg-purple-50 text-[#6B46C1]")}
                 >
                   Nearest First
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setSortBy("highest_rated")}
                   className={cn("rounded-lg px-3 py-2 cursor-pointer font-medium", sortBy === "highest_rated" && "bg-purple-50 text-[#6B46C1]")}
                 >
                   Highest Rated
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setSortBy("most_popular")}
                   className={cn("rounded-lg px-3 py-2 cursor-pointer font-medium", sortBy === "most_popular" && "bg-purple-50 text-[#6B46C1]")}
                 >
@@ -232,9 +232,9 @@ export default function TaskersPage() {
                 <X size={14} className="cursor-pointer" onClick={() => setMinRating(0)} />
               </div>
             )}
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={resetFilters}
               className="text-xs font-bold text-gray-400 hover:text-red-500"
             >
@@ -254,7 +254,7 @@ export default function TaskersPage() {
             className={cn(
               "px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border",
               minRating === rating
-                ? "bg-[#6B46C1] text-white border-[#6B46C1] shadow-md shadow-purple-100"
+                ? "bg-[#6B46C1] text-white border-[#6B46C1]  "
                 : "bg-white text-gray-500 border-gray-100 hover:border-gray-200"
             )}
           >
@@ -300,7 +300,7 @@ export default function TaskersPage() {
               We couldn&apos;t find any taskers matching your current filters. Try adjusting your search or filters.
             </p>
           </div>
-          <Button onClick={resetFilters} className="bg-[#6B46C1] hover:bg-[#5a3da1] px-8 h-12 rounded-xl font-bold shadow-lg shadow-purple-100">
+          <Button onClick={resetFilters} className="bg-[#6B46C1] hover:bg-[#5a3da1] px-8 h-12 rounded-xl font-bold  ">
             Reset All Filters
           </Button>
         </div>

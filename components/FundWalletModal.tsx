@@ -32,14 +32,14 @@ export function FundWalletModal({
   balance = "0.00",
 }: FundWalletModalProps) {
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState<"paystack" | "stellar">("paystack");
+  const [method, setMethod] = useState<"fiat" | "stellar">("fiat");
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const { mutate: initializeFunding, isPending } = useInitializeFunding();
-  const { 
-    data: stellarInfo, 
-    isLoading: isStellarLoading, 
-    isError: stellarError 
+  const {
+    data: stellarInfo,
+    isLoading: isStellarLoading,
+    isError: stellarError
   } = useStellarDepositInfo(method === "stellar");
 
   if (!isOpen) return null;
@@ -76,7 +76,7 @@ export function FundWalletModal({
 
   return (
     <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-[2.5rem] p-8 w-full max-w-xl shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <div className='bg-white rounded-[2.5rem] p-8 w-full max-w-xl  relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <div className='flex items-center justify-between mb-8'>
           <h2 className='text-2xl font-bold text-gray-900'>Fund wallet</h2>
           <button
@@ -89,7 +89,7 @@ export function FundWalletModal({
         </div>
 
         {/* Wallet Balance Card */}
-        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-lg p-6 text-white mb-8 shadow-lg shadow-purple-100 relative overflow-hidden'>
+        <div className='bg-linear-to-br from-[#6B46C1] to-[#553C9A] rounded-lg p-6 text-white mb-8   relative overflow-hidden'>
           <div className='relative z-10 flex items-center gap-3 mb-4 opacity-90'>
             <Wallet size={18} />
             <span className='text-sm font-medium'>Wallet balance</span>
@@ -110,7 +110,7 @@ export function FundWalletModal({
                 ENTER AMOUNT TO ADD TO YOUR WALLET
               </p>
               <input
-                type="number"
+                type="text"
                 value={amount}
                 min={100}
                 onChange={(e) => setAmount(e.target.value)}
@@ -188,7 +188,7 @@ export function FundWalletModal({
                   </p>
                 </div>
               )}
-              
+
               <p className='text-[10px] text-purple-400 font-medium italic px-1'>
                 * Send XLM to this address with the exact Memo ID. Your wallet will be credited automatically.
               </p>
@@ -200,12 +200,12 @@ export function FundWalletModal({
               Select Payment method
             </p>
 
-            {/* Paystack Option */}
+            {/* Fiat Option */}
             <button
-              onClick={() => setMethod("paystack")}
+              onClick={() => setMethod("fiat")}
               className={cn(
                 "w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-between group",
-                method === "paystack"
+                method === "fiat"
                   ? "border-[#6B46C1] bg-purple-50/50"
                   : "border-gray-100 hover:border-purple-200",
               )}
@@ -214,7 +214,7 @@ export function FundWalletModal({
                 <div
                   className={cn(
                     "p-3 rounded-xl transition-colors",
-                    method === "paystack"
+                    method === "fiat"
                       ? "bg-purple-100 text-purple-600"
                       : "bg-gray-50 text-gray-400 group-hover:bg-purple-50",
                   )}
@@ -222,21 +222,21 @@ export function FundWalletModal({
                   <CreditCard size={22} />
                 </div>
                 <div className='text-left'>
-                  <p className='font-bold text-gray-900'>Paystack</p>
+                  <p className='font-bold text-gray-900'>Card / Bank Transfer</p>
                   <p className='text-xs text-gray-400 font-medium'>
-                    Card, Bank Transfer, USSD
+                    Secure payment via our gateway
                   </p>
                 </div>
               </div>
               <div
                 className={cn(
                   "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                  method === "paystack"
+                  method === "fiat"
                     ? "border-[#6B46C1] bg-[#6B46C1]"
                     : "border-gray-200",
                 )}
               >
-                {method === "paystack" && (
+                {method === "fiat" && (
                   <div className='w-2 h-2 bg-white rounded-full' />
                 )}
               </div>
@@ -294,9 +294,9 @@ export function FundWalletModal({
               Secure Payment Integration
             </p>
             <p className='text-[10px] text-blue-600 leading-normal font-medium'>
-              Your payments are processed securely via Paystack. Funds added to
-              your wallet are held for task payments and can be withdrawn
-              according to our policy.
+              Your payments are processed securely via our trusted payment
+              partners. Funds added to your wallet are held for task payments
+              and can be withdrawn according to our policy.
             </p>
           </div>
         </div>
@@ -313,7 +313,7 @@ export function FundWalletModal({
           <Button
             onClick={handleFund}
             disabled={isPending}
-            className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base shadow-lg shadow-purple-200 transition-all disabled:opacity-70'
+            className='flex-1 py-6 rounded-2xl bg-[#6B46C1] hover:bg-[#553C9A] text-white font-bold text-base   transition-all disabled:opacity-70'
           >
             {isPending ? (
               <span className='flex items-center gap-2'>

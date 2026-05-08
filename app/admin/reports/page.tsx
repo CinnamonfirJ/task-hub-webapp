@@ -40,7 +40,7 @@ export default function ReportsManagementPage() {
   const statusParam =
     activeFilter === "All" ? undefined : activeFilter.toLowerCase();
 
-  const resourceTypeParam = 
+  const resourceTypeParam =
     activeLogFilter === "All" ? undefined : activeLogFilter;
 
   const { data: reportsData, isLoading: loadingReports, error: reportsError } = useReports({
@@ -71,12 +71,12 @@ export default function ReportsManagementPage() {
   const logsPagination =
     (logsData as any)?.totalPages != null
       ? {
-          currentPage: (logsData as any).currentPage ?? logPage,
-          totalPages: (logsData as any).totalPages,
-          totalActivities: (logsData as any).totalRecords,
-          hasNext: ((logsData as any).currentPage ?? logPage) < (logsData as any).totalPages,
-          hasPrev: ((logsData as any).currentPage ?? logPage) > 1,
-        }
+        currentPage: (logsData as any).currentPage ?? logPage,
+        totalPages: (logsData as any).totalPages,
+        totalActivities: (logsData as any).totalRecords,
+        hasNext: ((logsData as any).currentPage ?? logPage) < (logsData as any).totalPages,
+        hasPrev: ((logsData as any).currentPage ?? logPage) > 1,
+      }
       : null;
 
   const handleSearch = (query: string) => {
@@ -139,13 +139,13 @@ export default function ReportsManagementPage() {
       <div className='flex gap-1 bg-gray-100 rounded-xl p-1 w-fit'>
         <button
           onClick={() => setActiveTab("reports")}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "reports" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "reports" ? "bg-white text-gray-900 " : "text-gray-500 hover:text-gray-700"}`}
         >
           <Flag size={14} className='inline mr-2' /> User Reports
         </button>
         <button
           onClick={() => setActiveTab("activity")}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "activity" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab === "activity" ? "bg-white text-gray-900 " : "text-gray-500 hover:text-gray-700"}`}
         >
           <Activity size={14} className='inline mr-2' /> Activity Logs
         </button>
@@ -153,7 +153,7 @@ export default function ReportsManagementPage() {
 
       {/* Reports Tab */}
       {activeTab === "reports" && (
-        <Card className='border border-gray-100 shadow-sm overflow-hidden'>
+        <Card className='border border-gray-100  overflow-hidden'>
           <CardContent className='p-0'>
             <div className='p-6 border-b border-gray-100'>
               <AdminSearchFilter
@@ -172,15 +172,15 @@ export default function ReportsManagementPage() {
                   {loadingReports ? (
                     <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
                   ) : (
-                    <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                    <div className='text-center p-6 bg-white rounded-xl  border border-red-50 max-w-sm mx-auto'>
                       <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
                         <div className='w-6 h-6 text-red-500 font-bold'>!</div>
                       </div>
                       <p className='text-gray-900 font-bold mb-1'>{(reportsError as any)?.message || "Request failed"}</p>
                       <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => window.location.reload()}
                         className="border-red-100 text-red-600 hover:bg-red-50"
                       >
@@ -287,7 +287,7 @@ export default function ReportsManagementPage() {
 
       {/* Activity Logs Tab */}
       {activeTab === "activity" && (
-        <Card className='border border-gray-100 shadow-sm overflow-hidden'>
+        <Card className='border border-gray-100  overflow-hidden'>
           <CardContent className='p-0'>
             <div className='p-6 border-b border-gray-100'>
               <AdminSearchFilter
@@ -306,15 +306,15 @@ export default function ReportsManagementPage() {
                   {loadingLogs ? (
                     <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
                   ) : (
-                    <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                    <div className='text-center p-6 bg-white rounded-xl  border border-red-50 max-w-sm mx-auto'>
                       <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
                         <div className='w-6 h-6 text-red-500 font-bold'>!</div>
                       </div>
                       <p className='text-gray-900 font-bold mb-1'>{(logsError as any)?.message || "Request failed"}</p>
                       <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => window.location.reload()}
                         className="border-red-100 text-red-600 hover:bg-red-50"
                       >
@@ -352,9 +352,8 @@ export default function ReportsManagementPage() {
                       </td>
                       {/* STATUS */}
                       <td className='px-6 py-4'>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-                          log.status === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
-                        }`}>
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${log.status === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                          }`}>
                           {log.status || "—"}
                         </span>
                       </td>
@@ -362,7 +361,7 @@ export default function ReportsManagementPage() {
                       <td className='px-6 py-4 text-xs text-gray-500'>
                         <div className='flex flex-col'>
                           <span className='font-medium text-gray-900'>
-                            {log.performedBy 
+                            {log.performedBy
                               ? `${log.performedBy.firstName || ""} ${log.performedBy.lastName || ""}`.trim() || log.performedBy.emailAddress
                               : log.admin?.fullName ?? log.admin?.email ?? "—"}
                           </span>

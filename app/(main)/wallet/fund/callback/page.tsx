@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useFundingVerify, useRefreshBalanceOnSuccess } from "@/hooks/useFundingVerify";
-import { CheckCircle, XCircle, Loader2, Wallet } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Wallet, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -14,14 +14,24 @@ function WalletCallbackContent() {
   const refreshBalance = useRefreshBalanceOnSuccess();
 
   // Get reference from URL params OR from localStorage as fallback
-  const referenceFromUrl = searchParams.get("reference") ?? searchParams.get("trxref");
+  const status = searchParams.get("status");
+  const txRef = searchParams.get("tx_ref");
+  const transactionId = searchParams.get("transaction_id");
+  const paystackRef = searchParams.get("reference") ?? searchParams.get("trxref");
+
+  // Detection logic: Flutterwave uses tx_ref, Paystack uses reference/trxref
+  const isFlutterwave = !!txRef;
+  const referenceFromUrl = isFlutterwave ? txRef : paystackRef;
+
   const referenceFromStorage =
     typeof window !== "undefined"
       ? localStorage.getItem("pendingPaymentRef")
       : null;
+  
   const reference = referenceFromUrl || referenceFromStorage;
+  const finalTransactionId = isFlutterwave ? transactionId : undefined;
 
-  const { data, isLoading, isError } = useFundingVerify(reference);
+  const { data, isLoading, isError } = useFundingVerify(reference, finalTransactionId);
 
   // Once we get a successful payment, refresh the user's balance
   useEffect(() => {
@@ -33,6 +43,36 @@ function WalletCallbackContent() {
       }
     }
   }, [data?.transactionStatus]);
+
+  // Handle explicit cancellation from provider
+  if (status === "cancelled" || status === "canceled") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
+        <div className="bg-orange-50 p-5 rounded-full border border-orange-100">
+          <AlertCircle size={48} className="text-orange-500" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Cancelled</h2>
+          <p className="text-gray-500 text-sm">
+            You cancelled the payment process. No funds were deducted.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Link href="/home">
+            <Button variant="outline" className="rounded-2xl px-8 py-5 font-bold border-purple-200 text-[#6B46C1] hover:bg-purple-50">
+              Back to Home
+            </Button>
+          </Link>
+          <Button
+            onClick={() => router.push('/profile')}
+            className="bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-2xl px-8 py-5 font-bold"
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!reference) {
     return (
@@ -109,7 +149,7 @@ function WalletCallbackContent() {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment is being processed…</h2>
           <p className="text-gray-400 text-sm">
-            We're waiting for confirmation from Paystack. This page will update automatically.
+            We're waiting for confirmation from the provider. This page will update automatically.
           </p>
         </div>
       </div>

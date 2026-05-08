@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { 
-  useNotifications, 
-  useMarkNotificationAsRead, 
-  useMarkAllNotificationsAsRead, 
-  useDeleteNotification 
+import {
+  useNotifications,
+  useMarkNotificationAsRead,
+  useMarkAllNotificationsAsRead,
+  useDeleteNotification
 } from "@/hooks/useAuth";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2 } from "lucide-react";
@@ -70,14 +70,14 @@ export default function UserNotificationsPage() {
   const notifications = notificationsData?.data?.notifications || notificationsData?.notifications || [];
 
   const filteredNotifications = notifications.filter((n: any) => {
-    const matchesSearch = 
+    const matchesSearch =
       (n.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (n.message || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const isRead = n.read ?? n.isRead ?? false;
-    const matchesTab = 
-      activeTab === "all" || 
-      (activeTab === "unread" && !isRead) || 
+    const matchesTab =
+      activeTab === "all" ||
+      (activeTab === "unread" && !isRead) ||
       (activeTab === "read" && isRead);
 
     return matchesSearch && matchesTab;
@@ -113,9 +113,9 @@ export default function UserNotificationsPage() {
           <p className="text-sm text-gray-500 mt-1">Stay updated with your latest activities and system alerts</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleMarkAllAsRead}
             disabled={isMarkingAll || notifications.length === 0}
             className="h-9 px-3 text-xs font-bold gap-2 text-gray-600 rounded-xl"
@@ -130,16 +130,16 @@ export default function UserNotificationsPage() {
       <div className="flex flex-col sm:flex-row gap-4 items-center">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-fit">
           <TabsList className="bg-gray-100/50 p-1 h-11 rounded-xl">
-            <TabsTrigger value="all" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm">All</TabsTrigger>
-            <TabsTrigger value="unread" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm">Unread</TabsTrigger>
-            <TabsTrigger value="read" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm">Read</TabsTrigger>
+            <TabsTrigger value="all" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:">All</TabsTrigger>
+            <TabsTrigger value="unread" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:">Unread</TabsTrigger>
+            <TabsTrigger value="read" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:">Read</TabsTrigger>
           </TabsList>
         </Tabs>
 
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-          <Input 
-            placeholder="Search notifications..." 
+          <Input
+            placeholder="Search notifications..."
             className="pl-10 h-11 bg-white border-gray-100 rounded-xl focus:ring-[#6B46C1]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -156,7 +156,7 @@ export default function UserNotificationsPage() {
         ) : filteredNotifications.length === 0 ? (
           <Card className="border-dashed border-2 border-gray-100 bg-gray-50/30">
             <CardContent className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="bg-white p-4 rounded-full shadow-sm mb-4">
+              <div className="bg-white p-4 rounded-full  mb-4">
                 <Bell size={32} className="text-gray-300" />
               </div>
               <h3 className="text-lg font-bold text-gray-900">No notifications found</h3>
@@ -167,8 +167,8 @@ export default function UserNotificationsPage() {
           </Card>
         ) : (
           filteredNotifications.map((notification: any) => (
-            <Card 
-              key={notification._id || notification.id} 
+            <Card
+              key={notification._id || notification.id}
               onClick={() => {
                 const isRead = notification.read ?? notification.isRead;
                 if (!isRead) markAsRead(notification._id || notification.id);
@@ -176,7 +176,7 @@ export default function UserNotificationsPage() {
               }}
               className={cn(
                 "group relative border-transparent hover:border-purple-100 transition-all cursor-pointer rounded-2xl overflow-hidden",
-                !(notification.read ?? notification.isRead) ? "bg-white shadow-md shadow-purple-50/50 ring-1 ring-purple-50" : "bg-gray-50/50 grayscale-[0.5] opacity-80"
+                !(notification.read ?? notification.isRead) ? "bg-white  /50 ring-1 ring-purple-50" : "bg-gray-50/50 grayscale-[0.5] opacity-80"
               )}
             >
               <CardContent className="p-0">
@@ -189,7 +189,7 @@ export default function UserNotificationsPage() {
                     )}>
                       <Bell size={20} />
                     </div>
-                    {! (notification.read ?? notification.isRead) && (
+                    {!(notification.read ?? notification.isRead) && (
                       <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#6B46C1] rounded-full border-2 border-white ring-2 ring-purple-100 animate-pulse" />
                     )}
                   </div>
@@ -213,9 +213,9 @@ export default function UserNotificationsPage() {
                         <span className="text-xs font-medium">
                           {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                         </span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="h-8 w-8 rounded-lg hover:text-red-500"
                           onClick={(e) => {
                             e.stopPropagation();

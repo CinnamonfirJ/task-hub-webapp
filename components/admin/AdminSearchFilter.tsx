@@ -63,11 +63,10 @@ export function AdminSearchFilter({
           <button
             key={filter}
             onClick={() => onFilterChange(filter)}
-            className={`px-4 py-1.5 rounded-md text-sm font-semibold whitespace-nowrap transition-colors ${
-              activeFilter === filter
+            className={`px-4 py-1.5 rounded-md text-sm font-semibold whitespace-nowrap transition-colors ${activeFilter === filter
                 ? "bg-gray-900 text-white"
                 : "text-gray-500 hover:bg-gray-100"
-            }`}
+              }`}
           >
             {filter}
           </button>
@@ -85,17 +84,16 @@ export function AdminSearchFilter({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align='end'
-            className='w-48 bg-white rounded-xl shadow-lg border border-gray-100 p-2'
+            className='w-48 bg-white rounded-xl  border border-gray-100 p-2'
           >
             {filterOptions.map((filter) => (
               <DropdownMenuItem
                 key={filter}
                 onClick={() => onFilterChange(filter)}
-                className={`flex rounded-lg px-3 py-2 text-sm cursor-pointer mb-1 last:mb-0 ${
-                  activeFilter === filter
+                className={`flex rounded-lg px-3 py-2 text-sm cursor-pointer mb-1 last:mb-0 ${activeFilter === filter
                     ? "bg-gray-900 text-white font-medium hover:bg-gray-800 hover:text-white focus:bg-gray-800 focus:text-white"
                     : "text-gray-600 hover:bg-gray-50 focus:bg-gray-50"
-                }`}
+                  }`}
               >
                 {filter}
               </DropdownMenuItem>

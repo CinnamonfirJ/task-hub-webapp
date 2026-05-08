@@ -24,7 +24,7 @@ export default function GoogleCompletePage() {
         <Logo />
       </div>
 
-      <div className="max-w-2xl mx-auto w-full bg-white rounded-2xl shadow-sm border p-8">
+      <div className="max-w-2xl mx-auto w-full bg-white rounded-2xl  border p-8">
         <div className="mb-8 border-b pb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Complete your profile</h1>
           <p className="text-muted-foreground">

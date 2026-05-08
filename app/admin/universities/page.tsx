@@ -96,7 +96,7 @@ export default function UniversitiesPage() {
   };
 
   const list = universities || [];
-  
+
   const [page, setPage] = useState(1);
   const limit = 20;
 
@@ -126,13 +126,13 @@ export default function UniversitiesPage() {
             setSelectedUniversity(null);
             setIsModalOpen(true);
           }}
-          className="bg-[#6B46C1] hover:bg-[#5A3AA3] text-white rounded-xl h-11 px-6 shadow-sm"
+          className="bg-[#6B46C1] hover:bg-[#5A3AA3] text-white rounded-xl h-11 px-6 "
         >
           <Plus size={18} className="mr-2" /> Add University
         </Button>
       </div>
 
-      <Card className="border border-gray-100 shadow-sm rounded-2xl p-6">
+      <Card className="border border-gray-100  rounded-2xl p-6">
         <AdminSearchFilter
           searchPlaceholder='Search university or abbreviation...'
           searchTerm={searchTerm}
@@ -149,15 +149,15 @@ export default function UniversitiesPage() {
             {isLoading ? (
               <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
             ) : (
-              <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+              <div className='text-center p-6 bg-white rounded-xl  border border-red-50 max-w-sm mx-auto'>
                 <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
                   <div className='w-6 h-6 text-red-500 font-bold'>!</div>
                 </div>
                 <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
                 <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => window.location.reload()}
                   className="border-red-100 text-red-600 hover:bg-red-50"
                 >
@@ -168,14 +168,14 @@ export default function UniversitiesPage() {
           </div>
         )}
         {paginated.map((u: any, index: number) => (
-          <Card key={u._id} className="group relative border border-gray-100 hover:border-purple-200 shadow-sm hover:shadow-md transition-all rounded-2xl overflow-hidden p-6">
+          <Card key={u._id} className="group relative border border-gray-100 hover:border-purple-200  transition-all rounded-2xl overflow-hidden p-6">
             <div className="absolute top-0 left-0 w-8 h-8 bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-400 rounded-br-lg z-10">
               {(page - 1) * limit + index + 1}
             </div>
             <div className="flex justify-between items-start mb-6">
               <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 border border-purple-100">
                 {u.logo ? (
-                   <img src={u.logo} alt={u.abbreviation} className="w-10 h-10 object-contain" />
+                  <img src={u.logo} alt={u.abbreviation} className="w-10 h-10 object-contain" />
                 ) : (
                   <Building size={28} />
                 )}
@@ -186,7 +186,7 @@ export default function UniversitiesPage() {
                     <MoreVertical size={16} />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 rounded-xl p-1.5 shadow-xl">
+                <DropdownMenuContent align="end" className="w-48 rounded-xl p-1.5 ">
                   <DropdownMenuItem onClick={() => { setSelectedUniversity(u); setIsModalOpen(true); }} className="rounded-lg py-2.5">
                     <Pencil className="mr-3 h-4 w-4" /> Edit
                   </DropdownMenuItem>
@@ -200,7 +200,7 @@ export default function UniversitiesPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            
+
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs font-black text-purple-600 bg-purple-100 px-2 py-0.5 rounded uppercase tracking-widest">{u.abbreviation}</span>
@@ -220,8 +220,8 @@ export default function UniversitiesPage() {
               </div>
             </div>
           </Card>
-          ))}
-        </div>
+        ))}
+      </div>
 
       <AdminPagination
         currentPage={page}
@@ -229,11 +229,11 @@ export default function UniversitiesPage() {
         onPageChange={setPage}
         totalRecords={totalRecords}
         label="universities"
-        className="mt-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+        className="mt-6 bg-white rounded-2xl border border-gray-100 "
       />
 
       {filtered.length === 0 && (
-        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 ">
           <GraduationCap size={64} className="mx-auto text-gray-100 mb-6" />
           <h3 className="text-xl font-bold text-gray-900">No universities found</h3>
           <p className="text-sm text-gray-500 mt-2">Add a new institution to enable campus tasks for that region.</p>
@@ -254,7 +254,7 @@ export default function UniversitiesPage() {
           onClose={() => setConfirmAction(null)}
           onConfirm={handleConfirm}
           title={confirmAction.type === "delete" ? "Delete University" : "Update Status"}
-          description={confirmAction.type === "delete" 
+          description={confirmAction.type === "delete"
             ? "Are you sure? This will remove the university from the list of available campus locations."
             : `Are you sure you want to ${confirmAction.university.isActive ? "deactivate" : "activate"} this institution?`}
           isLoading={deleteMutation.isPending || updateMutation.isPending}

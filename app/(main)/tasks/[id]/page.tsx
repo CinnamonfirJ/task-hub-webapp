@@ -40,9 +40,18 @@ export default function TaskDetailsPage() {
   const queryClient = useQueryClient();
 
   const isTasker = user?.role === "tasker";
-  const isOwner =
-    user?._id ===
-    (typeof task?.user === "object" ? task?.user?._id : task?.creator);
+
+  const getTaskOwnerId = (t: any) => {
+    if (!t) return null;
+    if (t.user && typeof t.user === "object") return t.user._id || t.user.id;
+    if (typeof t.user === "string") return t.user;
+    if (t.creator && typeof t.creator === "object") return t.creator._id || t.creator.id;
+    if (typeof t.creator === "string") return t.creator;
+    return null;
+  };
+
+  const currentUserId = user?._id || user?.id;
+  const isOwner = currentUserId && currentUserId === getTaskOwnerId(task);
 
   const { balance } = useWalletBalance();
 
@@ -57,16 +66,16 @@ export default function TaskDetailsPage() {
   const bids = bidsData?.bids || [];
   const acceptedBid = bids.find((b: any) => b.status === "accepted");
   const assignedTasker = acceptedBid ? (typeof acceptedBid.tasker === "object" ? acceptedBid.tasker : null) : null;
-  const taskerName = assignedTasker?.fullName || 
+  const taskerName = assignedTasker?.fullName ||
     (assignedTasker?.firstName ? `${assignedTasker.firstName} ${assignedTasker.lastName || ""}` : "Tasker");
 
   // Find if current tasker has already bid on this task
   const existingBid =
     isTasker && Array.isArray(myBids)
       ? myBids.find((b) => {
-          const bidTaskId = typeof b.task === "object" ? b.task?._id : b.task;
-          return bidTaskId?.toString() === task?._id?.toString();
-        })
+        const bidTaskId = typeof b.task === "object" ? b.task?._id : b.task;
+        return bidTaskId?.toString() === task?._id?.toString();
+      })
       : null;
 
   // Use either the info from task object (if present) or our fetched existing bid
@@ -74,11 +83,11 @@ export default function TaskDetailsPage() {
     existingBid ||
     (task?.taskerBidInfo?.hasBid
       ? {
-          _id: task.taskerBidInfo._id,
-          amount: task.taskerBidInfo.amount,
-          message: task.taskerBidInfo.message,
-          status: task.taskerBidInfo.status || "pending",
-        }
+        _id: task.taskerBidInfo._id,
+        amount: task.taskerBidInfo.amount,
+        message: task.taskerBidInfo.message,
+        status: task.taskerBidInfo.status || "pending",
+      }
       : null);
 
   const hasApplied = !!taskerBid;
@@ -324,12 +333,12 @@ export default function TaskDetailsPage() {
 
       <div className='space-y-8'>
         {/* USER VIEW */}
-        {!isTasker && isOwner && (
+        {!isTasker && (
           <>
             {/* Budget Badge (Top Right for Tasker) */}
             {
               <div className='flex justify-end'>
-                <span className='bg-[#4CAF50] text-white px-4 py-2 md:px-6 md:py-2.5 rounded-xl font-black text-base md:text-lg shadow-sm'>
+                <span className='bg-[#4CAF50] text-white px-4 py-2 md:px-6 md:py-2.5 rounded-xl font-black text-base md:text-lg '>
                   ₦ {task.budget?.toLocaleString() || "0"}
                 </span>
               </div>
@@ -350,10 +359,10 @@ export default function TaskDetailsPage() {
               <p className='text-gray-700'>
                 {task.deadline
                   ? new Date(task.deadline).toLocaleDateString("en-US", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
                   : "Pending"}
               </p>
             </div>
@@ -473,29 +482,29 @@ export default function TaskDetailsPage() {
                       This task has been verified and completed.
                     </p>
                   </div>
-                  
+
                   {!(task as any).isRated && (
                     <Button
                       onClick={() => setIsRatingModalOpen(true)}
-                      className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl font-bold px-6 h-11 shadow-md shadow-purple-100'
+                      className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl font-bold px-6 h-11  '
                     >
                       Rate Tasker
                     </Button>
                   )}
                 </div>
-                
+
                 {(task as any).isRated && (
                   <div className='pt-2 border-t border-blue-100/50'>
                     <div className='flex items-center gap-1.5'>
                       <div className='flex items-center'>
                         {[1, 2, 3, 4, 5].map((s) => (
-                          <Star 
-                            key={s} 
-                            size={14} 
+                          <Star
+                            key={s}
+                            size={14}
                             className={cn(
                               "fill-current",
                               s <= ((task as any).rating?.rating || 0) ? "text-amber-400" : "text-gray-300"
-                            )} 
+                            )}
                           />
                         ))}
                       </div>
@@ -519,7 +528,7 @@ export default function TaskDetailsPage() {
         {isTasker && (
           <>
             {/* Task Title with Posted By */}
-            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm space-y-4'>
+            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem]  space-y-4'>
               <div className='flex flex-col sm:flex-row sm:justify-between items-start gap-4'>
                 <div className='space-y-1 w-full'>
                   <h3 className='text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider'>
@@ -529,16 +538,16 @@ export default function TaskDetailsPage() {
                     {task.title}
                   </h2>
                 </div>
-                <span className='bg-[#4CAF50] text-white px-5 py-2 md:px-6 md:py-2.5 rounded-xl font-black text-base md:text-lg shadow-sm whitespace-nowrap self-start sm:self-auto'>
+                <span className='bg-[#4CAF50] text-white px-5 py-2 md:px-6 md:py-2.5 rounded-xl font-black text-base md:text-lg  whitespace-nowrap self-start sm:self-auto'>
                   ₦ {task.budget?.toLocaleString() || "0"}
                 </span>
               </div>
 
-              <div 
+              <div
                 className='flex items-center gap-3 pt-2 group cursor-pointer'
                 onClick={() => setIsUserModalOpen(true)}
               >
-                <div className='w-10 h-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold text-sm shadow-sm overflow-hidden border-2 border-white ring-1 ring-purple-100 transition-transform group-hover:scale-105'>
+                <div className='w-10 h-10 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold text-sm  overflow-hidden border-2 border-white ring-1 ring-purple-100 transition-transform group-hover:scale-105'>
                   {task.user?.profilePicture ? (
                     <img src={task.user.profilePicture} alt="User" className="w-full h-full object-cover" />
                   ) : (
@@ -553,18 +562,18 @@ export default function TaskDetailsPage() {
                   {/* Assignment Status Message */}
                   {(task.status === "assigned" ||
                     task.status === "in-progress") && (
-                    <div className='mt-1'>
-                      {taskerBid?.status === "accepted" ? (
-                        <span className='text-green-600 text-xs font-bold uppercase tracking-tight'>
-                          ✓ Assigned to you
-                        </span>
-                      ) : (
-                        <span className='text-red-500 text-xs font-bold uppercase tracking-tight'>
-                          ⚠ Assigned to someone else
-                        </span>
-                      )}
-                    </div>
-                  )}
+                      <div className='mt-1'>
+                        {taskerBid?.status === "accepted" ? (
+                          <span className='text-green-600 text-xs font-bold uppercase tracking-tight'>
+                            ✓ Assigned to you
+                          </span>
+                        ) : (
+                          <span className='text-red-500 text-xs font-bold uppercase tracking-tight'>
+                            ⚠ Assigned to someone else
+                          </span>
+                        )}
+                      </div>
+                    )}
                   {task.status === "completed" && (
                     <div className='mt-1'>
                       <span className='text-blue-500 text-xs font-bold uppercase tracking-tight'>
@@ -577,7 +586,7 @@ export default function TaskDetailsPage() {
             </div>
 
             {/* Description */}
-            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm space-y-4'>
+            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem]  space-y-4'>
               <h3 className='font-bold text-gray-900 text-lg md:text-xl'>
                 {task.title}
               </h3>
@@ -587,7 +596,7 @@ export default function TaskDetailsPage() {
             </div>
 
             {/* Task Details Card */}
-            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm space-y-6'>
+            <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem]  space-y-6'>
               <h3 className='font-bold text-gray-900 text-lg md:text-xl'>
                 Task Details
               </h3>
@@ -598,10 +607,10 @@ export default function TaskDetailsPage() {
                   value={
                     task.deadline
                       ? new Date(task.deadline).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
                       : "Pending"
                   }
                 />
@@ -616,10 +625,10 @@ export default function TaskDetailsPage() {
                   value={
                     task.createdAt
                       ? new Date(task.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
                       : "N/A"
                   }
                 />
@@ -627,10 +636,10 @@ export default function TaskDetailsPage() {
             </div>
 
             {/* Task Images (Tasker View) */}
-            {task.images ? <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm'>
+            {task.images ? <div className='bg-white border border-gray-100 p-5 md:p-8 rounded-2xl md:rounded-[2rem] '>
               <TaskImages images={task.images} title='Task Images' />
-            </div> : <></> }
-           
+            </div> : <></>}
+
 
             {/* Application Form Section */}
             {isTasker && !hasApplied && (

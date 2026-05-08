@@ -87,7 +87,7 @@ export function TaskerEarnings() {
             </button>
           </div>
         ) : transactions && transactions.length > 0 ? (
-          <div className='bg-white border border-gray-100 p-4 md:p-6 rounded-[2rem] shadow-sm'>
+          <div className='bg-white border border-gray-100 p-4 md:p-6 rounded-[2rem] '>
             {transactions.map((tx: any) => (
               <TransactionItem
                 key={tx._id || tx.reference}
@@ -124,7 +124,7 @@ function StatCard({
   loading?: boolean;
 }) {
   return (
-    <div className='bg-white border border-gray-100 p-6 rounded-2xl md:rounded-lg hover:shadow-md transition-shadow flex flex-col justify-between'>
+    <div className='bg-white border border-gray-100 p-6 rounded-2xl md:rounded-lg transition-shadow flex flex-col justify-between'>
       <div className='font-bold text-gray-900 text-2xl md:text-3xl'>
         {loading ? (
           <Loader2 className='w-6 h-6 animate-spin text-[#6B46C1] opacity-40' />

@@ -58,7 +58,7 @@ export function ProfileCompletionStep2({
         </div>
       </div>
 
-      <div className='bg-white p-8 rounded-[2rem] shadow-sm border border-gray-50 space-y-8'>
+      <div className='bg-white p-8 rounded-[2rem]  border border-gray-50 space-y-8'>
         <div className='flex flex-col items-center justify-center text-center'>
           <h3 className='font-bold text-lg text-gray-900 mb-6'>
             Identity Verification
@@ -81,7 +81,7 @@ export function ProfileCompletionStep2({
 
             <VerifyIdentityButton
               userId={userId}
-              className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-16 rounded-xl font-bold text-lg mt-6 shadow-lg shadow-purple-100 transition-all active:scale-[0.99]'
+              className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-16 rounded-xl font-bold text-lg mt-6   transition-all active:scale-[0.99]'
             />
           </div>
         </div>

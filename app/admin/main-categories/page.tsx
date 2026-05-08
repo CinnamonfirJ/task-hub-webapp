@@ -112,7 +112,7 @@ export default function MainCategoriesPage() {
   };
 
   const categories = mainCategoriesData?.mainCategories || [];
-  
+
   const [page, setPage] = useState(1);
   const limit = 20;
 
@@ -150,34 +150,34 @@ export default function MainCategoriesPage() {
             setSelectedCategory(null);
             setIsModalOpen(true);
           }}
-          className="bg-[#6B46C1] hover:bg-[#5A3AA3] text-white rounded-xl h-11 px-6 shadow-sm"
+          className="bg-[#6B46C1] hover:bg-[#5A3AA3] text-white rounded-xl h-11 px-6 "
         >
           <Plus size={18} className="mr-2" /> Add Main Category
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-none shadow-sm bg-white rounded-2xl">
+        <Card className="border-none  bg-white rounded-2xl">
           <CardContent className="p-6">
             <p className="text-sm font-medium text-gray-500">Total Categories</p>
             <p className="text-3xl font-bold text-gray-900">{categories.length}</p>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white rounded-2xl">
+        <Card className="border-none  bg-white rounded-2xl">
           <CardContent className="p-6">
             <p className="text-sm font-medium text-gray-500">Active</p>
-            <p className="text-3xl font-bold text-green-600">{categories.filter((c:any) => c.isActive).length}</p>
+            <p className="text-3xl font-bold text-green-600">{categories.filter((c: any) => c.isActive).length}</p>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white rounded-2xl">
+        <Card className="border-none  bg-white rounded-2xl">
           <CardContent className="p-6">
             <p className="text-sm font-medium text-gray-500">Inactive</p>
-            <p className="text-3xl font-bold text-red-600">{categories.filter((c:any) => !c.isActive).length}</p>
+            <p className="text-3xl font-bold text-red-600">{categories.filter((c: any) => !c.isActive).length}</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="border border-gray-100 shadow-sm rounded-2xl p-6">
+      <Card className="border border-gray-100  rounded-2xl p-6">
         <AdminSearchFilter
           searchPlaceholder='Search main categories...'
           searchTerm={searchTerm}
@@ -190,7 +190,7 @@ export default function MainCategoriesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {paginated.map((cat: any, index: number) => (
-          <Card key={cat._id} className="group relative border border-gray-100 hover:border-purple-200 shadow-sm hover:shadow-md transition-all rounded-2xl overflow-hidden">
+          <Card key={cat._id} className="group relative border border-gray-100 hover:border-purple-200  transition-all rounded-2xl overflow-hidden">
             <div className="absolute top-0 left-0 w-8 h-8 bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-400 rounded-br-lg z-10">
               {(page - 1) * limit + index + 1}
             </div>
@@ -205,7 +205,7 @@ export default function MainCategoriesPage() {
                       <MoreVertical size={16} />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 rounded-xl p-1.5 shadow-xl border-gray-100">
+                  <DropdownMenuContent align="end" className="w-48 rounded-xl p-1.5  border-gray-100">
                     <DropdownMenuItem onClick={() => { setSelectedCategory(cat); setIsModalOpen(true); }} className="rounded-lg py-2.5">
                       <Pencil className="mr-3 h-4 w-4" /> Edit
                     </DropdownMenuItem>
@@ -248,11 +248,11 @@ export default function MainCategoriesPage() {
         onPageChange={setPage}
         totalRecords={totalRecords}
         label="categories"
-        className="mt-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+        className="mt-6 bg-white rounded-2xl border border-gray-100 "
       />
 
       {filtered.length === 0 && (
-        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 ">
           <Folder size={64} className="mx-auto text-gray-100 mb-6" />
           <h3 className="text-xl font-bold text-gray-900">No main categories found</h3>
           <p className="text-sm text-gray-500 mt-2">Try adjusting your filters or add a new category.</p>
@@ -281,7 +281,7 @@ export default function MainCategoriesPage() {
           onClose={() => setConfirmAction(null)}
           onConfirm={handleConfirm}
           title={confirmAction.type === "delete" ? "Delete Main Category" : "Change Status"}
-          description={confirmAction.type === "delete" 
+          description={confirmAction.type === "delete"
             ? "Are you sure? This will delete the main category. Subcategories may become orphaned."
             : `Are you sure you want to ${confirmAction.category.isActive ? "deactivate" : "activate"} this category?`}
           isLoading={deleteMutation.isPending || updateMutation.isPending}

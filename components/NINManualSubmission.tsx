@@ -19,6 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { taskersApi } from "@/lib/api/taskers";
+import Link from "next/link";
 
 const ninSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
@@ -97,12 +98,9 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
             <p className="text-sm text-green-800/80 max-w-sm mx-auto leading-relaxed">
               An admin will review your details shortly. You will be notified once your verification status is updated.
             </p>
-            <Button 
-              onClick={() => window.location.reload()} 
-              className="bg-green-600 hover:bg-green-700 text-white h-12 rounded-sm px-10 font-bold text-sm uppercase tracking-widest transition-all"
-            >
+            <Link href="/home" className="bg-green-600 hover:bg-green-700 text-white h-12 py-3 rounded-sm px-10 cursor-pointer font-bold text-sm uppercase tracking-widest transition-all">
               Close
-            </Button>
+            </Link>
           </CardContent>
         </Card>
       </motion.div>
@@ -116,7 +114,7 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
       exit={{ opacity: 0, y: -10 }}
       className="w-full"
     >
-      <Card className="shadow-none border border-gray-100 rounded-sm overflow-hidden">
+      <Card className=" border border-gray-100 rounded-sm overflow-hidden">
         <CardHeader className="bg-white px-8 pt-8 pb-4">
           <div className="flex items-center gap-4 mb-2">
             <div className="bg-purple-50 p-2 rounded-sm">
@@ -137,15 +135,15 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
               <div className="relative">
                 <Input
                   id="fullName"
+                  required
                   {...register("fullName")}
                   placeholder="e.g. Adewale Okonkwo"
-                  className={`bg-gray-50 border-gray-100 rounded-sm h-14 px-4 font-medium focus-visible:ring-purple-400 focus:bg-white transition-all ${
-                    errors.fullName ? "border-red-400" : ""
-                  }`}
+                  className={`bg-gray-50 border-gray-100 rounded-sm h-14 px-4 font-medium focus-visible:ring-purple-400 focus:bg-white transition-all ${errors.fullName ? "border-red-400" : ""
+                    }`}
                 />
               </div>
               {errors.fullName && (
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="text-red-500 text-xs font-medium pl-1 flex items-center gap-1"
@@ -163,16 +161,16 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
                 <Input
                   id="nin"
                   type="text"
+                  required
                   {...register("nin")}
                   placeholder="12345678901"
                   maxLength={11}
-                  className={`bg-gray-50 border-gray-100 rounded-sm h-14 px-4 font-medium focus-visible:ring-purple-400 focus:bg-white transition-all ${
-                    errors.nin ? "border-red-400" : ""
-                  }`}
+                  className={`bg-gray-50 border-gray-100 rounded-sm h-14 px-4 font-medium focus-visible:ring-purple-400 focus:bg-white transition-all ${errors.nin ? "border-red-400" : ""
+                    }`}
                 />
               </div>
               {errors.nin && (
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="text-red-500 text-xs font-medium pl-1 flex items-center gap-1"
@@ -186,7 +184,7 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-sm w-full font-bold text-sm uppercase tracking-widest shadow-none transition-all active:scale-[0.98]"
+                className="bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-sm w-full font-bold text-sm uppercase tracking-widest  transition-all active:scale-[0.98]"
               >
                 {isLoading ? (
                   <>
@@ -197,7 +195,7 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
                   "Submit for Review"
                 )}
               </Button>
-              
+
               {onCancel && (
                 <Button
                   type="button"

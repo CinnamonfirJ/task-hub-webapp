@@ -23,13 +23,13 @@ export function StellarWithdrawalModal({
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [pin, setPin] = useState(["", "", "", ""]);
-  
+
   const { mutate: withdraw, isPending: isWithdrawing } = useStellarWithdrawal();
   const { data: walletData } = useTaskerWallet();
-  
+
   const withdrawableNGN = walletData?.withdrawableAmount || 0;
   const withdrawableXLM = (withdrawableNGN / 1500).toFixed(2);
-  
+
   const pinRefs = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -69,7 +69,7 @@ export function StellarWithdrawalModal({
 
   return (
     <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <div className='bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg  relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <button
           onClick={resetAndClose}
           className='absolute right-6 top-6 text-gray-500 hover:text-gray-900 transition-colors z-10'
@@ -237,7 +237,7 @@ export function StellarWithdrawalModal({
             <div className='animate-in slide-in-from-right-4 duration-300 text-center pb-2'>
               <h3 className='text-lg font-bold text-gray-900 mb-1'>Transaction Pin</h3>
               <p className='text-gray-400 text-sm font-medium mb-8'>Enter Transaction PIN</p>
-              
+
               <div className='flex justify-center gap-3 mb-10'>
                 {pin.map((digit, index) => (
                   <input
@@ -249,7 +249,7 @@ export function StellarWithdrawalModal({
                     value={digit}
                     onChange={(e) => handlePinChange(index, e.target.value.replace(/[^0-9]/g, ''))}
                     onKeyDown={(e) => handlePinKeyDown(index, e)}
-                    className='w-14 h-14 bg-white border border-gray-200 rounded-lg text-center text-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-transparent transition-all shadow-sm'
+                    className='w-14 h-14 bg-white border border-gray-200 rounded-lg text-center text-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-transparent transition-all '
                   />
                 ))}
               </div>
@@ -304,7 +304,7 @@ export function StellarWithdrawalModal({
               <p className='text-gray-400 text-base font-medium mb-12'>
                 Your withdrawal has been made successfully
               </p>
-              
+
               <div className='flex justify-center mb-6'>
                 <Image src="/assets/check.png" alt="Success" width={200} height={200} />
               </div>

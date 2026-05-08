@@ -9,7 +9,7 @@ import { TransactionDetailsModal } from "./TransactionDetailsModal";
 
 export function UserPaymentHistory() {
   const [selectedTx, setSelectedTx] = useState<any>(null);
-  
+
   const { data: transactions, isLoading, isError, refetch } = useQuery({
     queryKey: ["userTransactions"],
     queryFn: () => walletApi.getUserTransactions({ limit: 50 }),
@@ -51,7 +51,7 @@ export function UserPaymentHistory() {
             </button>
           </div>
         ) : transactions && transactions.length > 0 ? (
-          <div className='bg-white border border-gray-100 p-4 md:p-6 rounded-[2rem] shadow-sm'>
+          <div className='bg-white border border-gray-100 p-4 md:p-6 rounded-[2rem] '>
             {transactions.map((tx: any) => (
               <TransactionItem
                 key={tx._id || tx.reference}

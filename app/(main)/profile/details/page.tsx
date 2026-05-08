@@ -37,7 +37,6 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import CloudinaryUpload from "@/components/CloudinaryUpload";
 
 const NIGERIAN_STATES = [
   "Abia", "Adamawa", "Akwa Ibom", "Bauchi", "Bayelsa", "Benue", "Borno",
@@ -55,6 +54,7 @@ const profileSchema = z.object({
   residentState: z.string().min(1, "State is required"),
   address: z.string().min(5, "Full address is required"),
   websiteLink: z.string().url().optional().or(z.literal("")),
+  bio: z.string().optional().or(z.literal("")),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -88,6 +88,7 @@ export default function ProfileDetailsPage() {
       residentState: user?.residentState || "",
       address: user?.address || "",
       websiteLink: user?.websiteLink || "",
+      bio: user?.bio || "",
     },
   });
 
@@ -103,39 +104,50 @@ export default function ProfileDetailsPage() {
       setValue("residentState", user.residentState || "");
       setValue("address", user.address || "");
       setValue("websiteLink", user.websiteLink || "");
+      setValue("bio", user.bio || "");
     }
   }, [user, setValue]);
 
-  const handleProfilePictureUploadSuccess = async (url: string) => {
+  const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+
     setIsUploading(true);
     try {
-      await authApi.updateProfilePicture(url);
+      await authApi.updateProfilePicture(formData as any);
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast.success("Profile picture updated");
     } catch (err) {
-      toast.error("Failed to update profile picture record");
+      toast.error("Failed to update profile picture");
       console.error(err);
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const handlePortfolioUploadSuccess = async (url: string, publicId: string) => {
+  const handlePortfolioFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append("images", files[i]);
+    }
+
     setIsPortfolioUploading(true);
     try {
-      // Note: If the backend currently only accepts FormData with files, 
-      // you might need an endpoint that accepts Cloudinary result objects.
-      // For now, we'll follow the existing pattern if possible or inform the user.
-      const formData = new FormData();
-      // We can't easily create a File object from a URL for FormData without fetching it,
-      // so we suggest updating the backend to accept URLs or using a different endpoint.
-      await authApi.uploadPreviousWork(formData); 
+      await authApi.uploadPreviousWork(formData);
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast.success("Work image added successfully");
     } catch (err: any) {
-      toast.error("Cloudinary upload successful, but failed to save to server.");
+      toast.error(err.message || "Failed to save to server.");
     } finally {
       setIsPortfolioUploading(false);
+      if (portfolioInputRef.current) portfolioInputRef.current.value = "";
     }
   };
 
@@ -165,7 +177,9 @@ export default function ProfileDetailsPage() {
   const handleRemovePicture = async () => {
     setIsUploading(true);
     try {
-      await authApi.updateProfilePicture("");
+      const formData = new FormData();
+      formData.append("profilePicture", "");
+      await authApi.updateProfilePicture(formData as any);
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast.success("Profile picture removed");
     } catch (err) {
@@ -178,11 +192,11 @@ export default function ProfileDetailsPage() {
 
   const userInitials = watch("fullName")
     ? watch("fullName")
-        .split(/\s+/)
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .substring(0, 2)
+      .split(/\s+/)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2)
     : "EE";
 
   if (isLoadingUser) {
@@ -194,16 +208,16 @@ export default function ProfileDetailsPage() {
   }
 
   // Helper for rendering editable items in User UI style
-  const EditableListItem = ({ icon, label, id, type = "text", placeholder, options }: { 
-    icon: React.ReactNode, 
-    label: string, 
-    id: keyof ProfileFormValues, 
+  const EditableListItem = ({ icon, label, id, type = "text", placeholder, options }: {
+    icon: React.ReactNode,
+    label: string,
+    id: keyof ProfileFormValues,
     type?: string,
     placeholder?: string,
     options?: string[]
   }) => (
     <div className='flex items-center gap-4 bg-gray-100/50 p-4 rounded-2xl transition-all hover:bg-gray-100 group'>
-      <div className='bg-white p-3 rounded-xl shadow-sm text-[#6B46C1]'>
+      <div className='bg-white p-3 rounded-xl  text-[#6B46C1]'>
         {icon}
       </div>
       <div className='flex flex-col flex-1'>
@@ -211,11 +225,11 @@ export default function ProfileDetailsPage() {
           {label}
         </span>
         {options ? (
-          <Select 
-            defaultValue={watch(id)} 
+          <Select
+            defaultValue={watch(id)}
             onValueChange={(val) => setValue(id, val)}
           >
-            <SelectTrigger className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm shadow-none focus:ring-0">
+            <SelectTrigger className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm  focus:ring-0">
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent className="max-h-60 rounded-xl">
@@ -232,7 +246,7 @@ export default function ProfileDetailsPage() {
             type={type}
             {...register(id)}
             disabled={id === "country"}
-            className={`bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm shadow-none focus-visible:ring-0 ${id === "country" ? "cursor-not-allowed opacity-70" : ""}`}
+            className={`bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm  focus-visible:ring-0 ${id === "country" ? "cursor-not-allowed opacity-70" : ""}`}
             placeholder={placeholder}
           />
         )}
@@ -259,8 +273,8 @@ export default function ProfileDetailsPage() {
         {/* Profile Avatar Center */}
         <div className='flex flex-col items-center justify-center py-4 space-y-4'>
           <div className='relative group'>
-            <div 
-              className='flex justify-center items-center bg-[#6B46C1] shadow-lg border-4 border-white rounded-full w-24 h-24 font-bold text-white text-3xl overflow-hidden relative transition-all cursor-pointer hover:brightness-95'
+            <div
+              className='flex justify-center items-center bg-[#6B46C1]  border-4 border-white rounded-full w-24 h-24 font-bold text-white text-3xl overflow-hidden relative transition-all cursor-pointer hover:brightness-95'
               onClick={() => fileInputRef.current?.click()}
             >
               {isUploading ? (
@@ -278,12 +292,23 @@ export default function ProfileDetailsPage() {
                 userInitials
               )}
             </div>
-            <CloudinaryUpload
-              onSuccess={handleProfilePictureUploadSuccess}
-              folder="profile-pictures"
-              variant="avatar"
-              buttonText="Upload profile image"
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleProfilePictureChange}
             />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-2"
+              disabled={isUploading}
+            >
+              Upload profile image
+            </Button>
           </div>
           {!isTasker && (
             <h2 className='font-bold text-gray-900 text-xl mt-2'>
@@ -318,6 +343,16 @@ export default function ProfileDetailsPage() {
                   />
                   {errors.phoneNumber && <p className="text-red-500 text-xs mt-1">{errors.phoneNumber.message}</p>}
                 </div>
+                <div className='space-y-2'>
+                  <Label htmlFor="bio" className="text-gray-600 font-medium">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    {...register("bio")}
+                    className={`bg-gray-100/80 border-0 min-h-[100px] rounded-xl focus-visible:ring-1 focus-visible:ring-[#6B46C1] resize-none p-4 ${errors.bio ? "ring-1 ring-red-500" : ""}`}
+                    placeholder="Tell us a little about yourself"
+                  />
+                  {errors.bio && <p className="text-red-500 text-xs mt-1">{errors.bio.message}</p>}
+                </div>
                 <div className='space-y-2 relative'>
                   <Label htmlFor="dateOfBirth" className="text-gray-600 font-medium">Date of Birth</Label>
                   <Input
@@ -345,8 +380,8 @@ export default function ProfileDetailsPage() {
                 </div>
                 <div className='space-y-2'>
                   <Label className="text-gray-600 font-medium">State of residence</Label>
-                  <Select 
-                    defaultValue={user?.residentState} 
+                  <Select
+                    defaultValue={user?.residentState}
                     onValueChange={(val) => setValue("residentState", val)}
                   >
                     <SelectTrigger className="bg-gray-100/80 border-0 h-12 rounded-xl focus:ring-1 focus:ring-[#6B46C1]">
@@ -397,14 +432,24 @@ export default function ProfileDetailsPage() {
                       </div>
                     ))}
                     {(user?.previousWork?.length || 0) < 10 && (
-                      <CloudinaryUpload
-                        onSuccess={handlePortfolioUploadSuccess}
-                        folder="portfolio"
-                        variant="box"
-                        buttonText="Upload Image"
-                        multiple={true}
-                        maxFiles={5}
-                      />
+                      <div className="relative aspect-square rounded-xl overflow-hidden group border border-gray-100 border-dashed flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => portfolioInputRef.current?.click()}>
+                        {isPortfolioUploading ? (
+                          <Loader2 className="animate-spin text-gray-400" size={24} />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-gray-400 gap-2">
+                            <Plus size={24} />
+                            <span className="text-xs font-medium">Upload Image</span>
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          ref={portfolioInputRef}
+                          className="hidden"
+                          accept="image/*"
+                          multiple
+                          onChange={handlePortfolioFileChange}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
@@ -432,14 +477,14 @@ export default function ProfileDetailsPage() {
                 BASIC INFORMATION
               </h3>
               <div className='space-y-3'>
-                <EditableListItem 
-                  icon={<UserIcon size={20} />} 
-                  label="Full Name" 
-                  id="fullName" 
-                  placeholder="Full name" 
+                <EditableListItem
+                  icon={<UserIcon size={20} />}
+                  label="Full Name"
+                  id="fullName"
+                  placeholder="Full name"
                 />
                 <div className='flex items-center gap-4 bg-gray-100/50 p-4 rounded-2xl transition-all hover:bg-gray-100 opacity-80'>
-                  <div className='bg-white p-3 rounded-xl shadow-sm text-gray-400'>
+                  <div className='bg-white p-3 rounded-xl  text-gray-400'>
                     <Mail size={20} />
                   </div>
                   <div className='flex flex-col flex-1'>
@@ -451,18 +496,34 @@ export default function ProfileDetailsPage() {
                     </span>
                   </div>
                 </div>
-                <EditableListItem 
-                  icon={<Phone size={20} />} 
-                  label="Phone" 
-                  id="phoneNumber" 
-                  placeholder="Phone number" 
+                <EditableListItem
+                  icon={<Phone size={20} />}
+                  label="Phone"
+                  id="phoneNumber"
+                  placeholder="Phone number"
                 />
-                <EditableListItem 
-                  icon={<Calendar size={20} />} 
-                  label="Date of Birth" 
-                  id="dateOfBirth" 
+                <EditableListItem
+                  icon={<Calendar size={20} />}
+                  label="Date of Birth"
+                  id="dateOfBirth"
                   type="date"
                 />
+                <div className='flex items-start gap-4 bg-gray-100/50 p-4 rounded-2xl transition-all hover:bg-gray-100'>
+                  <div className='bg-white p-3 rounded-xl  text-[#6B46C1]'>
+                    <UserIcon size={20} />
+                  </div>
+                  <div className='flex flex-col flex-1'>
+                    <span className='font-medium text-gray-400 text-xs mb-1'>
+                      Bio
+                    </span>
+                    <Textarea
+                      id="bio"
+                      {...register("bio")}
+                      className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm  focus-visible:ring-0 resize-none min-h-[60px]"
+                      placeholder="Tell us about yourself"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -471,16 +532,16 @@ export default function ProfileDetailsPage() {
                 NATIONALITY
               </h3>
               <div className='space-y-3'>
-                <EditableListItem 
-                  icon={<Flag size={20} />} 
-                  label="Country" 
-                  id="country" 
-                  placeholder="Country" 
+                <EditableListItem
+                  icon={<Flag size={20} />}
+                  label="Country"
+                  id="country"
+                  placeholder="Country"
                 />
-                <EditableListItem 
-                  icon={<MapPin size={20} />} 
-                  label="State" 
-                  id="residentState" 
+                <EditableListItem
+                  icon={<MapPin size={20} />}
+                  label="State"
+                  id="residentState"
                   options={NIGERIAN_STATES}
                   placeholder="Select state"
                 />
@@ -493,7 +554,7 @@ export default function ProfileDetailsPage() {
               </h3>
               <div className='space-y-3'>
                 <div className='flex items-start gap-4 bg-gray-100/50 p-4 rounded-2xl transition-all hover:bg-gray-100'>
-                  <div className='bg-white p-3 rounded-xl shadow-sm text-[#6B46C1]'>
+                  <div className='bg-white p-3 rounded-xl  text-[#6B46C1]'>
                     <MapPin size={20} />
                   </div>
                   <div className='flex flex-col flex-1'>
@@ -503,7 +564,7 @@ export default function ProfileDetailsPage() {
                     <Textarea
                       id="address"
                       {...register("address")}
-                      className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm shadow-none focus-visible:ring-0 resize-none min-h-[60px]"
+                      className="bg-transparent border-0 h-auto p-0 font-bold text-gray-900 text-sm  focus-visible:ring-0 resize-none min-h-[60px]"
                       placeholder="Full address"
                     />
                   </div>
@@ -518,7 +579,7 @@ export default function ProfileDetailsPage() {
           <Button
             type="submit"
             disabled={isSaving}
-            className='w-full bg-[#6B46C1] hover:bg-[#5a3ba3] text-white py-7 rounded-2xl font-bold text-lg shadow-md transition-all active:scale-[0.98]'
+            className='w-full bg-[#6B46C1] hover:bg-[#5a3ba3] text-white py-7 rounded-2xl font-bold text-lg  transition-all active:scale-[0.98]'
           >
             {isSaving ? (
               <Loader2 className="animate-spin mr-2" size={20} />

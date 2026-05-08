@@ -32,7 +32,12 @@ export default function VerificationPage() {
     "sdk",
   );
 
-  const isVerified = data?.isVerified || false;
+  const isVerified = 
+    data?.isVerified || 
+    user?.isKYCVerified || 
+    user?.verifyIdentity || 
+    user?.isVerified || 
+    false;
 
   return (
     <div className='p-4 md:p-8 max-w-2xl mx-auto space-y-10 pb-20'>
@@ -95,15 +100,15 @@ export default function VerificationPage() {
                     >
                       <VerifyIdentityButton
                         userId={user?._id}
-                        className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold rounded-2xl shadow-lg shadow-purple-200'
+                        className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold rounded-2xl  '
                       />
-                        <Button
-                          variant='outline'
-                          onClick={() => setVerificationMode("manual")}
-                          className='w-full border-[#6B46C1] text-[#6B46C1] hover:bg-purple-50 py-8 text-lg font-bold rounded-2xl'
-                        >
-                          Enter 11-digit NIN
-                        </Button>
+                      <Button
+                        variant='outline'
+                        onClick={() => setVerificationMode("manual")}
+                        className='w-full border-[#6B46C1] text-[#6B46C1] hover:bg-purple-50 py-8 text-lg font-bold rounded-2xl'
+                      >
+                        Enter 11-digit NIN
+                      </Button>
                     </motion.div>
                   ) : (
                     <NINManualSubmission
@@ -148,7 +153,7 @@ function VerificationBenefit({
   description: string;
 }) {
   return (
-    <div className='flex items-start gap-4 p-5 bg-white border border-gray-50 rounded-2xl text-left shadow-sm'>
+    <div className='flex items-start gap-4 p-5 bg-white border border-gray-50 rounded-2xl text-left '>
       <div className='bg-blue-50 p-2.5 rounded-xl'>{icon}</div>
       <div>
         <p className='font-bold text-gray-900 text-sm'>{title}</p>

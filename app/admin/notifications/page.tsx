@@ -37,6 +37,7 @@ export default function NotificationsPage() {
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [notificationToEdit, setNotificationToEdit] = useState<AdminNotification | null>(null);
   // const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   // const [selectedUserForEmail, setSelectedUserForEmail] = useState<{ id: string; name: string; email: string } | null>(null);
 
@@ -49,7 +50,16 @@ export default function NotificationsPage() {
     setIsDetailsModalOpen(true);
   };
 
+  const handleDuplicate = (notification: AdminNotification) => {
+    setNotificationToEdit(notification);
+    setIsSendModalOpen(true);
+  };
+
   const handleResend = (id: string) => {
+    if (!window.confirm("Are you sure you want to resend this notification to the same audience?")) {
+      return;
+    }
+
     resendNotification(id, {
       onSuccess: () => {
         toast.success("Notification resent successfully");
@@ -128,7 +138,7 @@ export default function NotificationsPage() {
           </Button> */}
           <Button
             onClick={() => setIsSendModalOpen(true)}
-            className='bg-[#6B46C1] hover:bg-[#553C9A] text-white h-10 px-4 gap-2 font-bold shadow-sm'
+            className='bg-[#6B46C1] hover:bg-[#553C9A] text-white h-10 px-4 gap-2 font-bold '
           >
             <Plus size={16} /> Broadcast
           </Button>
@@ -138,7 +148,7 @@ export default function NotificationsPage() {
       {/* Stats Section */}
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
         {statsCards.map((stat, index) => (
-          <Card key={index} className='border-none shadow-sm bg-white overflow-hidden group hover:shadow-md transition-shadow'>
+          <Card key={index} className='border-none  bg-white overflow-hidden group transition-shadow'>
             <CardContent className='p-0'>
               <div className='flex items-center p-6'>
                 <div className={`p-4 rounded-2xl ${stat.color} mr-4 transition-transform group-hover:scale-110 duration-300`}>
@@ -163,7 +173,7 @@ export default function NotificationsPage() {
       </div>
 
       {/* Table Section */}
-      <Card className='border border-gray-100 shadow-sm overflow-hidden'>
+      <Card className='border border-gray-100  overflow-hidden'>
         <CardContent className='p-0'>
           <div className='p-6 border-b border-gray-100'>
             <h3 className='font-bold text-gray-900 text-xs uppercase tracking-wider'>
@@ -225,8 +235,8 @@ export default function NotificationsPage() {
                           <span className='text-gray-400'>{Math.round((notification.openedCount / notification.recipientsCount) * 100) || 0}% opened</span>
                         </div>
                         <div className='w-full h-1.5 bg-gray-100 rounded-full overflow-hidden'>
-                          <div 
-                            className='h-full bg-[#6B46C1] rounded-full' 
+                          <div
+                            className='h-full bg-[#6B46C1] rounded-full'
                             style={{ width: `${(notification.openedCount / notification.recipientsCount) * 100 || 0}%` }}
                           />
                         </div>
@@ -237,7 +247,7 @@ export default function NotificationsPage() {
                         <span className={cn(
                           "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight transition-all",
                           notification.isEmail || notification.sendEmail || notification.email || (notification.sentThrough?.some(s => s.toLowerCase().includes('email')))
-                            ? "bg-blue-50 text-blue-600 border border-blue-100 shadow-sm" 
+                            ? "bg-blue-50 text-blue-600 border border-blue-100 "
                             : "bg-gray-50 text-gray-300 border border-gray-100 opacity-50"
                         )}>
                           Email
@@ -245,7 +255,7 @@ export default function NotificationsPage() {
                         <span className={cn(
                           "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight transition-all",
                           notification.isInApp || notification.sendInApp || notification.inApp || (notification.sentThrough?.some(s => s.toLowerCase().includes('app')))
-                            ? "bg-purple-50 text-purple-600 border border-purple-100 shadow-sm" 
+                            ? "bg-purple-50 text-purple-600 border border-purple-100 "
                             : "bg-gray-50 text-gray-300 border border-gray-100 opacity-50"
                         )}>
                           In-App
@@ -263,9 +273,10 @@ export default function NotificationsPage() {
                       </div>
                     </td>
                     <td className='px-6 py-5 text-right'>
-                      <NotificationActions 
+                      <NotificationActions
                         onViewDetails={() => handleViewDetails(notification)}
                         onResend={() => handleResend(notification._id)}
+                        onDuplicate={() => handleDuplicate(notification)}
                       />
                     </td>
                   </tr>
@@ -288,14 +299,22 @@ export default function NotificationsPage() {
 
       <SendNotificationModal
         isOpen={isSendModalOpen}
-        onClose={() => setIsSendModalOpen(false)}
+        onClose={() => {
+          setIsSendModalOpen(false);
+          setNotificationToEdit(null);
+        }}
+        initialData={notificationToEdit}
       />
 
       <NotificationDetailsModal
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
         notification={selectedNotification}
-      /> 
+        onResend={(id) => {
+          setIsDetailsModalOpen(false);
+          handleResend(id);
+        }}
+      />
 
       {/* <SendEmailModal
         isOpen={isEmailModalOpen}

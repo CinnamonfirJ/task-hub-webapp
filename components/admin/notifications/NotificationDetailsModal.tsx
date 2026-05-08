@@ -24,12 +24,14 @@ interface NotificationDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   notification: AdminNotification | null;
+  onResend?: (id: string) => void;
 }
 
 export function NotificationDetailsModal({
   isOpen,
   onClose,
   notification,
+  onResend,
 }: NotificationDetailsModalProps) {
   if (!notification) return null;
 
@@ -113,38 +115,41 @@ export function NotificationDetailsModal({
                 Delivery Channels
               </span>
               <div className='flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl'>
-                 <div className="flex items-center gap-2">
-                    <span className={cn(
-                      "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
-                      notification.isEmail || notification.sendEmail || notification.email || (notification.sentThrough?.some(s => s.toLowerCase().includes('email')))
-                        ? "bg-blue-50 text-blue-600 border-blue-100 shadow-sm shadow-blue-100/50" 
-                        : "bg-gray-100/50 text-gray-300 border-gray-200 grayscale opacity-50"
-                    )}>
-                      Email
-                    </span>
-                    <span className={cn(
-                      "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
-                      notification.isInApp || notification.sendInApp || notification.inApp || (notification.sentThrough?.some(s => s.toLowerCase().includes('app')))
-                        ? "bg-purple-50 text-purple-600 border-purple-100 shadow-sm shadow-purple-100/50" 
-                        : "bg-gray-100/50 text-gray-300 border-gray-200 grayscale opacity-50"
-                    )}>
-                      In-App
-                    </span>
-                 </div>
-                 <p className="text-[10px] font-bold text-gray-400 italic">
-                   { (notification.isEmail && notification.isInApp) ? 'Delivered via both channels' : 
-                     notification.isEmail ? 'Delivered via Email only' : 
-                     notification.isInApp ? 'Delivered via In-App only' : 
-                     notification.sentThrough && notification.sentThrough.length > 0 ? 'Delivered via multiple channels' :
-                     'Delivery channel data pending'}
-                 </p>
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
+                    notification.isEmail || notification.sendEmail || notification.email || (notification.sentThrough?.some(s => s.toLowerCase().includes('email')))
+                      ? "bg-blue-50 text-blue-600 border-blue-100  "
+                      : "bg-gray-100/50 text-gray-300 border-gray-200 grayscale opacity-50"
+                  )}>
+                    Email
+                  </span>
+                  <span className={cn(
+                    "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
+                    notification.isInApp || notification.sendInApp || notification.inApp || (notification.sentThrough?.some(s => s.toLowerCase().includes('app')))
+                      ? "bg-purple-50 text-purple-600 border-purple-100  /50"
+                      : "bg-gray-100/50 text-gray-300 border-gray-200 grayscale opacity-50"
+                  )}>
+                    In-App
+                  </span>
+                </div>
+                <p className="text-[10px] font-bold text-gray-400 italic">
+                  {(notification.isEmail && notification.isInApp) ? 'Delivered via both channels' :
+                    notification.isEmail ? 'Delivered via Email only' :
+                      notification.isInApp ? 'Delivered via In-App only' :
+                        notification.sentThrough && notification.sentThrough.length > 0 ? 'Delivered via multiple channels' :
+                          'Delivery channel data pending'}
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         <div className='pt-2'>
-          <Button className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-12 rounded-xl font-bold'>
+          <Button
+            onClick={() => notification && onResend?.(notification._id)}
+            className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-12 rounded-xl font-bold'
+          >
             Resend this notification
           </Button>
         </div>

@@ -40,7 +40,7 @@ const FAQItem = ({ question, answer, isOpen, onClick }: FAQItemProps) => {
           <ChevronDown size={20} />
         </motion.div>
       </button>
-      
+
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -71,7 +71,7 @@ export const FAQAccordion = ({ items, allowMultiple = false, className }: FAQAcc
 
   const handleToggle = (index: number) => {
     if (allowMultiple) {
-      setOpenIndexes(prev => 
+      setOpenIndexes(prev =>
         prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
       );
     } else {
@@ -80,7 +80,7 @@ export const FAQAccordion = ({ items, allowMultiple = false, className }: FAQAcc
   };
 
   return (
-    <div className={cn("w-full bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-50", className)}>
+    <div className={cn("w-full bg-white rounded-3xl overflow-hidden  border border-gray-50", className)}>
       {items.map((item, index) => (
         <FAQItem
           key={index}

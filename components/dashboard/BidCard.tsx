@@ -44,7 +44,7 @@ export function BidCard({
 
   return (
     <>
-      <div className='bg-white border border-gray-100 rounded-lg p-6 shadow-sm'>
+      <div className='bg-white border border-gray-100 rounded-lg p-6 '>
         <div className='flex md:flex-row flex-col items-start justify-between gap-6'>
           <div className='flex items-start gap-4 flex-1'>
             <div
@@ -122,7 +122,7 @@ export function BidCard({
                   size='sm'
                   onClick={() => onReject(bid._id)}
                   disabled={isBusy}
-                  className='flex-1 md:flex-none bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 rounded-lg font-bold text-xs h-10 px-4 shadow-none'
+                  className='flex-1 md:flex-none bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 rounded-lg font-bold text-xs h-10 px-4 '
                 >
                   {isRejecting ? (
                     "Rejecting..."

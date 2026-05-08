@@ -39,26 +39,30 @@ export default function TransactionDetailsPage({
   }
 
   const data = (detailData as any)?.data || detailData;
-  const { 
-    info, 
-    user: userInfo, 
-    recentTransactions, 
-    status: apiStatus, 
+  const {
+    info,
+    user: userInfo,
+    recentTransactions,
+    status: apiStatus,
     amount: apiAmount,
     timeline
   } = data;
 
   // Map fields from new or old structure
-  const displayTitle = info?.description || data?.description || "Transaction Details";
+  const description = info?.description || data?.description || "Wallet Funding";
+  const provider = data?.provider || info?.provider;
+  const displayTitle = provider 
+    ? `${description} via ${provider.toUpperCase()}` 
+    : description;
   const displayId = info?.transactionId || data?._id || data?.id || id;
   const displayStatus = (apiStatus || data?.status || "pending").toLowerCase();
   const displayAmount = apiAmount || data?.amount || 0;
-  
+
   const history = recentTransactions || data?.transactionHistory || data?.relatedTransactions || [];
 
   const type = info?.type || data?.type;
   const isCredit = type === "credit" || data?.amountSign === "+";
-  
+
   const statusIcon =
     displayStatus === "completed" || displayStatus === "released" || displayStatus === "success" ? (
       <CheckCircle2 size={18} className='text-green-600' />
@@ -123,7 +127,7 @@ export default function TransactionDetailsPage({
         </div>
       </div>
 
-      <Card className='border border-gray-100 shadow-sm rounded-2xl overflow-hidden'>
+      <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
         <CardContent className='p-8 bg-white'>
           <div className='text-[10px] text-gray-400 font-black uppercase tracking-widest'>
             Total Escrow Amount
@@ -137,7 +141,7 @@ export default function TransactionDetailsPage({
       </Card>
 
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader>
             <CardTitle className='text-base font-black'>
               Transaction Details
@@ -175,7 +179,7 @@ export default function TransactionDetailsPage({
           </CardContent>
         </Card>
 
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader>
             <CardTitle className='text-base font-black'>
               Customer & Wallet Impact
@@ -220,7 +224,7 @@ export default function TransactionDetailsPage({
 
       {/* Timeline */}
       {timeline && timeline.length > 0 && (
-        <Card className='border border-gray-100 shadow-sm'>
+        <Card className='border border-gray-100 '>
           <CardHeader>
             <CardTitle className='text-lg font-bold'>
               Transaction Timeline
@@ -249,8 +253,8 @@ export default function TransactionDetailsPage({
         </Card>
       )}
 
-    {/* {history && history.length > 0 && (
-        <Card className='border border-gray-100 shadow-sm rounded-2xl'>
+      {/* {history && history.length > 0 && (
+        <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader>
             <CardTitle className='text-base font-black'>
               Transaction History

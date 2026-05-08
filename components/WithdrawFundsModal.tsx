@@ -96,21 +96,53 @@ export function WithdrawFundsModal({
       return;
     }
 
+    if (method === "bank") {
+      if (isLoadingWallet) {
+        toast.info("Loading wallet data, please wait...");
+        return;
+      }
+
+      if (!walletData?.hasBankAccount && !savedBank) {
+        toast.error("Please enter and save your bank details first.");
+        return;
+      }
+
+      // Detailed reason check - Only block if explicitly set to false by backend
+      if (walletData?.canWithdraw === false) {
+        if (walletData?.hasPendingWithdrawal || (walletData?.pendingWithdrawals && walletData.pendingWithdrawals > 0)) {
+          toast.error(`You have a pending withdrawal. Please wait for it to be processed before making another request.`);
+          return;
+        }
+
+        if (walletData?.nextWithdrawableAt) {
+          const waitDate = new Date(walletData.nextWithdrawableAt).toLocaleString();
+          toast.error(`Withdrawal cooldown active. You can withdraw again after ${waitDate}.`);
+          return;
+        }
+
+        toast.error("Withdrawals are currently restricted for your account. Please contact support for more information.");
+        return;
+      }
+    }
+
+    const availableAmount = walletData?.availableToWithdraw ?? walletData?.withdrawableAmount ?? 0;
+
     if (!numAmount || numAmount < 5000) {
       toast.error("Minimum withdrawal is ₦5,000");
       return;
     }
-    if (numAmount > (walletData?.withdrawableAmount || 0)) {
+
+    if (numAmount > availableAmount) {
       toast.error("Insufficient withdrawable balance");
       return;
     }
 
-    setStep("pin");
+    handleConfirmWithdrawal("");
   };
 
-  const handleConfirmWithdrawal = () => {
-    const transactionPin = pin.join("");
-    if (transactionPin.length < 4) return;
+  const handleConfirmWithdrawal = (transactionPin: string = "") => {
+    // If no pin provided and not a bank transfer, it shouldn't proceed (safety)
+    if (method !== "bank" && transactionPin.length < 4) return;
 
     // Build bankDetails from saved bank data
     const bankDetails = {
@@ -123,7 +155,7 @@ export function WithdrawFundsModal({
       {
         amount: numAmount,
         payoutMethod: "bank_transfer",
-        transactionPin,
+        transactionPin: transactionPin || "0000", // Fallback if backend requires a string
         bankDetails,
       },
       {
@@ -173,7 +205,7 @@ export function WithdrawFundsModal({
 
   return (
     <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <div className='bg-white rounded-[2rem] p-6 lg:p-8 w-full max-w-lg  relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <div className='flex items-center justify-between mb-6'>
           <h2 className='text-2xl font-bold text-gray-900'>
             {step === "pin" ? "Transaction PIN" : step === "success" ? "Success!" : "Withdraw Funds"}
@@ -210,7 +242,7 @@ export function WithdrawFundsModal({
                     handlePinChange(index, e.target.value.replace(/[^0-9]/g, ""))
                   }
                   onKeyDown={(e) => handlePinKeyDown(index, e)}
-                  className='w-14 h-14 bg-white border border-gray-200 rounded-xl text-center text-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-transparent transition-all shadow-sm'
+                  className='w-14 h-14 bg-white border border-gray-200 rounded-xl text-center text-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B46C1] focus:border-transparent transition-all '
                 />
               ))}
             </div>
@@ -277,15 +309,15 @@ export function WithdrawFundsModal({
             )}
 
             {/* Balance card */}
-            <div className='bg-[#5C3B9E] rounded-[1rem] p-6 text-white mb-6 shadow-md'>
+            <div className='bg-[#5C3B9E] rounded-[1rem] p-6 text-white mb-6 '>
               <div className='flex items-center gap-2 opacity-90 mb-2'>
                 <Wallet size={16} />
                 <span className='text-sm font-medium'>Withdrawable balance</span>
               </div>
               <div className='text-4xl font-bold tracking-tight'>
                 {method === "stellar"
-                  ? `${((walletData?.withdrawableAmount || 0) / 1500).toFixed(2)} XLM`
-                  : `₦${walletData?.withdrawableAmount?.toLocaleString() || balance}`}
+                  ? `${((walletData?.availableToWithdraw || walletData?.withdrawableAmount || 0) / 1500).toFixed(2)} XLM`
+                  : `₦${(walletData?.availableToWithdraw || walletData?.withdrawableAmount || 0).toLocaleString() || balance}`}
               </div>
             </div>
 
@@ -414,10 +446,10 @@ export function WithdrawFundsModal({
                       {banks
                         ?.filter((bank: any, index: number, self: any[]) => self.findIndex((b: any) => b.code === bank.code) === index)
                         .map((bank: any) => (
-                        <option key={bank.code} value={bank.code}>
-                          {bank.name}
-                        </option>
-                      ))}
+                          <option key={bank.code} value={bank.code}>
+                            {bank.name}
+                          </option>
+                        ))}
                     </select>
 
                     <div className='flex gap-2'>
@@ -498,16 +530,13 @@ export function WithdrawFundsModal({
               </Button>
               <Button
                 onClick={handleWithdraw}
-                disabled={
-                  isWithdrawing ||
-                  (method === "bank" && (!canWithdraw || !amount))
-                }
+                disabled={isWithdrawing || !amount}
                 className='flex-1 py-6 rounded-md bg-[#6B46C1] hover:bg-[#553C9A] text-white font-medium text-base transition-all'
               >
                 {isWithdrawing ? (
-                  <Loader2 className='animate-spin' />
+                  <Loader2 className='w-5 h-5 animate-spin' />
                 ) : (
-                  "Continue"
+                  method === "bank" ? "Withdraw Funds" : "Continue"
                 )}
               </Button>
             </div>

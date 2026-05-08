@@ -19,14 +19,17 @@ export const walletApi = {
     return res?.data || res;
   },
 
-  verifyFunding: async (reference: string): Promise<{
+  verifyFunding: async (reference: string, transaction_id?: string): Promise<{
     reference: string;
     amount: number;
     transactionStatus: "success" | "pending" | "failed";
     creditedAt?: string;
   }> => {
+    const params = new URLSearchParams({ reference });
+    if (transaction_id) params.append("transaction_id", transaction_id);
+
     const res = await apiData<any>(
-      `/api/wallet/fund/verify?reference=${reference}`,
+      `/api/wallet/fund/verify?${params.toString()}`,
       { method: "GET" }
     );
     return res?.data || res;
@@ -80,13 +83,15 @@ export const walletApi = {
 
   getTaskerBalance: async (): Promise<{
     walletBalance: number;
-    withdrawableAmount: number;
-    canWithdraw: boolean;
-    nextWithdrawableAt: string | null;
-    minimumWithdrawal: number;
-    hasBankAccount: boolean;
-    hasPendingWithdrawal: boolean;
-    pendingWithdrawalAmount: number;
+    availableToWithdraw: number;
+    withdrawableAmount?: number;
+    canWithdraw?: boolean;
+    nextWithdrawableAt?: string | null;
+    minimumWithdrawal?: number;
+    hasBankAccount?: boolean;
+    pendingWithdrawals?: number;
+    hasPendingWithdrawal?: boolean;
+    pendingWithdrawalAmount?: number;
   }> => {
     const res = await apiData<any>("/api/wallet/tasker/balance", { method: "GET" });
     return res?.data || res;

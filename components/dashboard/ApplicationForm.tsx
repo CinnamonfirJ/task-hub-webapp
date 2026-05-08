@@ -45,7 +45,7 @@ export function ApplicationForm({
   };
 
   return (
-    <div className='bg-white border border-gray-100 p-8 rounded-[2rem] shadow-sm '>
+    <div className='bg-white border border-gray-100 p-8 rounded-[2rem]  '>
       <div className='space-y-2'>
         <h3 className='font-bold text-gray-900 text-xl'>Application</h3>
         <p className='text-gray-500 text-sm leading-relaxed'>
@@ -126,7 +126,7 @@ export function ApplicationForm({
       <Button
         onClick={handleSubmit}
         disabled={isSubmitting || (!isFixedPrice && !customAmount)}
-        className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 rounded-xl font-bold text-lg shadow-sm'
+        className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 rounded-xl font-bold text-lg '
       >
         {isSubmitting ? (
           <Loader2 className='w-5 h-5 animate-spin mr-2' />

@@ -61,7 +61,7 @@ export function MainCategoryModal({
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4'>
-      <div className='bg-white rounded-lg w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
+      <div className='bg-white rounded-lg w-full max-w-lg  animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto no-scrollbar'>
         <div className='p-8 border-b border-gray-50 flex items-center justify-between'>
           <div className='flex items-center gap-4'>
             <div className='w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600'>
@@ -159,7 +159,7 @@ export function MainCategoryModal({
             <Button
               type='submit'
               disabled={isSaving || !formData.displayName}
-              className='rounded-xl h-11 px-8 bg-black hover:bg-gray-800 text-white font-bold transition-all shadow-lg shadow-black/10'
+              className='rounded-xl h-11 px-8 bg-black hover:bg-gray-800 text-white font-bold transition-all  '
             >
               {isSaving
                 ? "Saving..."

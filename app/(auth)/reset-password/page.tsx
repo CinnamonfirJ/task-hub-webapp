@@ -29,7 +29,7 @@ function ResetPasswordForm() {
       {/* Header */}
       <div className="flex flex-col items-center mb-8">
         <div className="flex justify-center items-center bg-purple-50 mb-4 rounded-full w-16 h-16">
-          <div className="flex justify-center items-center bg-white shadow-sm rounded-full w-12 h-12">
+          <div className="flex justify-center items-center bg-white  rounded-full w-12 h-12">
             <KeyRound className="w-6 h-6 text-primary" />
           </div>
         </div>

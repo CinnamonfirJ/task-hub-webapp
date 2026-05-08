@@ -57,8 +57,8 @@ export default function UsersManagementPage() {
     search: searchQuery,
     status:
       activeFilter === "All" ||
-      activeFilter === "Verified" ||
-      activeFilter === "Unverified"
+        activeFilter === "Verified" ||
+        activeFilter === "Unverified"
         ? undefined
         : activeFilter.toLowerCase(), // "active", "locked"
     verified: activeFilter === "Verified" ? true : undefined,
@@ -202,7 +202,7 @@ export default function UsersManagementPage() {
 
       <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
         {summaryMetrics.map((metric, idx) => (
-          <Card key={idx} className='border-none shadow-sm'>
+          <Card key={idx} className='border-none '>
             <CardContent className='p-4'>
               <div
                 className={`text-xl font-bold ${metric.color || "text-gray-500"}`}
@@ -217,7 +217,7 @@ export default function UsersManagementPage() {
         ))}
       </div>
 
-      <Card className='border-none shadow-sm overflow-hidden'>
+      <Card className='border-none  overflow-hidden'>
         <CardContent className='p-0'>
           <div className='p-6 border-b border-gray-100'>
             <AdminSearchFilter
@@ -242,15 +242,15 @@ export default function UsersManagementPage() {
                 {usersLoading ? (
                   <Loader2 className='h-8 w-8 animate-spin text-[#6B46C1]' />
                 ) : (
-                  <div className='text-center p-6 bg-white rounded-xl shadow-lg border border-red-50 max-w-sm mx-auto'>
+                  <div className='text-center p-6 bg-white rounded-xl  border border-red-50 max-w-sm mx-auto'>
                     <div className='w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4'>
                       <div className='w-6 h-6 text-red-500 font-bold'>!</div>
                     </div>
                     <p className='text-gray-900 font-bold mb-1'>{(error as any)?.message || "Request failed"}</p>
                     <p className='text-gray-500 text-xs mb-4'>Please check your connection or try again later.</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => window.location.reload()}
                       className="border-red-100 text-red-600 hover:bg-red-50"
                     >
@@ -261,177 +261,174 @@ export default function UsersManagementPage() {
               </div>
             )}
             <table className='w-full text-left text-sm'>
-                <thead>
-                  <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
-                    <th className='px-6 py-4 w-12'>#</th>
-                    <th className='px-6 py-4'>USER</th>
-                    <th className='px-6 py-4'>CONTACT</th>
-                    <th className='px-6 py-4'>STATUS</th>
-                    <th className='px-6 py-4'>VERIFICATION</th>
-                    {/* <th className='px-6 py-4'>LAST ACTIVE</th> */}
-                    <th className='px-6 py-4 text-right'>ACTION</th>
-                  </tr>
-                </thead>
-                <tbody className='divide-y'>
-                  {processedUsers.map((user, index) => (
-                    <tr
-                      key={user._id}
-                      className='group hover:bg-gray-50 transition-colors'
-                    >
-                      <td className='px-6 py-4 text-xs font-medium text-gray-400'>
-                        {(page - 1) * limit + index + 1}
-                      </td>
-                      <td className='px-6 py-4'>
-                        <div className='flex items-center gap-3'>
-                          <div className='w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-[#6B46C1] overflow-hidden border border-purple-100'>
-                              {user.profilePicture ? (
-                                  <img src={user.profilePicture} alt="Profile" className="w-full h-full items-center"/>
-                                ) : (
-                                  <UserCircle2 size={24} />
-                                )}
+              <thead>
+                <tr className='border-y bg-gray-50/30 text-[10px] text-gray-400 font-bold uppercase tracking-wider'>
+                  <th className='px-6 py-4 w-12'>#</th>
+                  <th className='px-6 py-4'>USER</th>
+                  <th className='px-6 py-4'>CONTACT</th>
+                  <th className='px-6 py-4'>STATUS</th>
+                  <th className='px-6 py-4'>VERIFICATION</th>
+                  {/* <th className='px-6 py-4'>LAST ACTIVE</th> */}
+                  <th className='px-6 py-4 text-right'>ACTION</th>
+                </tr>
+              </thead>
+              <tbody className='divide-y'>
+                {processedUsers.map((user, index) => (
+                  <tr
+                    key={user._id}
+                    className='group hover:bg-gray-50 transition-colors'
+                  >
+                    <td className='px-6 py-4 text-xs font-medium text-gray-400'>
+                      {(page - 1) * limit + index + 1}
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-3'>
+                        <div className='w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-[#6B46C1] overflow-hidden border border-purple-100'>
+                          {user.profilePicture ? (
+                            <img src={user.profilePicture} alt="Profile" className="w-full h-full items-center" />
+                          ) : (
+                            <UserCircle2 size={24} />
+                          )}
+                        </div>
+                        <div>
+                          <div className='font-bold text-gray-900'>
+                            {user.fullName}
                           </div>
-                          <div>
-                            <div className='font-bold text-gray-900'>
-                              {user.fullName}
-                            </div>
-                            <div className='text-xs text-gray-500'>
-                              {user.emailAddress}
-                            </div>
+                          <div className='text-xs text-gray-500'>
+                            {user.emailAddress}
                           </div>
                         </div>
-                      </td>
-                      <td className='px-6 py-4'>{user.phoneNumber || "N/A"}</td>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>{user.phoneNumber || "N/A"}</td>
 
-                      <td className='px-6 py-4'>
-                        <span
-                          className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                            user.lockUntil &&
-                            new Date(user.lockUntil) > new Date()
-                              ? "bg-red-50 text-red-500"
-                              : user.isActive
-                                ? "bg-green-50 text-green-500"
-                                : "bg-gray-50 text-gray-500"
-                          }`}
-                        >
-                          {user.lockUntil &&
+                    <td className='px-6 py-4'>
+                      <span
+                        className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${user.lockUntil &&
                           new Date(user.lockUntil) > new Date()
-                            ? "Locked"
-                            : user.isActive
-                              ? "Active"
-                              : "Inactive"}
+                          ? "bg-red-50 text-red-500"
+                          : user.isActive
+                            ? "bg-green-50 text-green-500"
+                            : "bg-gray-50 text-gray-500"
+                          }`}
+                      >
+                        {user.lockUntil &&
+                          new Date(user.lockUntil) > new Date()
+                          ? "Locked"
+                          : user.isActive
+                            ? "Active"
+                            : "Inactive"}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex flex-col gap-1'>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase w-fit ${user.isEmailVerified
+                            ? "bg-blue-50 text-blue-500"
+                            : "bg-gray-50 text-gray-400"
+                            }`}
+                        >
+                          Email: {user.isEmailVerified ? "Verified" : "No"}
                         </span>
-                      </td>
-                      <td className='px-6 py-4'>
-                        <div className='flex flex-col gap-1'>
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase w-fit ${
-                              user.isEmailVerified
-                                ? "bg-blue-50 text-blue-500"
-                                : "bg-gray-50 text-gray-400"
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase w-fit ${user.isKYCVerified
+                            ? "bg-emerald-50 text-emerald-500"
+                            : "bg-gray-50 text-gray-400"
                             }`}
-                          >
-                            Email: {user.isEmailVerified ? "Verified" : "No"}
-                          </span>
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase w-fit ${
-                              user.isKYCVerified
-                                ? "bg-emerald-50 text-emerald-500"
-                                : "bg-gray-50 text-gray-400"
-                            }`}
-                          >
-                            KYC: {user.isKYCVerified ? "Verified" : "No"}
-                          </span>
-                        </div>
-                      </td>
-                      {/* <td className='px-6 py-4 text-xs font-bold text-gray-900'>
+                        >
+                          KYC: {user.isKYCVerified ? "Verified" : "No"}
+                        </span>
+                      </div>
+                    </td>
+                    {/* <td className='px-6 py-4 text-xs font-bold text-gray-900'>
                         <div className='flex justify-center items-center'>
                           {user.lastLogin
                             ? new Date(user.lastLogin).toLocaleDateString()
                             : "—"}
                         </div>
                       </td> */}
-                      <td className='px-6 py-4 text-right'>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              className='h-8 w-8 text-gray-400'
-                            >
-                              <MoreVertical size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end' className='w-40'>
-                            <Link href={`/admin/users/${user._id}`}>
-                              <DropdownMenuItem className='gap-2 cursor-pointer font-bold text-xs'>
-                                <ExternalLink size={14} /> View Details
-                              </DropdownMenuItem>
-                            </Link>
-                            <DropdownMenuItem
-                              className='gap-2 cursor-pointer text-purple-600 focus:text-purple-600 font-bold text-xs'
-                              onClick={() => {
-                                setSelectedUser({
+                    <td className='px-6 py-4 text-right'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8 text-gray-400'
+                          >
+                            <MoreVertical size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end' className='w-40'>
+                          <Link href={`/admin/users/${user._id}`}>
+                            <DropdownMenuItem className='gap-2 cursor-pointer font-bold text-xs'>
+                              <ExternalLink size={14} /> View Details
+                            </DropdownMenuItem>
+                          </Link>
+                          <DropdownMenuItem
+                            className='gap-2 cursor-pointer text-purple-600 focus:text-purple-600 font-bold text-xs'
+                            onClick={() => {
+                              setSelectedUser({
+                                id: user._id,
+                                name: user.fullName,
+                                email: user.emailAddress,
+                              });
+                              setIsEmailModalOpen(true);
+                            }}
+                          >
+                            <Mail size={14} /> Send Email
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'
+                            onClick={() => {
+                              if (user.lockUntil) {
+                                unlockUser(user._id);
+                              } else {
+                                lockUser({
                                   id: user._id,
-                                  name: user.fullName,
-                                  email: user.emailAddress,
+                                  reason: "Suspended by admin",
                                 });
-                                setIsEmailModalOpen(true);
-                              }}
-                            >
-                              <Mail size={14} /> Send Email
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className='gap-2 cursor-pointer text-red-600 focus:text-red-600 font-bold text-xs'
-                              onClick={() => {
-                                if (user.lockUntil) {
-                                  unlockUser(user._id);
-                                } else {
-                                  lockUser({
-                                    id: user._id,
-                                    reason: "Suspended by admin",
-                                  });
-                                }
-                              }}
-                            >
-                              <Ban size={14} />{" "}
-                              {user.lockUntil ? "Unlock" : "Lock Account"}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  ))}
-                  {!usersLoading && processedUsers.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className='py-20 text-center text-gray-400 font-medium'
-                      >
-                        <UserCircle2
-                          size={40}
-                          className='mx-auto mb-4 opacity-20'
-                        />
-                        <p>No users found matching your criteria</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                              }
+                            }}
+                          >
+                            <Ban size={14} />{" "}
+                            {user.lockUntil ? "Unlock" : "Lock Account"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))}
+                {!usersLoading && processedUsers.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className='py-20 text-center text-gray-400 font-medium'
+                    >
+                      <UserCircle2
+                        size={40}
+                        className='mx-auto mb-4 opacity-20'
+                      />
+                      <p>No users found matching your criteria</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-            <AdminPagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-              totalRecords={totalRecords}
-              label='users'
-            />
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalRecords={totalRecords}
+            label='users'
+          />
         </CardContent>
       </Card>
-      <ExportModal 
-        isOpen={isExportModalOpen} 
-        onClose={() => setIsExportModalOpen(false)} 
-        type="users" 
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        type="users"
       />
       {selectedUser && (
         <SendEmailModal

@@ -70,10 +70,12 @@ export const bidsApi = {
 
     // Handle both wrapped in 'data' and root level
     const data = res?.data || res;
+    
+    const bids = data?.bids || (Array.isArray(data) ? data : []);
 
     return {
-      bids: data?.bids || [],
-      taskBiddingEnabled: data?.taskBiddingEnabled ?? false,
+      bids: bids,
+      taskBiddingEnabled: data?.taskBiddingEnabled ?? (bids.length > 0 ? true : false),
     };
   },
 

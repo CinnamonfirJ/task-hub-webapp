@@ -17,19 +17,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Download, 
-  FileText, 
-  Calendar, 
+import {
+  Download,
+  FileText,
+  Calendar,
   Loader2,
   CheckCircle2
 } from "lucide-react";
-import { 
-  useExportDashboard, 
-  useExportTasks, 
-  useExportPayments, 
-  useExportUsers, 
-  useExportTaskers 
+import {
+  useExportDashboard,
+  useExportTasks,
+  useExportPayments,
+  useExportUsers,
+  useExportTaskers
 } from "@/hooks/useAdmin";
 import { toast } from "sonner";
 
@@ -68,8 +68,8 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
 
   const handleExport = async () => {
     try {
-      const params = (type === "dashboard" || type === "tasks") 
-        ? { startDate, endDate, format } 
+      const params = (type === "dashboard" || type === "tasks")
+        ? { startDate, endDate, format }
         : format;
 
       mutation.mutate(params as any, {
@@ -79,16 +79,16 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
             const url = window.URL.createObjectURL(response);
             const link = document.createElement("a");
             link.href = url;
-            
+
             const timestamp = new Date().toISOString().split('T')[0];
             const extension = format === "xlsx" ? "xlsx" : format;
             link.setAttribute("download", `${type}-report-${timestamp}.${extension}`);
-            
+
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-            
+
             toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} report downloaded!`);
             onClose();
             return;
@@ -118,12 +118,12 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-            
+
             toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported successfully!`);
           } else {
             toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} export triggered!`);
           }
-          
+
           onClose();
         },
         onError: (err: any) => {
@@ -137,7 +137,7 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[450px] rounded-3xl p-0 bg-white border-none shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+      <DialogContent className="sm:max-w-[450px] rounded-3xl p-0 bg-white border-none  max-h-[90vh] overflow-y-auto no-scrollbar">
         <div className="bg-[#6B46C1] p-8 text-white">
           <div className="bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
             <Download size={24} />
@@ -155,7 +155,7 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
             <div className="space-y-2">
               <Label className="text-xs font-black uppercase tracking-widest text-gray-400">Export Category</Label>
               <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center gap-3">
-                <div className="bg-white p-2 rounded-xl text-[#6B46C1] shadow-sm">
+                <div className="bg-white p-2 rounded-xl text-[#6B46C1] ">
                   <FileText size={18} />
                 </div>
                 <span className="font-bold text-gray-900 capitalize">{type} Records</span>
@@ -168,7 +168,7 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
                   <Label htmlFor="start" className="text-xs font-black uppercase tracking-widest text-gray-400">Start Date</Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                    <Input 
+                    <Input
                       id="start"
                       type="date"
                       value={startDate}
@@ -181,7 +181,7 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
                   <Label htmlFor="end" className="text-xs font-black uppercase tracking-widest text-gray-400">End Date</Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                    <Input 
+                    <Input
                       id="end"
                       type="date"
                       value={endDate}
@@ -210,10 +210,10 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
           </div>
 
           <div className="pt-4 flex flex-col gap-3">
-            <Button 
+            <Button
               onClick={handleExport}
               disabled={isPending}
-              className="w-full bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-2xl font-black text-lg shadow-lg shadow-purple-100 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-2xl font-black text-lg   transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               {isPending ? (
                 <div className="flex items-center gap-2">
@@ -227,8 +227,8 @@ export function ExportModal({ isOpen, onClose, type = "dashboard" }: ExportModal
                 </div>
               )}
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={onClose}
               className="w-full h-12 rounded-xl font-bold text-gray-400 hover:text-gray-600"
             >

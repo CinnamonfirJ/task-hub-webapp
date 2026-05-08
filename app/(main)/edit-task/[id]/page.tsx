@@ -135,14 +135,14 @@ function EditTaskForm() {
       <div className='mb-10'>
         <h1 className='text-3xl font-black text-gray-900'>Edit Task</h1>
         <p className='text-sm text-gray-400 font-medium'>
-           Update the details below.
+          Update the details below.
         </p>
       </div>
 
-      <form 
+      <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
           toast.error("Please fill in all required fields correctly.");
-        })} 
+        })}
         className='space-y-10 pb-20 max-w-4xl'
       >
         {/* Task Title */}
@@ -162,105 +162,105 @@ function EditTaskForm() {
 
         {/* SECTION 1: CATEGORY SELECTION */}
         <div className="space-y-8">
-           {/* Main Category */}
-           <div className="space-y-3">
-             <Label className='text-sm font-bold text-gray-700'>Category</Label>
-             <div className="relative">
-               <select 
-                 className='w-full h-14 bg-gray-100/60 border-none rounded-xl px-5 focus-visible:ring-purple-400 font-medium appearance-none outline-none cursor-pointer'
-                 value={selectedMainId || ""}
-                 onChange={(e) => {
-                   form.setValue("mainCategory", e.target.value);
-                   form.setValue("categories", []);
-                   form.setValue("university", "");
-                 }}
-               >
-                 <option value="" disabled>{isLoadingCategories ? "Loading categories..." : "Select a category"}</option>
-                 {displayMainCategories.map(cat => (
-                   <option key={cat._id} value={cat._id}>{cat.displayName}</option>
-                 ))}
-               </select>
-               <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-               </div>
-             </div>
-             {form.formState.errors.mainCategory && (
-               <p className='text-xs text-red-500 font-medium px-1'>
-                 {form.formState.errors.mainCategory.message}
-               </p>
-             )}
-           </div>
+          {/* Main Category */}
+          <div className="space-y-3">
+            <Label className='text-sm font-bold text-gray-700'>Category</Label>
+            <div className="relative">
+              <select
+                className='w-full h-14 bg-gray-100/60 border-none rounded-xl px-5 focus-visible:ring-purple-400 font-medium appearance-none outline-none cursor-pointer'
+                value={selectedMainId || ""}
+                onChange={(e) => {
+                  form.setValue("mainCategory", e.target.value);
+                  form.setValue("categories", []);
+                  form.setValue("university", "");
+                }}
+              >
+                <option value="" disabled>{isLoadingCategories ? "Loading categories..." : "Select a category"}</option>
+                {displayMainCategories.map(cat => (
+                  <option key={cat._id} value={cat._id}>{cat.displayName}</option>
+                ))}
+              </select>
+              <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+              </div>
+            </div>
+            {form.formState.errors.mainCategory && (
+              <p className='text-xs text-red-500 font-medium px-1'>
+                {form.formState.errors.mainCategory.message}
+              </p>
+            )}
+          </div>
 
-           {/* Subcategory */}
-           <div className="space-y-3">
-             <Label className='text-sm font-bold text-gray-700'>Subcategory</Label>
-             <div className="relative">
-               <select 
-                 disabled={!selectedMainId}
-                 className='w-full h-14 bg-gray-100/60 border-none rounded-xl px-5 focus-visible:ring-purple-400 font-medium appearance-none outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
-                 value=""
-                 onChange={(e) => {
-                   if (e.target.value) toggleSubcategory(e.target.value);
-                 }}
-               >
-                 <option value="" disabled>
-                   {!selectedMainId ? "Choose category first" : "Select a subcategory"}
-                 </option>
-                 {displaySubcategories.map(sub => (
-                   <option key={sub._id} value={sub._id}>{sub.displayName}</option>
-                 ))}
-               </select>
-               <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-               </div>
-             </div>
-             
-              {/* Selected Subcategories Tags */}
-             {selectedSubIds.length > 0 && (
-               <div className="flex flex-wrap gap-2 mt-2">
-                  {selectedSubIds.map(id => {
-                    const sub = allCategories?.find(s => s._id === id);
-                    if (!sub) return null;
-                    return (
-                      <span key={id} className="bg-purple-100 text-[#6B46C1] text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 border border-purple-200">
-                        {sub.displayName}
-                        <X size={12} className="cursor-pointer hover:text-red-500" onClick={() => toggleSubcategory(id)} />
-                      </span>
-                    );
-                  })}
-               </div>
-             ) || selectedMainId && displaySubcategories.length === 0 && (
-                <p className="text-[11px] text-gray-500 italic">No subcategories available for this category yet.</p>
-             )}
+          {/* Subcategory */}
+          <div className="space-y-3">
+            <Label className='text-sm font-bold text-gray-700'>Subcategory</Label>
+            <div className="relative">
+              <select
+                disabled={!selectedMainId}
+                className='w-full h-14 bg-gray-100/60 border-none rounded-xl px-5 focus-visible:ring-purple-400 font-medium appearance-none outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+                value=""
+                onChange={(e) => {
+                  if (e.target.value) toggleSubcategory(e.target.value);
+                }}
+              >
+                <option value="" disabled>
+                  {!selectedMainId ? "Choose category first" : "Select a subcategory"}
+                </option>
+                {displaySubcategories.map(sub => (
+                  <option key={sub._id} value={sub._id}>{sub.displayName}</option>
+                ))}
+              </select>
+              <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+              </div>
+            </div>
 
-             {form.formState.errors.categories && (
-               <p className='text-xs text-red-500 font-medium px-1'>
-                 {form.formState.errors.categories.message}
-               </p>
-             )}
-           </div>
+            {/* Selected Subcategories Tags */}
+            {selectedSubIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedSubIds.map(id => {
+                  const sub = allCategories?.find(s => s._id === id);
+                  if (!sub) return null;
+                  return (
+                    <span key={id} className="bg-purple-100 text-[#6B46C1] text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 border border-purple-200">
+                      {sub.displayName}
+                      <X size={12} className="cursor-pointer hover:text-red-500" onClick={() => toggleSubcategory(id)} />
+                    </span>
+                  );
+                })}
+              </div>
+            ) || selectedMainId && displaySubcategories.length === 0 && (
+              <p className="text-[11px] text-gray-500 italic">No subcategories available for this category yet.</p>
+            )}
 
-           {/* University (if campus) */}
-           {isCampusSelected && (
-             <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                <Label className='text-sm font-bold text-gray-700'>University</Label>
-                <div className="relative">
-                  <select 
-                    className='w-full h-14 bg-[#6B46C1]/5 border border-purple-100 rounded-xl px-5 outline-none focus:ring-2 focus:ring-purple-400 font-medium appearance-none cursor-pointer'
-                    value={selectedUniId || ""}
-                    onChange={(e) => form.setValue("university", e.target.value)}
-                  >
-                    <option value="" disabled>{isLoadingUni ? "Loading universities..." : "Select your university"}</option>
-                    {universities?.map(u => (
-                      <option key={u._id} value={u._id}>{u.name} ({u.abbreviation})</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-purple-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </div>
-               </div>
-             </div>
-           )}
+            {form.formState.errors.categories && (
+              <p className='text-xs text-red-500 font-medium px-1'>
+                {form.formState.errors.categories.message}
+              </p>
+            )}
+          </div>
+
+          {/* University (if campus) */}
+          {isCampusSelected && (
+            <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+              <Label className='text-sm font-bold text-gray-700'>University</Label>
+              <div className="relative">
+                <select
+                  className='w-full h-14 bg-[#6B46C1]/5 border border-purple-100 rounded-xl px-5 outline-none focus:ring-2 focus:ring-purple-400 font-medium appearance-none cursor-pointer'
+                  value={selectedUniId || ""}
+                  onChange={(e) => form.setValue("university", e.target.value)}
+                >
+                  <option value="" disabled>{isLoadingUni ? "Loading universities..." : "Select your university"}</option>
+                  {universities?.map(u => (
+                    <option key={u._id} value={u._id}>{u.name} ({u.abbreviation})</option>
+                  ))}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-purple-400">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Dual Column */}
@@ -339,7 +339,7 @@ function EditTaskForm() {
         </div>
 
         {/* Task images */}
-        <Card className='border border-gray-100 shadow-none rounded-2xl overflow-hidden'>
+        <Card className='border border-gray-100  rounded-2xl overflow-hidden'>
           <CardContent className='p-6 space-y-4'>
             <div className='flex justify-between items-center'>
               <span className='text-sm font-bold text-gray-700'>
@@ -396,7 +396,7 @@ function EditTaskForm() {
                             const currentImages = form.getValues("images") || [];
                             form.setValue("images", currentImages.filter((_, i) => i !== index));
                           }}
-                          className='absolute top-1.5 right-1.5 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-all shadow-lg z-10'
+                          className='absolute top-1.5 right-1.5 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-all  z-10'
                         >
                           <X size={12} strokeWidth={3} />
                         </button>
@@ -452,7 +452,7 @@ function EditTaskForm() {
         <Button
           type='submit'
           disabled={isSubmitting}
-          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-[60px] text-lg font-black rounded-2xl shadow-xl shadow-purple-500/20 transition-all active:scale-[0.99] mt-6'
+          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-[60px] text-lg font-black rounded-2xl   transition-all active:scale-[0.99] mt-6'
         >
           {isSubmitting ? (
             <Loader2 className='w-6 h-6 animate-spin mr-2' />

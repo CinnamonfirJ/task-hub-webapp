@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,36 +23,75 @@ import { useSendNotification, useNotificationUsers } from "@/hooks/useAdmin";
 import { Loader2, Send, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { AdminNotification } from "@/types/admin";
 
 interface SendNotificationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialData?: AdminNotification | null;
 }
 
 export function SendNotificationModal({
   isOpen,
   onClose,
+  initialData,
 }: SendNotificationModalProps) {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [type, setType] = useState<any>("Announcement");
-  const [audience, setAudience] = useState<any>("All users");
+  const [audience, setAudience] = useState<any>("All Users");
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [inApp, setInApp] = useState(true);
   const [emailNotification, setEmailNotification] = useState(false);
   const [userSearch, setUserSearch] = useState("");
 
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setTitle(initialData.title || "");
+      setMessage(initialData.message || "");
+      setType(initialData.type || "Announcement");
+      setAudience(initialData.audience || "All users");
+      setInApp(initialData.isInApp ?? initialData.sendInApp ?? initialData.inApp ?? true);
+      setEmailNotification(initialData.isEmail ?? initialData.sendEmail ?? initialData.email ?? false);
+      // selectedUserIds are usually not included in the list response, 
+      // but if they are present in some extended notification object, we use them.
+      setSelectedUserIds([]); 
+    } else if (isOpen && !initialData) {
+      resetForm();
+    }
+  }, [isOpen, initialData]);
+
   const { data: userData, isLoading: loadingUsers } = useNotificationUsers();
   const { mutate: sendNotification, isPending } = useSendNotification();
 
-  const allPossibleRecipients = [
-    ...(userData?.users || userData?.data?.users || []),
-    ...(userData?.taskers || userData?.data?.taskers || []),
-  ];
+  const allPossibleRecipients = (() => {
+    if (!userData || !Array.isArray(userData.data)) return [];
+    
+    const recipientsMap = new Map();
+
+    userData.data.forEach((item: any) => {
+      const target = item.user || item.tasker;
+      if (!target) return;
+
+      const id = target._id;
+      if (!id || recipientsMap.has(id)) return;
+
+      recipientsMap.set(id, {
+        id,
+        fullName: target.fullName || `${target.firstName || ""} ${target.lastName || ""}`.trim() || "Unknown User",
+        email: target.emailAddress || target.email || "No email",
+        type: item.user ? "User" : "Tasker"
+      });
+    });
+
+    return Array.from(recipientsMap.values());
+  })();
 
   const filteredRecipients = allPossibleRecipients.filter((u: any) => {
-    const name = u.fullName || u.name || "Unknown User";
-    return name.toLowerCase().includes(userSearch.toLowerCase());
+    const name = u.fullName || u.name || "";
+    const email = u.emailAddress || u.email || "";
+    const searchStr = `${name} ${email}`.toLowerCase();
+    return searchStr.includes(userSearch.toLowerCase());
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,7 +114,8 @@ export function SendNotificationModal({
       },
       {
         onSuccess: () => {
-          toast.success("Notification broadcasted successfully!");
+          const mode = initialData ? "duplicated" : "broadcasted";
+          toast.success(`Notification ${mode} successfully!`);
           onClose();
           resetForm();
         },
@@ -88,7 +128,7 @@ export function SendNotificationModal({
 
   const resetForm = () => {
     setType("Announcement");
-    setAudience("All users");
+    setAudience("All Users");
     setSelectedUserIds([]);
     setInApp(true);
     setEmailNotification(false);
@@ -188,7 +228,7 @@ export function SendNotificationModal({
                   <SelectValue placeholder='Select audience' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='All users'>All users</SelectItem>
+                  <SelectItem value='All Users'>All Users</SelectItem>
                   <SelectItem value='All Taskers'>All Taskers</SelectItem>
                   <SelectItem value='Selected Users'>Selected Users</SelectItem>
                   <SelectItem value='Everyone'>Everyone</SelectItem>
@@ -219,25 +259,28 @@ export function SendNotificationModal({
                 ) : filteredRecipients.length === 0 ? (
                   <p className='text-center py-4 text-xs text-gray-400'>No users found</p>
                 ) : (
-                  filteredRecipients.map((user: any) => (
+                  filteredRecipients.map((recipient: any) => (
                     <button
-                      key={user._id || user.id}
+                      key={recipient.id}
                       type='button'
-                      onClick={() => toggleUser(user._id || user.id)}
+                      onClick={() => toggleUser(recipient.id)}
                       className={cn(
                         "flex items-center justify-between w-full p-2.5 rounded-lg text-left transition-all",
-                        selectedUserIds.includes(user._id || user.id)
+                        selectedUserIds.includes(recipient.id)
                           ? "bg-purple-100 text-[#6B46C1] border-purple-200"
                           : "bg-white border-transparent hover:bg-gray-100"
                       )}
                     >
                       <div className='flex items-center gap-2'>
                         <div className='flex flex-col'>
-                          <span className='text-xs font-bold'>{user.fullName || user.name || "Unknown User"}</span>
-                          <span className='text-[10px] uppercase opacity-60'>{user.role || (user.type || "user")}</span>
+                          <span className='text-xs font-bold'>{recipient.fullName}</span>
+                          <div className='flex items-center gap-2'>
+                            <span className='text-[10px] uppercase opacity-60 font-bold'>{recipient.type}</span>
+                            {recipient.email && <span className='text-[10px] opacity-40'>{recipient.email}</span>}
+                          </div>
                         </div>
                       </div>
-                      {selectedUserIds.includes(user._id || user.id) && <Check size={14} />}
+                      {selectedUserIds.includes(recipient.id) && <Check size={14} />}
                     </button>
                   ))
                 )}

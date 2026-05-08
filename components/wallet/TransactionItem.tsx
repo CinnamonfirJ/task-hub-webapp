@@ -60,13 +60,13 @@ export function TransactionItem({
       ? "Completed"
       : transaction.status
         ? transaction.status.charAt(0).toUpperCase() +
-          transaction.status.slice(1)
+        transaction.status.slice(1)
         : "Completed";
 
   return (
     <div
       onClick={() => onClick(transaction)}
-      className='flex items-center justify-between p-4 md:p-6 bg-white border border-gray-100 rounded-2xl md:rounded-lg hover:shadow-md transition-shadow cursor-pointer mb-3'
+      className='flex items-center justify-between p-4 md:p-6 bg-white border border-gray-100 rounded-2xl md:rounded-lg transition-shadow cursor-pointer mb-3'
     >
       <div className='flex items-center gap-4'>
         <div className={`p-3 md:p-4 rounded-xl ${iconBg}`}>
