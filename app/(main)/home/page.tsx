@@ -319,7 +319,7 @@ export default function HomePage() {
                         By {task.user?.fullName || "Task Hub"}
                       </span>
                     </div>
-                    <h4 className='font-bold text-lg text-gray-900 leading-tight'>
+                    <h4 className='font-bold text-lg text-gray-900 leading-tight line-clamp-1'>
                       {task.title}
                     </h4>
                     <p className='text-gray-400 text-sm line-clamp-2'>

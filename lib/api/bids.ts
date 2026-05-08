@@ -71,7 +71,8 @@ export const bidsApi = {
     // Handle both wrapped in 'data' and root level
     const data = res?.data || res;
     
-    const bids = data?.bids || (Array.isArray(data) ? data : []);
+    const bidsRaw = data?.bids || (Array.isArray(data) ? data : []);
+    const bids = bidsRaw.map((b: any) => (b ? { ...b, _id: b._id || b.id } : b));
 
     return {
       bids: bids,

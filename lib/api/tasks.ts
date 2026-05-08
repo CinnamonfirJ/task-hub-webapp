@@ -55,7 +55,13 @@ export const tasksApi = {
     const res = await apiData<any>(`/api/tasks/${id}`, {
       method: "GET",
     });
-    return res?.data?.task || res?.task || res?.data || res;
+    const task = res?.data?.task || res?.task || res?.data || res;
+    if (task) {
+      if (!task._id && task.id) task._id = task.id;
+      if (task.user && typeof task.user === "object" && !task.user._id && task.user.id) task.user._id = task.user.id;
+      if (task.creator && typeof task.creator === "object" && !task.creator._id && task.creator.id) task.creator._id = task.creator.id;
+    }
+    return task;
   },
 
   createTask: async (data: FormData | any): Promise<Task> => {
@@ -144,11 +150,13 @@ export const tasksApi = {
       { method: "GET" },
     );
 
-    return (
+    const tasks = (
       res?.tasks ||
       (Array.isArray(res?.data) ? res.data : res?.data?.tasks) ||
       (Array.isArray(res) ? res : [])
     );
+
+    return tasks.map((t: any) => (t ? { ...t, _id: t._id || t.id } : t));
   },
 
   getUserDashboardTasks: async (

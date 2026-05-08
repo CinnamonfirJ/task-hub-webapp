@@ -72,11 +72,11 @@ export function TransactionItem({
         <div className={`p-3 md:p-4 rounded-xl ${iconBg}`}>
           <Icon className={`w-5 h-5 md:w-6 md:h-6 ${iconColor}`} />
         </div>
-        <div className='flex flex-col'>
-          <span className='font-bold text-gray-900 text-sm md:text-base'>
+        <div className='flex flex-col min-w-0'>
+          <span className='font-bold text-gray-900 text-sm md:text-base truncate' title={title}>
             {title}
           </span>
-          <span className='text-xs md:text-sm text-gray-500'>{subtitle}</span>
+          <span className='text-xs md:text-sm text-gray-500 truncate' title={subtitle}>{subtitle}</span>
         </div>
       </div>
 

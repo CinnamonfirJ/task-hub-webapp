@@ -63,15 +63,15 @@ export function BidCard({
                 </div>
               )}
             </div>
-            <div className='flex-1 space-y-3'>
+            <div className='flex-1 space-y-3 min-w-0'>
               <div className='space-y-1'>
                 <h4
-                  className='font-bold text-gray-900 text-lg cursor-pointer hover:underline'
+                  className='font-bold text-gray-900 text-lg cursor-pointer hover:underline truncate'
                   onClick={() => setIsModalOpen(true)}
                 >
                   {taskerName}
                 </h4>
-                <p className='text-gray-500 text-sm leading-relaxed line-clamp-2'>
+                <p className='text-gray-500 text-sm leading-relaxed line-clamp-2 break-words'>
                   {bid.message || "No message provided"}
                 </p>
               </div>

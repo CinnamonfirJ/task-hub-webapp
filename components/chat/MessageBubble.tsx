@@ -46,7 +46,7 @@ export function MessageBubble({ message, currentUser }: MessageBubbleProps) {
             : "bg-white border border-gray-100 text-gray-800 rounded-bl-none ",
         )}
       >
-        {message.text && <p className='whitespace-pre-wrap'>{message.text}</p>}
+        {message.text && <p className='whitespace-pre-wrap break-words'>{message.text}</p>}
 
         {message.attachments && message.attachments.length > 0 && (
           <div
