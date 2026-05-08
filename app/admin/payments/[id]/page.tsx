@@ -49,7 +49,11 @@ export default function TransactionDetailsPage({
   } = data;
 
   // Map fields from new or old structure
-  const displayTitle = info?.description || data?.description || "Transaction Details";
+  const description = info?.description || data?.description || "Wallet Funding";
+  const provider = data?.provider || info?.provider;
+  const displayTitle = provider 
+    ? `${description} via ${provider.toUpperCase()}` 
+    : description;
   const displayId = info?.transactionId || data?._id || data?.id || id;
   const displayStatus = (apiStatus || data?.status || "pending").toLowerCase();
   const displayAmount = apiAmount || data?.amount || 0;

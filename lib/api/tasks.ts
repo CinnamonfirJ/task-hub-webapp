@@ -55,7 +55,7 @@ export const tasksApi = {
     const res = await apiData<any>(`/api/tasks/${id}`, {
       method: "GET",
     });
-    return res?.data?.task || res?.task || res;
+    return res?.data?.task || res?.task || res?.data || res;
   },
 
   createTask: async (data: FormData | any): Promise<Task> => {
@@ -64,7 +64,7 @@ export const tasksApi = {
       method: "POST",
       body: isFormData ? data : JSON.stringify(data),
     });
-    return res?.data?.task || res?.task;
+    return res?.data?.task || res?.task || res?.data || res;
   },
 
   updateTask: async (id: string, data: FormData | any): Promise<Task> => {
@@ -73,7 +73,7 @@ export const tasksApi = {
       method: "PUT",
       body: isFormData ? data : JSON.stringify(data),
     });
-    return res?.data?.task || res?.task;
+    return res?.data?.task || res?.task || res?.data || res;
   },
 
   getTaskerFeed: async (

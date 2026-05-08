@@ -22,14 +22,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExportModal } from "@/components/admin/ExportModal";
+import { AdminSearchFilter } from "@/components/admin/AdminSearchFilter";
 import Link from "next/link";
 import {
   usePaymentStats,
@@ -46,13 +41,9 @@ export default function PaymentsManagementPage() {
   const limit = 20;
 
   const typeParam =
-    activeFilter === "All" || activeFilter === "all"
+    activeFilter === "All" || activeFilter === "all" || activeFilter === "Flutterwave" || activeFilter === "Paystack"
       ? undefined
-      : activeFilter === "Credit" || activeFilter === "credit"
-        ? "credit"
-        : activeFilter === "Debit" || activeFilter === "debit"
-          ? "debit"
-          : activeFilter;
+      : activeFilter.toLowerCase();
 
   const { data: paymentStats, isLoading: loadingStats } = usePaymentStats();
   const { data: txData, isLoading: loadingTx, error } = useTransactions({
@@ -71,10 +62,17 @@ export default function PaymentsManagementPage() {
 
   const processedTransactions = transactions.filter((tx: any) => {
     if (activeFilter === "all" || activeFilter === "All") return true;
-    const type = (tx.type || "").toLowerCase();
+    
+    const provider = (tx.provider || "").toLowerCase();
     const filter = activeFilter.toLowerCase();
 
-    // Handle exact match or common aliases
+    // Provider filtering
+    if (filter === "flutterwave" || filter === "paystack") {
+      return provider === filter;
+    }
+
+    // Fallback for Credit/Debit (though removed from UI)
+    const type = (tx.type || "").toLowerCase();
     if (type === filter) return true;
     if (filter === "credit" && (type === "wallet_funding" || type === "escrow_credit" || type === "inflow")) return true;
     if (filter === "debit" && (type === "escrow_debit" || type === "tasker_payout" || type === "outflow")) return true;
@@ -220,34 +218,14 @@ export default function PaymentsManagementPage() {
               </h3>
             </div>
 
-            <div className='flex items-center gap-3'>
-              <div className='relative'>
-                <Search
-                  className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
-                  size={14}
-                />
-                <input
-                  type='text'
-                  placeholder='Search by description...'
-                  className='pl-9 pr-4 py-2 bg-gray-50 border-0 rounded-xl text-xs focus:ring-1 focus:ring-[#6B46C1] w-64 font-medium'
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
-                />
-              </div>
-              <Select
-                value={activeFilter}
-                onValueChange={handleFilterChange}
-              >
-                <SelectTrigger className='w-32 h-9 text-xs font-bold border-0 bg-gray-50 rounded-xl'>
-                  <SelectValue placeholder='All Types' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>All Types</SelectItem>
-                  <SelectItem value='credit'>Credits</SelectItem>
-                  <SelectItem value='debit'>Debits</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <AdminSearchFilter
+              searchPlaceholder="Search name or email..."
+              searchTerm={searchTerm}
+              onSearch={handleSearch}
+              filterOptions={["All", "Flutterwave", "Paystack"]}
+              activeFilter={activeFilter}
+              onFilterChange={handleFilterChange}
+            />
           </div>
         </div>
 
@@ -323,7 +301,8 @@ export default function PaymentsManagementPage() {
                   <td className='px-6 py-4'>
                     <div className='flex flex-col'>
                       <span className='text-xs font-bold text-gray-700 line-clamp-1'>
-                        {tx.description}
+                        {tx.description || "Wallet Funding"}
+                        {/* {tx.provider && ` via ${tx.provider.toUpperCase()}`} */}
                       </span>
                     </div>
                   </td>

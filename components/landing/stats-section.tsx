@@ -6,7 +6,7 @@ export default function StatsSection() {
   const stats = [
     { value: "12.5k+", label: "Task Completed", description: "and growing daily" },
     { value: "300+", label: "Verified Taskers", description: "across all categories" },
-    { value: "5+", label: "Cities Active", description: "Across Nigeria" }
+    { value: "200+", label: "Active Users", description: "Across Nigeria" }
   ];
 
   return (

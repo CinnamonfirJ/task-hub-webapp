@@ -1,34 +1,29 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useFundingVerify, useRefreshBalanceOnSuccess } from "@/hooks/useFundingVerify";
 import { CheckCircle, XCircle, Loader2, Wallet, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { LegalFooter } from "@/components/layout/LegalFooter";
 
-function WalletCallbackContent() {
+function VerifyPaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const refreshBalance = useRefreshBalanceOnSuccess();
 
-  // Get reference from URL params OR from localStorage as fallback
-  const status = searchParams.get("status");
+  // Flutterwave parameters
   const txRef = searchParams.get("tx_ref");
   const transactionId = searchParams.get("transaction_id");
+  const status = searchParams.get("status");
+
+  // Paystack parameters
   const paystackRef = searchParams.get("reference") ?? searchParams.get("trxref");
 
   // Detection logic: Flutterwave uses tx_ref, Paystack uses reference/trxref
   const isFlutterwave = !!txRef;
-  const referenceFromUrl = isFlutterwave ? txRef : paystackRef;
-
-  const referenceFromStorage =
-    typeof window !== "undefined"
-      ? localStorage.getItem("pendingPaymentRef")
-      : null;
-  
-  const reference = referenceFromUrl || referenceFromStorage;
+  const reference = isFlutterwave ? txRef : paystackRef;
   const finalTransactionId = isFlutterwave ? transactionId : undefined;
 
   const { data, isLoading, isError } = useFundingVerify(reference, finalTransactionId);
@@ -37,18 +32,18 @@ function WalletCallbackContent() {
   useEffect(() => {
     if (data?.transactionStatus === "success") {
       refreshBalance();
-      // Clean up localStorage
+      // Clean up localStorage if reference was stored there
       if (typeof window !== "undefined") {
         localStorage.removeItem("pendingPaymentRef");
       }
     }
-  }, [data?.transactionStatus]);
+  }, [data?.transactionStatus, refreshBalance]);
 
   // Handle explicit cancellation from provider
   if (status === "cancelled" || status === "canceled") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
-        <div className="bg-orange-50 p-5 rounded-full border border-orange-100">
+        <div className="bg-orange-50 p-5 rounded-xl border border-orange-100">
           <AlertCircle size={48} className="text-orange-500" />
         </div>
         <div>
@@ -77,13 +72,13 @@ function WalletCallbackContent() {
   if (!reference) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
-        <div className="bg-red-50 p-5 rounded-full">
+        <div className="bg-red-50 p-5 rounded-xl border border-red-100">
           <XCircle size={48} className="text-red-400" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No payment reference found</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Missing Payment Reference</h2>
           <p className="text-gray-500 text-sm">
-            We couldn't find your payment reference. Please try again.
+            We couldn't find a valid payment reference to verify.
           </p>
         </div>
         <Link href="/profile">
@@ -98,12 +93,12 @@ function WalletCallbackContent() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center px-4">
-        <div className="bg-purple-50 p-5 rounded-full">
+        <div className="bg-purple-50 p-5 rounded-xl border border-purple-100">
           <Loader2 size={48} className="text-[#6B46C1] animate-spin" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifying your payment…</h2>
-          <p className="text-gray-400 text-sm">This should only take a moment.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifying Payment…</h2>
+          <p className="text-gray-400 text-sm">We are confirming your transaction with the provider.</p>
         </div>
       </div>
     );
@@ -112,26 +107,26 @@ function WalletCallbackContent() {
   if (isError || !data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
-        <div className="bg-red-50 p-5 rounded-full">
+        <div className="bg-red-50 p-5 rounded-xl border border-red-100">
           <XCircle size={48} className="text-red-400" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Verification failed</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Verification Error</h2>
           <p className="text-gray-500 text-sm">
-            We couldn't verify your payment. If money was deducted, please contact support.
+            Something went wrong while verifying your payment. Please try again or contact support.
           </p>
         </div>
         <div className="flex gap-3">
           <Link href="/profile">
-            <Button variant="outline" className="rounded-2xl px-6 py-5 font-bold border-purple-200 text-[#6B46C1]">
+            <Button variant="outline" className="rounded-2xl px-6 py-5 font-bold border-purple-200 text-[#6B46C1] hover:bg-purple-50">
               Back to Profile
             </Button>
           </Link>
           <Button
-            onClick={() => router.refresh()}
+            onClick={() => window.location.reload()}
             className="bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-2xl px-6 py-5 font-bold"
           >
-            Try Again
+            Retry Verification
           </Button>
         </div>
       </div>
@@ -143,13 +138,13 @@ function WalletCallbackContent() {
   if (transactionStatus === "pending") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center px-4">
-        <div className="bg-yellow-50 p-5 rounded-full">
+        <div className="bg-yellow-50 p-5 rounded-xl border border-yellow-100">
           <Loader2 size={48} className="text-yellow-400 animate-spin" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment is being processed…</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Processing Payment…</h2>
           <p className="text-gray-400 text-sm">
-            We're waiting for confirmation from the provider. This page will update automatically.
+            The provider is still processing your payment. This page will update automatically.
           </p>
         </div>
       </div>
@@ -159,51 +154,49 @@ function WalletCallbackContent() {
   if (transactionStatus === "success") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
-        <div className="bg-green-50 p-5 rounded-full">
+        <div className="bg-green-50 p-5 rounded-xl border border-green-100">
           <CheckCircle size={48} className="text-green-500" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Wallet Funded! 🎉</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful! 🎉</h2>
           <p className="text-gray-500 text-sm">
-            <span className="font-bold text-gray-800">₦{amount?.toLocaleString()}</span> has been added to your wallet.
+            <span className="font-bold text-gray-800">₦{amount?.toLocaleString()}</span> has been credited to your wallet.
           </p>
         </div>
         <Link href="/profile">
           <Button className="bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-2xl px-8 py-5 font-bold flex items-center gap-2">
             <Wallet size={18} />
-            View Wallet
+            Go to Wallet
           </Button>
         </Link>
       </div>
     );
   }
 
-  // Failed
+  // Default Failed state
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
-      <div className="bg-red-50 p-5 rounded-full">
+      <div className="bg-red-50 p-5 rounded-xl border border-red-100">
         <XCircle size={48} className="text-red-400" />
       </div>
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Failed</h2>
         <p className="text-gray-500 text-sm">
-          Your payment was not successful. No money has been deducted.
+          We couldn't confirm your payment. Please check your transaction status with your bank.
         </p>
       </div>
       <Link href="/profile">
         <Button className="bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-2xl px-8 py-5 font-bold">
-          Try Again
+          Back to Wallet
         </Button>
       </Link>
     </div>
   );
 }
 
-import { LegalFooter } from "@/components/layout/LegalFooter";
-
-export default function WalletCallbackPage() {
+export default function VerifyPaymentPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <div className="grow">
         <div className="max-w-lg mx-auto pt-16 pb-20">
           <Suspense
@@ -213,7 +206,7 @@ export default function WalletCallbackPage() {
               </div>
             }
           >
-            <WalletCallbackContent />
+            <VerifyPaymentContent />
           </Suspense>
         </div>
       </div>

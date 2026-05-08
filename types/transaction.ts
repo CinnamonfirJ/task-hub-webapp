@@ -8,7 +8,7 @@ export type PaymentPurpose =
   | "escrow_release"
   | "escrow_refund"
   | "other";
-export type TransactionProvider = "paystack" | "system";
+export type TransactionProvider = "paystack" | "flutterwave" | "system";
 
 export interface Transaction {
   _id: string;

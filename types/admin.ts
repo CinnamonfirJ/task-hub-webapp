@@ -915,6 +915,9 @@ export interface TransactionListItem {
     profilePicture?: string;
   };
   description: string;
+  provider: string;
+  paymentPurpose: string;
+  currency: string;
   type: "credit" | "debit" | string;
   amount: number;
   date: string;

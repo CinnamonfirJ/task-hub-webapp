@@ -14,15 +14,23 @@ function WalletCallbackContent() {
   const refreshBalance = useRefreshBalanceOnSuccess();
 
   const status = searchParams.get("status");
-  const referenceFromUrl = searchParams.get("tx_ref") ?? searchParams.get("reference") ?? searchParams.get("trxref");
+  const txRef = searchParams.get("tx_ref");
+  const transactionId = searchParams.get("transaction_id");
+  const paystackRef = searchParams.get("reference") ?? searchParams.get("trxref");
+
+  // Detection logic: Flutterwave uses tx_ref, Paystack uses reference/trxref
+  const isFlutterwave = !!txRef;
+  const referenceFromUrl = isFlutterwave ? txRef : paystackRef;
 
   const referenceFromStorage =
     typeof window !== "undefined"
       ? localStorage.getItem("pendingPaymentRef")
       : null;
+  
   const reference = referenceFromUrl || referenceFromStorage;
+  const finalTransactionId = isFlutterwave ? transactionId : undefined;
 
-  const { data, isLoading, isError } = useFundingVerify(reference);
+  const { data, isLoading, isError } = useFundingVerify(reference, finalTransactionId);
 
   // Once we get a successful payment, refresh the user's balance
   useEffect(() => {
