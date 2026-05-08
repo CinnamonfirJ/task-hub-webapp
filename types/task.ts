@@ -12,12 +12,12 @@ export interface Category {
   parentCategory?: any;
   count?: number;
   createdBy?:
-    | string
-    | {
-        _id: string;
-        fullName: string;
-        emailAddress: string;
-      };
+  | string
+  | {
+    _id: string;
+    fullName: string;
+    emailAddress: string;
+  };
   createdAt: string;
   updatedAt?: string;
 }
@@ -31,12 +31,12 @@ export interface Task {
   categories: Category[] | string[]; // Populated or IDs
   budget: number;
   location?:
-    | {
-        latitude: number;
-        longitude: number;
-        address?: string;
-      }
-    | string;
+  | {
+    latitude: number;
+    longitude: number;
+    address?: string;
+  }
+  | string;
   isBiddingEnabled?: boolean;
   status: "open" | "assigned" | "in-progress" | "completed" | "cancelled";
   creator: User | string;
@@ -64,6 +64,12 @@ export interface Task {
     priceEditable: boolean;
     fixedPrice: number | null;
   };
+  ratedAt?: string;
+  isRated?: boolean;
+
+  rating: number;
+  reviewText?: string;
+
 }
 
 export interface TaskFilters {

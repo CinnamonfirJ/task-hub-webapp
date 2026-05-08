@@ -45,27 +45,27 @@ export default function TaskDetailsPage() {
     if (!t) return null;
     // Check various common owner ID fields in case of different API shapes
     const ownerObj = t.user || t.creator || t.userId || t.ownerId || t.owner;
-    
+
     if (ownerObj && typeof ownerObj === "object") {
       return ownerObj._id || ownerObj.id;
     }
-    
+
     if (typeof ownerObj === "string") return ownerObj;
-    
+
     // Fallback checks for nested ID fields if ownerObj wasn't found
     if (t.user?._id || t.user?.id) return t.user?._id || t.user?.id;
     if (t.creator?._id || t.creator?.id) return t.creator?._id || t.creator?.id;
     if (t.userId) return t.userId;
     if (t.ownerId) return t.ownerId;
-    
+
     return null;
   };
 
   const currentUserId = user?._id || user?.id;
   // If the task object comes back with a 'bids' array, it's a strong signal the user is the owner
   // since the backend typically only includes full bid details for the task poster.
-  const isOwner = !!(currentUserId && currentUserId === getTaskOwnerId(task)) || 
-                  (!!(task as any)?.bids && !isTasker);
+  const isOwner = !!(currentUserId && currentUserId === getTaskOwnerId(task)) ||
+    (!!(task as any)?.bids && !isTasker);
 
   const { balance } = useWalletBalance();
 
@@ -493,11 +493,11 @@ export default function TaskDetailsPage() {
                       Task Completed
                     </h3>
                     <p className='text-blue-700 text-sm'>
-                      This task has been verified and completed.
+                      This task has been verified and completed. {(task.isRated || task.ratedAt) && <span className="text-blue-600/70 ml-1">(Rated)</span>}
                     </p>
                   </div>
 
-                  {!(task as any).isRated && (
+                  {!(task.isRated || task.ratedAt) && (
                     <Button
                       onClick={() => setIsRatingModalOpen(true)}
                       className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl font-bold px-6 h-11  '
@@ -507,7 +507,7 @@ export default function TaskDetailsPage() {
                   )}
                 </div>
 
-                {(task as any).isRated && (
+                {(task.isRated || task.ratedAt) && (
                   <div className='pt-2 border-t border-blue-100/50'>
                     <div className='flex items-center gap-1.5'>
                       <div className='flex items-center'>
@@ -517,18 +517,18 @@ export default function TaskDetailsPage() {
                             size={14}
                             className={cn(
                               "fill-current",
-                              s <= ((task as any).rating?.rating || 0) ? "text-amber-400" : "text-gray-300"
+                              s <= (task.rating || 0) ? "text-amber-400" : "text-gray-300"
                             )}
                           />
                         ))}
                       </div>
                       <span className='text-xs font-bold text-blue-800'>
-                        You rated this tasker {((task as any).rating?.rating || 0)}/5
+                        You rated this tasker {(task.rating || 0)}/5
                       </span>
                     </div>
-                    {((task as any).rating?.reviewText) && (
-                      <p className='text-xs text-blue-600 mt-2 italic'>
-                        "{((task as any).rating.reviewText)}"
+                    {(task?.reviewText) && (
+                      <p className='text-xs text-blue-600 mt-2 italic break-words'>
+                        "{task?.reviewText}"
                       </p>
                     )}
                   </div>
