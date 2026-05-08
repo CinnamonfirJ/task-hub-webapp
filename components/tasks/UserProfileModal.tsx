@@ -71,7 +71,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
           <div className='flex justify-between items-start'>
             <div className='space-y-1.5'>
               <div className='flex items-center gap-2.5'>
-                <h2 className='text-2xl font-black text-gray-900 tracking-tight'>{user.fullName}</h2>
+                <h2 className='text-2xl font-black text-gray-900 tracking-tight truncate' title={user.fullName}>{user.fullName}</h2>
                 <div className='bg-blue-50 p-1 rounded-full'>
                   <ShieldCheck size={20} className='text-blue-500 fill-blue-50' />
                 </div>
@@ -121,7 +121,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
           {user?.bio && (
             <div className='bg-gray-50/50 p-4 rounded-2xl border border-gray-100 text-[13px] text-gray-600 leading-relaxed'>
               <p className='font-bold text-gray-900 text-xs uppercase tracking-widest mb-1.5'>Bio</p>
-              <p>{user.bio}</p>
+              <p className="break-words">{user.bio}</p>
             </div>
           )}
 

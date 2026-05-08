@@ -288,21 +288,20 @@ export default function PaymentsManagementPage() {
                           tx.user?.fullName?.[0] || "U"
                         )}
                       </div>
-                      <div className='flex flex-col'>
-                        <span className='font-bold text-gray-900 text-xs'>
+                      <div className='flex flex-col min-w-0'>
+                        <span className='font-bold text-gray-900 text-xs truncate max-w-[120px] md:max-w-[180px]' title={tx.user?.fullName}>
                           {tx.user?.fullName || "System"}
                         </span>
-                        <span className='text-[10px] text-gray-400 font-medium'>
+                        <span className='text-[10px] text-gray-400 font-medium truncate max-w-[120px] md:max-w-[180px]' title={tx.user?.emailAddress}>
                           {tx.user?.emailAddress}
                         </span>
                       </div>
                     </div>
                   </td>
-                  <td className='px-6 py-4'>
-                    <div className='flex flex-col'>
-                      <span className='text-xs font-bold text-gray-700 line-clamp-1'>
+                  <td className='px-6 py-4 min-w-0'>
+                    <div className='flex flex-col min-w-0'>
+                      <span className='text-xs font-bold text-gray-700 truncate max-w-[150px] md:max-w-[300px]' title={tx.description || "Wallet Funding"}>
                         {tx.description || "Wallet Funding"}
-                        {/* {tx.provider && ` via ${tx.provider.toUpperCase()}`} */}
                       </span>
                     </div>
                   </td>

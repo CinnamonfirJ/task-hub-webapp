@@ -110,7 +110,7 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
                         )}
                       </div>
                       <div>
-                        <h5 className='text-sm font-bold text-gray-900'>{review.reviewer?.name || "Anonymous"}</h5>
+                        <h5 className='text-sm font-bold text-gray-900 truncate max-w-[150px]' title={review.reviewer?.name}>{review.reviewer?.name || "Anonymous"}</h5>
                         <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>
                           {review.task?.category || "Task"} • {review.createdAt ? format(new Date(review.createdAt), "MMM d, yyyy") : ""}
                         </p>
@@ -123,12 +123,12 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
                   </div>
 
                   {review.task?.title && (
-                    <p className='text-xs font-bold text-[#6B46C1] bg-purple-50 px-2 py-1 rounded-md w-fit mb-3'>
+                    <p className='text-xs font-bold text-[#6B46C1] bg-purple-50 px-2 py-1 rounded-md w-fit mb-3 truncate max-w-full' title={review.task.title}>
                       Task: {review.task.title}
                     </p>
                   )}
 
-                  <p className='text-sm text-gray-600 leading-relaxed italic'>
+                  <p className='text-sm text-gray-600 leading-relaxed italic break-words'>
                     "{review.reviewText || "No review text provided."}"
                   </p>
                 </div>

@@ -236,19 +236,21 @@ export const authApi = {
             );
           }
 
+          // Normalize ID for all profile types
+          if (!profileData._id && profileData.id) {
+            profileData._id = profileData.id;
+          }
+
           // Sync userType based on where we found the profile
           if (endpoint === "/api/admin/me") {
             if (typeof window !== "undefined")
               localStorage.setItem("userType", "admin");
-            // Normalize fields for consistency across the app
-            if (!profileData._id && profileData.id)
-              profileData._id = profileData.id;
+            
             if (!profileData.fullName && profileData.name)
               profileData.fullName = profileData.name;
             if (!profileData.emailAddress && profileData.email)
               profileData.emailAddress = profileData.email;
-            // Admin profiles usually already have a specific role (operations, super_admin, etc.)
-            // We only default to 'admin' if it's missing or generic
+            
             if (!profileData.role || profileData.role === "admin") {
               profileData.role = "admin";
             }
@@ -257,7 +259,6 @@ export const authApi = {
             if (typeof window !== "undefined")
               localStorage.setItem("userType", "tasker");
 
-            // Normalize fullName for taskers/users who might only have firstName/lastName
             if (
               !profileData.fullName &&
               (profileData.firstName || profileData.lastName)

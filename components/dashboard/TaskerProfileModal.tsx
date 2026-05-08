@@ -84,8 +84,8 @@ export function TaskerProfileModal({
             )}
           </div>
           <div className='text-center space-y-1'>
-            <h2 className='text-xl font-bold text-gray-900'>{taskerName}</h2>
-            <p className='text-gray-500 text-sm font-medium'>{categories}</p>
+            <h2 className='text-xl font-bold text-gray-900 truncate px-4' title={taskerName}>{taskerName}</h2>
+            <p className='text-gray-500 text-sm font-medium truncate px-6' title={categories}>{categories}</p>
           </div>
         </div>
 
@@ -95,7 +95,7 @@ export function TaskerProfileModal({
             <h3 className='text-sm font-bold text-gray-700 tracking-wider'>
               BIO
             </h3>
-            <p className='text-gray-600 leading-relaxed text-[15px]'>{bio}</p>
+            <p className='text-gray-600 leading-relaxed text-[15px] break-words'>{bio}</p>
           </section>
 
           {/* WEBSITE Section */}
@@ -110,7 +110,7 @@ export function TaskerProfileModal({
                 rel="noopener noreferrer"
                 className='inline-flex items-center gap-2 text-[#6B46C1] hover:text-[#553C9A] font-medium hover:underline text-[15px]'
               >
-                {websiteLink}
+                <span className="truncate max-w-[280px] sm:max-w-md">{websiteLink}</span>
               </a>
             </section>
           )}

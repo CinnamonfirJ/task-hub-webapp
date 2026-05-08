@@ -43,15 +43,29 @@ export default function TaskDetailsPage() {
 
   const getTaskOwnerId = (t: any) => {
     if (!t) return null;
-    if (t.user && typeof t.user === "object") return t.user._id || t.user.id;
-    if (typeof t.user === "string") return t.user;
-    if (t.creator && typeof t.creator === "object") return t.creator._id || t.creator.id;
-    if (typeof t.creator === "string") return t.creator;
+    // Check various common owner ID fields in case of different API shapes
+    const ownerObj = t.user || t.creator || t.userId || t.ownerId || t.owner;
+    
+    if (ownerObj && typeof ownerObj === "object") {
+      return ownerObj._id || ownerObj.id;
+    }
+    
+    if (typeof ownerObj === "string") return ownerObj;
+    
+    // Fallback checks for nested ID fields if ownerObj wasn't found
+    if (t.user?._id || t.user?.id) return t.user?._id || t.user?.id;
+    if (t.creator?._id || t.creator?.id) return t.creator?._id || t.creator?.id;
+    if (t.userId) return t.userId;
+    if (t.ownerId) return t.ownerId;
+    
     return null;
   };
 
   const currentUserId = user?._id || user?.id;
-  const isOwner = currentUserId && currentUserId === getTaskOwnerId(task);
+  // If the task object comes back with a 'bids' array, it's a strong signal the user is the owner
+  // since the backend typically only includes full bid details for the task poster.
+  const isOwner = !!(currentUserId && currentUserId === getTaskOwnerId(task)) || 
+                  (!!(task as any)?.bids && !isTasker);
 
   const { balance } = useWalletBalance();
 
@@ -63,7 +77,7 @@ export default function TaskDetailsPage() {
   // Fetch current tasker's bids to check if they've applied
   const { data: myBids } = useMyBids(undefined, { enabled: !!isTasker });
 
-  const bids = bidsData?.bids || [];
+  const bids = bidsData?.bids || (task as any)?.bids || [];
   const acceptedBid = bids.find((b: any) => b.status === "accepted");
   const assignedTasker = acceptedBid ? (typeof acceptedBid.tasker === "object" ? acceptedBid.tasker : null) : null;
   const taskerName = assignedTasker?.fullName ||
@@ -196,7 +210,7 @@ export default function TaskDetailsPage() {
 
   const handleConfirmAccept = () => {
     const bidId = confirmAccept.bidId;
-    const bid = bids.find((b) => b._id === bidId);
+    const bid = bids.find((b: any) => b._id === bidId);
 
     if (bid && balance < bid.amount) {
       toast.error(
@@ -226,7 +240,7 @@ export default function TaskDetailsPage() {
   };
 
   const handleMessageTasker = (bidId: string) => {
-    const bid = bids.find((b) => b._id === bidId);
+    const bid = bids.find((b: any) => b._id === bidId);
     if (bid) {
       const bidderId =
         typeof bid.tasker === "object" ? bid.tasker?._id : bid.tasker;
@@ -348,7 +362,7 @@ export default function TaskDetailsPage() {
               <h2 className='font-bold text-gray-900 text-xl md:text-2xl'>
                 Task Title
               </h2>
-              <p className='text-gray-900 text-lg md:text-xl wrap-break-words'>
+              <p className='text-gray-900 text-lg md:text-xl break-words'>
                 {task.title}
               </p>
             </div>
@@ -380,7 +394,7 @@ export default function TaskDetailsPage() {
               <h3 className='font-bold text-gray-900 text-lg'>
                 Task Description
               </h3>
-              <p className='text-gray-600 leading-relaxed whitespace-pre-wrap'>
+              <p className='text-gray-600 leading-relaxed whitespace-pre-wrap break-words'>
                 {task.description}
               </p>
             </div>
@@ -419,7 +433,7 @@ export default function TaskDetailsPage() {
                 </div>
               ) : (
                 <div className='space-y-4'>
-                  {bids.map((bid) => (
+                  {bids.map((bid: any) => (
                     <BidCard
                       key={bid._id}
                       bid={bid}
@@ -534,7 +548,7 @@ export default function TaskDetailsPage() {
                   <h3 className='text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider'>
                     Task Title
                   </h3>
-                  <h2 className='font-bold text-gray-900 text-xl md:text-2xl wrap-break-words'>
+                  <h2 className='font-bold text-gray-900 text-xl md:text-2xl break-words'>
                     {task.title}
                   </h2>
                 </div>
@@ -555,8 +569,8 @@ export default function TaskDetailsPage() {
                   )}
                 </div>
                 <div className='flex flex-col'>
-                  <span className='text-gray-400 text-sm font-semibold group-hover:text-[#6B46C1] transition-colors'>
-                    Posted by <span className="text-gray-700 font-bold underline decoration-gray-200 decoration-2 underline-offset-4 group-hover:decoration-[#6B46C1]">{posterName}</span>
+                  <span className='text-gray-400 text-sm font-semibold group-hover:text-[#6B46C1] transition-colors truncate'>
+                    Posted by <span className="text-gray-700 font-bold underline decoration-gray-200 decoration-2 underline-offset-4 group-hover:decoration-[#6B46C1] truncate">{posterName}</span>
                   </span>
 
                   {/* Assignment Status Message */}
@@ -590,7 +604,7 @@ export default function TaskDetailsPage() {
               <h3 className='font-bold text-gray-900 text-lg md:text-xl'>
                 {task.title}
               </h3>
-              <p className='text-gray-600 leading-relaxed whitespace-pre-wrap text-sm md:text-base'>
+              <p className='text-gray-600 leading-relaxed whitespace-pre-wrap text-sm md:text-base break-words'>
                 {task.description}
               </p>
             </div>

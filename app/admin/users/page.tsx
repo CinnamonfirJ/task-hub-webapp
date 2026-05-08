@@ -290,11 +290,11 @@ export default function UsersManagementPage() {
                             <UserCircle2 size={24} />
                           )}
                         </div>
-                        <div>
-                          <div className='font-bold text-gray-900'>
+                        <div className="min-w-0 flex-1">
+                          <div className='font-bold text-gray-900 truncate max-w-[140px] md:max-w-[200px]' title={user.fullName}>
                             {user.fullName}
                           </div>
-                          <div className='text-xs text-gray-500'>
+                          <div className='text-xs text-gray-500 truncate max-w-[140px] md:max-w-[200px]' title={user.emailAddress}>
                             {user.emailAddress}
                           </div>
                         </div>
