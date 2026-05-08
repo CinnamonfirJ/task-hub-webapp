@@ -43,7 +43,7 @@ export function TaskerEarnings() {
         </p>
       </div>
 
-      <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+      <div className='grid grid-cols-2 gap-4'>
         <StatCard
           title='Wallet Balance'
           value={`₦${walletBalance.toLocaleString()}`}
@@ -54,7 +54,7 @@ export function TaskerEarnings() {
           value={`₦${withdrawable.toLocaleString()}`}
           loading={isBalanceLoading}
         />
-        <StatCard
+        {/* <StatCard
           title='Pending Withdrawal'
           value={`₦${pendingAmount.toLocaleString()}`}
           loading={isBalanceLoading}
@@ -63,7 +63,7 @@ export function TaskerEarnings() {
           title='Pending Requests'
           value={pendingCount.toString()}
           loading={isBalanceLoading}
-        />
+        /> */}
       </div>
 
       <div className='mt-8 pt-4'>
