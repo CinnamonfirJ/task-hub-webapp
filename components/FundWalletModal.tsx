@@ -114,7 +114,7 @@ export function FundWalletModal({
                 value={amount}
                 min={100}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="e.g. 5000"
+                placeholder="e.g. 500"
                 className="w-full px-6 py-4 bg-purple-50/50 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 border-none font-semibold text-lg"
               />
               <p className="text-xs text-gray-400 px-1">Minimum: ₦100</p>

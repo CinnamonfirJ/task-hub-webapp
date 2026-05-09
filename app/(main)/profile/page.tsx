@@ -6,7 +6,7 @@ import { ProfileCompletionStep1 } from "@/components/profile/ProfileCompletionSt
 import { ProfileCompletionStep2 } from "@/components/profile/ProfileCompletionStep2";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -317,7 +317,7 @@ export default function ProfilePage() {
                 />
               }
               label='Task completed'
-              value='0'
+              value={(user?.tasksCompleted ?? 0).toLocaleString()}
               color='bg-purple-50'
             />
             <StatCard
@@ -328,7 +328,7 @@ export default function ProfilePage() {
                 />
               }
               label='Ratings'
-              value='0'
+              value={(user?.averageRating ?? 0).toLocaleString()}
               color='bg-orange-50'
             />
             <StatCard
@@ -339,7 +339,7 @@ export default function ProfilePage() {
                 />
               }
               label='Wallet Balance'
-              value={`#${(user?.wallet ?? 0).toLocaleString()}`}
+              value={`${formatCurrency(user?.wallet ?? 0).toLocaleString()}`}
               color='bg-green-50'
             />
             <StatCard
@@ -350,7 +350,7 @@ export default function ProfilePage() {
                 />
               }
               label='Success Rate'
-              value='0%'
+              value={`${(user?.successRate ?? 0)}%`}
               color='bg-blue-50'
             />
           </div>

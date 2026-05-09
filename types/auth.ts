@@ -1,7 +1,7 @@
 export type UserType = "user" | "tasker" | "admin";
 
 export interface User {
-  _id: string; 
+  _id: string;
   id?: string;
   fullName?: string;
   firstName?: string;
@@ -20,7 +20,7 @@ export interface User {
   university?: any;
   wallet?: number;
   notificationId?: string | null;
-  
+
   // Profile Fields
   address?: string;
   country?: string;
@@ -39,6 +39,10 @@ export interface User {
   isKYCVerified?: boolean;
   websiteLink?: string;
   previousWork?: { url: string; publicId: string }[];
+  successRate?: number;
+  totalAssigned?: number;
+  tasksCompleted?: number;
+  averageRating?: number;
 }
 
 // API returns accessToken (not "token") and user/tasker depending on role

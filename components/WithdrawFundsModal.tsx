@@ -127,8 +127,8 @@ export function WithdrawFundsModal({
 
     const availableAmount = walletData?.availableToWithdraw ?? walletData?.withdrawableAmount ?? 0;
 
-    if (!numAmount || numAmount < 5000) {
-      toast.error("Minimum withdrawal is ₦5,000");
+    if (!numAmount || numAmount < 500) {
+      toast.error("Minimum withdrawal is ₦500");
       return;
     }
 
@@ -137,7 +137,7 @@ export function WithdrawFundsModal({
       return;
     }
 
-    handleConfirmWithdrawal("");
+    setStep("pin");
   };
 
   const handleConfirmWithdrawal = (transactionPin: string = "") => {
@@ -256,7 +256,7 @@ export function WithdrawFundsModal({
                 Back
               </Button>
               <Button
-                onClick={handleConfirmWithdrawal}
+                onClick={() => handleConfirmWithdrawal(pin.join(""))}
                 disabled={pin.join("").length < 4 || isWithdrawing}
                 className='flex-1 py-6 rounded-md bg-[#6B46C1] hover:bg-[#553C9A] text-white font-medium text-base transition-all'
               >
@@ -329,7 +329,7 @@ export function WithdrawFundsModal({
                   Withdrawal Information
                 </p>
                 <p className='text-[#3A9EDA] text-xs md:text-sm pt-1'>
-                  Minimum withdrawal: {method === "stellar" ? "5 XLM" : "₦5,000"}. Processed within 24hrs.
+                  Minimum withdrawal: {method === "stellar" ? "5 XLM" : "₦500"}. Processed within 24hrs.
                 </p>
               </div>
             </div>
@@ -488,7 +488,7 @@ export function WithdrawFundsModal({
                 {/* Amount input */}
                 <div className='space-y-2'>
                   <p className='text-gray-400 text-[10px] font-bold tracking-widest px-1 uppercase'>
-                    Amount to withdraw (Min ₦5,000)
+                    Amount to withdraw (Min ₦500)
                   </p>
                   <div className='relative'>
                     <span className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold'>
