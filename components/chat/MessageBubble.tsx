@@ -16,13 +16,22 @@ import { Button } from "@/components/ui/button";
 interface MessageBubbleProps {
   message: Message;
   currentUser: User | null;
+  partner?: Partial<User> | null;
 }
 
-export function MessageBubble({ message, currentUser }: MessageBubbleProps) {
+export function MessageBubble({ message, currentUser, partner }: MessageBubbleProps) {
   const isMine =
     message.senderType === currentUser?.role ||
     (message.senderType === "admin" && currentUser?.role?.includes("admin")) ||
     (message.senderType === "admin" && ["super_admin", "operations", "trust_safety", "finance"].includes(currentUser?.role || ""));
+
+  const sender = isMine ? currentUser : partner;
+  const profilePicture = (sender as any)?.profilePicture;
+  const initials =
+    (sender as any)?.fullName?.[0] ||
+    (sender as any)?.firstName?.[0] ||
+    (sender as any)?.name?.[0] ||
+    "U";
 
   const formatFileSize = (bytes?: number) => {
     if (!bytes) return "";
@@ -34,18 +43,29 @@ export function MessageBubble({ message, currentUser }: MessageBubbleProps) {
   return (
     <div
       className={cn(
-        "flex flex-col max-w-[85%] sm:max-w-[75%] space-y-1 mb-4",
-        isMine ? "ml-auto items-end" : "mr-auto items-start",
+        "flex gap-2 mb-4 w-full",
+        isMine ? "flex-row-reverse" : "flex-row"
       )}
     >
-      <div
-        className={cn(
-          "px-4 py-2.5 rounded-2xl text-sm leading-relaxed",
-          isMine
-            ? "bg-[#6B46C1] text-white rounded-br-none "
-            : "bg-white border border-gray-100 text-gray-800 rounded-bl-none ",
-        )}
-      >
+      <div className='flex flex-col space-y-1 max-w-[85%] sm:max-w-[75%]'>
+        <div className={cn("flex flex-col", isMine ? "items-end" : "items-start")}>
+          {/* Avatar for the sender */}
+          <div className={cn("flex items-end gap-2", isMine ? "flex-row-reverse" : "flex-row")}>
+            <div className='w-8 h-8 rounded-full overflow-hidden shrink-0 border border-gray-100 bg-[#6B46C1] flex items-center justify-center text-white text-[10px] font-bold'>
+              {profilePicture ? (
+                <img src={profilePicture} alt='Avatar' className='w-full h-full object-cover' />
+              ) : (
+                initials
+              )}
+            </div>
+            <div
+              className={cn(
+                "px-4 py-2.5 rounded-2xl text-sm leading-relaxed",
+                isMine
+                  ? "bg-[#6B46C1] text-white rounded-br-none "
+                  : "bg-white border border-gray-100 text-gray-800 rounded-bl-none ",
+              )}
+            >
         {message.text && <p className='whitespace-pre-wrap break-words'>{message.text}</p>}
 
         {message.attachments && message.attachments.length > 0 && (
@@ -163,10 +183,13 @@ export function MessageBubble({ message, currentUser }: MessageBubbleProps) {
             ))}
           </div>
         )}
+            </div>
+          </div>
+          <span className='text-[10px] text-gray-400 px-10 font-medium uppercase mt-1'>
+            {format(new Date(message.createdAt), "HH:mm")}
+          </span>
+        </div>
       </div>
-      <span className='text-[10px] text-gray-400 px-1 font-medium uppercase'>
-        {format(new Date(message.createdAt), "HH:mm")}
-      </span>
     </div>
   );
 }

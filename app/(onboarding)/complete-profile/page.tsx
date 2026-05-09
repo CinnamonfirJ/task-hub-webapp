@@ -24,6 +24,7 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { NIGERIAN_STATES } from "@/utils/constants/nigeria-states";
+import { ImageCropperModal } from "@/components/ui/ImageCropperModal";
 
 export default function CompleteProfilePage() {
   const {
@@ -44,6 +45,8 @@ export default function CompleteProfilePage() {
   const [selectedMethod, setSelectedMethod] = useState<
     "document" | "nin" | null
   >(null);
+  const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [isCropOpen, setIsCropOpen] = useState(false);
   const router = useRouter();
 
   // Redirect if already complete
@@ -77,10 +80,15 @@ export default function CompleteProfilePage() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        handlePictureUpload(reader.result as string);
+        setPendingImage(reader.result as string);
+        setIsCropOpen(true);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleCropComplete = (croppedImage: string) => {
+    handlePictureUpload(croppedImage);
   };
 
   return (
@@ -516,6 +524,14 @@ export default function CompleteProfilePage() {
             </ul>
           </div>
         </div>
+      )}
+      {pendingImage && (
+        <ImageCropperModal
+          image={pendingImage}
+          isOpen={isCropOpen}
+          onClose={() => setIsCropOpen(false)}
+          onCropComplete={handleCropComplete}
+        />
       )}
     </div>
   );
