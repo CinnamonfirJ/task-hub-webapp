@@ -137,7 +137,7 @@ export function WithdrawFundsModal({
       return;
     }
 
-    setStep("pin");
+    handleConfirmWithdrawal("");
   };
 
   const handleConfirmWithdrawal = (transactionPin: string = "") => {
