@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { NINManualSubmission } from "@/components/NINManualSubmission";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { VerificationPendingCard } from "@/components/VerificationPendingCard";
 
 export default function VerificationPage() {
   const router = useRouter();
@@ -38,6 +39,8 @@ export default function VerificationPage() {
     user?.verifyIdentity || 
     user?.isVerified || 
     false;
+
+  const isPending = data?.isPending || false;
 
   return (
     <div className='p-4 md:p-8 max-w-2xl mx-auto space-y-10 pb-20'>
@@ -89,33 +92,37 @@ export default function VerificationPage() {
 
             {!isVerified && (
               <div className='w-full pt-4'>
-                <AnimatePresence mode='wait'>
-                  {verificationMode === "sdk" ? (
-                    <motion.div
-                      key='sdk-view'
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className='space-y-4'
-                    >
-                      <VerifyIdentityButton
-                        userId={user?._id}
-                        className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold rounded-2xl  '
-                      />
-                      <Button
-                        variant='outline'
-                        onClick={() => setVerificationMode("manual")}
-                        className='w-full border-[#6B46C1] text-[#6B46C1] hover:bg-purple-50 py-8 text-lg font-bold rounded-2xl'
+                {isPending ? (
+                  <VerificationPendingCard />
+                ) : (
+                  <AnimatePresence mode='wait'>
+                    {verificationMode === "sdk" ? (
+                      <motion.div
+                        key='sdk-view'
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className='space-y-4'
                       >
-                        Enter 11-digit NIN
-                      </Button>
-                    </motion.div>
-                  ) : (
-                    <NINManualSubmission
-                      onCancel={() => setVerificationMode("sdk")}
-                    />
-                  )}
-                </AnimatePresence>
+                        <VerifyIdentityButton
+                          userId={user?._id}
+                          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold rounded-2xl  '
+                        />
+                        <Button
+                          variant='outline'
+                          onClick={() => setVerificationMode("manual")}
+                          className='w-full border-[#6B46C1] text-[#6B46C1] hover:bg-purple-50 py-8 text-lg font-bold rounded-2xl'
+                        >
+                          Enter 11-digit NIN
+                        </Button>
+                      </motion.div>
+                    ) : (
+                      <NINManualSubmission
+                        onCancel={() => setVerificationMode("sdk")}
+                      />
+                    )}
+                  </AnimatePresence>
+                )}
               </div>
             )}
 

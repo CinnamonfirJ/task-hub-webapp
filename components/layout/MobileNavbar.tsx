@@ -66,7 +66,7 @@ export function MobileNavbar() {
   const userInitial = user?.fullName ? user.fullName[0].toUpperCase() : "U";
 
   return (
-    <div className='lg:hidden'>
+    <div className='lg:hidden z-10 md:z-10 sm:z-9'>
       <AnimatePresence>
         {isOpen && (
           <>

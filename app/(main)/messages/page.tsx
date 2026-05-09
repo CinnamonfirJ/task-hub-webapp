@@ -92,6 +92,8 @@ export default function MessagesPage() {
     router.push(`/messages/${conv._id}`);
   };
 
+  const isVerified = user?.isVerified;
+
   return (
     <Suspense fallback={<Loading />}>
       <div className='p-4 md:p-8'>
@@ -115,8 +117,12 @@ export default function MessagesPage() {
                   ? `TASKER: ${displayName}`
                   : `CLIENT: ${displayName}`}
               </h2>
-              <p className='text-[8px] md:text-[10px] font-black text-purple-600 uppercase tracking-widest'>
-                ACCOUNT VERIFIED
+              <p
+                className={`text-[8px] md:text-[10px] font-black uppercase tracking-widest ${
+                  isVerified ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                {isVerified ? "ACCOUNT VERIFIED" : "ACCOUNT NOT VERIFIED"}
               </p>
             </div>
           </div>

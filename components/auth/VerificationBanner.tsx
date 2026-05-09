@@ -58,7 +58,7 @@ export function VerificationBanner() {
   const isEmailUnverified = !user.isEmailVerified;
 
   return (
-    <div className='sticky top-0 lg:top-0 z-50 bg-amber-50 border-b border-amber-200 px-4 py-3 '>
+    <div className='sticky top-0 lg:top-0 lg:z-50 sm:z-10 bg-amber-50 border-b border-amber-200 px-4 py-3 '>
       <div className='max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3'>
         <div className='flex items-center gap-3 text-amber-800'>
           <AlertCircle size={20} className='shrink-0' />

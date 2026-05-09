@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useRegister } from "@/hooks/useRegister";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +11,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Lock, Phone, User, AlertTriangle, EyeOff, Eye } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
-import { useState } from "react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { NIGERIAN_STATES } from "@/utils/constants/nigeria-states";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
@@ -22,10 +23,27 @@ import {
 } from "@/components/ui/select";
 
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="w-full h-screen flex items-center justify-center">Loading...</div>}>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+
+function RegisterForm() {
+  const searchParams = useSearchParams();
+  const typeParam = searchParams.get("type");
+  
   const { form, onSubmit, currentRole, setRole, isRegistering, registerError } = useRegister();
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeParam === "user" || typeParam === "tasker") {
+      setSelectedRole(typeParam);
+    }
+  }, [typeParam]);
 
   const handleProceed = () => {
     if (selectedRole) {
