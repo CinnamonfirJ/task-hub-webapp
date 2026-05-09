@@ -110,7 +110,7 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
                         )}
                       </div>
                       <div>
-                        <h5 className='text-sm font-bold text-gray-900 truncate max-w-[150px]' title={review.reviewer?.name}>{review.reviewer?.name || "Anonymous"}</h5>
+                        <h5 className='text-sm font-bold text-gray-900 truncate max-w-[150px]' title={review.reviewer?.name}>{review.reviewer?.fullName || "Anonymous"}</h5>
                         <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>
                           {review.task?.category || "Task"} • {review.createdAt ? format(new Date(review.createdAt), "MMM d, yyyy") : ""}
                         </p>

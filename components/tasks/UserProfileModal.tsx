@@ -12,7 +12,7 @@ interface UserProfileModalProps {
   user: {
     fullName?: string;
     profilePicture?: string;
-    createdAt?: string;
+    joinedAt?: string;
     location?: {
       residentState?: string;
       country?: string;
@@ -40,10 +40,23 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
     .substring(0, 2) || "U";
 
   const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "Jan 2024";
+    if (!dateStr) return "";
+
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+    // validate date
+    if (Number.isNaN(date.getTime())) {
+      console.error("Invalid date:", dateStr);
+      return "";
+    }
+
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      year: "numeric",
+    }).format(date);
   };
+
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -95,7 +108,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
                 <Briefcase size={16} />
               </div>
               <p className='text-xs font-bold text-gray-400 uppercase tracking-widest mb-1'>Total</p>
-              <p className='text-xl font-black text-gray-900'>{user?.totalTasks || 0}</p>
+              <p className='text-lg font-black text-gray-900'>{user?.totalTasks || 0}</p>
             </div>
 
             <div className='bg-gray-50/60 p-4 rounded-3xl border border-gray-100/80 flex flex-col items-center text-center'>
@@ -103,7 +116,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
                 <CheckCircle2 size={16} />
               </div>
               <p className='text-xs font-bold text-gray-400 uppercase tracking-widest mb-1'>Done</p>
-              <p className='text-xl font-black text-gray-900'>{user?.completedTasksCount || 0}</p>
+              <p className='text-lg font-black text-gray-900'>{user?.completedTasksCount || 0}</p>
             </div>
 
             <div className='bg-gray-50/60 p-4 rounded-3xl border border-gray-100/80 flex flex-col items-center text-center'>
@@ -112,7 +125,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
               </div>
               <p className='text-xs font-bold text-gray-400 uppercase tracking-widest mb-1'>Spend</p>
               <p className='text-[15px] font-black text-gray-900 truncate w-full'>
-                {user?.spendingRange?.includes('₦') ? user.spendingRange : `₦${user?.spendingRange || '0'}`}
+                {user?.spendingRange?.includes('₦') ? user.spendingRange : `${user?.spendingRange || '0'}₦`}
               </p>
             </div>
           </div>
@@ -135,8 +148,8 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
                 <div>
                   <p className='text-[11px] font-bold text-gray-400 uppercase tracking-widest'>Trust Score</p>
                   <div className='flex items-baseline gap-1'>
-                    <p className='text-xl font-black text-gray-900'>{user?.trustScore?.toFixed(1) || "5.0"}</p>
-                    <p className='text-[11px] font-bold text-gray-400'>/ 5.0</p>
+                    <p className='text-lg font-black text-gray-900'>{user?.trustScore?.toFixed(1) || "0.0"}</p>
+                    <p className='text-[9px] font-bold text-gray-400'>/ 100.0%</p>
                   </div>
                 </div>
               </div>
@@ -149,7 +162,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
                 </div>
                 <div>
                   <p className='text-[11px] font-bold text-gray-400 uppercase tracking-widest'>Member</p>
-                  <p className='text-lg font-black text-gray-900'>{formatDate(user?.createdAt)}</p>
+                  <p className='text-lg font-black text-gray-900'>{formatDate(user?.joinedAt)}</p>
                 </div>
               </div>
             </div>
