@@ -284,8 +284,16 @@ export default function FeedPage() {
                 {/* Poster Info */}
                 <div className='flex items-center justify-between mb-4 md:mb-6'>
                   <div className='flex items-center gap-2 md:gap-3'>
-                    <div className='flex justify-center items-center bg-[#6B46C1] rounded-full w-8 h-8 md:w-9 md:h-9 font-bold text-white text-[8px] md:text-[10px]'>
-                      {posterInitial}
+                    <div className='flex justify-center items-center bg-[#6B46C1] rounded-full w-8 h-8 md:w-9 md:h-9 font-bold text-white text-[8px] md:text-[10px] overflow-hidden border border-white ring-1 ring-purple-50'>
+                      {task.user?.profilePicture ? (
+                        <img
+                          src={task.user.profilePicture}
+                          alt={posterName}
+                          className='w-full h-full object-cover'
+                        />
+                      ) : (
+                        posterInitial
+                      )}
                     </div>
                     <div className='flex flex-col'>
                       <span className='font-medium text-gray-400 text-[8px] md:text-[10px]'>

@@ -111,10 +111,10 @@ export function useHome() {
 
   const hasCategories = isTasker
     ? (Array.isArray(user?.categories) && user.categories.length > 0) ||
-      (Array.isArray((user as any)?.mainCategories) &&
-        (user as any).mainCategories.length > 0) ||
-      (Array.isArray((user as any)?.subCategories) &&
-        (user as any).subCategories.length > 0)
+    (Array.isArray((user as any)?.mainCategories) &&
+      (user as any).mainCategories.length > 0) ||
+    (Array.isArray((user as any)?.subCategories) &&
+      (user as any).subCategories.length > 0)
     : true;
 
   return {

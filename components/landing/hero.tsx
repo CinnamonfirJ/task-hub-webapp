@@ -39,7 +39,7 @@ export default function Hero() {
           <br className="hidden md:block" />
           <span className="flex items-center justify-center gap-3 flex-wrap mt-2">
             Get
-            <div className="relative inline-flex h-[1.1em] font-light font-instrument overflow-hidden justify-center min-w-[200px] md:min-w-[250px]">
+            <div className="relative inline-flex h-[1.1em] font-light font-instrument overflow-hidden justify-center min-w-[160px] md:min-w-[280px]">
               <AnimatePresence mode="popLayout">
                 <motion.span
                   key={index}
@@ -64,7 +64,7 @@ export default function Hero() {
 
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
-          <Link href="/register">
+          <Link href="/register?type=user">
             <Button className="h-14 px-8 text-lg font-bold rounded-full bg-[#6B46C1] hover:bg-[#553C9A] text-white w-full sm:w-auto transition-all hover:scale-[1.02]">
               Post a Task
             </Button>

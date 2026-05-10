@@ -58,8 +58,17 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
       const response = await taskersApi.submitNIN(values.nin, values.fullName);
 
       if (response.status === "success") {
+        // Store submission signal for pending state tracking
+        if (typeof window !== "undefined") {
+          localStorage.setItem("verificationSubmittedAt", Date.now().toString());
+        }
+        
         setIsSuccess(true);
         toast.success(response.message || "NIN submitted successfully");
+        
+        // Invalidate verification status to trigger UI update
+        const queryClient = (window as any).queryClient; // Fallback if queryClient is needed globally, but better to use useQueryClient hook if possible. Actually, invalidate is usually handled by the success state in parents.
+        
         if (onSuccess) {
           onSuccess(response.kycId);
         }

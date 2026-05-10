@@ -216,8 +216,16 @@ export default function HomePage() {
           {isLoadingUser ? (
             <Skeleton className='w-12 h-12 rounded-full' />
           ) : (
-            <div className='flex justify-center items-center bg-[#6B46C1] rounded-full w-12 h-12 font-bold text-white text-lg shrink-0'>
-              {userInitials}
+            <div className='flex justify-center items-center bg-[#6B46C1] rounded-full w-12 h-12 font-bold text-white text-lg shrink-0 overflow-hidden border-2 border-white ring-1 ring-purple-100'>
+              {user?.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={userName}
+                  className='w-full h-full object-cover'
+                />
+              ) : (
+                userInitials
+              )}
             </div>
           )}
           <div className='min-w-0'>
@@ -312,8 +320,16 @@ export default function HomePage() {
                   </div>
                   <div className='space-y-2'>
                     <div className='flex items-center gap-2'>
-                      <div className='w-8 h-8 rounded-full bg-[#6B46C1] flex items-center justify-center text-[10px] font-bold text-white'>
-                        {task.user?.fullName?.[0] || "T"}
+                      <div className='w-8 h-8 rounded-full bg-[#6B46C1] flex items-center justify-center text-[10px] font-bold text-white overflow-hidden border border-white ring-1 ring-purple-50'>
+                        {task.user?.profilePicture ? (
+                          <img
+                            src={task.user.profilePicture}
+                            alt={task.user.fullName || "User"}
+                            className='w-full h-full object-cover'
+                          />
+                        ) : (
+                          task.user?.fullName?.[0] || "T"
+                        )}
                       </div>
                       <span className='text-gray-400 text-xs font-semibold'>
                         By {task.user?.fullName || "Task Hub"}
@@ -452,17 +468,34 @@ export default function HomePage() {
   return (
     <div className='flex flex-col space-y-6 mx-auto p-4 md:p-8 w-full max-w-4xl min-h-screen'>
       {/* ── Welcome Heading ── */}
-      <div className='space-y-1'>
+      <div className='flex items-center justify-between gap-4'>
+        <div className='space-y-1 min-w-0'>
+          {isLoadingUser ? (
+            <Skeleton className='h-7 w-52' />
+          ) : (
+            <h1 className='font-bold text-gray-900 text-2xl md:text-3xl truncate'>
+              Welcome Back, {userName} 👋
+            </h1>
+          )}
+          <p className='text-gray-500 text-sm md:text-base'>
+            What do you need help with today?
+          </p>
+        </div>
         {isLoadingUser ? (
-          <Skeleton className='h-7 w-52' />
+          <Skeleton className='w-12 h-12 rounded-full' />
         ) : (
-          <h1 className='font-bold text-gray-900 text-2xl md:text-3xl'>
-            Welcome Back, {userName} 👋
-          </h1>
+          <div className='w-12 h-12 rounded-full bg-[#6B46C1] flex items-center justify-center text-white font-bold text-lg overflow-hidden shrink-0 border-2 border-white ring-1 ring-purple-100'>
+            {user?.profilePicture ? (
+              <img
+                src={user.profilePicture}
+                alt={userName}
+                className='w-full h-full object-cover'
+              />
+            ) : (
+              userInitials
+            )}
+          </div>
         )}
-        <p className='text-gray-500 text-sm md:text-base'>
-          What do you need help with today?
-        </p>
       </div>
 
       {/* ── Inline Search Bar ── */}
