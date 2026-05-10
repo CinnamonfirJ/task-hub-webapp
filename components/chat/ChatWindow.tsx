@@ -191,6 +191,7 @@ export function ChatWindow({
                     key={msg._id}
                     message={msg}
                     currentUser={currentUser}
+                    partner={partnerObj}
                   />
                 ))
             )}

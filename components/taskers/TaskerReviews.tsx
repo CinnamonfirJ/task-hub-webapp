@@ -99,10 +99,10 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
                   <div className='flex items-start justify-between mb-4'>
                     <div className='flex items-center gap-3'>
                       <div className='w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-50'>
-                        {review.user?.profilePicture ? (
+                        {review.reviewer?.profilePicture ? (
                           <img
-                            src={review.user.profilePicture}
-                            alt={review.user.fullName}
+                            src={review.reviewer.profilePicture}
+                            alt={review.reviewer.fullName}
                             className='w-full h-full object-cover'
                           />
                         ) : (
@@ -110,7 +110,7 @@ export function TaskerReviews({ taskerId }: TaskerReviewsProps) {
                         )}
                       </div>
                       <div>
-                        <h5 className='text-sm font-bold text-gray-900 truncate max-w-[150px]' title={review.reviewer?.name}>{review.reviewer?.name || "Anonymous"}</h5>
+                        <h5 className='text-sm font-bold text-gray-900 truncate max-w-[150px]' title={review.reviewer?.name}>{review.reviewer?.fullName || "Anonymous"}</h5>
                         <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>
                           {review.task?.category || "Task"} • {review.createdAt ? format(new Date(review.createdAt), "MMM d, yyyy") : ""}
                         </p>
