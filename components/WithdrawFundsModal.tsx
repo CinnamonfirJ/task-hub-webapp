@@ -464,7 +464,7 @@ export function WithdrawFundsModal({
                         className='flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-purple-200'
                       />
                       <Button
-                        size='sm'
+                        size='lg'
                         onClick={handleSaveBank}
                         disabled={isSettingBank}
                         className='bg-[#6B46C1] hover:bg-[#553C9A] text-white rounded-xl px-4'
