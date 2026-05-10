@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function StatsSection() {
   const stats = [
-    { value: "12.5k+", label: "Task Completed", description: "and growing daily" },
+    { value: "30+", label: "Task Completed", description: "and growing daily" },
     { value: "300+", label: "Verified Taskers", description: "across all categories" },
     { value: "200+", label: "Active Users", description: "Across Nigeria" }
   ];

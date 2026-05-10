@@ -85,7 +85,7 @@ export default function TheSolution() {
               : "text-gray-600 hover:text-gray-900"
               }`}
           >
-            Poster
+            Users
           </button>
           <button
             onClick={() => setActiveTab("tasker")}
