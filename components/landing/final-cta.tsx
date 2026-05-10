@@ -34,7 +34,7 @@ export default function FinalCTA() {
 
           {/* Right buttons */}
           <div className="flex flex-col gap-3 flex-shrink-0">
-            <Link href="/register">
+            <Link href="/register?type=user">
               <Button className="h-13 px-8 py-3.5 text-base font-bold rounded-full bg-[#6C3BFF] hover:bg-[#805AD5] text-white w-full transition-all hover:scale-[1.02]">
                 Post a Task
               </Button>

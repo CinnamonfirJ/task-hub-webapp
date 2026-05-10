@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
@@ -116,7 +116,7 @@ export function useCompleteProfile() {
     updateProfileMutation.mutate(data);
   };
 
-  const handlePictureUpload = async (base64: string) => {
+  const handlePictureUpload = async (base64: any) => {
     try {
       await authApi.updateProfilePicture(base64);
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
@@ -124,6 +124,13 @@ export function useCompleteProfile() {
       console.error("Failed to upload profile picture", err);
     }
   };
+
+  // Fetch verification status
+  const { data: verificationStatus } = useQuery({
+    queryKey: ["verificationStatus"],
+    queryFn: () => authApi.getVerificationStatus(),
+    enabled: !!user,
+  });
 
   return {
     user,
@@ -135,6 +142,8 @@ export function useCompleteProfile() {
     handlePictureUpload,
     isSubmitting: updateProfileMutation.isPending,
     isProfileComplete: user ? checkProfileCompleteness(user) : false,
+    isVerificationPending: verificationStatus?.isPending || false,
+    isVerified: verificationStatus?.isVerified || false,
   };
 }
 
