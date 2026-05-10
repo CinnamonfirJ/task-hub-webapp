@@ -476,13 +476,16 @@ export const authApi = {
     return res;
   },
 
-  getVerificationStatus: async (): Promise<{ isVerified: boolean }> => {
+  getVerificationStatus: async (): Promise<{
+    isVerified: boolean;
+    isPending: boolean;
+  }> => {
     try {
       // Admins don't have a verification status in this endpoint (causes 401)
       const userType =
         typeof window !== "undefined" ? localStorage.getItem("userType") : null;
       if (userType === "admin") {
-        return { isVerified: true };
+        return { isVerified: true, isPending: false };
       }
 
       const res = await apiData<any>("/api/auth/verification-status", {
@@ -506,10 +509,25 @@ export const authApi = {
         (res?.status === "success" &&
           (res?.isVerified || res?.data?.isVerified));
 
-      return { isVerified: !!isVerified };
+      // If verified, clear any pending signals
+      if (isVerified && typeof window !== "undefined") {
+        localStorage.removeItem("verificationSubmittedAt");
+      }
+
+      // Check for pending status from backend or local signal
+      const isPending =
+        res?.status === "pending" ||
+        res?.kycStatus === "pending" ||
+        res?.data?.status === "pending" ||
+        res?.user?.kycStatus === "pending" ||
+        res?.tasker?.kycStatus === "pending" ||
+        (typeof window !== "undefined" &&
+          !!localStorage.getItem("verificationSubmittedAt"));
+
+      return { isVerified: !!isVerified, isPending: !!isPending && !isVerified };
     } catch (err) {
       console.error("[authApi] Error fetching verification status:", err);
-      return { isVerified: false };
+      return { isVerified: false, isPending: false };
     }
   },
 

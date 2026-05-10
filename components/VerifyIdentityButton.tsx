@@ -56,6 +56,12 @@ export function VerifyIdentityButton({
 
       if (redirectUrl) {
         console.log("Redirecting to:", redirectUrl);
+
+        // Store submission signal for pending state tracking before leaving
+        if (typeof window !== "undefined") {
+          localStorage.setItem("verificationSubmittedAt", Date.now().toString());
+        }
+
         // Redirect to Didit's hosted verification page
         window.location.href = redirectUrl;
       } else if (VERIFICATION_URL) {
