@@ -3,12 +3,13 @@ import { Message } from "@/types/chat";
 import { User } from "@/types/auth";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { FileText, Download, Maximize2 } from "lucide-react";
+import { FileText, Download, Maximize2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,49 @@ export function MessageBubble({ message, currentUser, partner }: MessageBubblePr
     const kb = bytes / 1024;
     if (kb < 1024) return `${kb.toFixed(1)} KB`;
     return `${(kb / 1024).toFixed(1)} MB`;
+  };
+
+  const handleDownload = async (e: React.MouseEvent, url: string, filename: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    try {
+      // Primary Method: Fetch and Blob (Native browser download trigger)
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename || "download";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.warn("Advanced download failed, using standard fallback", error);
+      
+      let downloadUrl = url;
+      if (url.includes("res.cloudinary.com")) {
+        const isImage = url.match(/\.(jpg|jpeg|png|gif|webp)$|images/i);
+        
+        // For images, fl_attachment is reliable.
+        // For documents (PDF, etc.), we avoid flags to prevent 401 Unauthorized errors.
+        if (isImage && !url.includes("fl_attachment")) {
+          downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
+        }
+      }
+      
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = filename || "download";
+      link.target = "_blank"; // Fallback to new tab if download attribute is ignored
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   return (
@@ -91,7 +135,10 @@ export function MessageBubble({ message, currentUser, partner }: MessageBubblePr
                         </div>
                       </button>
                     </DialogTrigger>
-                    <DialogContent className='max-w-[95vw] sm:max-w-[90vw] max-h-[95vh] p-0 bg-transparent border-none  flex flex-col items-center justify-center overflow-hidden'>
+                    <DialogContent
+                      showCloseButton={false}
+                      className='max-w-[95vw] sm:max-w-[90vw] max-h-[95vh] p-0 bg-transparent border-none shadow-none flex flex-col items-center justify-center overflow-hidden outline-none'
+                    >
                       <VisuallyHidden>
                         <DialogTitle>{att.name || "Image Preview"}</DialogTitle>
                       </VisuallyHidden>
@@ -99,24 +146,29 @@ export function MessageBubble({ message, currentUser, partner }: MessageBubblePr
                         <img
                           src={att.url}
                           alt={att.name}
-                          className='max-w-full max-h-[85vh] object-contain rounded-lg '
+                          className='max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl'
                         />
-                        <div className="absolute top-4 right-4 flex gap-2">
+
+                        {/* Floating Action Controls */}
+                        <div className="absolute top-6 right-6 flex items-center gap-3">
                           <Button
-                            size="sm"
-                            className="bg-white/90 hover:bg-white text-gray-900 rounded-full font-bold  flex items-center gap-2 px-4"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const link = document.createElement("a");
-                              link.href = att.url;
-                              link.download = att.name || "image";
-                              document.body.appendChild(link);
-                              link.click();
-                              document.body.removeChild(link);
-                            }}
+                            size="icon"
+                            variant="ghost"
+                            className="w-10 h-10 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-md border border-white/20 transition-all duration-200"
+                            onClick={(e) => handleDownload(e, att.url, att.name || "image")}
                           >
-                            <Download size={16} /> Download
+                            <Download size={20} />
                           </Button>
+
+                          <DialogClose asChild>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="w-10 h-10 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-md border border-white/20 transition-all duration-200"
+                            >
+                              <X size={20} />
+                            </Button>
+                          </DialogClose>
                         </div>
                       </div>
                     </DialogContent>
@@ -135,7 +187,7 @@ export function MessageBubble({ message, currentUser, partner }: MessageBubblePr
                         "w-10 h-10 shrink-0 rounded-lg flex items-center justify-center cursor-pointer",
                         isMine ? "bg-white/20" : "bg-white ",
                       )}
-                      onClick={() => window.open(att.url, '_blank')}
+                      onClick={(e) => handleDownload(e, att.url, att.name)}
                     >
                       <FileText
                         className={cn(
@@ -146,7 +198,7 @@ export function MessageBubble({ message, currentUser, partner }: MessageBubblePr
                     </div>
                     <div
                       className='flex-1 min-w-0 overflow-hidden text-left cursor-pointer'
-                      onClick={() => window.open(att.url, '_blank')}
+                      onClick={(e) => handleDownload(e, att.url, att.name)}
                     >
                       <p className='text-xs font-bold truncate pr-2'>
                         {att.name}
@@ -165,15 +217,7 @@ export function MessageBubble({ message, currentUser, partner }: MessageBubblePr
                         "p-2 rounded-lg hover:bg-black/5 transition-colors shrink-0",
                         isMine ? "text-white/70 hover:text-white" : "text-gray-400 hover:text-[#6B46C1]",
                       )}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const link = document.createElement("a");
-                        link.href = att.url;
-                        link.download = att.name;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
+                      onClick={(e) => handleDownload(e, att.url, att.name)}
                     >
                       <Download className="w-4 h-4" />
                     </button>
