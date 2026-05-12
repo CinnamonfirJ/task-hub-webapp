@@ -5,8 +5,12 @@ import { motion } from "framer-motion";
 export default function StatsSection() {
   const stats = [
     { value: "30+", label: "Task Completed", description: "and growing daily" },
-    { value: "300+", label: "Verified Taskers", description: "across all categories" },
-    { value: "200+", label: "Active Users", description: "Across Nigeria" }
+    {
+      value: "300+",
+      label: "Verified Taskers",
+      description: "across all categories",
+    },
+    { value: "200+", label: "Active Users", description: "Across Nigeria" },
   ];
 
   return (
@@ -18,12 +22,14 @@ export default function StatsSection() {
         transition={{ duration: 0.6 }}
         className="mb-12"
       >
-        <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">
+        <p className="text-xs font-medium uppercase tracking-widest text-gray-400 mb-4">
           BY THE NUMBERS
         </p>
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+        <h2 className="text-4xl md:text-5xl font-medium text-gray-900 leading-tight">
           Trust Built on{" "}
-          <span className="font-instrument font-light text-[#6B46C1]">Real Results.</span>
+          <span className="font-instrument font-light text-[#6B46C1]">
+            Real Results.
+          </span>
         </h2>
       </motion.div>
 
@@ -41,7 +47,9 @@ export default function StatsSection() {
               {stat.value}
             </h3>
             <p className="text-gray-900 font-bold text-sm mb-8">{stat.label}</p>
-            <p className="text-gray-400 font-medium text-sm">{stat.description}</p>
+            <p className="text-gray-400 font-medium text-sm">
+              {stat.description}
+            </p>
           </motion.div>
         ))}
       </div>
