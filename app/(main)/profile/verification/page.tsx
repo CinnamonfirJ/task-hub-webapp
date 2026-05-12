@@ -12,7 +12,7 @@ import {
   Loader2,
   ChevronRight,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,8 +20,9 @@ import { NINManualSubmission } from "@/components/NINManualSubmission";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { VerificationPendingCard } from "@/components/VerificationPendingCard";
+import { Suspense } from "react";
 
-export default function VerificationPage() {
+function VerificationContent() {
   const router = useRouter();
   const { data, isLoading } = useQuery({
     queryKey: ["verificationStatus"],
@@ -33,6 +34,9 @@ export default function VerificationPage() {
     "sdk",
   );
 
+  const searchParams = useSearchParams();
+  const isResubmitting = searchParams.get("resubmit") === "true";
+
   const isVerified = 
     data?.isVerified || 
     user?.isKYCVerified || 
@@ -40,7 +44,7 @@ export default function VerificationPage() {
     user?.isVerified || 
     false;
 
-  const isPending = data?.isPending || false;
+  const isPending = (data?.isPending && !isResubmitting) || false;
 
   return (
     <div className='p-4 md:p-8 max-w-2xl mx-auto space-y-10 pb-20'>
@@ -93,7 +97,14 @@ export default function VerificationPage() {
             {!isVerified && (
               <div className='w-full pt-4'>
                 {isPending ? (
-                  <VerificationPendingCard />
+                  <VerificationPendingCard 
+                    onResubmit={() => {
+                      if (typeof window !== "undefined") {
+                        localStorage.removeItem("verificationSubmittedAt");
+                      }
+                      router.push("/profile/verification?resubmit=true");
+                    }}
+                  />
                 ) : (
                   <AnimatePresence mode='wait'>
                     {verificationMode === "sdk" ? (
@@ -147,6 +158,19 @@ export default function VerificationPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function VerificationPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-4 md:p-8 flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <Loader2 className="w-12 h-12 animate-spin text-[#6B46C1]" />
+        <p className="text-gray-400 font-medium">Loading verification...</p>
+      </div>
+    }>
+      <VerificationContent />
+    </Suspense>
   );
 }
 
