@@ -92,7 +92,12 @@ export default function MessagesPage() {
     router.push(`/messages/${conv._id}`);
   };
 
-  const isVerified = user?.isVerified || user?.isKYCVerified;
+  const isVerified =
+    !!user?.verifyIdentity ||
+    !!user?.isKYCVerified ||
+    !!(user as any)?.kycVerified ||
+    !!(user as any)?.verified ||
+    user?.role === "admin";
 
   return (
     <Suspense fallback={<Loading />}>
