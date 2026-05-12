@@ -39,7 +39,7 @@ export default function Hero() {
           <br className="hidden md:block" />
           <span className="flex items-center justify-center gap-3 flex-wrap mt-2">
             Get
-            <div className="relative inline-flex h-[1.1em] font-light font-instrument overflow-hidden justify-center min-w-[160px] md:min-w-[280px]">
+            <div className="relative inline-flex h-[1.1em] font-light font-instrument overflow-hidden justify-center min-w-40 md:min-w-70">
               <AnimatePresence mode="popLayout">
                 <motion.span
                   key={index}
@@ -107,7 +107,7 @@ export default function Hero() {
         <img
           src="/assets/hero.jpg"
           alt="People working and studying on campus"
-          className="w-full h-auto object-cover max-h-[600px]"
+          className="w-full h-auto object-cover max-h-150"
         />
         <div className="absolute inset-0 border border-black/5 rounded-2xl pointer-events-none" />
       </motion.div>

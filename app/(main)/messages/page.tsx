@@ -92,27 +92,27 @@ export default function MessagesPage() {
     router.push(`/messages/${conv._id}`);
   };
 
-  const isVerified = user?.isVerified;
+  const isVerified = user?.isVerified || user?.isKYCVerified;
 
   return (
     <Suspense fallback={<Loading />}>
-      <div className='p-4 md:p-8'>
-        <div className='max-w-6xl mx-auto space-y-6 md:space-y-8'>
+      <div className="p-4 md:p-8">
+        <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
           {/* User Header */}
-          <div className='flex items-center gap-3 md:gap-4'>
+          <div className="flex items-center gap-3 md:gap-4">
             {user?.profilePicture ? (
               <img
                 src={user.profilePicture}
-                alt='Profile'
-                className='h-12 w-12 md:h-16 md:w-16 rounded-full object-cover border border-gray-100'
+                alt="Profile"
+                className="h-12 w-12 md:h-16 md:w-16 rounded-full object-cover border border-gray-100"
               />
             ) : (
-              <div className='h-12 w-12 md:h-16 md:w-16 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-lg md:text-xl font-bold'>
+              <div className="h-12 w-12 md:h-16 md:w-16 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-lg md:text-xl font-bold">
                 {userInitials}
               </div>
             )}
             <div>
-              <h2 className='text-sm md:text-lg font-bold text-gray-900 uppercase tracking-tight'>
+              <h2 className="text-sm md:text-lg font-bold text-gray-900 uppercase tracking-tight">
                 {user?.role === "tasker"
                   ? `TASKER: ${displayName}`
                   : `CLIENT: ${displayName}`}
@@ -128,17 +128,17 @@ export default function MessagesPage() {
           </div>
 
           {/* Search Bar */}
-          <div className='relative'>
-            <Search className='absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-gray-400' />
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
             <input
-              type='text'
-              placeholder='Search messages'
-              className='w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm md:text-base text-gray-900 placeholder-gray-500'
+              type="text"
+              placeholder="Search messages"
+              className="w-full pl-10 md:pl-12 pr-4 py-2.5 md:py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm md:text-base text-gray-900 placeholder-gray-500"
             />
           </div>
 
           {/* Filter Tabs */}
-          <div className='flex gap-2 overflow-x-auto pb-2 scrollbar-none'>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
             {(["all", "unread", "read"] as const).map((filter) => (
               <button
                 key={filter}
@@ -155,13 +155,13 @@ export default function MessagesPage() {
           </div>
 
           {/* List Content */}
-          <div className='space-y-4'>
+          <div className="space-y-4">
             {isLoadingConvs ? (
-              <div className='space-y-4'>
+              <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className='h-24 bg-gray-100 animate-pulse rounded-2xl'
+                    className="h-24 bg-gray-100 animate-pulse rounded-2xl"
                   />
                 ))}
               </div>
@@ -172,14 +172,14 @@ export default function MessagesPage() {
                 currentUser={user || null}
               />
             ) : (
-              <div className='flex flex-col items-center justify-center py-16'>
-                <div className='bg-purple-100 p-6 rounded-full mb-6'>
-                  <MessageCircle className='h-12 w-12 text-[#6B46C1]' />
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="bg-purple-100 p-6 rounded-full mb-6">
+                  <MessageCircle className="h-12 w-12 text-[#6B46C1]" />
                 </div>
-                <h3 className='text-2xl font-semibold text-gray-900 mb-2'>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-2">
                   No messages yet
                 </h3>
-                <p className='text-gray-600 text-center max-w-md mb-6'>
+                <p className="text-gray-600 text-center max-w-md mb-6">
                   Start posting tasks and connecting with taskers to begin
                   conversations.
                 </p>

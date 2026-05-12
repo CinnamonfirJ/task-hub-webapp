@@ -15,7 +15,7 @@ export default function FinalCTA() {
         className="bg-[#0B0914] rounded-2xl p-12 md:p-20 relative overflow-hidden "
       >
         {/* Subtle background glow */}
-        <div className="absolute -top-1 -right-1 -translate-y-1/2 w-[600px] h-[600px] bg-[#6C3BFF] blur-[150px] opacity-30 rounded-full pointer-events-none" />
+        <div className="absolute -top-1 -right-1 -translate-y-1/2 w-150 h-150 bg-[#6C3BFF] blur-[150px] opacity-30 rounded-full pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
           {/* Left text */}
@@ -33,14 +33,14 @@ export default function FinalCTA() {
           </div>
 
           {/* Right buttons */}
-          <div className="flex flex-col gap-3 flex-shrink-0">
+          <div className="flex flex-col gap-3 shrink-0">
             <Link href="/register?type=user">
               <Button className="h-13 px-8 py-3.5 text-base font-bold rounded-full bg-[#6C3BFF] hover:bg-[#805AD5] text-white w-full transition-all hover:scale-[1.02]">
                 Post a Task
               </Button>
             </Link>
             <Link href="/register?type=tasker">
-              <Button variant="outline" className="h-13 px-8 py-3.5 text-base font-bold rounded-full border-[#2D2A3B] text-[#6C3BFF] hover:bg-[#2D2A3B] w-full transition-all hover:scale-[1.02]">
+              <Button variant="outline" className="h-13 px-8 py-3.5 text-base font-bold rounded-full border-[#2D2A3B] text-[#6C3BFF] hover:text-[#4000ff] w-full transition-all hover:scale-[1.02]">
                 Join as Tasker
               </Button>
             </Link>
