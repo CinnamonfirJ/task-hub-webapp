@@ -289,7 +289,8 @@ export const authApi = {
                 !!profileData.isKYCVerified ||
                 !!profileData.verifyIdentity ||
                 !!profileData.kycVerified ||
-                !!profileData.verified;
+                !!profileData.verified ||
+                !!profileData.isVerified;
 
               if (userType !== "admin" && !isAlreadyVerified) {
                 const vStatus = await authApi.getVerificationStatus();
@@ -306,15 +307,22 @@ export const authApi = {
                     verifyIdentity: true,
                     kycVerified: true,
                     verified: true,
+                    isVerified: true,
                   });
                 }
-              } else if (userType === "admin") {
-                // Admins are always considered verified
+              } else if (isAlreadyVerified || userType === "admin") {
+                // Ensure all flags are synced if any are true
                 Object.assign(profileData as any, {
                   isKYCVerified: true,
                   verifyIdentity: true,
-                  role: "admin",
+                  kycVerified: true,
+                  verified: true,
+                  isVerified: true,
                 });
+                
+                if (userType === "admin") {
+                  (profileData as any).role = "admin";
+                }
               }
             } catch (vErr) {
               console.warn(

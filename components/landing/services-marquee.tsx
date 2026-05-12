@@ -1,7 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, PenTool, Wrench, Paintbrush, Camera, Truck, BookOpen, Scissors, Code } from "lucide-react";
+import {
+  Sparkles,
+  PenTool,
+  Wrench,
+  Paintbrush,
+  Camera,
+  Truck,
+  BookOpen,
+  Scissors,
+  Code,
+} from "lucide-react";
 
 const CATEGORIES = [
   { name: "Plumbing", icon: <Wrench className="w-4 h-4" /> },
@@ -20,14 +30,18 @@ export default function ServicesMarquee() {
   return (
     <section className="py-20 overflow-hidden bg-white">
       <div className="text-center mb-10 px-4">
-        <h2 className="text-sm font-bold tracking-widest uppercase text-gray-400 mb-2">
+        <h2 className="text-sm font-medium tracking-widest uppercase text-gray-400 mb-2">
           For everyone who tasks
         </h2>
-        <h3 className="text-3xl md:text-4xl font-bold text-gray-900">
-          Every task, <span className="font-instrument font-light text-[#6B46C1]">One Platform.</span>
+        <h3 className="text-3xl md:text-4xl font-medium text-gray-900">
+          Every task,{" "}
+          <span className="font-instrument font-light text-[#6B46C1]">
+            One Platform.
+          </span>
         </h3>
         <p className="text-gray-500 mt-3 font-medium">
-          From campus errands to home repairs to digital gigs — TaskHub covers it all.
+          From campus errands to home repairs to digital gigs — TaskHub covers
+          it all.
         </p>
       </div>
 
@@ -45,15 +59,17 @@ export default function ServicesMarquee() {
             repeat: Infinity,
           }}
         >
-          {[...CATEGORIES, ...CATEGORIES, ...CATEGORIES].map((category, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-6 py-3 shrink-0 hover:border-purple-200 hover:bg-purple-50 transition-colors cursor-pointer "
-            >
-              <div className="text-[#6B46C1]">{category.icon}</div>
-              <span className="font-bold text-gray-700">{category.name}</span>
-            </div>
-          ))}
+          {[...CATEGORIES, ...CATEGORIES, ...CATEGORIES].map(
+            (category, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-6 py-3 shrink-0 hover:border-purple-200 hover:bg-purple-50 transition-colors cursor-pointer "
+              >
+                <div className="text-[#6B46C1]">{category.icon}</div>
+                <span className="font-bold text-gray-700">{category.name}</span>
+              </div>
+            ),
+          )}
         </motion.div>
 
         {/* Bottom Row: Moves Left to Right */}
@@ -67,15 +83,19 @@ export default function ServicesMarquee() {
           }}
         >
           {/* Reverse categories for variety or just duplicate */}
-          {[...CATEGORIES].reverse().concat([...CATEGORIES].reverse()).concat([...CATEGORIES].reverse()).map((category, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-6 py-3 shrink-0 hover:border-purple-200 hover:bg-purple-50 transition-colors cursor-pointer "
-            >
-              <div className="text-[#6B46C1]">{category.icon}</div>
-              <span className="font-bold text-gray-700">{category.name}</span>
-            </div>
-          ))}
+          {[...CATEGORIES]
+            .reverse()
+            .concat([...CATEGORIES].reverse())
+            .concat([...CATEGORIES].reverse())
+            .map((category, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-6 py-3 shrink-0 hover:border-purple-200 hover:bg-purple-50 transition-colors cursor-pointer "
+              >
+                <div className="text-[#6B46C1]">{category.icon}</div>
+                <span className="font-bold text-gray-700">{category.name}</span>
+              </div>
+            ))}
         </motion.div>
 
         {/* Right Gradient Fade */}

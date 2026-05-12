@@ -1,63 +1,84 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BadgeCheck, Shield, Lock, Star, HeadphonesIcon, Award, Wallet, Play, ThumbsUp, Banknote } from "lucide-react";
+import {
+  BadgeCheck,
+  Shield,
+  Lock,
+  Star,
+  HeadphonesIcon,
+  Award,
+  Wallet,
+  Play,
+  ThumbsUp,
+  Banknote,
+} from "lucide-react";
 
 export default function FoundationSection() {
   const features = [
     {
       title: "ID Verification",
-      description: "Every tasker is identity-verified before they can accept any jobs on the platform.",
-      icon: <BadgeCheck className="w-5 h-5 text-[#9F7AEA]" />
+      description:
+        "Every tasker is identity-verified before they can accept any jobs on the platform.",
+      icon: <BadgeCheck className="w-5 h-5 text-[#9F7AEA]" />,
     },
     {
       title: "Secure Payments",
-      description: "All transactions are encrypted and processed through our secure payment gateway.",
-      icon: <Shield className="w-5 h-5 text-[#9F7AEA]" />
+      description:
+        "All transactions are encrypted and processed through our secure payment gateway.",
+      icon: <Shield className="w-5 h-5 text-[#9F7AEA]" />,
     },
     {
       title: "Escrow Protection",
-      description: "Funds are held safely in escrow until the job is completed to your satisfaction.",
-      icon: <Lock className="w-5 h-5 text-[#9F7AEA]" />
+      description:
+        "Funds are held safely in escrow until the job is completed to your satisfaction.",
+      icon: <Lock className="w-5 h-5 text-[#9F7AEA]" />,
     },
     {
       title: "Verified Reviews",
-      description: "Only completed jobs generate reviews. Read honest feedback from real customers.",
-      icon: <Star className="w-5 h-5 text-[#9F7AEA]" />
+      description:
+        "Only completed jobs generate reviews. Read honest feedback from real customers.",
+      icon: <Star className="w-5 h-5 text-[#9F7AEA]" />,
     },
     {
       title: "24/7 Support",
-      description: "Our dedicated support team is always available to resolve any issues you face.",
-      icon: <HeadphonesIcon className="w-5 h-5 text-[#9F7AEA]" />
+      description:
+        "Our dedicated support team is always available to resolve any issues you face.",
+      icon: <HeadphonesIcon className="w-5 h-5 text-[#9F7AEA]" />,
     },
     {
       title: "Task Guarantee",
-      description: "If a job isn't done right, we step in to make it right. Every single time.",
-      icon: <Award className="w-5 h-5 text-[#9F7AEA]" />
-    }
+      description:
+        "If a job isn't done right, we step in to make it right. Every single time.",
+      icon: <Award className="w-5 h-5 text-[#9F7AEA]" />,
+    },
   ];
 
   const safeSteps = [
     {
       label: "You pay",
-      description: "Agree on a price and deposit funds securely into escrow. No risk to you.",
-      icon: <Wallet className="w-4 h-4 text-[#9F7AEA]" />
+      description:
+        "Agree on a price and deposit funds securely into escrow. No risk to you.",
+      icon: <Wallet className="w-4 h-4 text-[#9F7AEA]" />,
     },
     {
       label: "Work begins",
-      description: "The tasker starts and you can track progress. Funds remain safely locked.",
-      icon: <Play className="w-4 h-4 text-[#9F7AEA]" />
+      description:
+        "The tasker starts and you can track progress. Funds remain safely locked.",
+      icon: <Play className="w-4 h-4 text-[#9F7AEA]" />,
     },
     {
       label: "You confirm",
-      description: "Review the completed work and approve it when you're fully satisfied.",
-      icon: <ThumbsUp className="w-4 h-4 text-[#9F7AEA]" />
+      description:
+        "Review the completed work and approve it when you're fully satisfied.",
+      icon: <ThumbsUp className="w-4 h-4 text-[#9F7AEA]" />,
     },
     {
       label: "Tasker paid",
-      description: "Only after your approval are funds released to the tasker. Simple and safe.",
-      icon: <Banknote className="w-4 h-4 text-[#9F7AEA]" />
-    }
+      description:
+        "Only after your approval are funds released to the tasker. Simple and safe.",
+      icon: <Banknote className="w-4 h-4 text-[#9F7AEA]" />,
+    },
   ];
 
   return (
@@ -70,15 +91,18 @@ export default function FoundationSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <p className="text-xs font-bold text-[#5E35B1] uppercase tracking-widest mb-4">
+          <p className="text-xs font-medium text-[#5E35B1] uppercase tracking-widest mb-4">
             Safety first
           </p>
-          <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+          <h2 className="text-4xl md:text-5xl font-medium leading-tight">
             One Platform.{" "}
-            <span className="font-instrument font-light text-[#9F7AEA]">Foundation.</span>
+            <span className="font-instrument font-light text-[#9F7AEA]">
+              Foundation.
+            </span>
           </h2>
           <p className="text-gray-400 mt-4 text-lg font-medium max-w-2xl mx-auto">
-            Every layer of TaskHub is architected to protect your money, time, and peace of mind.
+            Every layer of TaskHub is architected to protect your money, time,
+            and peace of mind.
           </p>
         </motion.div>
 
@@ -113,7 +137,9 @@ export default function FoundationSection() {
           className="bg-[#13111C] border border-[#2D2A3B] rounded-sm p-8"
         >
           <div className="mb-8">
-            <h3 className="text-[#9F7AEA] font-bold text-xs uppercase tracking-widest mb-2">SAFE PAYMENTS</h3>
+            <h3 className="text-[#9F7AEA] font-bold text-xs uppercase tracking-widest mb-2">
+              SAFE PAYMENTS
+            </h3>
             <h4 className="text-2xl font-bold">How your money stays safe</h4>
           </div>
 
@@ -122,12 +148,17 @@ export default function FoundationSection() {
             <div className="hidden md:block absolute top-5 left-[8%] right-[8%] h-[1px] border-t border-dashed border-[#2D2A3B] z-0" />
 
             {safeSteps.map((step, idx) => (
-              <div key={idx} className="relative z-10 flex flex-col items-center text-center">
+              <div
+                key={idx}
+                className="relative z-10 flex flex-col items-center text-center"
+              >
                 <div className="w-10 h-10 rounded-full bg-[#1A1825] border-2 border-[#2D2A3B] flex items-center justify-center mb-4 text-xs font-bold text-[#9F7AEA]">
                   0{idx + 1}
                 </div>
                 <h5 className="font-bold mb-2">{step.label}</h5>
-                <p className="text-gray-400 text-sm font-medium">{step.description}</p>
+                <p className="text-gray-400 text-sm font-medium">
+                  {step.description}
+                </p>
               </div>
             ))}
           </div>
