@@ -27,16 +27,11 @@ import { useRef, useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { ImageCropperModal } from "@/components/ui/ImageCropperModal";
 
 const NIGERIAN_STATES = [
   "Abia", "Adamawa", "Akwa Ibom", "Bauchi", "Bayelsa", "Benue", "Borno",
@@ -69,6 +64,8 @@ export default function ProfileDetailsPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isPortfolioUploading, setIsPortfolioUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [isCropOpen, setIsCropOpen] = useState(false);
 
   const isTasker = role === "tasker";
 
@@ -108,9 +105,23 @@ export default function ProfileDetailsPage() {
     }
   }, [user, setValue]);
 
-  const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPendingImage(reader.result as string);
+      setIsCropOpen(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = async (croppedImage: string) => {
+    // Convert base64 to blob/file for upload
+    const response = await fetch(croppedImage);
+    const blob = await response.blob();
+    const file = new File([blob], "profile-picture.jpg", { type: "image/jpeg" });
 
     const formData = new FormData();
     formData.append("profilePicture", file);
@@ -596,6 +607,14 @@ export default function ProfileDetailsPage() {
           </Button>
         </div>
       </form>
+      {pendingImage && (
+        <ImageCropperModal
+          image={pendingImage}
+          isOpen={isCropOpen}
+          onClose={() => setIsCropOpen(false)}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 }

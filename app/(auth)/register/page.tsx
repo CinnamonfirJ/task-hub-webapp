@@ -381,6 +381,18 @@ function RegisterForm() {
           )}
         </form>
       </div>
+
+      <div className="relative my-8">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-gray-200" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-4 text-gray-400 font-semibold tracking-wider">
+            OR
+          </span>
+        </div>
+      </div>
+
       <div className="flex justify-center gap-6">
         <GoogleSignInButton role={(selectedRole || "user") as any} />
       </div>
