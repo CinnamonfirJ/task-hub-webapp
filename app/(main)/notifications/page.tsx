@@ -13,6 +13,7 @@ import {
   useMarkAllNotificationsAsRead,
   useDeleteNotification
 } from "@/hooks/useAuth";
+import { useNotificationNavigation } from "@/hooks/useNotificationNavigation";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -68,6 +69,8 @@ export default function UserNotificationsPage() {
   const { mutate: deleteNotification } = useDeleteNotification();
 
   const notifications = notificationsData?.data?.notifications || notificationsData?.notifications || [];
+
+  const { handleNotificationClick, isNavigating } = useNotificationNavigation();
 
   const filteredNotifications = notifications.filter((n: any) => {
     const matchesSearch =
@@ -149,7 +152,7 @@ export default function UserNotificationsPage() {
 
       {/* Notifications List */}
       <div className="space-y-3 relative min-h-[400px]">
-        {isLoading ? (
+        {(isLoading || isNavigating) ? (
           <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10 rounded-2xl">
             <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
           </div>
@@ -169,11 +172,7 @@ export default function UserNotificationsPage() {
           filteredNotifications.map((notification: any) => (
             <Card
               key={notification._id || notification.id}
-              onClick={() => {
-                const isRead = notification.read ?? notification.isRead;
-                if (!isRead) markAsRead(notification._id || notification.id);
-                setExpandedId(expandedId === (notification._id || notification.id) ? null : (notification._id || notification.id));
-              }}
+              onClick={() => handleNotificationClick(notification)}
               className={cn(
                 "group relative border-transparent hover:border-purple-100 transition-all cursor-pointer rounded-2xl overflow-hidden",
                 !(notification.read ?? notification.isRead) ? "bg-white  /50 ring-1 ring-purple-50" : "bg-gray-50/50 grayscale-[0.5] opacity-80"
