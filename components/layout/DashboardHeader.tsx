@@ -15,6 +15,7 @@ import { useAdminProfile } from "@/hooks/useAdmin";
 import { useSidebar } from "@/components/admin/SidebarContext";
 import { ExportModal, ExportType } from "@/components/admin/ExportModal";
 import { useNotifications, useMarkNotificationAsRead } from "@/hooks/useAuth";
+import { useNotificationNavigation } from "@/hooks/useNotificationNavigation";
 import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -144,7 +145,7 @@ export function DashboardHeader() {
 }
 function NotificationsDropdown() {
   const { data: notificationsData, isLoading } = useNotifications({ limit: 5 });
-  const { mutate: markAsRead } = useMarkNotificationAsRead();
+  const { handleNotificationClick, isNavigating } = useNotificationNavigation();
 
   // Handle both wrapped 'data' response and direct array response
   const notifications = notificationsData?.data?.notifications || notificationsData?.notifications || [];
@@ -153,7 +154,10 @@ function NotificationsDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className='relative p-1.5 text-gray-500 hover:text-[#6B46C1] transition-colors rounded-lg hover:bg-purple-50 group border border-transparent hover:border-purple-100 outline-none'>
+        <button 
+          disabled={isNavigating}
+          className='relative p-1.5 text-gray-500 hover:text-[#6B46C1] transition-colors rounded-lg hover:bg-purple-50 group border border-transparent hover:border-purple-100 outline-none disabled:opacity-50'
+        >
           <Bell size={20} />
           {unreadCount > 0 && (
             <span className='absolute top-1.5 right-1.5 h-3 w-3 bg-red-500 rounded-full border-2 border-white animate-pulse' />
@@ -179,7 +183,7 @@ function NotificationsDropdown() {
             notifications.map((notification: any) => (
               <div
                 key={notification._id}
-                onClick={() => !notification.read && markAsRead(notification._id)}
+                onClick={() => handleNotificationClick(notification)}
                 className={`p-5 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors flex gap-4 ${!notification.read ? "bg-purple-50/30" : ""
                   }`}
               >
