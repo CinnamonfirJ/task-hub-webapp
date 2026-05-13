@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,14 +37,28 @@ export default function VerificationCompletePage() {
             hours.
           </p>
         </CardContent>
-        <CardFooter className='flex flex-col gap-2'>
-          <Button asChild className='w-full bg-[#6B46C1] hover:bg-[#553C9A]'>
+        <CardFooter className='flex flex-col gap-3'>
+          <Button asChild className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-12 rounded-xl font-bold'>
             <Link href='/home'>
               <Home className='mr-2 h-4 w-4' />
               Return to Dashboard
             </Link>
           </Button>
-          <p className='text-center text-xs text-gray-400'>
+
+          <Button
+            variant="ghost"
+            className="w-full text-gray-500 hover:text-gray-700 font-medium"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("verificationSubmittedAt");
+              }
+              window.location.href = "/profile/verification?resubmit=true";
+            }}
+          >
+            Made a mistake? Resubmit details
+          </Button>
+
+          <p className='text-center text-xs text-gray-400 mt-2'>
             Status updates will be visible on your profile page.
           </p>
         </CardFooter>
