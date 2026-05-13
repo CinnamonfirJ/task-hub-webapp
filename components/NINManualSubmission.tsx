@@ -107,9 +107,27 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
             <p className="text-sm text-green-800/80 max-w-sm mx-auto leading-relaxed">
               An admin will review your details shortly. You will be notified once your verification status is updated.
             </p>
-            <Link href="/home" className="bg-green-600 hover:bg-green-700 text-white h-12 py-3 rounded-sm px-10 cursor-pointer font-bold text-sm uppercase tracking-widest transition-all">
-              Close
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+              <Button 
+                asChild
+                className="bg-green-600 hover:bg-green-700 text-white h-12 py-3 rounded-sm px-10 cursor-pointer font-bold text-sm uppercase tracking-widest transition-all"
+              >
+                <Link href="/home">Close</Link>
+              </Button>
+            </div>
+
+            <Button
+              variant="ghost"
+              className="text-green-600 hover:text-green-700 hover:bg-green-100/50 font-medium w-full"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  localStorage.removeItem("verificationSubmittedAt");
+                }
+                setIsSuccess(false);
+              }}
+            >
+              Made a mistake? Resubmit details
+            </Button>
           </CardContent>
         </Card>
       </motion.div>
