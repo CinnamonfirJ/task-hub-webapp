@@ -21,20 +21,20 @@ export default function SignupsPage() {
 
   const { data, isLoading, isError, refetch } = useTodaySignups();
 
-  const signups = data?.signups || [];
-  const count = data?.count || 0;
+  const signups = data?.list || [];
+  const count = data?.totalSignupsToday || 0;
 
   const filteredSignups = signups.filter((signup) => {
     // Search filter
     const matchesSearch = 
-      signup.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      signup.emailAddress.toLowerCase().includes(searchQuery.toLowerCase());
+      signup.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      signup.email.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (!matchesSearch) return false;
 
     // Type filter
-    if (activeFilter === "Users") return signup.role === "user";
-    if (activeFilter === "Taskers") return signup.role === "tasker";
+    if (activeFilter === "Users") return signup.role.toLowerCase() === "user";
+    if (activeFilter === "Taskers") return signup.role.toLowerCase() === "tasker";
     
     return true;
   });
@@ -147,7 +147,7 @@ export default function SignupsPage() {
                   </tr>
                 ) : (
                   filteredSignups.map((signup, idx) => (
-                    <tr key={signup._id} className='hover:bg-gray-50/50 transition-colors'>
+                    <tr key={signup.id} className='hover:bg-gray-50/50 transition-colors'>
                       <td className='px-6 py-4 text-sm text-gray-400 font-medium'>
                         {idx + 1}
                       </td>
@@ -157,14 +157,14 @@ export default function SignupsPage() {
                             <User size={18} />
                           </div>
                           <div>
-                            <p className='text-sm font-bold text-gray-900'>{signup.fullName}</p>
-                            <p className='text-xs text-gray-500'>{signup.emailAddress}</p>
+                            <p className='text-sm font-bold text-gray-900'>{signup.name}</p>
+                            <p className='text-xs text-gray-500'>{signup.email}</p>
                           </div>
                         </div>
                       </td>
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-2'>
-                          {signup.role === "tasker" ? (
+                          {signup.role.toLowerCase() === "tasker" ? (
                             <div className='flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 text-orange-600 text-[10px] font-bold uppercase'>
                               <Briefcase size={12} />
                               Tasker
@@ -180,7 +180,7 @@ export default function SignupsPage() {
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-2 text-sm text-gray-600'>
                           <Clock size={14} className='text-gray-400' />
-                          {formatTime(signup.createdAt)}
+                          {formatTime(signup.signupTime)}
                         </div>
                       </td>
                     </tr>
