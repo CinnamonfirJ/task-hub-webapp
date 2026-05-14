@@ -36,6 +36,10 @@ export default function SignupsPage() {
     if (activeFilter === "Users") return signup.role.toLowerCase() === "user";
     if (activeFilter === "Taskers") return signup.role.toLowerCase() === "tasker";
     
+    // Verification filter
+    if (activeFilter === "Verified") return signup.isVerified === true;
+    if (activeFilter === "Unverified") return signup.isVerified === false;
+    
     return true;
   });
 
@@ -116,7 +120,7 @@ export default function SignupsPage() {
             <AdminSearchFilter
               searchPlaceholder='Search by name or email...'
               searchTerm={searchQuery}
-              filterOptions={["All", "Users", "Taskers"]}
+              filterOptions={["All", "Users", "Taskers", "Verified", "Unverified"]}
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
               onSearch={setSearchQuery}
