@@ -98,18 +98,20 @@ export interface AdminDashboardStatsResponse {
 // ============================================================================
 
 export interface TodaySignupItem {
-  _id: string;
-  fullName: string;
-  emailAddress: string;
-  role: "user" | "tasker";
-  createdAt: string;
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  isVerified: boolean;
+  signupTime: string;
 }
 
 export interface TodaySignupsResponse {
   status: string;
   data: {
-    count: number;
-    signups: TodaySignupItem[];
+    totalSignupsToday: number;
+    date: string;
+    list: TodaySignupItem[];
   };
 }
 
