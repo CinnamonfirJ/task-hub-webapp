@@ -131,13 +131,14 @@ export default function SignupsPage() {
                   <th className='px-6 py-4'>#</th>
                   <th className='px-6 py-4'>Name & Email</th>
                   <th className='px-6 py-4'>Account Type</th>
+                  <th className='px-6 py-4'>Verification</th>
                   <th className='px-6 py-4'>Signup Time</th>
                 </tr>
               </thead>
               <tbody className='divide-y divide-gray-50'>
                 {filteredSignups.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className='px-6 py-20 text-center'>
+                    <td colSpan={5} className='px-6 py-20 text-center'>
                       <div className='flex flex-col items-center justify-center text-gray-400'>
                         <UserCircle2 size={48} className='opacity-10 mb-4' />
                         <p className='font-medium'>No signups found today</p>
@@ -176,6 +177,17 @@ export default function SignupsPage() {
                             </div>
                           )}
                         </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span
+                          className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                            signup.isVerified
+                              ? "bg-emerald-50 text-emerald-500"
+                              : "bg-gray-50 text-gray-400"
+                          }`}
+                        >
+                          {signup.isVerified ? "Verified" : "Unverified"}
+                        </span>
                       </td>
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-2 text-sm text-gray-600'>
