@@ -94,6 +94,26 @@ export interface AdminDashboardStatsResponse {
 }
 
 // ============================================================================
+// Signups Management Types
+// ============================================================================
+
+export interface TodaySignupItem {
+  _id: string;
+  fullName: string;
+  emailAddress: string;
+  role: "user" | "tasker";
+  createdAt: string;
+}
+
+export interface TodaySignupsResponse {
+  status: string;
+  data: {
+    count: number;
+    signups: TodaySignupItem[];
+  };
+}
+
+// ============================================================================
 // User Management Types
 // ============================================================================
 
