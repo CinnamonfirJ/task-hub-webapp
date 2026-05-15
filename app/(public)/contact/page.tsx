@@ -231,7 +231,7 @@ export default function ContactPage() {
             icon={<Phone className="w-6 h-6 text-[#1F2937]" />}
             title="Phone"
             description="Speak to our team for support."
-            value="+1 (415) 555-0198"
+            value="+234 811 380 8210"
             variants={itemVariants}
           />
           <ContactCard
