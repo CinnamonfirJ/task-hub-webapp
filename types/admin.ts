@@ -471,6 +471,7 @@ export interface AdminTaskerDetailResponse {
       type: string;
       number: string;
       status: string;
+      method: string;
     };
     stats: {
       rating: number;
