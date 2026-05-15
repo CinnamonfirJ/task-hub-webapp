@@ -23,8 +23,9 @@ export default function Navbar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 backdrop-blur-md  py-3" : "bg-white py-5"
-        }`}
+      className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ${
+        isScrolled ? "bg-white/90 backdrop-blur-md  py-3" : "bg-white py-5"
+      }`}
     >
       <nav className="flex items-center justify-between px-6 max-w-7xl mx-auto">
         {/* Logo */}
@@ -41,9 +42,9 @@ export default function Navbar() {
         {/* Center Links */}
         <div className="hidden md:flex items-center gap-8">
           {[
-            { href: "#categories", label: "Categories" },
-            { href: "#about", label: "About" },
-            { href: "#contact", label: "Contact" },
+            { href: "/#categories", label: "Categories" },
+            { href: "/about", label: "About" },
+            { href: "/contact", label: "Contact" },
           ].map((link) => (
             <Link
               key={link.href}
@@ -96,14 +97,35 @@ export default function Navbar() {
             exit={{ opacity: 0, y: -10 }}
             className="absolute top-20 left-0 right-0 w-full bg-white border-t border-gray-100 p-4  flex flex-col gap-4 md:hidden z-50"
           >
-            <Link href="#categories" className="text-sm font-medium text-gray-700 py-2">Categories</Link>
-            <Link href="#about" className="text-sm font-medium text-gray-700 py-2">About</Link>
-            <Link href="#contact" className="text-sm font-medium text-gray-700 py-2">Contact</Link>
+            <Link
+              href="#categories"
+              className="text-sm font-medium text-gray-700 py-2"
+            >
+              Categories
+            </Link>
+            <Link
+              href="#about"
+              className="text-sm font-medium text-gray-700 py-2"
+            >
+              About
+            </Link>
+            <Link
+              href="#contact"
+              className="text-sm font-medium text-gray-700 py-2"
+            >
+              Contact
+            </Link>
             <div className="flex flex-col gap-3 mt-2">
-              <Link href="/login" className="w-full text-center font-semibold text-[#1F2937] bg-[#F9FAFB] px-6 py-3 rounded-full">
+              <Link
+                href="/login"
+                className="w-full text-center font-semibold text-[#1F2937] bg-[#F9FAFB] px-6 py-3 rounded-full"
+              >
                 Login
               </Link>
-              <Link href="/register" className="w-full text-center font-semibold text-white bg-[#7C3AED] px-6 py-3 rounded-full flex items-center justify-center gap-2">
+              <Link
+                href="/register"
+                className="w-full text-center font-semibold text-white bg-[#7C3AED] px-6 py-3 rounded-full flex items-center justify-center gap-2"
+              >
                 Sign up <Sparkles className="w-4 h-4" />
               </Link>
             </div>
