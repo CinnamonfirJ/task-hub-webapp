@@ -359,7 +359,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* Top Categories */}
-        <Card className='border border-gray-100  rounded-sm'>
+        <Card className='border border-gray-100 rounded-sm'>
           <CardHeader className='pb-2 px-6 pt-6'>
             <CardTitle className='text-base font-bold text-gray-900'>
               Top Categories by Taskers
@@ -378,12 +378,59 @@ export default function AdminDashboardPage() {
                       </div>
                       <span className='text-sm font-semibold text-gray-800 line-clamp-1'>{cat.categoryName}</span>
                     </div>
-                    <span className='text-xs font-bold bg-white px-2.5 py-1 rounded-full  border border-gray-100 text-gray-600'>
+                    <span className='text-xs font-bold bg-white px-2.5 py-1 rounded-full border border-gray-100 text-gray-600'>
                       {cat.taskerCount} taskers
                     </span>
                   </div>
                 ))
               )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* KYC Verification Methods */}
+        <Card className='border border-gray-100 rounded-sm lg:col-span-2'>
+          <CardHeader className='pb-2 px-6 pt-6'>
+            <CardTitle className='text-base font-bold text-gray-900'>
+              KYC Verification Methods
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='px-6 pb-6'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mt-2'>
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <div className='w-3 h-3 rounded-full bg-[#6B46C1]' />
+                    <span className='text-sm font-medium text-gray-600'>Didit Automated</span>
+                  </div>
+                  <span className='text-sm font-bold text-gray-900'>
+                    {stats?.analytics?.kycMethods?.diditAutomated ?? 0}
+                  </span>
+                </div>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <div className='w-3 h-3 rounded-full bg-orange-400' />
+                    <span className='text-sm font-medium text-gray-600'>Manual Review</span>
+                  </div>
+                  <span className='text-sm font-bold text-gray-900'>
+                    {stats?.analytics?.kycMethods?.manual ?? 0}
+                  </span>
+                </div>
+              </div>
+              
+              <div className='flex items-center justify-center'>
+                <div className='relative w-32 h-32'>
+                  {/* Simple CSS-based donut chart representation if no library is available */}
+                  <div className='absolute inset-0 rounded-full border-[12px] border-gray-100' />
+                  {/* This is a visual representation, in a real app we'd use a charting library */}
+                  <div className='absolute inset-0 flex items-center justify-center flex-col'>
+                    <span className='text-xl font-bold text-gray-900'>
+                      {(stats?.analytics?.kycMethods?.diditAutomated ?? 0) + (stats?.analytics?.kycMethods?.manual ?? 0)}
+                    </span>
+                    <span className='text-[10px] font-bold text-gray-400 uppercase'>Total Verified</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

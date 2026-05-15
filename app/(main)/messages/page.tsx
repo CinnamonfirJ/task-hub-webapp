@@ -62,31 +62,43 @@ export default function MessagesPage() {
 
   const displayName = getDisplayName(user);
 
-  if (process.env.NODE_ENV === "development") {
-    console.log("[MessagesPage] Current User:", user);
-  }
-
   const userInitials =
     displayName !== "User"
       ? displayName
-          .split(" ")
-          .map((n: string) => n[0])
-          .join("")
-          .toUpperCase()
-          .slice(0, 2)
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
       : "U";
 
   const filteredConversations = conversations
     .filter((conv) => {
-      if (activeFilter === "unread") return (conv.unreadCount || 0) > 0;
-      if (activeFilter === "read") return (conv.unreadCount || 0) === 0;
+      const count =
+        conv.unreadCount ??
+        (user?.role === "tasker" ? conv.unread?.tasker : conv.unread?.user) ??
+        0;
+
+      if (activeFilter === "unread") return count > 0;
+      if (activeFilter === "read") return count === 0;
       return true;
     })
     .sort((a, b) => {
-      const dateA = new Date(a.lastMessage?.createdAt || a.updatedAt).getTime();
-      const dateB = new Date(b.lastMessage?.createdAt || b.updatedAt).getTime();
-      return dateB - dateA;
+      const dateA = new Date(
+        a.lastMessage?.createdAt || a.updatedAt || a.createdAt || 0,
+      ).getTime();
+      const dateB = new Date(
+        b.lastMessage?.createdAt || b.updatedAt || b.createdAt || 0,
+      ).getTime();
+      return (dateB || 0) - (dateA || 0);
     });
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[MessagesPage] Raw convData:", convData);
+    console.log("[MessagesPage] Extracted conversations:", conversations);
+    console.log("[MessagesPage] Filtered conversations:", filteredConversations);
+    console.log("[MessagesPage] Current User Role:", user?.role);
+  }
 
   const handleSelectConversation = (conv: Conversation) => {
     router.push(`/messages/${conv._id}`);
@@ -123,9 +135,8 @@ export default function MessagesPage() {
                   : `CLIENT: ${displayName}`}
               </h2>
               <p
-                className={`text-[8px] md:text-[10px] font-black uppercase tracking-widest ${
-                  isVerified ? "text-green-600" : "text-red-600"
-                }`}
+                className={`text-[8px] md:text-[10px] font-black uppercase tracking-widest ${isVerified ? "text-green-600" : "text-red-600"
+                  }`}
               >
                 {isVerified ? "ACCOUNT VERIFIED" : "ACCOUNT NOT VERIFIED"}
               </p>
@@ -148,11 +159,10 @@ export default function MessagesPage() {
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-4 md:px-6 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
-                  activeFilter === filter
-                    ? "bg-[#6B46C1] text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+                className={`px-4 md:px-6 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${activeFilter === filter
+                  ? "bg-[#6B46C1] text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
               >
                 {filter.charAt(0).toUpperCase() + filter.slice(1)}
               </button>

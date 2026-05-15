@@ -15,19 +15,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
 import { useAuth } from "@/hooks/useAuth";
-import { useConversations } from "@/hooks/useChat";
+import { useChatNotifications } from "@/hooks/useChat";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { data: convData } = useConversations();
+  const { data: notificationsData } = useChatNotifications();
   const isTasker = user?.role === "tasker";
 
-  const totalUnread =
-    convData?.conversations?.reduce(
-      (acc, conv) => acc + (conv.unreadCount || 0),
-      0,
-    ) || 0;
+  const totalUnread = notificationsData?.data?.unreadCount || 0;
 
   const navItems = [
     { icon: Home, label: "Home", href: "/home" },
@@ -68,7 +64,7 @@ export function Sidebar() {
                 {item.label}
               </div>
               {item.label === "Message" && totalUnread > 0 && (
-                <span className='flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white'>
+                <span className='flex h-5 w-5 items-center justify-center rounded-full bg-[#6B46C1] text-[10px] font-bold text-white'>
                   {totalUnread > 9 ? "9+" : totalUnread}
                 </span>
               )}

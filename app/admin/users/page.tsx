@@ -142,15 +142,25 @@ export default function UsersManagementPage() {
       value: stats?.completedTasks?.toLocaleString() || "0",
     },
     {
+      label: "Didit Verified",
+      value: stats?.verifiedViaDidit?.toLocaleString() || "0",
+      color: "text-purple-600",
+    },
+    {
+      label: "Manual Verified",
+      value: stats?.verifiedManually?.toLocaleString() || "0",
+      color: "text-orange-500",
+    },
+    {
       label: "Unverified",
       value: stats?.unverified?.toLocaleString() || "0",
       color: "text-blue-400",
     },
-    {
-      label: "Deleted",
-      value: stats?.deleted?.toLocaleString() || "0",
-      color: "text-red-400",
-    },
+    // {
+    //   label: "Deleted",
+    //   value: stats?.deleted?.toLocaleString() || "0",
+    //   color: "text-red-400",
+    // },
   ];
 
   const handleSearch = (query: string) => {

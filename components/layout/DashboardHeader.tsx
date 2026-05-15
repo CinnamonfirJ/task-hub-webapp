@@ -160,7 +160,7 @@ function NotificationsDropdown() {
         >
           <Bell size={20} />
           {unreadCount > 0 && (
-            <span className='absolute top-1.5 right-1.5 h-3 w-3 bg-red-500 rounded-full border-2 border-white animate-pulse' />
+            <span className='absolute top-1.5 right-1.5 h-3 w-3 bg-[#6B46C1] rounded-full border-2 border-white animate-pulse' />
           )}
         </button>
       </DropdownMenuTrigger>
