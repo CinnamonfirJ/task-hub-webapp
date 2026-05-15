@@ -31,9 +31,36 @@ export interface Conversation {
   tasker: string | Partial<User>;
   lastMessage?: Message;
   unreadCount?: number;
+  unread?: {
+    user: number;
+    tasker: number;
+  };
+  participantPresence?: ParticipantPresence;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ParticipantPresence {
+  type: SenderType;
+  isOnline: boolean;
+  lastSeenAt: string;
+}
+
+export interface ChatNotification {
+  conversationId: string;
+  unreadCount: number;
+  lastMessage: string;
+  lastMessageAt: string;
+  conversation: Conversation;
+}
+
+export interface ChatNotificationsResponse {
+  status: string;
+  data: {
+    unreadCount: number;
+    notifications: ChatNotification[];
+  };
 }
 
 export interface ConversationsResponse {

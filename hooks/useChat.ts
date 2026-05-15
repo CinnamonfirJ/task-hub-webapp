@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { chatApi } from "@/lib/api/chat";
 import { CreateConversationInput, SendMessageInput } from "@/types/chat";
+import { useAuth } from "@/hooks/useAuth";
 
 export function useConversations(page = 1, limit = 20) {
   return useQuery({
@@ -94,5 +95,26 @@ export function useInfiniteMessages(conversationId: string, limit = 20) {
     },
     enabled: !!conversationId,
     refetchInterval: 3000,
+  });
+}
+
+export function useChatNotifications() {
+  const { user } = useAuth();
+  
+  const isAdmin = 
+    user?.role === "admin" || 
+    (typeof window !== "undefined" && localStorage.getItem("userType") === "admin");
+
+  return useQuery({
+    queryKey: ["chat-notifications"],
+    queryFn: () => chatApi.getChatNotifications(),
+    enabled: !!user && !isAdmin,
+    refetchInterval: 10000, // Poll for notifications every 10 seconds
+  });
+}
+
+export function useUpdatePresence() {
+  return useMutation({
+    mutationFn: (isOnline: boolean) => chatApi.updatePresence(isOnline),
   });
 }

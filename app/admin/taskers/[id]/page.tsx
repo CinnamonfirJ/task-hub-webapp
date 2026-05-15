@@ -304,6 +304,15 @@ export default function TaskerDetailsPage({
                   : "Not Submitted"}
               </span>
             </div>
+            <div>
+              <p className='text-xs text-gray-400 mb-1'>Verification Method</p>
+              <span
+                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full bg-purple-50 text-[#6B46C1] border border-purple-200`
+                }
+              >
+                {kyc?.method}
+              </span>
+            </div>
 
             {/* {kyc?.status === "unverified" && (
               <Button

@@ -60,6 +60,11 @@ export function ConversationList({
           const partnerInitial = partnerName[0]?.toUpperCase() || "U";
           const task = typeof conv.task === "object" ? conv.task : null;
 
+          const actualUnreadCount =
+            conv.unreadCount ??
+            (currentUser?.role === "tasker" ? conv.unread?.tasker : conv.unread?.user) ??
+            0;
+
           const lastMsg = conv.lastMessage;
           const date = lastMsg?.createdAt
             ? new Date(lastMsg.createdAt)
@@ -90,9 +95,12 @@ export function ConversationList({
                     {partnerInitial}
                   </div>
                 )}
-                {conv.unreadCount && conv.unreadCount > 0 ? (
-                  <div className='absolute -top-1 -right-1 h-4 w-4 md:h-5 md:w-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[8px] md:text-[10px] text-white font-bold animate-pulse'>
-                    {conv.unreadCount}
+                {conv.participantPresence?.isOnline && (
+                  <div className='absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-white' />
+                )}
+                {actualUnreadCount > 0 ? (
+                  <div className='absolute -top-1 -right-1 h-4 w-4 md:h-5 md:w-5 bg-[#6B46C1] rounded-full border-2 border-white flex items-center justify-center text-[8px] md:text-[10px] text-white font-bold animate-pulse'>
+                    {actualUnreadCount}
                   </div>
                 ) : null}
               </div>
@@ -112,7 +120,7 @@ export function ConversationList({
                   </p>
                 )}
                 <p className='text-[11px] md:text-xs text-gray-500 truncate'>
-                  {lastMsg?.text || "No messages yet"}
+                  {lastMsg?.toString() || "No messages yet"}
                 </p>
               </div>
             </button>

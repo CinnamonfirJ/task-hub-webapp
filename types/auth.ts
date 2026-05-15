@@ -43,6 +43,8 @@ export interface User {
   totalAssigned?: number;
   tasksCompleted?: number;
   averageRating?: number;
+  isOnline?: boolean;
+  lastSeenAt?: string;
 }
 
 // API returns accessToken (not "token") and user/tasker depending on role

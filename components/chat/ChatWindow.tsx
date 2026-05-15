@@ -5,6 +5,7 @@ import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
 import { ArrowLeft, MoreVertical, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { format, isToday } from "date-fns";
 
 interface ChatWindowProps {
   conversation: Conversation;
@@ -99,15 +100,42 @@ export function ChatWindow({
                 {partnerInitial}
               </div>
             )}
-            <div className='absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-white' />
+            {conversation.participantPresence?.isOnline && (
+              <div className='absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-white' />
+            )}
           </div>
 
           <div className='min-w-0'>
-            <h3 className='font-bold text-gray-900 text-sm truncate uppercase tracking-tight'>
-              {partnerObj?.role === "tasker"
-                ? `TASKER: ${partnerName}`
-                : `CLIENT: ${partnerName}`}
-            </h3>
+            <div className='flex items-center gap-2'>
+              <h3 className='font-bold text-gray-900 text-sm truncate uppercase tracking-tight'>
+                {partnerObj?.role === "tasker"
+                  ? `TASKER: ${partnerName}`
+                  : `CLIENT: ${partnerName}`}
+              </h3>
+              {conversation.participantPresence?.isOnline ? (
+                <span className='flex h-1.5 w-1.5 rounded-full bg-green-500' />
+              ) : null}
+            </div>
+            <div className='flex items-center gap-2'>
+              {conversation.participantPresence?.isOnline ? (
+                <p className='text-[10px] font-bold text-green-600 uppercase'>
+                  Online
+                </p>
+              ) : conversation.participantPresence?.lastSeenAt ? (
+                <p className='text-[10px] font-medium text-gray-400 uppercase'>
+                  Last seen{" "}
+                  {isToday(new Date(conversation.participantPresence.lastSeenAt))
+                    ? format(
+                        new Date(conversation.participantPresence.lastSeenAt),
+                        "HH:mm",
+                      )
+                    : format(
+                        new Date(conversation.participantPresence.lastSeenAt),
+                        "MMM d",
+                      )}
+                </p>
+              ) : null}
+            </div>
             {task && (
               <div className='flex items-center gap-1.5'>
                 <p className='text-[10px] font-bold text-[#6B46C1] truncate uppercase'>
