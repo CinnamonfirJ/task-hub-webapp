@@ -85,6 +85,10 @@ export interface AdminDashboardStats {
   analytics?: {
     locations?: { state: string; taskCount: number }[];
     categories?: { categoryName: string; taskerCount: number }[];
+    kycMethods?: {
+      diditAutomated: number;
+      manual: number;
+    };
   };
 }
 
@@ -128,6 +132,8 @@ export interface UserStats {
   suspended: number;
   deleted: number;
   kyc_verified: number;
+  verifiedViaDidit: number;
+  verifiedManually: number;
   totalTasksPosted: number;
   completedTasks: number;
   growth: {

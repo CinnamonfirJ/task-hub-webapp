@@ -9,7 +9,17 @@ export function PresenceTracker() {
   const { mutate: updatePresence } = useUpdatePresence();
 
   useEffect(() => {
-    if (!user) return;
+    const isAdmin = 
+      user?.role === "admin" || 
+      (typeof window !== "undefined" && localStorage.getItem("userType") === "admin") ||
+      (typeof window !== "undefined" && window.location.pathname.startsWith("/admin"));
+
+    if (!user || isAdmin) {
+      if (process.env.NODE_ENV === "development" && isAdmin) {
+        console.log("[PresenceTracker] Skipping presence update for admin user");
+      }
+      return;
+    }
 
     // Initial online status
     updatePresence(true);

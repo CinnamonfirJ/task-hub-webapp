@@ -122,6 +122,10 @@ export const chatApi = {
 
   // Update online/offline presence
   updatePresence: async (isOnline: boolean): Promise<any> => {
+    // Failsafe: check localStorage for admin status to prevent accidental calls
+    const userType = typeof window !== "undefined" ? localStorage.getItem("userType") : null;
+    if (userType === "admin") return { status: "skipped", message: "Presence not tracked for admins" };
+
     const res = await apiData<any>("/api/chat/presence", {
       method: "PATCH",
       body: JSON.stringify({ isOnline }),
