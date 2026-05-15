@@ -1,14 +1,25 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, MessageCircle, Phone, MapPin, Send } from "lucide-react";
+import {
+  Mail,
+  MessageCircle,
+  Phone,
+  MapPin,
+  MessageSquare,
+  Send,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useSupport } from "@/hooks/useSupport";
 
 export default function ContactPage() {
+  const { form, onSubmit, isSubmitting } = useSupport();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -43,7 +54,7 @@ export default function ContactPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-medium text-[#1F2937] mb-6 tracking-tight"
+          className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1F2937] mb-6 tracking-tight"
         >
           Let&apos;s talk.{" "}
           <span className="font-instrument italic text-[#7C3AED]">
@@ -65,8 +76,8 @@ export default function ContactPage() {
           transition={{ delay: 0.3 }}
           className="flex flex-wrap items-center justify-center gap-4"
         >
-          <Button className="bg-[#1F2937] hover:bg-[#111827] text-white rounded-full px-15 py-3 h-auto text-base font-medium gap-3 cursor-pointer">
-            <MessageCircle className="w-5 h-5" />
+          <Button className="bg-[#1F2937] hover:bg-[#111827] text-white rounded-full px-12 py-3 h-auto text-base font-semibold gap-2">
+            <MessageSquare className="w-5 h-5" />
             <Link
               href="https://chat.whatsapp.com/HUoYs3Rb1js4H2U4WuvPWK?mode=gi_t"
               target="_blank"
@@ -76,13 +87,14 @@ export default function ContactPage() {
           </Button>
           <Button
             variant="secondary"
-            className="bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#1F2937] rounded-full px-12 py-3 h-auto text-base font-medium cursor-pointer"
+            className="bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#1F2937] rounded-full px-10 py-3 h-auto text-base font-semibold"
           >
             <Link href="mailto:support@ngtaskhub.com">Email us</Link>
           </Button>
         </motion.div>
       </section>
 
+      {/* Form Section */}
       <section className="max-w-4xl mx-auto px-6 mb-24">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -91,20 +103,20 @@ export default function ContactPage() {
           transition={{ duration: 0.7 }}
           className="bg-[#F9FAFB] rounded-[32px] p-8 md:p-12 border border-[#F3F4F6]"
         >
-          <div className="text-center mb-10 text-left">
-            <h2 className="text-3xl font-medium text-[#1F2937] mb-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-[#1F2937] mb-4">
               Send us a message{" "}
               <span className="font-instrument italic text-[#7C3AED]">
                 anytime.
               </span>
             </h2>
-            <p className="text-[#6B7280] max-w-lg ">
+            <p className="text-[#6B7280] max-w-lg mx-auto">
               Fill in the form and someone from our team will reach out within
               one business day. For urgent matters, reach us directly via email.
             </p>
           </div>
 
-          <form className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label
@@ -117,7 +129,13 @@ export default function ContactPage() {
                   id="name"
                   placeholder="Jacob Moore"
                   className="bg-white border-[#E5E7EB] rounded-xl h-14 px-4 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-all"
+                  {...form.register("name")}
                 />
+                {form.formState.errors.name && (
+                  <p className="text-xs text-red-500 ml-1">
+                    {form.formState.errors.name.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label
@@ -131,7 +149,13 @@ export default function ContactPage() {
                   type="email"
                   placeholder="name@email.com"
                   className="bg-white border-[#E5E7EB] rounded-xl h-14 px-4 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-all"
+                  {...form.register("email")}
                 />
+                {form.formState.errors.email && (
+                  <p className="text-xs text-red-500 ml-1">
+                    {form.formState.errors.email.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="space-y-2">
@@ -145,11 +169,27 @@ export default function ContactPage() {
                 id="message"
                 placeholder="Tell us how we can help"
                 className="bg-white border-[#E5E7EB] rounded-xl min-h-[200px] p-4 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-all resize-none"
+                {...form.register("message")}
               />
+              {form.formState.errors.message && (
+                <p className="text-xs text-red-500 ml-1">
+                  {form.formState.errors.message.message}
+                </p>
+              )}
             </div>
-            <Button className="w-full bg-[#1F2937] hover:bg-[#111827] text-white rounded-xl h-14 text-base font-medium transition-all shadow-lg shadow-gray-200 flex items-center justify-center gap-2 cursor-pointer">
-              <Send className="w-5 h-5" />
-              Send message
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-[#1F2937] hover:bg-[#111827] text-white rounded-xl h-14 text-base font-bold transition-all shadow-lg shadow-gray-200 gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send message"
+              )}
             </Button>
           </form>
         </motion.div>
