@@ -6,6 +6,7 @@ import {
   MessagesResponse,
   CreateConversationInput,
   SendMessageInput,
+  ChatNotificationsResponse,
 } from "@/types/chat";
 
 export const chatApi = {
@@ -39,6 +40,7 @@ export const chatApi = {
       conversations:
         res?.conversations ||
         res?.data?.conversations ||
+        res?.data?.docs ||
         res?.data ||
         (Array.isArray(res) ? res : []),
       totalPages: res?.totalPages || res?.data?.totalPages || 1,
@@ -108,5 +110,22 @@ export const chatApi = {
     await apiData<any>(`/api/chat/conversations/${conversationId}/read`, {
       method: "POST",
     });
+  },
+
+  // Get unread notifications
+  getChatNotifications: async (): Promise<ChatNotificationsResponse> => {
+    const res = await apiData<any>("/api/chat/notifications", {
+      method: "GET",
+    });
+    return res;
+  },
+
+  // Update online/offline presence
+  updatePresence: async (isOnline: boolean): Promise<any> => {
+    const res = await apiData<any>("/api/chat/presence", {
+      method: "PATCH",
+      body: JSON.stringify({ isOnline }),
+    });
+    return res;
   },
 };

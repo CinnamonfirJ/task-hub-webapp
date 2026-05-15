@@ -96,3 +96,17 @@ export function useInfiniteMessages(conversationId: string, limit = 20) {
     refetchInterval: 3000,
   });
 }
+
+export function useChatNotifications() {
+  return useQuery({
+    queryKey: ["chat-notifications"],
+    queryFn: () => chatApi.getChatNotifications(),
+    refetchInterval: 10000, // Poll for notifications every 10 seconds
+  });
+}
+
+export function useUpdatePresence() {
+  return useMutation({
+    mutationFn: (isOnline: boolean) => chatApi.updatePresence(isOnline),
+  });
+}
