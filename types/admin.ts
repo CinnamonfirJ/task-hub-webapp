@@ -219,9 +219,11 @@ export interface AdminUserDetailResponse {
       balance: number;
       escrow: number;
     };
-    verification: {
+    kyc: {
       status: string;
+      method: string;
       type: string;
+      number: string;
     };
     tasks: Array<{
       _id: string;
@@ -233,9 +235,9 @@ export interface AdminUserDetailResponse {
     transactions: Array<{
       _id: string;
       type: string;
-      amount: number;
-      description: string;
-      createdAt: string;
+      escrowAmount: number;
+      title: string;
+      updatedAt: string;
     }>;
     activityLog: Array<{
       action: string;
