@@ -27,6 +27,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard", roles: ["super_admin", "operations", "trust_safety", "finance"] },
+  { icon: Users, label: "Signups", href: "/admin/signups", roles: ["super_admin", "operations", "trust_safety", "finance"] },
   { icon: Users, label: "Users", href: "/admin/users", roles: ["super_admin", "operations", "trust_safety"] },
   { icon: Users2, label: "Taskers", href: "/admin/taskers", roles: ["super_admin", "operations", "trust_safety"] },
   { icon: ShieldCheck, label: "Staff/Admin", href: "/admin/staff", roles: ["super_admin"] },
