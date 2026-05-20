@@ -19,10 +19,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { taskersApi } from "@/lib/api/taskers";
+import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 
 const ninSchema = z.object({
-  fullName: z.string().min(3, "Full name must be at least 3 characters"),
   nin: z
     .string()
     .length(11, "NIN must be exactly 11 digits")
@@ -39,31 +39,49 @@ interface NINManualSubmissionProps {
 export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmissionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isResubmitting, setIsResubmitting] = useState(false);
+  const { user } = useAuth();
+
+  // Check if verification has been resolved (accepted or rejected)
+  const isVerificationResolved = user?.isKYCVerified === true;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<NINFormValues>({
     resolver: zodResolver(ninSchema),
     defaultValues: {
-      fullName: "",
       nin: "",
     },
   });
 
   const onSubmit = async (values: NINFormValues) => {
     try {
-      setIsLoading(true);
-      const response = await taskersApi.submitNIN(values.nin, values.fullName);
+      if (isVerificationResolved) {
+        toast.error("Your verification has already been processed. You cannot submit again.");
+        return;
+      }
 
-      if (response.status === "success") {
+      if (!user?.fullName) {
+        toast.error("Unable to retrieve your name. Please try again.");
+        return;
+      }
+
+      setIsLoading(true);
+      const response = await taskersApi.submitNIN(values.nin, user.fullName, isResubmitting);
+
+      // Success response or already submitted error (which is allowed on resubmit)
+      if (response.status === "success" || 
+          (isResubmitting && response.message?.toLowerCase().includes("already"))) {
         // Store submission signal for pending state tracking
         if (typeof window !== "undefined") {
           localStorage.setItem("verificationSubmittedAt", Date.now().toString());
         }
         
         setIsSuccess(true);
+        setIsResubmitting(false);
         toast.success(response.message || "NIN submitted successfully");
         
         // Invalidate verification status to trigger UI update
@@ -116,18 +134,13 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
               </Button>
             </div>
 
-            <Button
-              variant="ghost"
-              className="text-green-600 hover:text-green-700 hover:bg-green-100/50 font-medium w-full"
-              onClick={() => {
-                if (typeof window !== "undefined") {
-                  localStorage.removeItem("verificationSubmittedAt");
-                }
-                setIsSuccess(false);
-              }}
-            >
-              Made a mistake? Resubmit details
-            </Button>
+            {isVerificationResolved && (
+              <div className="bg-amber-50/50 border border-amber-200/50 rounded-sm p-4">
+                <p className="text-xs text-amber-700 font-medium">
+                  Your verification has been processed. You cannot resubmit your NIN at this time.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -155,29 +168,11 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
         </CardHeader>
         <CardContent className="p-8 pt-2">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="fullName" className="font-bold text-gray-700 text-[13px] pl-1 uppercase tracking-wider">
-                Full Legal Name
-              </Label>
-              <div className="relative">
-                <Input
-                  id="fullName"
-                  required
-                  {...register("fullName")}
-                  placeholder="e.g. Adewale Okonkwo"
-                  className={`bg-gray-50 border-gray-100 rounded-sm h-14 px-4 font-medium focus-visible:ring-purple-400 focus:bg-white transition-all ${errors.fullName ? "border-red-400" : ""
-                    }`}
-                />
-              </div>
-              {errors.fullName && (
-                <motion.p
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-red-500 text-xs font-medium pl-1 flex items-center gap-1"
-                >
-                  <AlertCircle size={12} /> {errors.fullName.message}
-                </motion.p>
-              )}
+            <div className="bg-purple-50/50 border border-purple-100/50 rounded-sm p-4">
+              <p className="text-sm text-gray-600">
+                <span className="font-medium text-gray-700">Submitting as:</span>{" "}
+                <span className="font-bold text-purple-700">{user?.fullName || "Loading..."}</span>
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -210,10 +205,12 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
             <div className="flex flex-col gap-4 pt-4">
               <Button
                 type="submit"
-                disabled={isLoading}
-                className="bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-sm w-full font-bold text-sm uppercase tracking-widest  transition-all active:scale-[0.98]"
+                disabled={isLoading || isVerificationResolved}
+                className="bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-sm w-full font-bold text-sm uppercase tracking-widest  transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
+                {isVerificationResolved ? (
+                  "Verification Already Processed"
+                ) : isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Submitting...
@@ -226,9 +223,10 @@ export function NINManualSubmission({ onSuccess, onCancel }: NINManualSubmission
               {onCancel && (
                 <Button
                   type="button"
+                  disabled={isVerificationResolved}
                   variant="outline"
                   onClick={onCancel}
-                  className="w-full border-gray-100 text-gray-500 hover:bg-gray-50 h-14 rounded-sm font-bold text-sm uppercase tracking-widest"
+                  className="w-full border-gray-100 text-gray-500 hover:bg-gray-50 h-14 rounded-sm font-bold text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Back to SDK Verification
                 </Button>

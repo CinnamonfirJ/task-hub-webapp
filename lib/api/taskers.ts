@@ -18,12 +18,12 @@ export const taskersApi = {
     }
   },
 
-  submitNIN: async (nin: string, fullName: string) => {
+  submitNIN: async (nin: string, fullName: string, isResubmission?: boolean) => {
     return await apiData<{ status: string; message: string; kycId?: string }>(
       "/api/nin/submit-nin",
       {
         method: "POST",
-        body: JSON.stringify({ nin, fullName }),
+        body: JSON.stringify({ nin, fullName, isResubmission: !!isResubmission }),
       }
     );
   },
