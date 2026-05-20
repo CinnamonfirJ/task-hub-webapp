@@ -5,6 +5,7 @@ import { X, Loader2, CheckCircle2, CreditCard, Info, Building2 } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { useBanks, useSetBankAccount, useTaskerBankAccount } from "@/hooks/useWithdrawal";
 import { toast } from "sonner";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 interface BankAccountModalProps {
   isOpen: boolean;
@@ -114,22 +115,24 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
               {savedBank ? "Change Bank" : "Select Bank"}
             </p>
             <div className="relative">
-              <Building2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <select
-                className="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-purple-200 appearance-none"
+              <SearchableSelect
+                options={
+                  banks
+                    ?.filter(
+                      (bank: any, index: number, self: any[]) =>
+                        self.findIndex((b: any) => b.code === bank.code) === index
+                    )
+                    .map((bank: any) => ({
+                      value: bank.code,
+                      label: bank.name,
+                    })) || []
+                }
                 value={selectedBank}
-                onChange={(e) => setSelectedBank(e.target.value)}
-                disabled={isLoadingBanks}
-              >
-                <option value="">{isLoadingBanks ? "Loading banks..." : "Select Bank"}</option>
-                {banks
-                  ?.filter((bank: any, index: number, self: any[]) => self.findIndex((b: any) => b.code === bank.code) === index)
-                  .map((bank: any) => (
-                    <option key={bank.code} value={bank.code}>
-                      {bank.name}
-                    </option>
-                  ))}
-              </select>
+                onValueChange={setSelectedBank}
+                placeholder={isLoadingBanks ? "Loading banks..." : "Select Bank"}
+                searchPlaceholder="Search banks..."
+                className="w-full bg-gray-50 border-gray-200 rounded-xl"
+              />
             </div>
           </div>
 
