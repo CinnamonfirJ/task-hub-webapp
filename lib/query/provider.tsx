@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { NextStep, NextStepProvider } from "nextstepjs";
 import { userSteps, taskerSteps, tourAnimationConfig, CustomTourCard } from "@/components/onboarding/OnboardingTour";
+import { PresenceTracker } from "@/components/layout/PresenceTracker";
 
 export function Providers({ children }: { children: ReactNode }) {
   const steps = [
@@ -40,6 +41,7 @@ export function Providers({ children }: { children: ReactNode }) {
           }}
         >
           <Toaster position='top-center' richColors />
+          <PresenceTracker />
           {children}
         </NextStep>
       </NextStepProvider>

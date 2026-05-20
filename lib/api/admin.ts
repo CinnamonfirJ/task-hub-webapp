@@ -52,6 +52,7 @@ import {
   AdminNotificationListResponse,
   AdminNotificationStatsResponse,
   SendNotificationRequest,
+  TodaySignupsResponse,
 } from "@/types/admin";
 
 export const adminApi = {
@@ -905,6 +906,13 @@ export const adminApi = {
 
   getNotificationUsers: async (): Promise<any> => {
     const response = await apiData<any>("/api/admin/notifications/all-users", {
+      method: "GET",
+    });
+    return response.data ?? response;
+  },
+
+  getTodaySignups: async (): Promise<TodaySignupsResponse["data"]> => {
+    const response = await apiData<any>("/api/admin/dashboard/today-signups", {
       method: "GET",
     });
     return response.data ?? response;

@@ -105,7 +105,7 @@ export default function UserDetailsPage({
   const {
     user,
     wallet,
-    verification,
+    kyc,
     tasks,
     transactions,
     activityLog,
@@ -383,20 +383,29 @@ export default function UserDetailsPage({
             <div>
               <p className='text-xs text-gray-400 mb-1'>NIN</p>
               <p className='text-sm font-bold text-gray-900'>
-                {(verification as any)?.nin ?? (user as any)?.nin ?? "—"}
+                {(kyc as any)?.number ?? (user as any)?.number ?? "—"}
               </p>
             </div>
             <div>
               <p className='text-xs text-gray-400 mb-1'>Verification Status</p>
               <span
-                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${verification?.status === "verified" || user.isKYCVerified
+                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${kyc?.status === "verified" || user.isKYCVerified
                   ? "bg-blue-50 text-blue-600 border border-blue-200"
                   : "bg-gray-100 text-gray-400"
                   }`}
               >
-                {verification?.status === "verified" || user.isKYCVerified
+                {kyc?.status === "verified" || user.isKYCVerified
                   ? "Verified"
                   : "Not Submitted"}
+              </span>
+            </div>
+            <div>
+              <p className='text-xs text-gray-400 mb-1'>Verification Method</p>
+              <span
+                className={`inline-block text-xs font-semibold px-3 py-1 rounded-full bg-purple-50 text-[#6B46C1] border border-purple-200`
+                }
+              >
+                {kyc?.method}
               </span>
             </div>
           </CardContent>
@@ -673,7 +682,7 @@ export default function UserDetailsPage({
           <table className='w-full text-left text-sm'>
             <thead>
               <tr className='border-b border-gray-100 text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider'>
-                <th className='py-3 px-6 font-medium'>Description</th>
+                <th className='py-3 px-6 font-medium'>Title</th>
                 <th className='py-3 px-6 font-medium'>Type</th>
                 <th className='py-3 px-6 font-medium'>Amount</th>
                 <th className='py-3 px-6 font-medium'>Date</th>
@@ -690,7 +699,7 @@ export default function UserDetailsPage({
                     className='hover:bg-gray-50/50 transition-colors'
                   >
                     <td className='py-4 px-6 text-gray-900 font-medium max-w-[200px] truncate'>
-                      {tx.description}
+                      {tx.title}
                     </td>
                     <td className='py-4 px-6'>
                       <span
@@ -701,11 +710,11 @@ export default function UserDetailsPage({
                       </span>
                     </td>
                     <td className='py-4 px-6 font-bold text-gray-900'>
-                      {formatCurrency(tx.amount)}
+                      {formatCurrency(tx.escrowAmount)}
                     </td>
                     <td className='py-4 px-6 text-gray-500 whitespace-nowrap'>
-                      {tx.createdAt
-                        ? new Date(tx.createdAt).toLocaleString()
+                      {tx.updatedAt
+                        ? new Date(tx.updatedAt).toLocaleString()
                         : "—"}
                     </td>
                   </tr>

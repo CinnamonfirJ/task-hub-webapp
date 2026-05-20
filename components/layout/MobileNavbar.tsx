@@ -18,21 +18,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
-import { useConversations } from "@/hooks/useChat";
+import { useChatNotifications } from "@/hooks/useChat";
 import { useSidebar } from "@/components/admin/SidebarContext";
 
 export function MobileNavbar() {
   const { isOpen, closeSidebar } = useSidebar();
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { data: convData } = useConversations();
+  const { data: notificationsData } = useChatNotifications();
 
   const isTasker = user?.role === "tasker";
-  const totalUnread =
-    convData?.conversations?.reduce(
-      (acc, conv) => acc + (conv.unreadCount || 0),
-      0,
-    ) || 0;
+  const totalUnread = notificationsData?.data?.unreadCount || 0;
 
   const navItems = [
     { icon: Home, label: "Home", href: "/home" },
@@ -118,7 +114,7 @@ export function MobileNavbar() {
                         {item.label}
                       </div>
                       {item.badge && item.badge > 0 ? (
-                        <span className='flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white  '>
+                        <span className='flex h-5 w-5 items-center justify-center rounded-full bg-[#6B46C1] text-[10px] font-bold text-white  '>
                           {item.badge > 9 ? "9+" : item.badge}
                         </span>
                       ) : null}

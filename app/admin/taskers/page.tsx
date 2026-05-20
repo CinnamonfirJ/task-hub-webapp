@@ -112,14 +112,24 @@ export default function TaskersManagementPage() {
       value: dashboardStats?.cards?.totalTaskers?.toLocaleString() || "0",
     },
     {
-      label: "Active Tasks",
-      value: dashboardStats?.cards?.activeTasks?.toLocaleString() || "0",
-      color: "text-green-500",
+      label: "Didit Verified",
+      value: dashboardStats?.analytics?.kycMethods?.diditAutomated?.toLocaleString() || "0",
+      color: "text-purple-600",
+    },
+    {
+      label: "Manual Verified",
+      value: dashboardStats?.analytics?.kycMethods?.manual?.toLocaleString() || "0",
+      color: "text-orange-500",
     },
     {
       label: "Pending KYC",
       value: dashboardStats?.cards?.pendingKyc?.toLocaleString() || "0",
       color: "text-yellow-500",
+    },
+    {
+      label: "Active Tasks",
+      value: dashboardStats?.cards?.activeTasks?.toLocaleString() || "0",
+      color: "text-green-500",
     },
     {
       label: "Growth",
@@ -177,7 +187,7 @@ export default function TaskersManagementPage() {
         </div>
       </div>
 
-      <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
+      <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4'>
         {summaryMetrics.map((metric, idx) => (
           <Card key={idx} className='border-none '>
             <CardContent className='p-4'>

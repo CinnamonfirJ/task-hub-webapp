@@ -8,6 +8,13 @@ export function useAdminDashboard() {
   });
 }
 
+export function useTodaySignups() {
+  return useQuery({
+    queryKey: ["admin", "dashboard", "today-signups"],
+    queryFn: () => adminApi.getTodaySignups(),
+  });
+}
+
 export function useAdminLogin() {
   const queryClient = useQueryClient();
 
