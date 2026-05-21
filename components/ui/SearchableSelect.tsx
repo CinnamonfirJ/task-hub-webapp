@@ -5,8 +5,13 @@ import { Search, ChevronDown, Check, X } from "lucide-react";
 import { Input } from "./input";
 import { cn } from "@/lib/utils";
 
+interface SearchableSelectOption {
+  value: string;
+  label: string;
+}
+
 interface SearchableSelectProps {
-  options: string[];
+  options: (string | SearchableSelectOption)[];
   value: string;
   onValueChange: (value: string) => void;
   placeholder?: string;
@@ -28,9 +33,16 @@ export function SearchableSelect({
   const [searchQuery, setSearchQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(searchQuery.toLowerCase())
+  const normalizedOptions = options.map(opt =>
+    typeof opt === 'string' ? { label: opt, value: opt } : opt
   );
+
+  const filteredOptions = normalizedOptions.filter((option) =>
+    option.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const selectedOption = normalizedOptions.find(opt => opt.value === value);
+  const displayValue = selectedOption ? selectedOption.label : "";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,8 +54,8 @@ export function SearchableSelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelect = (option: string) => {
-    onValueChange(option);
+  const handleSelect = (optionValue: string) => {
+    onValueChange(optionValue);
     setIsOpen(false);
     setSearchQuery("");
   };
@@ -60,7 +72,7 @@ export function SearchableSelect({
         )}
       >
         <span className={cn("block truncate font-medium", !value && "text-gray-400 font-normal")}>
-          {value || placeholder}
+          {displayValue || placeholder}
         </span>
         <ChevronDown
           className={cn("h-4 w-4 text-gray-400 transition-transform duration-200", isOpen && "rotate-180")}
@@ -96,16 +108,16 @@ export function SearchableSelect({
             ) : (
               filteredOptions.map((option) => (
                 <button
-                  key={option}
+                  key={option.value}
                   type="button"
-                  onClick={() => handleSelect(option)}
+                  onClick={() => handleSelect(option.value)}
                   className={cn(
                     "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 px-3 text-sm outline-none hover:bg-purple-50 hover:text-[#6B46C1] transition-colors",
-                    value === option && "bg-purple-100 text-[#6B46C1] font-medium"
+                    value === option.value && "bg-purple-100 text-[#6B46C1] font-medium"
                   )}
                 >
-                  <span className="flex-1 text-left truncate">{option}</span>
-                  {value === option && (
+                  <span className="flex-1 text-left truncate">{option.label}</span>
+                  {value === option.value && (
                     <Check className="ml-2 h-4 w-4" />
                   )}
                 </button>
