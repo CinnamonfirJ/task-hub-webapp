@@ -74,8 +74,7 @@ export function ProfileCompletionStep2({
                 Official ID Verification
               </p>
               <p className='text-sm text-gray-500 mb-6'>
-                Please enter your 11-digit National Identification Number (NIN)
-                for verification.
+                Please verify your identity securely through QoreID.
               </p>
             </div>
 

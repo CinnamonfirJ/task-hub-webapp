@@ -3,22 +3,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   ArrowLeft,
   ShieldCheck,
   ShieldAlert,
-  ShieldQuestion,
   Loader2,
-  ChevronRight,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
 import { useAuth } from "@/hooks/useAuth";
-import { NINManualSubmission } from "@/components/NINManualSubmission";
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { VerificationPendingCard } from "@/components/VerificationPendingCard";
 import { Suspense } from "react";
 
@@ -30,9 +23,6 @@ function VerificationContent() {
   });
 
   const { user } = useAuth();
-  const [verificationMode, setVerificationMode] = useState<"sdk" | "manual">(
-    "sdk",
-  );
 
   const isVerified = 
     data?.isVerified || 
@@ -87,7 +77,7 @@ function VerificationContent() {
               <p className='text-sm text-gray-400 max-w-md mx-auto leading-relaxed'>
                 {isVerified
                   ? "Your identity has been successfully verified. You now have full access to all TaskHub features including withdrawals."
-                  : "To unlock all features and build trust, you have two options: upload a verification document or enter your 11-digit NIN manually."}
+                  : "Complete your identity verification to unlock all features and build trust."}
               </p>
             </div>
 
@@ -96,33 +86,10 @@ function VerificationContent() {
                 {isPending ? (
                   <VerificationPendingCard />
                 ) : (
-                  <AnimatePresence mode='wait'>
-                    {verificationMode === "sdk" ? (
-                      <motion.div
-                        key='sdk-view'
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className='space-y-4'
-                      >
-                        <VerifyIdentityButton
-                          userId={user?._id}
-                          className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold rounded-2xl  '
-                        />
-                        <Button
-                          variant='outline'
-                          onClick={() => setVerificationMode("manual")}
-                          className='w-full border-[#6B46C1] text-[#6B46C1] hover:bg-purple-50 py-8 text-lg font-bold rounded-2xl'
-                        >
-                          Enter 11-digit NIN
-                        </Button>
-                      </motion.div>
-                    ) : (
-                      <NINManualSubmission
-                        onCancel={() => setVerificationMode("sdk")}
-                      />
-                    )}
-                  </AnimatePresence>
+                  <VerifyIdentityButton
+                    userId={user?._id}
+                    className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold rounded-2xl'
+                  />
                 )}
               </div>
             )}

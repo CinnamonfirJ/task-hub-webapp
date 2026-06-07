@@ -401,7 +401,7 @@ export default function AdminDashboardPage() {
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center gap-2'>
                     <div className='w-3 h-3 rounded-full bg-[#6B46C1]' />
-                    <span className='text-sm font-medium text-gray-600'>Didit Automated</span>
+                    <span className='text-sm font-medium text-gray-600'>QoreID Verified</span>
                   </div>
                   <span className='text-sm font-bold text-gray-900'>
                     {stats?.analytics?.kycMethods?.diditAutomated ?? 0}

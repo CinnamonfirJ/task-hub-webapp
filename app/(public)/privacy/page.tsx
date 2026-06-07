@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           <p>We collect Personal Data that you provide when using TaskHub:</p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Account Information:</strong> Name, email address, phone number, profile photo, address, and (for Taskers and User) professional details (skills, experience).</li>
-            <li><strong>KYC Data:</strong> To comply with KYC/AML rules, Taskers must submit identity documents (passport or national ID/NIN) and a live selfie. We also collect NIN for certain verifications. Didit and Authentify verify these; we do not retain sensitive raw data longer than needed.</li>
+            <li><strong>KYC Data:</strong> To comply with KYC/AML rules, Taskers must submit identity documents (passport or national ID/NIN) and a live selfie. We also collect NIN for certain verifications. QoreID and Authentify verify these; we do not retain sensitive raw data longer than needed.</li>
             <li><strong>Contact & Payment Details:</strong> Bank account or mobile wallet info (for Tasker withdrawals) and payment card details (for Users to pay). We store only necessary payment tokens; full card data is handled by payment partners.</li>
             <li><strong>Task Data:</strong> Task descriptions, locations, messages between participants, and history of booked/completed tasks.</li>
             <li><strong>Usage Data:</strong> Device information, IP addresses, browser type, login times, and cookies or analytics data to understand how you use the platform and to improve it.</li>
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
           <p>We process your data for these purposes:</p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Providing Services:</strong> To create and manage your account, display relevant service listings, and match you with Taskers/Users.</li>
-            <li><strong>KYC/Verification:</strong> To verify Tasker identities (via Didit and Authentify) and comply with anti-fraud and regulatory requirements.</li>
+            <li><strong>KYC/Verification:</strong> To verify Tasker identities (via QoreID and Authentify) and comply with anti-fraud and regulatory requirements.</li>
             <li><strong>Payments & Transactions:</strong> To process payments, hold funds in escrow, and send payouts to Taskers. This includes fraud detection and AML checks.</li>
             <li><strong>Communication:</strong> To send you transactional messages (booking confirmations, receipts, reminders) and important updates (policy changes, promotions).</li>
             <li><strong>Platform Improvement:</strong> To analyze usage, fix bugs, and enhance features and user experience.</li>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-bold">4. KYC & Third-Party Verification</h2>
           <p>
-            We use trusted third-party identity verification services to confirm user identities: Didit (for document verification) and AuthentifyNG (for NIN and facial match). When you submit KYC data, we share only the necessary information (e.g. ID number, selfie image) with these providers. You consent to this sharing by using our verification feature. These providers are bound by their own strict privacy commitments and NDPR compliance.
+            We use trusted third-party identity verification services to confirm user identities: QoreID (for document verification) and AuthentifyNG (for NIN and facial match). When you submit KYC data, we share only the necessary information (e.g. ID number, selfie image) with these providers. You consent to this sharing by using our verification feature. These providers are bound by their own strict privacy commitments and NDPR compliance.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
           <p>We do not sell your personal data. We may share data in limited cases:</p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>With Other Participants:</strong> Task details (like name, contact, task description) are shared with Taskers when a task is posted or booked, so they can complete the job.</li>
-            <li><strong>Service Providers:</strong> We share data with processors under contract (e.g. Didit and Authentify for KYC; payment gateways; cloud hosting providers; email/SMS services) as needed to operate TaskHub.</li>
+            <li><strong>Service Providers:</strong> We share data with processors under contract (e.g. QoreID and Authentify for KYC; payment gateways; cloud hosting providers; email/SMS services) as needed to operate TaskHub.</li>
             <li><strong>Legal Requirements:</strong> We may disclose your information if required by law or to protect the rights, safety, or property of others.</li>
             <li><strong>Business Transfers:</strong> If TaskHub is acquired, we will ensure your data remains protected under the NDPR or inform you before any change in ownership of your personal data.</li>
           </ul>
