@@ -271,6 +271,20 @@ export default function KYCDetailsPage({
                 </div>
               </div>
             )}
+            {record.provider && (
+              <div>
+                <div className='text-xs text-gray-500 font-medium mb-1'>
+                  Verification Method
+                </div>
+                <div className='text-sm font-bold text-gray-900 capitalize'>
+                  {record.provider === "qoredid" || record.provider === "qoreid"
+                    ? "QoreID SDK"
+                    : record.provider === "didit"
+                    ? "Didit SDK"
+                    : record.provider}
+                </div>
+              </div>
+            )}
             {record.approvedBy && (
               <div>
                 <div className='text-xs text-gray-500 font-medium mb-1'>
@@ -296,7 +310,7 @@ export default function KYCDetailsPage({
         </Card>
       </div>
 
-      {record.submittedDocuments && record.submittedDocuments.length > 0 && (
+      {record.submittedDocuments && record.submittedDocuments.length > 0 ? (
         <Card className='border border-gray-100  rounded-2xl'>
           <CardHeader className='p-6 pb-4'>
             <CardTitle className='text-lg font-bold text-gray-900'>
@@ -332,6 +346,69 @@ export default function KYCDetailsPage({
             </div>
           </CardContent>
         </Card>
+      ) : (
+        (record.provider || record.verificationData) && (
+          <Card className='border border-gray-100 rounded-2xl'>
+            <CardHeader className='p-6 pb-4'>
+              <CardTitle className='text-lg font-bold text-gray-900'>
+                Automated Verification Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className='p-6 pt-0 space-y-4'>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <div className='text-xs text-gray-500 font-medium mb-1'>
+                    Verification Provider
+                  </div>
+                  <div className='text-sm font-bold text-gray-900 capitalize'>
+                    {record.provider === "qoredid" || record.provider === "qoreid"
+                      ? "QoreID SDK"
+                      : record.provider === "didit"
+                      ? "Didit SDK"
+                      : record.provider || "QoreID SDK"}
+                  </div>
+                </div>
+                <div>
+                  <div className='text-xs text-gray-500 font-medium mb-1'>
+                    Verification Type
+                  </div>
+                  <div className='text-sm font-bold text-gray-900'>
+                    National Identity (NIN) Face Match
+                  </div>
+                </div>
+                <div>
+                  <div className='text-xs text-gray-500 font-medium mb-1'>
+                    Status
+                  </div>
+                  <div>
+                    <span
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                        record.status === "approved"
+                          ? "bg-green-50 text-green-500"
+                          : record.status === "pending"
+                          ? "bg-yellow-50 text-yellow-500"
+                          : "bg-red-50 text-red-500"
+                      }`}
+                    >
+                      {record.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {record.verificationData && (
+                <div className='mt-4 pt-4 border-t border-gray-100'>
+                  <div className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-3'>
+                    Provider Match Metadata
+                  </div>
+                  <div className="bg-gray-50/50 rounded-xl p-4 border border-gray-100 max-h-80 overflow-y-auto font-mono text-xs text-gray-600">
+                    <pre>{JSON.stringify(record.verificationData, null, 2)}</pre>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )
       )}
 
       {/* Approve Modal */}

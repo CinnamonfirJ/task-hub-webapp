@@ -642,6 +642,8 @@ export interface KYCRecord {
     lastName?: string;
   };
   rejectedAt?: string;
+  provider?: string;
+  verificationData?: any;
   createdAt: string;
   updatedAt?: string;
 }
