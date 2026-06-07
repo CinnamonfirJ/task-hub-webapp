@@ -19,13 +19,12 @@ import {
   Shield,
 } from "lucide-react";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
-import { NINManualSubmission } from "@/components/NINManualSubmission";
 import { useState } from "react";
-import { AnimatePresence } from "framer-motion";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { NIGERIAN_STATES } from "@/utils/constants/nigeria-states";
 import { VerificationPendingCard } from "@/components/VerificationPendingCard";
 import { ImageCropperModal } from "@/components/ui/ImageCropperModal";
+import Image from "next/image";
 
 export default function CompleteProfilePage() {
   const {
@@ -40,13 +39,7 @@ export default function CompleteProfilePage() {
     isProfileComplete,
     isVerificationPending,
   } = useCompleteProfile();
-  const [verificationMode, setVerificationMode] = useState<"sdk" | "manual">(
-    "sdk",
-  );
-  // Which verification method is selected in Step 2
-  const [selectedMethod, setSelectedMethod] = useState<
-    "document" | "nin" | null
-  >(null);
+
   const [pendingImage, setPendingImage] = useState<string | null>(null);
   const [isCropOpen, setIsCropOpen] = useState(false);
   const router = useRouter();
@@ -164,7 +157,7 @@ export default function CompleteProfilePage() {
             <label className='relative cursor-pointer group'>
               <div className='w-20 h-20 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-2xl font-bold overflow-hidden border-4 border-white '>
                 {user?.profilePicture ? (
-                  <img
+                  <Image
                     src={user.profilePicture}
                     alt='Profile'
                     className='w-full h-full object-cover'
@@ -393,79 +386,13 @@ export default function CompleteProfilePage() {
         /* ── Step 2 ── */
         <div className='space-y-5 animate-in fade-in slide-in-from-right-4 duration-300'>
           <p className='text-sm font-medium text-gray-700'>
-            Choose your verification method
+            Verify your identity
           </p>
 
           {isVerificationPending ? (
             <VerificationPendingCard />
           ) : (
             <>
-              {/* Document Upload Option */}
-              <button
-                type='button'
-                onClick={() => setSelectedMethod("document")}
-                className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left ${selectedMethod === "document"
-                  ? "border-[#6B46C1] bg-purple-50/30"
-                  : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-              >
-                <div className='flex items-center gap-3'>
-                  <div className='bg-purple-100 p-2.5 rounded-lg shrink-0'>
-                    <FileText size={18} className='text-[#6B46C1]' />
-                  </div>
-                  <div>
-                    <p className='font-bold text-gray-900 text-sm'>
-                      Document Upload
-                    </p>
-                    <p className='text-xs text-gray-400 mt-0.5'>
-                      Upload your International Passport or NIN card/Slip
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${selectedMethod === "document"
-                    ? "border-[#6B46C1]"
-                    : "border-gray-300"
-                    }`}
-                >
-                  {selectedMethod === "document" && (
-                    <div className='w-2.5 h-2.5 rounded-full bg-[#6B46C1]' />
-                  )}
-                </div>
-              </button>
-
-              {/* NIN Number Option */}
-              <button
-                type='button'
-                onClick={() => setSelectedMethod("nin")}
-                className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left ${selectedMethod === "nin"
-                  ? "border-[#6B46C1] bg-purple-50/30"
-                  : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-              >
-                <div className='flex items-center gap-3'>
-                  <div className='bg-purple-100 p-2.5 rounded-lg shrink-0'>
-                    <Hash size={18} className='text-[#6B46C1]' />
-                  </div>
-                  <div>
-                    <p className='font-bold text-gray-900 text-sm'>NIN Number</p>
-                    <p className='text-xs text-gray-400 mt-0.5'>
-                      Enter your 11-digit NIN verification number
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${selectedMethod === "nin"
-                    ? "border-[#6B46C1]"
-                    : "border-gray-300"
-                    }`}
-                >
-                  {selectedMethod === "nin" && (
-                    <div className='w-2.5 h-2.5 rounded-full bg-[#6B46C1]' />
-                  )}
-                </div>
-              </button>
-
               {/* Encryption Notice */}
               <div className='flex items-center gap-3 p-3.5 bg-gray-100/80 rounded-xl'>
                 <AlertTriangle size={16} className='text-gray-500 shrink-0' />
@@ -475,33 +402,14 @@ export default function CompleteProfilePage() {
                 </p>
               </div>
 
-              {/* Verification Action shown after selection */}
-              <AnimatePresence mode='wait'>
-                {selectedMethod === "document" && (
-                  <div key='document-action' className='space-y-4 pt-1'>
-                    <VerifyIdentityButton
-                      userId={user?._id}
-                      className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-12 rounded-xl font-bold text-sm text-white '
-                    />
-                  </div>
-                )}
-                {selectedMethod === "nin" && verificationMode === "sdk" && (
-                  <div key='nin-action' className='space-y-4 pt-1'>
-                    <Button
-                      onClick={() => setVerificationMode("manual")}
-                      className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-12 rounded-xl font-bold text-sm text-white '
-                    >
-                      Enter 11-digit NIN
-                    </Button>
-                  </div>
-                )}
-                {selectedMethod === "nin" && verificationMode === "manual" && (
-                  <NINManualSubmission
-                    key='manual-card'
-                    onCancel={() => setVerificationMode("sdk")}
-                  />
-                )}
-              </AnimatePresence>
+              {/* Verification Action */}
+              <div className='space-y-4 pt-1'>
+                <VerifyIdentityButton
+                
+                  userId={user?._id}
+                  className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-12 rounded-xl font-bold text-sm text-white '
+                />
+              </div>
             </>
           )}
 

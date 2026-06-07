@@ -462,26 +462,19 @@ export const authApi = {
 
   // ── Identity Verification (Taskers) ────────────────────────────────────
 
-  verifyIdentity: async (data: {
-    nin: string;
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-    gender?: "male" | "female";
-    phoneNumber?: string;
-    email?: string;
-  }): Promise<{
+  initializeKYCSession: async (): Promise<{
     status: string;
     message: string;
-    isVerified: boolean;
-    kycId: string;
-    verificationUrl?: string;
+    data: {
+      accessToken: string;
+      clientId: string;
+      clientReference: string;
+      flowId: number;
+    };
   }> => {
-    const res = await apiData<any>("/api/v1/verify-nin", {
+    return apiData<any>("/api/v1/nin/verify-nin", {
       method: "POST",
-      body: JSON.stringify(data),
     });
-    return res;
   },
 
   getVerificationStatus: async (): Promise<{

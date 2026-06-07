@@ -21,7 +21,7 @@ export default function TermsPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-bold">3. KYC & Verification</h2>
           <p>
-            Taskers must complete identity verification before offering services. We require valid identification (NIN or international passport) and a live selfie. Verification is performed via third-party providers (Didit and Authentify) to confirm identity. Until verified, Taskers cannot accept jobs or withdraw earnings. Both Users and Taskers will verify their email address by submitting a One-Time Password (OTP) sent to the email they provided. By registering, you consent to this verification; failure or fraud may lead to suspension. TaskHub may perform additional background checks or request documents for compliance (e.g. to combat fraud or illegal activity).
+            Taskers must complete identity verification before offering services. We require valid identification (NIN or international passport) and a live selfie. Verification is performed via third-party providers (QoreID and Authentify) to confirm identity. Until verified, Taskers cannot accept jobs or withdraw earnings. Both Users and Taskers will verify their email address by submitting a One-Time Password (OTP) sent to the email they provided. By registering, you consent to this verification; failure or fraud may lead to suspension. TaskHub may perform additional background checks or request documents for compliance (e.g. to combat fraud or illegal activity).
           </p>
         </div>
 
