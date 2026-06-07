@@ -24,9 +24,6 @@ function VerificationContent() {
 
   const { user } = useAuth();
 
-  const searchParams = useSearchParams();
-  const isResubmitting = searchParams.get("resubmit") === "true";
-
   const isVerified = 
     data?.isVerified || 
     user?.isKYCVerified || 
@@ -34,7 +31,7 @@ function VerificationContent() {
     user?.isVerified || 
     false;
 
-  const isPending = (data?.isPending && !isResubmitting) || false;
+  const isPending = data?.isPending || false;
 
   return (
     <div className='p-4 md:p-8 max-w-2xl mx-auto space-y-10 pb-20'>
@@ -87,14 +84,7 @@ function VerificationContent() {
             {!isVerified && (
               <div className='w-full pt-4'>
                 {isPending ? (
-                  <VerificationPendingCard 
-                    onResubmit={() => {
-                      if (typeof window !== "undefined") {
-                        localStorage.removeItem("verificationSubmittedAt");
-                      }
-                      router.push("/profile/verification?resubmit=true");
-                    }}
-                  />
+                  <VerificationPendingCard />
                 ) : (
                   <VerifyIdentityButton
                     userId={user?._id}

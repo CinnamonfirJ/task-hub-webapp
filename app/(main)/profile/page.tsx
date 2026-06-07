@@ -167,7 +167,7 @@ export default function ProfilePage() {
         <CardContent className='p-6 md:p-8 space-y-6 md:space-y-8'>
           <div className='flex justify-between items-center'>
             <div className='flex items-center gap-2 opacity-90'>
-              <Wallet size={16} className='md:w-[18px] md:h-[18px]' />
+              <Wallet size={16} className='md:w-4.5 md:h-4.5' />
               <span className='text-xs md:text-sm font-medium'>
                 Wallet balance
               </span>
@@ -188,7 +188,7 @@ export default function ProfilePage() {
                 onClick={() => setIsFundOpen(true)}
                 className='bg-white/20 hover:bg-white/30 text-white border-none rounded-xl px-4 md:px-6 h-9 md:h-11 text-xs md:text-base flex items-center gap-2'
               >
-                <Plus size={16} className='md:w-[18px] md:h-[18px]' /> Fund
+                <Plus size={16} className='md:w-4.5 md:h-4.5' /> Fund
               </Button>
             )}
           </div>
@@ -313,7 +313,7 @@ export default function ProfilePage() {
               icon={
                 <Briefcase
                   size={16}
-                  className='text-[#6B46C1] md:w-[18px] md:h-[18px]'
+                  className='text-[#6B46C1] md:w-4.5 md:h-4.5'
                 />
               }
               label='Task completed'

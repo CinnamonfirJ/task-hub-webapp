@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -119,6 +120,10 @@ export function useAuth() {
       // Always clear client state even if server calls fail
       localStorage.removeItem("token");
       localStorage.removeItem("userType");
+      // Clear verification-related state
+      localStorage.removeItem("verificationSubmittedAt");
+      localStorage.removeItem("lastRegisteredEmail");
+      localStorage.removeItem("pendingPaymentRef");
       queryClient.setQueryData(USER_QUERY_KEY, null);
       queryClient.clear();
       router.push("/login");

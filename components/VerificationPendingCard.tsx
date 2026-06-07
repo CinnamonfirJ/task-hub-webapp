@@ -9,10 +9,9 @@ import { useQueryClient } from "@tanstack/react-query";
 
 interface VerificationPendingCardProps {
   onRefresh?: () => void;
-  onResubmit?: () => void;
 }
 
-export function VerificationPendingCard({ onRefresh, onResubmit }: VerificationPendingCardProps) {
+export function VerificationPendingCard({ onRefresh }: VerificationPendingCardProps) {
   const queryClient = useQueryClient();
 
   const handleRefresh = () => {
@@ -70,16 +69,6 @@ export function VerificationPendingCard({ onRefresh, onResubmit }: VerificationP
               </Button>
             </Link>
           </div>
-
-          {onResubmit && (
-            <Button
-              variant="ghost"
-              onClick={onResubmit}
-              className="text-purple-600 hover:text-purple-700 hover:bg-purple-100/50 font-medium"
-            >
-              Made a mistake? Resubmit details
-            </Button>
-          )}
         </CardContent>
       </Card>
     </motion.div>
