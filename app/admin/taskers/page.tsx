@@ -112,7 +112,7 @@ export default function TaskersManagementPage() {
       value: dashboardStats?.cards?.totalTaskers?.toLocaleString() || "0",
     },
     {
-      label: "QoreID Verified",
+      label: "Didit Verified",
       value: dashboardStats?.analytics?.kycMethods?.diditAutomated?.toLocaleString() || "0",
       color: "text-purple-600",
     },

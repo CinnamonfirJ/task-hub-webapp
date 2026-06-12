@@ -3,32 +3,45 @@
 import { useQuery } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ArrowLeft,
   ShieldCheck,
   ShieldAlert,
+  ShieldQuestion,
   Loader2,
+  ChevronRight,
 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
+import { QoreIDVerifyButton } from "@/components/QoreIDVerifyButton";
 import { useAuth } from "@/hooks/useAuth";
+import { NINManualSubmission } from "@/components/NINManualSubmission";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { VerificationPendingCard } from "@/components/VerificationPendingCard";
 import { Suspense } from "react";
 
 function VerificationContent() {
   const router = useRouter();
+  const [verificationMode, setVerificationMode] = useState<
+    "sdk" | "manual" | "qoreid"
+  >("sdk");
+
   const { data, isLoading } = useQuery({
     queryKey: ["verificationStatus"],
     queryFn: () => authApi.getVerificationStatus(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false,
   });
 
   const { user } = useAuth();
 
-  const isVerified = 
-    data?.isVerified || 
-    user?.isKYCVerified || 
-    user?.verifyIdentity || 
-    user?.isVerified || 
+  const isVerified =
+    data?.isVerified ||
+    user?.isKYCVerified ||
+    user?.verifyIdentity ||
+    user?.isVerified ||
     false;
 
   const isPending = data?.isPending || false;
@@ -77,7 +90,7 @@ function VerificationContent() {
               <p className='text-sm text-gray-400 max-w-md mx-auto leading-relaxed'>
                 {isVerified
                   ? "Your identity has been successfully verified. You now have full access to all TaskHub features including withdrawals."
-                  : "Complete your identity verification to unlock all features and build trust."}
+                  : "Complete your identity verification to unlock all features and build trust. Choose a verification method below."}
               </p>
             </div>
 
@@ -86,10 +99,82 @@ function VerificationContent() {
                 {isPending ? (
                   <VerificationPendingCard />
                 ) : (
-                  <VerifyIdentityButton
-                    userId={user?._id}
-                    className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-8 text-lg font-bold rounded-2xl'
-                  />
+                  <AnimatePresence mode="wait">
+                    {verificationMode === "sdk" && (
+                      <motion.div
+                        key="sdk"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="w-full space-y-4"
+                      >
+                        {/* Option 1: Document Upload via Didit */}
+                        <Card className="border border-gray-100 rounded-2xl overflow-hidden hover:border-[#6B46C1]/30 transition-colors">
+                          <CardContent className="p-0">
+                            <div className="p-5 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="bg-purple-50 p-2.5 rounded-xl">
+                                  <ShieldCheck size={20} className="text-[#6B46C1]" />
+                                </div>
+                                <div className="text-left">
+                                  <p className="font-bold text-gray-900 text-sm">Document Upload (Didit)</p>
+                                  <p className="text-xs text-gray-400">Use this if you have your NIN slip or passport</p>
+                                </div>
+                              </div>
+                              <VerifyIdentityButton
+                                userId={user?._id}
+                                className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-6 text-sm font-bold rounded-xl'
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* Option 2: NIN Verification via QoreID */}
+                        <Card className="border border-gray-100 rounded-2xl overflow-hidden hover:border-[#6B46C1]/30 transition-colors">
+                          <CardContent className="p-0">
+                            <div className="p-5 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="bg-blue-50 p-2.5 rounded-xl">
+                                  <ShieldQuestion size={20} className="text-blue-600" />
+                                </div>
+                                <div className="text-left">
+                                  <p className="font-bold text-gray-900 text-sm">NIN Verification (QoreID)</p>
+                                  <p className="text-xs text-gray-400">Use this if you don&apos;t have those documents (verify with your NIN and a selfie)</p>
+                                </div>
+                              </div>
+                              <QoreIDVerifyButton
+                                className='w-full bg-blue-600 hover:bg-blue-700 py-6 text-sm font-bold rounded-xl text-white'
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* Manual NIN Fallback */}
+                        <Button
+                          variant="ghost"
+                          onClick={() => setVerificationMode("manual")}
+                          className="w-full text-gray-400 hover:text-gray-600 font-medium text-xs h-10"
+                        >
+                          Enter 11-digit NIN manually instead
+                          <ChevronRight size={14} className="ml-1" />
+                        </Button>
+                      </motion.div>
+                    )}
+
+                    {verificationMode === "manual" && (
+                      <motion.div
+                        key="manual"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="w-full"
+                      >
+                        <NINManualSubmission
+                          onCancel={() => setVerificationMode("sdk")}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 )}
               </div>
             )}

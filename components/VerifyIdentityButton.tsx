@@ -4,9 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { authApi } from "@/lib/api/auth";
-import { useAuth } from "@/hooks/useAuth";
 
 interface VerifyIdentityButtonProps {
   userId?: string;
@@ -14,15 +11,17 @@ interface VerifyIdentityButtonProps {
   variant?: "default" | "outline" | "secondary" | "destructive" | "ghost";
 }
 
+const VERIFICATION_URL = process.env.NEXT_PUBLIC_DIDIT_VERIFICATION_URL;
+
 export function VerifyIdentityButton({
+  userId,
   className,
   variant = "default",
 }: VerifyIdentityButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
 
   const handleVerify = async () => {
+    console.log(VERIFICATION_URL);
     try {
       setIsLoading(true);
 
@@ -32,101 +31,76 @@ export function VerifyIdentityButton({
         return;
       }
 
-      // 1. Initialize KYC Session from backend
-      const res = await authApi.initializeKYCSession();
-      console.log("QoreID initial session response:", res);
+      const response = await fetch("/api/didit/create-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          vendor_data: userId || "6999aad74d2e3e3c3910abb0",
+          vendorData: userId || "6999aad74d2e3e3c3910abb0",
+          external_id: userId || "6999aad74d2e3e3c3910abb0",
+          userId: userId,
+        }),
+      });
 
-      // Extract details
-      const sessionData = res?.data || res;
-      const { clientId, clientReference, flowId: backendFlowId } = sessionData;
-      const envFlowId = process.env.QOREID_NIN_FLOW_ID
-        ? parseInt(process.env.QOREID_NIN_FLOW_ID)
-        : null;
-      const flowId = backendFlowId || envFlowId;
-      if (!clientId || !clientReference) {
-        throw new Error("Invalid response session data from backend");
+      const data = await response.json();
+      console.log("Session creation response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create verification session");
       }
 
-      if (!flowId) {
-        throw new Error("flowId not found in backend response or environment variables");
-      }
+      const redirectUrl = data.url || data.verification_url;
 
-      // 2. Dynamically import QoreID SDK to avoid SSR issues
-      // ts-expect-error - QoreID SDK doesn't provide TypeScript declarations
-      const { default: QoreID } = await import("@qore-id/web-sdk");
+      if (redirectUrl) {
+        console.log("Redirecting to:", redirectUrl);
 
-      // 3. Register SDK listeners
-      QoreID.on("success", (data: unknown) => {
-        console.log("QoreID verification success:", data);
-        toast.success("Identity verification completed successfully!");
-
-        // Store submission signal
+        // Store submission signal for pending state tracking before leaving
         if (typeof window !== "undefined") {
-          localStorage.setItem(
-            "verificationSubmittedAt",
-            Date.now().toString(),
-          );
+          localStorage.setItem("verificationSubmittedAt", Date.now().toString());
         }
 
-        // Invalidate profile and verification status
-        queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-        queryClient.invalidateQueries({ queryKey: ["verificationStatus"] });
-      });
-
-      QoreID.on("error", (error: unknown) => {
-        console.error("QoreID verification error:", error);
-        const err = error as { message?: string } | null | undefined;
-        toast.error(err?.message || "Verification failed. Please try again.");
-      });
-
-      QoreID.on("close", () => {
-        console.log("QoreID SDK overlay closed.");
-        setIsLoading(false);
-      });
-
-      // 4. Launch QoreID SDK
-      QoreID.start({
-        clientId: clientId,
-        customerReference: clientReference,
-        flowId: flowId,
-        applicantData: {
-          firstname: user?.firstName || user?.firstName || "",
-          lastname: user?.lastName || user?.lastName || "",
-          email: user?.email || "",
-        },
-      });
+        // Redirect to Didit's hosted verification page
+        window.location.href = redirectUrl;
+      } else if (VERIFICATION_URL) {
+        console.warn("No session URL received, falling back to static URL");
+        // Fallback to static URL if provided (not recommended for session tracking)
+        window.location.href = VERIFICATION_URL;
+      } else {
+        throw new Error("No verification URL received from Didit session");
+      }
     } catch (error: unknown) {
-      console.error("Verification initialization error:", error);
+      console.error("Verification error:", error);
       const errMsg =
         error instanceof Error
           ? error.message
           : "An error occurred. Please try again.";
       toast.error(errMsg);
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <div id="qoreIdContainer" />
-      <Button
-        onClick={handleVerify}
-        disabled={isLoading}
-        className={className}
-        variant={variant}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Preparing...
-          </>
-        ) : (
-          <>
-            <ShieldCheck className="mr-2 h-4 w-4" />
-            Verify Identity
-          </>
-        )}
-      </Button>
-    </>
+    <Button
+      onClick={handleVerify}
+      disabled={isLoading}
+      className={className}
+      variant={variant}
+    >
+      {isLoading ? (
+        <>
+          <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+          Preparing...
+        </>
+      ) : (
+        <>
+          <ShieldCheck className='mr-2 h-4 w-4' />
+          Upload Document
+        </>
+      )}
+    </Button>
   );
 }

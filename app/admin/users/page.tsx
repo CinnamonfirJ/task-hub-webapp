@@ -142,7 +142,7 @@ export default function UsersManagementPage() {
       value: stats?.completedTasks?.toLocaleString() || "0",
     },
     {
-      label: "QoreID Verified",
+      label: "Didit Verified",
       value: stats?.verifiedViaDidit?.toLocaleString() || "0",
       color: "text-purple-600",
     },

@@ -130,6 +130,8 @@ export function useCompleteProfile() {
     queryKey: ["verificationStatus"],
     queryFn: () => authApi.getVerificationStatus(),
     enabled: !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false,
   });
 
   return {

@@ -36,7 +36,8 @@ export default function DataProtectionPage() {
             <li>
               <h3 className="font-bold text-gray-900">● Third-Party Processors</h3>
               <div className="pl-4 space-y-2 text-sm">
-                <p><strong>QoreID (qoreid.com):</strong> For ID document verification and liveness checks.</p>
+                <p><strong>Didit (didit.me):</strong> For ID document upload verification and liveness checks.</p>
+                <p><strong>QoreID (qoreid.com):</strong> For NIN verification and liveness checks.</p>
                 <p><strong>AuthentifyNG (authentify.com.ng):</strong> For NIN and BVN verification with facial recognition.</p>
                 <p><strong>Payment Processors:</strong> PayStack and Stellar for handling card payments and disbursements.</p>
               </div>

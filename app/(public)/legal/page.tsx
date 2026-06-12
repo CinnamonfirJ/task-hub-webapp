@@ -14,14 +14,14 @@ export default function LegalOverviewPage() {
           The <strong>Privacy Policy</strong> (augmented to include dispute, refund, and tasker withdrawal policies) explains what data we collect (personal information, KYC data, and usage data), how we use and protect it, and users’ rights under NDPR.
         </p>
         <p>
-          The <strong>Data Processing & Protection Policy Certificate</strong> attests to TaskHub’s commitment to NDPR compliance, describing lawful bases for processing, third-party processors (QoreID, Authentify), security measures, and user rights.
+          The <strong>Data Processing & Protection Policy Certificate</strong> attests to TaskHub’s commitment to NDPR compliance, describing lawful bases for processing, third-party processors (Didit, QoreID, Authentify), security measures, and user rights.
         </p>
       </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-bold">Key Points</h2>
         <ul className="list-disc pl-5 space-y-2">
-          <li><strong>Verification:</strong> Taskers must complete strict KYC (via passport or NIN + selfie using QoreID and Authentify).</li>
+          <li><strong>Verification:</strong> Taskers must complete strict KYC (via passport or NIN + selfie using Didit, QoreID, and Authentify).</li>
           <li><strong>Payments:</strong> Payments use an escrow wallet: customers pay up front, and funds are held until task completion.</li>
           <li><strong>Earnings:</strong> Taskers earn payment minus [Commission 15%] once the job is confirmed.</li>
           <li><strong>Disputes:</strong> Disputes are handled by TaskHub’s support through an evidence-based review within approximately 14 days.</li>
