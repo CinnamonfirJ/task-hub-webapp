@@ -280,8 +280,8 @@ export default function KYCDetailsPage({
                   {record.provider === "qoredid" || record.provider === "qoreid"
                     ? "QoreID SDK"
                     : record.provider === "didit"
-                    ? "Didit SDK"
-                    : record.provider}
+                      ? "Didit SDK"
+                      : record.provider}
                 </div>
               </div>
             )}
@@ -364,8 +364,8 @@ export default function KYCDetailsPage({
                     {record.provider === "qoredid" || record.provider === "qoreid"
                       ? "QoreID SDK"
                       : record.provider === "didit"
-                      ? "Didit SDK"
-                      : record.provider || "QoreID SDK"}
+                        ? "Didit SDK"
+                        : record.provider || "QoreID SDK"}
                   </div>
                 </div>
                 <div>
@@ -382,13 +382,12 @@ export default function KYCDetailsPage({
                   </div>
                   <div>
                     <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        record.status === "approved"
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${record.status === "approved"
                           ? "bg-green-50 text-green-500"
                           : record.status === "pending"
-                          ? "bg-yellow-50 text-yellow-500"
-                          : "bg-red-50 text-red-500"
-                      }`}
+                            ? "bg-yellow-50 text-yellow-500"
+                            : "bg-red-50 text-red-500"
+                        }`}
                     >
                       {record.status}
                     </span>

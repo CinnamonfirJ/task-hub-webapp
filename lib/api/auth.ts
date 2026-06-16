@@ -245,12 +245,12 @@ export const authApi = {
           if (endpoint === "/api/admin/me") {
             if (typeof window !== "undefined")
               localStorage.setItem("userType", "admin");
-            
+
             if (!profileData.fullName && profileData.name)
               profileData.fullName = profileData.name;
             if (!profileData.emailAddress && profileData.email)
               profileData.emailAddress = profileData.email;
-            
+
             if (!profileData.role || profileData.role === "admin") {
               profileData.role = "admin";
             }
@@ -319,7 +319,7 @@ export const authApi = {
                   verified: true,
                   isVerified: true,
                 });
-                
+
                 if (userType === "admin") {
                   (profileData as any).role = "admin";
                 }
@@ -533,7 +533,7 @@ export const authApi = {
   },
 
   // ── Google Authentication ───────────────────────────────────────────
-  
+
   googleSignIn: async (idToken: string, user_type: UserType): Promise<AuthResponse> => {
     const res = await apiData<any>("/api/auth/google", {
       method: "POST",

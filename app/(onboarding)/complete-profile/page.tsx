@@ -19,8 +19,10 @@ import {
   Shield,
   ChevronRight,
   ShieldCheck,
+  ShieldQuestion,
 } from "lucide-react";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
+import { QoreIDVerifyButton } from "@/components/QoreIDVerifyButton";
 import { NINManualSubmission } from "@/components/NINManualSubmission";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -431,6 +433,22 @@ export default function CompleteProfilePage() {
                       <VerifyIdentityButton
                         userId={user?._id}
                         className='w-full bg-[#6B46C1] hover:bg-[#553C9A] h-12 rounded-xl font-bold text-sm text-white'
+                      />
+                    </div>
+
+                    {/* Option 2: NIN Verification via QoreID */}
+                    <div className="border border-gray-100 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-blue-50 p-2 rounded-lg">
+                          <ShieldQuestion size={16} className="text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900 text-sm">NIN Verification (QoreID)</p>
+                          <p className="text-xs text-gray-400">Use this if you don&apos;t have those documents (verify with your NIN and a selfie)</p>
+                        </div>
+                      </div>
+                      <QoreIDVerifyButton
+                        className='w-full bg-blue-600 hover:bg-blue-700 h-12 rounded-xl font-bold text-sm text-white'
                       />
                     </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Copy, Check, Loader2 } from "lucide-react";
+import { X, Copy, Check, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useStellarDepositInfo } from "@/hooks/useWallet";
@@ -50,10 +50,10 @@ export function StellarPaymentModal({
 
         <div className='text-center space-y-2 mb-8 mt-2'>
           <h2 className='text-2xl font-bold text-gray-900'>
-            Send Via Stellar (XLM)
+            Deposit Via Stellar (NGNC)
           </h2>
           <p className='text-purple-400/80 text-sm font-medium px-4'>
-            Use the QR Code or the Address below to complete the payment
+            Use the QR Code or the Address below to send NGNC stablecoin
           </p>
         </div>
 
@@ -81,14 +81,14 @@ export function StellarPaymentModal({
               <div className='bg-purple-50/50 p-4 rounded-2xl flex items-center justify-between group'>
                 <div className='space-y-1'>
                   <p className='text-gray-900 font-bold text-sm'>Asset</p>
-                  <p className='text-gray-400 text-xs font-medium'>Stellar (XLM)</p>
+                  <p className='text-gray-400 text-xs font-medium'>NGNC Stablecoin</p>
                 </div>
               </div>
 
               <div className='bg-purple-50/50 p-4 rounded-2xl flex items-center justify-between group'>
                 <div className='space-y-1'>
                   <p className='text-gray-900 font-bold text-sm'>Network</p>
-                  <p className='text-gray-400 text-xs font-medium'>XLM</p>
+                  <p className='text-gray-400 text-xs font-medium'>Stellar</p>
                 </div>
               </div>
 
@@ -107,21 +107,28 @@ export function StellarPaymentModal({
                 </button>
               </div>
 
-              <div className='bg-[#FFF9E6] border border-[#FFE7A3] p-4 rounded-2xl flex items-center justify-between group'>
-                <div className='space-y-1 flex-1 min-w-0 mr-4'>
-                  <p className='text-[#856404] font-bold text-sm'>Your Unique Memo ID</p>
-                  <p className='text-[#856404]/80 text-lg font-black tracking-widest'>
-                    {depositInfo?.memoId || "..."}
-                  </p>
-                  <p className='text-[9px] text-[#856404]/70 font-bold leading-tight uppercase'>
-                    MUST INCLUDE MEMO TO RECEIVE FUNDS AUTOMATICALLY
-                  </p>
+              {/* Critical Attention-grabbing Memo ID container */}
+              <div className='bg-red-50 border-2 border-red-500 p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-pulse duration-1000'>
+                <div className='flex gap-3 flex-1 min-w-0'>
+                  <div className='p-2 bg-red-100 rounded-xl text-red-600 shrink-0 mt-0.5'>
+                    <AlertTriangle className='h-6 w-6' />
+                  </div>
+                  <div className='space-y-1 flex-1 min-w-0'>
+                    <p className='text-red-950 font-black text-sm uppercase tracking-wider'>Your Required Memo ID</p>
+                    <p className='text-red-600 text-2xl font-black tracking-widest font-mono'>
+                      {depositInfo?.memoId || "..."}
+                    </p>
+                    <p className='text-[10px] text-red-900 font-bold leading-normal uppercase'>
+                      CRITICAL: You MUST copy and paste this Memo ID into your transaction Memo field. Without it, the system cannot link the deposit to your account.
+                    </p>
+                  </div>
                 </div>
                 <button
                   onClick={handleCopyMemo}
-                  className='text-[#856404] hover:text-[#533f03] transition-colors shrink-0'
+                  className='w-full md:w-auto px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-bold text-sm rounded-xl transition-colors shrink-0 flex items-center justify-center gap-2 border border-red-200'
                 >
-                  {copiedMemo ? <Check className='h-5 w-5' /> : <Copy className='h-5 w-5' />}
+                  {copiedMemo ? <Check className='h-4 w-4' /> : <Copy className='h-4 w-4' />}
+                  {copiedMemo ? "Copied" : "Copy Memo"}
                 </button>
               </div>
             </div>

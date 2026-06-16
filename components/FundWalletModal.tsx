@@ -11,6 +11,7 @@ import {
   Info,
   Copy,
   Check,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -122,7 +123,7 @@ export function FundWalletModal({
           ) : (
             <div className='space-y-4 p-5 bg-purple-50/50 rounded-2xl border border-purple-100 animate-in fade-in slide-in-from-top-4 duration-300'>
               <div className='flex items-center justify-between mb-2'>
-                <p className='text-purple-900 font-bold text-sm'>Stellar Deposit Details</p>
+                <p className='text-purple-900 font-bold text-sm'>Stellar Deposit Details (NGNC)</p>
                 <div className='px-2 py-1 bg-purple-100 rounded-md'>
                   <p className='text-[10px] font-bold text-purple-600 uppercase'>{stellarInfo?.network || "TESTNET"}</p>
                 </div>
@@ -150,35 +151,39 @@ export function FundWalletModal({
                   </div>
                 </div>
 
-                {/* Memo ID */}
-                <div className='space-y-1'>
-                  <p className='text-[10px] text-gray-500 font-bold uppercase px-1'>Memo ID (Required)</p>
-                  <div className='flex gap-2'>
-                    <div className='flex-1 bg-white p-3 rounded-xl border border-purple-100 text-sm font-mono font-bold text-purple-700 min-h-[40px] flex items-center'>
-                      {isStellarLoading ? (
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <Loader2 size={12} className="animate-spin" />
-                          <span>Fetching...</span>
-                        </div>
-                      ) : stellarInfo?.memoId}
+                {/* Highly Emphasized Memo ID Section */}
+                <div className='bg-red-50 border-2 border-red-500 p-4 rounded-xl flex flex-col gap-2.5 animate-pulse duration-1000'>
+                  <div className='flex gap-2.5 items-start'>
+                    <div className='p-1.5 bg-red-100 rounded-lg text-red-600 shrink-0 mt-0.5'>
+                      <AlertTriangle className='h-4.5 w-4.5' />
                     </div>
-                    <button
-                      onClick={() => stellarInfo && copyToClipboard(stellarInfo.memoId, "Memo ID")}
-                      className='p-3 bg-white rounded-xl border border-purple-100 text-purple-600 hover:bg-purple-50 transition-colors shrink-0'
-                    >
-                      {copiedField === "Memo ID" ? <Check size={18} /> : <Copy size={18} />}
-                    </button>
+                    <div className='space-y-0.5 flex-1 min-w-0'>
+                      <p className='text-red-950 font-extrabold text-[10px] uppercase tracking-wider'>Your Required Memo ID</p>
+                      <p className='text-red-600 text-lg font-black tracking-widest font-mono'>
+                        {isStellarLoading ? "Fetching..." : stellarInfo?.memoId}
+                      </p>
+                    </div>
+                    {!isStellarLoading && stellarInfo?.memoId && (
+                      <button
+                        onClick={() => copyToClipboard(stellarInfo.memoId, "Memo ID")}
+                        className='px-2.5 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs rounded-lg transition-colors border border-red-200 flex items-center gap-1 shrink-0'
+                      >
+                        {copiedField === "Memo ID" ? <Check size={12} /> : <Copy size={12} />}
+                        {copiedField === "Memo ID" ? "Copied" : "Copy"}
+                      </button>
+                    )}
                   </div>
+                  <p className='text-[9px] text-red-900 font-bold leading-normal uppercase border-t border-red-200/50 pt-2'>
+                    CRITICAL: YOU MUST INCLUDE THIS MEMO ID IN YOUR TRANSFER TO CREDITING YOUR WALLET AUTOMATICALLY.
+                  </p>
                 </div>
 
-                {stellarInfo?.exchangeRate && (
-                  <div className='flex items-center gap-2 px-1'>
-                    <Info size={14} className='text-purple-400' />
-                    <p className='text-[11px] text-gray-500 font-medium'>
-                      Current rate: <span className='font-bold text-purple-600'>1 XLM = ₦{stellarInfo.exchangeRate}</span>
-                    </p>
-                  </div>
-                )}
+                <div className='flex items-center gap-2 px-1'>
+                  <Info size={14} className='text-purple-400' />
+                  <p className='text-[11px] text-gray-500 font-medium'>
+                    Current rate: <span className='font-bold text-purple-600'>1 NGNC = ₦1</span>
+                  </p>
+                </div>
               </div>
 
               {stellarError && (
@@ -190,7 +195,7 @@ export function FundWalletModal({
               )}
 
               <p className='text-[10px] text-purple-400 font-medium italic px-1'>
-                * Send XLM to this address with the exact Memo ID. Your wallet will be credited automatically.
+                * Send NGNC to this address with the exact Memo ID. Your wallet will be credited automatically.
               </p>
             </div>
           )}

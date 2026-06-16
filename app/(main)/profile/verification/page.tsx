@@ -8,9 +8,9 @@ import {
   ArrowLeft,
   ShieldCheck,
   ShieldAlert,
-  ShieldQuestion,
   Loader2,
   ChevronRight,
+  Fingerprint,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
@@ -25,7 +25,7 @@ import { Suspense } from "react";
 function VerificationContent() {
   const router = useRouter();
   const [verificationMode, setVerificationMode] = useState<
-    "sdk" | "manual" | "qoreid"
+    "sdk" | "manual"
   >("sdk");
 
   const { data, isLoading } = useQuery({
@@ -118,7 +118,7 @@ function VerificationContent() {
                                 </div>
                                 <div className="text-left">
                                   <p className="font-bold text-gray-900 text-sm">Document Upload (Didit)</p>
-                                  <p className="text-xs text-gray-400">Use this if you have your NIN slip or passport</p>
+                                  <p className="text-xs text-gray-400">Use this if you have your passport</p>
                                 </div>
                               </div>
                               <VerifyIdentityButton
@@ -130,16 +130,16 @@ function VerificationContent() {
                         </Card>
 
                         {/* Option 2: NIN Verification via QoreID */}
-                        <Card className="border border-gray-100 rounded-2xl overflow-hidden hover:border-[#6B46C1]/30 transition-colors">
+                        <Card className="border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-500/30 transition-colors">
                           <CardContent className="p-0">
                             <div className="p-5 space-y-3">
                               <div className="flex items-center gap-3">
                                 <div className="bg-blue-50 p-2.5 rounded-xl">
-                                  <ShieldQuestion size={20} className="text-blue-600" />
+                                  <Fingerprint size={20} className="text-blue-600" />
                                 </div>
                                 <div className="text-left">
                                   <p className="font-bold text-gray-900 text-sm">NIN Verification (QoreID)</p>
-                                  <p className="text-xs text-gray-400">Use this if you don&apos;t have those documents (verify with your NIN and a selfie)</p>
+                                  <p className="text-xs text-gray-400">Use this if you have an NIN slip or card</p>
                                 </div>
                               </div>
                               <QoreIDVerifyButton
