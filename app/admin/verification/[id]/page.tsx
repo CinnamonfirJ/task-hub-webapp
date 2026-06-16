@@ -383,10 +383,10 @@ export default function KYCDetailsPage({
                   <div>
                     <span
                       className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${record.status === "approved"
-                          ? "bg-green-50 text-green-500"
-                          : record.status === "pending"
-                            ? "bg-yellow-50 text-yellow-500"
-                            : "bg-red-50 text-red-500"
+                        ? "bg-green-50 text-green-500"
+                        : record.status === "pending"
+                          ? "bg-yellow-50 text-yellow-500"
+                          : "bg-red-50 text-red-500"
                         }`}
                     >
                       {record.status}

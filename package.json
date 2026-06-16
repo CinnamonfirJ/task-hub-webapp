@@ -18,6 +18,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@react-oauth/google": "^0.13.5",
     "@stellar/freighter-api": "^6.0.1",
+    "@stellar/freighter-api": "^6.0.1",
     "@tanstack/react-query": "^5.90.17",
     "@types/canvas-confetti": "^1.9.0",
     "canvas-confetti": "^1.9.4",
@@ -25,9 +26,11 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "expo": "^56.0.12",
+    "expo": "^56.0.12",
     "framer-motion": "^12.26.2",
     "lucide-react": "^0.562.0",
     "motion": "^12.38.0",
+    "next": "^16.2.9",
     "next": "^16.2.9",
     "nextstepjs": "^2.2.0",
     "radix-ui": "^1.4.3",
@@ -36,6 +39,7 @@
     "react-easy-crop": "^5.5.7",
     "react-hook-form": "^7.72.1",
     "sonner": "^2.0.7",
+    "stellar-sdk": "^13.3.0",
     "stellar-sdk": "^13.3.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.6"
@@ -51,6 +55,10 @@
     "tailwindcss": "^4",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.11.1": true
   },
   "allowScripts": {
     "sharp@0.34.5": true,
