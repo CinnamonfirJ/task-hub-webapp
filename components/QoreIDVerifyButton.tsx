@@ -6,6 +6,7 @@ import { Loader2, Fingerprint, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
@@ -37,6 +38,7 @@ export function QoreIDVerifyButton({
 
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const router = useRouter();
 
   // Pre-fill states when user is loaded
   useEffect(() => {
@@ -109,9 +111,14 @@ export function QoreIDVerifyButton({
           );
         }
 
-        // Invalidate profile and verification status
+        // Invalidate profile and verification status, then redirect to home
         queryClient.invalidateQueries({ queryKey: ["currentUser"] });
         queryClient.invalidateQueries({ queryKey: ["verificationStatus"] });
+
+        // Redirect to homepage after successful verification
+        setTimeout(() => {
+          router.push("/home");
+        }, 1500); // Small delay so the user sees the success toast
       });
 
       QoreID.on("error", (error: unknown) => {

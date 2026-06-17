@@ -73,129 +73,156 @@ function VerificationContent() {
           </div>
         ) : (
           <>
-            <div
-              className={`p-8 rounded-full ${isVerified ? "bg-green-50" : "bg-orange-50"}`}
-            >
-              {isVerified ? (
-                <ShieldCheck className='w-20 h-20 text-green-500' />
-              ) : (
-                <ShieldAlert className='w-20 h-20 text-orange-500' />
-              )}
-            </div>
+            {isVerified ? (
+              /* ── VERIFIED STATE: Full-stop page ─────────────────────────────── */
+              <div className="w-full flex flex-col items-center text-center space-y-8 py-6">
+                <div className="p-8 rounded-full bg-green-50">
+                  <ShieldCheck className="w-20 h-20 text-green-500" />
+                </div>
 
-            <div className='space-y-3'>
-              <h2 className='text-2xl font-bold text-gray-900'>
-                {isVerified ? "Account Verified" : "Verify Your Identity"}
-              </h2>
-              <p className='text-sm text-gray-400 max-w-md mx-auto leading-relaxed'>
-                {isVerified
-                  ? "Your identity has been successfully verified. You now have full access to all TaskHub features including withdrawals."
-                  : "Complete your identity verification to unlock all features and build trust. Choose a verification method below."}
-              </p>
-            </div>
+                <div className="space-y-3">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Account Verified
+                  </h2>
+                  <p className="text-sm text-gray-400 max-w-md mx-auto leading-relaxed">
+                    Your identity has been successfully verified. You now have
+                    full access to all TaskHub features including withdrawals.
+                  </p>
+                </div>
 
-            {!isVerified && (
-              <div className='w-full pt-4'>
-                {isPending ? (
-                  <VerificationPendingCard />
-                ) : (
-                  <AnimatePresence mode="wait">
-                    {verificationMode === "sdk" && (
-                      <motion.div
-                        key="sdk"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="w-full space-y-4"
-                      >
-                        {/* Option 1: Document Upload via Didit */}
-                        <Card className="border border-gray-100 rounded-2xl overflow-hidden hover:border-[#6B46C1]/30 transition-colors">
-                          <CardContent className="p-0">
-                            <div className="p-5 space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="bg-purple-50 p-2.5 rounded-xl">
-                                  <ShieldCheck size={20} className="text-[#6B46C1]" />
-                                </div>
-                                <div className="text-left">
-                                  <p className="font-bold text-gray-900 text-sm">Document Upload (Didit)</p>
-                                  <p className="text-xs text-gray-400">Use this if you have your NIN slip or passport</p>
-                                </div>
-                              </div>
-                              <VerifyIdentityButton
-                                userId={user?._id}
-                                className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-6 text-sm font-bold rounded-xl'
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
+                <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-100 rounded-2xl w-full max-w-sm">
+                  <ShieldCheck size={20} className="text-green-600 shrink-0" />
+                  <p className="text-sm text-green-700 font-medium text-left">
+                    Your account is fully verified and in good standing.
+                  </p>
+                </div>
 
-                        {/* Option 2: NIN Verification via QoreID */}
-                        <Card className="border border-gray-100 rounded-2xl overflow-hidden hover:border-[#6B46C1]/30 transition-colors">
-                          <CardContent className="p-0">
-                            <div className="p-5 space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="bg-blue-50 p-2.5 rounded-xl">
-                                  <ShieldQuestion size={20} className="text-blue-600" />
-                                </div>
-                                <div className="text-left">
-                                  <p className="font-bold text-gray-900 text-sm">NIN Verification (QoreID)</p>
-                                  <p className="text-xs text-gray-400">Use this if you don&apos;t have those documents (verify with your NIN and a selfie)</p>
-                                </div>
-                              </div>
-                              <QoreIDVerifyButton
-                                className='w-full bg-blue-600 hover:bg-blue-700 py-6 text-sm font-bold rounded-xl text-white'
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
+                <Button
+                  onClick={() => router.push("/home")}
+                  className="w-full max-w-sm bg-[#6B46C1] hover:bg-[#553C9A] h-14 rounded-xl font-bold text-white text-base transition-all"
+                >
+                  Return to Dashboard
+                </Button>
+              </div>
+            ) : (
+              /* ── UNVERIFIED STATE: Verification options ─────────────────────── */
+              <>
+                <div className="p-8 rounded-full bg-orange-50">
+                  <ShieldAlert className="w-20 h-20 text-orange-500" />
+                </div>
 
-                        {/* Manual NIN Fallback */}
-                        <Button
-                          variant="ghost"
-                          onClick={() => setVerificationMode("manual")}
-                          className="w-full text-gray-400 hover:text-gray-600 font-medium text-xs h-10"
+                <div className="space-y-3">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Verify Your Identity
+                  </h2>
+                  <p className="text-sm text-gray-400 max-w-md mx-auto leading-relaxed">
+                    Complete your identity verification to unlock all features
+                    and build trust. Choose a verification method below.
+                  </p>
+                </div>
+
+                <div className="w-full pt-4">
+                  {isPending ? (
+                    <VerificationPendingCard />
+                  ) : (
+                    <AnimatePresence mode="wait">
+                      {verificationMode === "sdk" && (
+                        <motion.div
+                          key="sdk"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="w-full space-y-4"
                         >
-                          Enter 11-digit NIN manually instead
-                          <ChevronRight size={14} className="ml-1" />
-                        </Button>
-                      </motion.div>
-                    )}
+                          {/* Option 1: Document Upload via Didit */}
+                          <Card className="border border-gray-100 rounded-2xl overflow-hidden hover:border-[#6B46C1]/30 transition-colors">
+                            <CardContent className="p-0">
+                              <div className="p-5 space-y-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="bg-purple-50 p-2.5 rounded-xl">
+                                    <ShieldCheck size={20} className="text-[#6B46C1]" />
+                                  </div>
+                                  <div className="text-left">
+                                    <p className="font-bold text-gray-900 text-sm">Document Upload (Didit)</p>
+                                    <p className="text-xs text-gray-400">Use this if you have your NIN slip or passport</p>
+                                  </div>
+                                </div>
+                                <VerifyIdentityButton
+                                  userId={user?._id}
+                                  className='w-full bg-[#6B46C1] hover:bg-[#553C9A] py-6 text-sm font-bold rounded-xl'
+                                />
+                              </div>
+                            </CardContent>
+                          </Card>
 
-                    {verificationMode === "manual" && (
-                      <motion.div
-                        key="manual"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="w-full"
-                      >
-                        <NINManualSubmission
-                          onCancel={() => setVerificationMode("sdk")}
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                )}
-              </div>
+                          {/* Option 2: NIN Verification via QoreID */}
+                          <Card className="border border-gray-100 rounded-2xl overflow-hidden hover:border-[#6B46C1]/30 transition-colors">
+                            <CardContent className="p-0">
+                              <div className="p-5 space-y-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="bg-blue-50 p-2.5 rounded-xl">
+                                    <ShieldQuestion size={20} className="text-blue-600" />
+                                  </div>
+                                  <div className="text-left">
+                                    <p className="font-bold text-gray-900 text-sm">NIN Verification (QoreID)</p>
+                                    <p className="text-xs text-gray-400">Use this if you don&apos;t have those documents (verify with your NIN and a selfie)</p>
+                                  </div>
+                                </div>
+                                <QoreIDVerifyButton
+                                  className='w-full bg-blue-600 hover:bg-blue-700 py-6 text-sm font-bold rounded-xl text-white'
+                                />
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Manual NIN Fallback */}
+                          <Button
+                            variant="ghost"
+                            onClick={() => setVerificationMode("manual")}
+                            className="w-full text-gray-400 hover:text-gray-600 font-medium text-xs h-10"
+                          >
+                            Enter 11-digit NIN manually instead
+                            <ChevronRight size={14} className="ml-1" />
+                          </Button>
+                        </motion.div>
+                      )}
+
+                      {verificationMode === "manual" && (
+                        <motion.div
+                          key="manual"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="w-full"
+                        >
+                          <NINManualSubmission
+                            onCancel={() => setVerificationMode("sdk")}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  )}
+                </div>
+
+                <div className='w-full space-y-4 pt-8'>
+                  <h3 className='text-xs font-bold text-gray-400 uppercase tracking-widest text-left px-2'>
+                    Why verify?
+                  </h3>
+                  <div className='grid gap-4'>
+                    <VerificationBenefit
+                      icon={<ShieldCheck size={20} className='text-blue-500' />}
+                      title='Build Trust'
+                      description='Verified badges help you stand out and build trust with taskers and clients.'
+                    />
+                    <VerificationBenefit
+                      icon={<ShieldCheck size={20} className='text-blue-500' />}
+                      title='Secure Payments'
+                      description='Identity verification is required for secure processing of high-value tasks and withdrawals.'
+                    />
+                  </div>
+                </div>
+              </>
             )}
-
-            <div className='w-full space-y-4 pt-8'>
-              <h3 className='text-xs font-bold text-gray-400 uppercase tracking-widest text-left px-2'>
-                Why verify?
-              </h3>
-              <div className='grid gap-4'>
-                <VerificationBenefit
-                  icon={<ShieldCheck size={20} className='text-blue-500' />}
-                  title='Build Trust'
-                  description='Verified badges help you stand out and build trust with taskers and clients.'
-                />
-                <VerificationBenefit
-                  icon={<ShieldCheck size={20} className='text-blue-500' />}
-                  title='Secure Payments'
-                  description='Identity verification is required for secure processing of high-value tasks and withdrawals.'
-                />
-              </div>
-            </div>
           </>
         )}
       </div>
