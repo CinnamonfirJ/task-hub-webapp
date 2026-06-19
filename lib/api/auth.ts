@@ -489,9 +489,6 @@ export const authApi = {
         return { isVerified: true, isPending: false };
       }
 
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      console.log(`[authApi] Fetching verification status with token: ${token ? token.substring(0, 10) + "..." : "MISSING!"}`);
-
       const res = await apiData<any>("/api/auth/verification-status", {
         method: "GET",
         skipAuthError: true,

@@ -30,7 +30,7 @@ export function QoreIDVerifyButton({
 }: QoreIDVerifyButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -123,7 +123,7 @@ export function QoreIDVerifyButton({
 
       QoreID.on("error", (error: unknown) => {
         console.error("QoreID verification error:", error);
-        
+
         // Handle different error formats from QoreID
         let errMsg = "Verification failed. Please try again.";
         if (typeof error === "string") {
@@ -132,7 +132,7 @@ export function QoreIDVerifyButton({
           const errObj = error as { message?: string };
           if (errObj.message) errMsg = errObj.message;
         }
-        
+
         toast.error(errMsg);
       });
 
