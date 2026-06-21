@@ -54,7 +54,7 @@ export default function CompleteProfilePage() {
   // Redirect if already complete
   useEffect(() => {
     if (isProfileComplete && !isLoadingUser) {
-      router.replace("/profile");
+      router.replace("/home");
     }
   }, [isProfileComplete, isLoadingUser, router]);
 
