@@ -23,6 +23,80 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useKYCRequests, useApproveKYC, useRejectKYC } from "@/hooks/useAdmin";
 
+// Helper to parse different date formats into YYYY-MM-DD
+const parseDateStr = (val: any): string => {
+  if (!val) return "";
+  const s = String(val).trim();
+  if (!s) return "";
+
+  // Handle DD-MM-YYYY or DD/MM/YYYY
+  const ddmmyyyy = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+  if (ddmmyyyy) {
+    return `${ddmmyyyy[3]}-${ddmmyyyy[2].padStart(2, "0")}-${ddmmyyyy[1].padStart(2, "0")}`;
+  }
+
+  // Handle YYYY-MM-DD or YYYY/MM/DD
+  const yyyymmdd = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if (yyyymmdd) {
+    return `${yyyymmdd[1]}-${yyyymmdd[2].padStart(2, "0")}-${yyyymmdd[3].padStart(2, "0")}`;
+  }
+
+  // Fallback to standard JS Date parse
+  try {
+    const parsed = new Date(s);
+    if (!isNaN(parsed.getTime())) {
+      const y = parsed.getFullYear();
+      const m = String(parsed.getMonth() + 1).padStart(2, "0");
+      const d = String(parsed.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+  } catch (e) {}
+
+  return s.toLowerCase();
+};
+
+// Helper to normalize gender values
+const normalizeGender = (val: any): string => {
+  if (!val) return "";
+  const clean = String(val).trim().toLowerCase();
+  if (clean === "m" || clean === "male") return "male";
+  if (clean === "f" || clean === "female") return "female";
+  return clean;
+};
+
+// Helper to normalize phone numbers (comparing last 10 digits)
+const normalizePhone = (val: any): string => {
+  if (!val) return "";
+  const digits = String(val).replace(/\D/g, "");
+  return digits.slice(-10);
+};
+
+// Comparison function for field match checking
+const checkFieldMatch = (
+  fieldKey: string,
+  appVal: any,
+  ninVal: any,
+  providerMatch: boolean | undefined
+): boolean => {
+  if (providerMatch === true) return true;
+  if (!appVal || !ninVal) return false;
+
+  const strApp = String(appVal).trim();
+  const strNin = String(ninVal).trim();
+  if (!strApp || !strNin) return false;
+
+  switch (fieldKey) {
+    case "gender":
+      return normalizeGender(strApp) === normalizeGender(strNin);
+    case "phoneNumber":
+      return normalizePhone(strApp) === normalizePhone(strNin);
+    case "dob":
+      return parseDateStr(strApp) === parseDateStr(strNin);
+    default:
+      return strApp.toLowerCase() === strNin.toLowerCase();
+  }
+};
+
 export default function KYCDetailsPage({
   params,
 }: {
@@ -410,211 +484,236 @@ export default function KYCDetailsPage({
                 </div>
               </div>
 
-              {verificationData && (
-                <div className='mt-6 pt-6 border-t border-gray-100 space-y-6'>
-                  <div className='text-xs font-bold text-gray-400 uppercase tracking-wider'>
-                    Provider Match Metadata
-                  </div>
-                  
-                  <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                    {/* Left Column: Summary & Biometrics */}
-                    <div className='space-y-6'>
-                      {/* Summary Card */}
-                      <div className='rounded-md border border-gray-200 bg-white p-5 space-y-4'>
-                        <h4 className='text-sm font-bold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2'>
-                          <ShieldCheck className='h-4 w-4 text-emerald-600' />
-                          Verification Summary
-                        </h4>
-                        
-                        <div className='grid grid-cols-2 gap-4 text-xs'>
-                          <div>
-                            <span className='text-gray-500 block mb-1'>Match Status</span>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${
-                              verificationData.nin_check?.status === "EXACT_MATCH"
-                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                : "bg-amber-50 text-amber-700 border border-amber-200"
-                            }`}>
-                              {verificationData.nin_check?.status || "N/A"}
-                            </span>
-                          </div>
+              {verificationData && (() => {
+                const applicant = verificationData.applicant || {};
+                const applicantScore = verificationData.applicant_score || {};
+                const nin = verificationData.nin || {};
+                
+                const liveness = nin.liveness || nin;
+                const isLive = liveness.isLive;
+                const livenessMessage = liveness.message || (isLive ? "Liveness Detected" : "N/A");
+                const liveSelfieUrl = liveness.imageUrl;
+
+                const ninCheck = verificationData.nin_check || nin.nin_check || {};
+                const matchStatus = ninCheck.status || "N/A";
+                const fieldMatches = ninCheck.fieldMatches || {};
+                const ninCheckMetadata = ninCheck.metadata || {};
+                const matchingThreshold = ninCheckMetadata.matchingTreshold;
+                const registryPhotoUrl = ninCheckMetadata.imageUrl || nin.photo;
+                
+                const similarity = ninCheckMetadata.percentageSimilarity !== undefined
+                  ? ninCheckMetadata.percentageSimilarity
+                  : liveness.percentageSimilarity;
+
+                return (
+                  <div className='mt-6 pt-6 border-t border-gray-100 space-y-6'>
+                    <div className='text-xs font-bold text-gray-400 uppercase tracking-wider'>
+                      Provider Match Metadata
+                    </div>
+                    
+                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                      {/* Left Column: Summary & Biometrics */}
+                      <div className='space-y-6'>
+                        {/* Summary Card */}
+                        <div className='rounded-md border border-gray-200 bg-white p-5 space-y-4'>
+                          <h4 className='text-sm font-bold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2'>
+                            <ShieldCheck className='h-4 w-4 text-emerald-600' />
+                            Verification Summary
+                          </h4>
                           
-                          <div>
-                            <span className='text-gray-500 block mb-1'>Liveness Status</span>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${
-                              verificationData.nin?.isLive
-                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                : "bg-rose-50 text-rose-700 border border-rose-200"
-                            }`}>
-                              {verificationData.nin?.message || (verificationData.nin?.isLive ? "Liveness Detected" : "N/A")}
-                            </span>
+                          <div className='grid grid-cols-2 gap-4 text-xs'>
+                            <div>
+                              <span className='text-gray-500 block mb-1'>Match Status</span>
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${
+                                matchStatus === "EXACT_MATCH"
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                  : "bg-amber-50 text-amber-700 border border-amber-200"
+                              }`}>
+                                {matchStatus}
+                              </span>
+                            </div>
+                            
+                            <div>
+                              <span className='text-gray-500 block mb-1'>Liveness Status</span>
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${
+                                isLive
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                  : "bg-rose-50 text-rose-700 border border-rose-200"
+                              }`}>
+                                {livenessMessage}
+                              </span>
+                            </div>
+
+                            <div>
+                              <span className='text-gray-500 block mb-1'>Match Similarity</span>
+                              <span className='font-bold text-gray-900 text-sm'>
+                                {similarity !== undefined && similarity !== null
+                                  ? `${Number(similarity).toFixed(2)}%`
+                                  : "N/A"}
+                              </span>
+                            </div>
+
+                            <div>
+                              <span className='text-gray-500 block mb-1'>Score</span>
+                              <span className='font-bold text-gray-900 text-sm'>
+                                {applicantScore.applicantScore !== undefined
+                                  ? `${applicantScore.applicantScore} / ${applicantScore.maxApplicantScore || 100}`
+                                  : "N/A"}
+                              </span>
+                            </div>
                           </div>
 
-                          <div>
-                            <span className='text-gray-500 block mb-1'>Match Similarity</span>
-                            <span className='font-bold text-gray-900 text-sm'>
-                              {verificationData.nin_check?.metadata?.percentageSimilarity 
-                                ? `${Number(verificationData.nin_check.metadata.percentageSimilarity).toFixed(2)}%`
-                                : "N/A"}
-                            </span>
-                          </div>
-
-                          <div>
-                            <span className='text-gray-500 block mb-1'>Score</span>
-                            <span className='font-bold text-gray-900 text-sm'>
-                              {verificationData.applicant_score?.applicantScore !== undefined
-                                ? `${verificationData.applicant_score.applicantScore} / ${verificationData.applicant_score.maxApplicantScore || 100}`
-                                : "N/A"}
-                            </span>
-                          </div>
+                          {matchingThreshold && (
+                            <div className='text-[10px] text-gray-400'>
+                              * Required threshold for match: {matchingThreshold}%
+                            </div>
+                          )}
                         </div>
 
-                        {verificationData.nin_check?.metadata?.matchingTreshold && (
-                          <div className='text-[10px] text-gray-400'>
-                            * Required threshold for match: {verificationData.nin_check.metadata.matchingTreshold}%
+                        {/* Biometric Images Card */}
+                        {(liveSelfieUrl || registryPhotoUrl) && (
+                          <div className='rounded-md border border-gray-200 bg-white p-5 space-y-4'>
+                            <h4 className='text-sm font-bold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2'>
+                              <Camera className='h-4 w-4 text-indigo-600' />
+                              Biometric Verification Photos
+                            </h4>
+                            
+                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                              {/* Live Selfie */}
+                              {liveSelfieUrl && (
+                                <div className='space-y-1.5'>
+                                  <span className='text-[10px] font-semibold text-gray-500 uppercase tracking-wider block'>Live Selfie Photo</span>
+                                  <div className='relative aspect-square w-full max-h-48 overflow-hidden rounded-md border border-gray-100 bg-gray-50 flex items-center justify-center'>
+                                    <img 
+                                      src={liveSelfieUrl} 
+                                      alt="Live Selfie" 
+                                      className='w-full h-full object-contain'
+                                      referrerPolicy="no-referrer"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Registry Photo */}
+                              {registryPhotoUrl && (
+                                <div className='space-y-1.5'>
+                                  <span className='text-[10px] font-semibold text-gray-500 uppercase tracking-wider block'>NIN Registry Photo</span>
+                                  <div className='relative aspect-square w-full max-h-48 overflow-hidden rounded-md border border-gray-100 bg-gray-50 flex items-center justify-center'>
+                                    <img 
+                                      src={registryPhotoUrl.startsWith("http") ? registryPhotoUrl : `data:image/jpeg;base64,${registryPhotoUrl}`} 
+                                      alt="Registry Photo" 
+                                      className='w-full h-full object-contain'
+                                      referrerPolicy="no-referrer"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
 
-                      {/* Biometric Images Card */}
-                      {((verificationData.nin?.imageUrl || verificationData.nin_check?.metadata?.imageUrl) || 
-                        (verificationData.nin?.photo)) && (
+                      {/* Right Column: Data Comparison */}
+                      <div className='space-y-6'>
                         <div className='rounded-md border border-gray-200 bg-white p-5 space-y-4'>
                           <h4 className='text-sm font-bold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2'>
-                            <Camera className='h-4 w-4 text-indigo-600' />
-                            Biometric Verification Photos
+                            <User className='h-4 w-4 text-blue-600' />
+                            Identity Field Comparison
                           </h4>
                           
-                          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                            {/* Live Selfie */}
-                            {verificationData.nin?.imageUrl && (
-                              <div className='space-y-1.5'>
-                                <span className='text-[10px] font-semibold text-gray-500 uppercase tracking-wider block'>Live Selfie Photo</span>
-                                <div className='relative aspect-square w-full max-h-48 overflow-hidden rounded-md border border-gray-100 bg-gray-50 flex items-center justify-center'>
-                                  <img 
-                                    src={verificationData.nin.imageUrl} 
-                                    alt="Live Selfie" 
-                                    className='w-full h-full object-contain'
-                                    referrerPolicy="no-referrer"
-                                  />
-                                </div>
-                              </div>
-                            )}
-                            
-                            {/* Registry Photo */}
-                            {(verificationData.nin_check?.metadata?.imageUrl || verificationData.nin?.photo) && (
-                              <div className='space-y-1.5'>
-                                <span className='text-[10px] font-semibold text-gray-500 uppercase tracking-wider block'>NIN Registry Photo</span>
-                                <div className='relative aspect-square w-full max-h-48 overflow-hidden rounded-md border border-gray-100 bg-gray-50 flex items-center justify-center'>
-                                  <img 
-                                    src={verificationData.nin_check?.metadata?.imageUrl || 
-                                         (verificationData.nin.photo.startsWith("http") ? verificationData.nin.photo : `data:image/jpeg;base64,${verificationData.nin.photo}`)} 
-                                    alt="Registry Photo" 
-                                    className='w-full h-full object-contain'
-                                    referrerPolicy="no-referrer"
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right Column: Data Comparison */}
-                    <div className='space-y-6'>
-                      <div className='rounded-md border border-gray-200 bg-white p-5 space-y-4'>
-                        <h4 className='text-sm font-bold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2'>
-                          <User className='h-4 w-4 text-blue-600' />
-                          Identity Field Comparison
-                        </h4>
-                        
-                        <div className='overflow-x-auto'>
-                          <table className='w-full text-left text-xs border-collapse'>
-                            <thead>
-                              <tr className='border-b border-gray-200 text-gray-400 font-semibold'>
-                                <th className='pb-2 font-semibold'>Field</th>
-                                <th className='pb-2 font-semibold'>Applicant Input</th>
-                                <th className='pb-2 font-semibold'>NIN Registry</th>
-                                <th className='pb-2 font-semibold text-center'>Match</th>
-                              </tr>
-                            </thead>
-                            <tbody className='divide-y divide-gray-100 text-gray-700'>
-                              {[
-                                {
-                                  label: "First Name",
-                                  appVal: verificationData.applicant?.firstname,
-                                  ninVal: verificationData.nin?.firstname,
-                                  matchKey: "firstname"
-                                },
-                                {
-                                  label: "Last Name",
-                                  appVal: verificationData.applicant?.lastname,
-                                  ninVal: verificationData.nin?.lastname,
-                                  matchKey: "lastname"
-                                },
-                                {
-                                  label: "Middle Name",
-                                  appVal: verificationData.applicant?.middlename,
-                                  ninVal: verificationData.nin?.middlename,
-                                  matchKey: "middlename"
-                                },
-                                {
-                                  label: "Date of Birth",
-                                  appVal: verificationData.applicant?.dob,
-                                  ninVal: verificationData.nin?.birthdate,
-                                  matchKey: "dob"
-                                },
-                                {
-                                  label: "Gender",
-                                  appVal: verificationData.applicant?.gender,
-                                  ninVal: verificationData.nin?.gender,
-                                  matchKey: "gender"
-                                },
-                                {
-                                  label: "Phone Number",
-                                  appVal: verificationData.applicant?.phone,
-                                  ninVal: verificationData.nin?.phone,
-                                  matchKey: "phoneNumber"
-                                }
-                              ].map((row, idx) => {
-                                const isMatched = verificationData.nin_check?.fieldMatches?.[row.matchKey];
-                                const hasValues = row.appVal || row.ninVal;
-                                
-                                return (
-                                  <tr key={idx} className='hover:bg-gray-50/50 transition-colors'>
-                                    <td className='py-2.5 font-medium text-gray-900'>{row.label}</td>
-                                    <td className='py-2.5 max-w-[120px] truncate' title={row.appVal || "Empty"}>
-                                      {row.appVal || <span className='text-gray-300 italic'>Not provided</span>}
-                                    </td>
-                                    <td className='py-2.5 max-w-[120px] truncate' title={row.ninVal || "Empty"}>
-                                      {row.ninVal || <span className='text-gray-300 italic'>Not available</span>}
-                                    </td>
-                                    <td className='py-2.5 text-center'>
-                                      {hasValues ? (
-                                        isMatched ? (
-                                          <span className='inline-flex items-center justify-center w-5 h-5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200'>
-                                            <Check className='h-3.5 w-3.5' />
-                                          </span>
+                          <div className='overflow-x-auto'>
+                            <table className='w-full text-left text-xs border-collapse'>
+                              <thead>
+                                <tr className='border-b border-gray-200 text-gray-400 font-semibold'>
+                                  <th className='pb-2 font-semibold'>Field</th>
+                                  <th className='pb-2 font-semibold'>Applicant Input</th>
+                                  <th className='pb-2 font-semibold'>NIN Registry</th>
+                                  <th className='pb-2 font-semibold text-center'>Match</th>
+                                </tr>
+                              </thead>
+                              <tbody className='divide-y divide-gray-100 text-gray-700'>
+                                {[
+                                  {
+                                    label: "First Name",
+                                    appVal: applicant.firstname,
+                                    ninVal: nin.firstname,
+                                    matchKey: "firstname"
+                                  },
+                                  {
+                                    label: "Last Name",
+                                    appVal: applicant.lastname,
+                                    ninVal: nin.lastname,
+                                    matchKey: "lastname"
+                                  },
+                                  {
+                                    label: "Middle Name",
+                                    appVal: applicant.middlename,
+                                    ninVal: nin.middlename,
+                                    matchKey: "middlename"
+                                  },
+                                  {
+                                    label: "Date of Birth",
+                                    appVal: applicant.dob,
+                                    ninVal: nin.birthdate,
+                                    matchKey: "dob"
+                                  },
+                                  {
+                                    label: "Gender",
+                                    appVal: applicant.gender,
+                                    ninVal: nin.gender,
+                                    matchKey: "gender"
+                                  },
+                                  {
+                                    label: "Phone Number",
+                                    appVal: applicant.phone,
+                                    ninVal: nin.phone,
+                                    matchKey: "phoneNumber"
+                                  }
+                                ].map((row, idx) => {
+                                  const isMatched = checkFieldMatch(
+                                    row.matchKey,
+                                    row.appVal,
+                                    row.ninVal,
+                                    fieldMatches[row.matchKey]
+                                  );
+                                  const hasValues = row.appVal || row.ninVal;
+                                  
+                                  return (
+                                    <tr key={idx} className='hover:bg-gray-50/50 transition-colors'>
+                                      <td className='py-2.5 font-medium text-gray-900'>{row.label}</td>
+                                      <td className='py-2.5 max-w-[120px] truncate' title={row.appVal || "Empty"}>
+                                        {row.appVal || <span className='text-gray-300 italic'>Not provided</span>}
+                                      </td>
+                                      <td className='py-2.5 max-w-[120px] truncate' title={row.ninVal || "Empty"}>
+                                        {row.ninVal || <span className='text-gray-300 italic'>Not available</span>}
+                                      </td>
+                                      <td className='py-2.5 text-center'>
+                                        {hasValues ? (
+                                          isMatched ? (
+                                            <span className='inline-flex items-center justify-center w-5 h-5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200'>
+                                              <Check className='h-3.5 w-3.5' />
+                                            </span>
+                                          ) : (
+                                            <span className='inline-flex items-center justify-center w-5 h-5 rounded-md bg-rose-50 text-rose-600 border border-rose-200' title="Value mismatch">
+                                              <X className='h-3.5 w-3.5' />
+                                            </span>
+                                          )
                                         ) : (
-                                          <span className='inline-flex items-center justify-center w-5 h-5 rounded-md bg-rose-50 text-rose-600 border border-rose-200' title="Value mismatch">
-                                            <X className='h-3.5 w-3.5' />
-                                          </span>
-                                        )
-                                      ) : (
-                                        <span className='text-gray-300'>—</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
+                                          <span className='text-gray-300'>—</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </CardContent>
           </Card>
         )
