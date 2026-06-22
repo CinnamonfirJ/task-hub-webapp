@@ -6,6 +6,7 @@ import { Loader2, Fingerprint, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
@@ -29,7 +30,7 @@ export function QoreIDVerifyButton({
 }: QoreIDVerifyButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -37,6 +38,7 @@ export function QoreIDVerifyButton({
 
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const router = useRouter();
 
   // Pre-fill states when user is loaded
   useEffect(() => {
@@ -109,20 +111,37 @@ export function QoreIDVerifyButton({
           );
         }
 
-        // Invalidate profile and verification status
+        // Invalidate profile and verification status, then redirect to home
         queryClient.invalidateQueries({ queryKey: ["currentUser"] });
         queryClient.invalidateQueries({ queryKey: ["verificationStatus"] });
+
+        // Redirect to homepage after successful verification
+        setTimeout(() => {
+          router.push("/home");
+        }, 1500); // Small delay so the user sees the success toast
       });
 
       QoreID.on("error", (error: unknown) => {
         console.error("QoreID verification error:", error);
-        const err = error as { message?: string } | null | undefined;
-        toast.error(err?.message || "Verification failed. Please try again.");
+
+        // Handle different error formats from QoreID
+        let errMsg = "Verification failed. Please try again.";
+        if (typeof error === "string") {
+          errMsg = error;
+        } else if (error && typeof error === "object") {
+          const errObj = error as { message?: string };
+          if (errObj.message) errMsg = errObj.message;
+        }
+
+        toast.error(errMsg);
       });
 
-      QoreID.on("close", () => {
-        console.log("QoreID SDK overlay closed.");
+      QoreID.on("close", (data: unknown) => {
+        console.log("QoreID SDK overlay closed.", data);
         setIsLoading(false);
+        // Fallback: check status anyway just in case success fired but was missed, 
+        // or the user completed it but QoreID only fired close.
+        queryClient.invalidateQueries({ queryKey: ["verificationStatus"] });
       });
 
       // 4. Launch QoreID SDK — use the state values that the user confirmed/edited
@@ -139,10 +158,15 @@ export function QoreIDVerifyButton({
       });
     } catch (error: unknown) {
       console.error("QoreID verification initialization error:", error);
-      const errMsg =
-        error instanceof Error
-          ? error.message
-          : "An error occurred. Please try again.";
+      let errMsg = "An error occurred. Please try again.";
+      if (typeof error === "string") {
+        errMsg = error;
+      } else if (error instanceof Error) {
+        errMsg = error.message;
+      } else if (error && typeof error === "object") {
+        const errObj = error as { message?: string };
+        if (errObj.message) errMsg = errObj.message;
+      }
       toast.error(errMsg);
       setIsLoading(false);
     }
