@@ -30,7 +30,6 @@ import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { NIGERIAN_STATES } from "@/utils/constants/nigeria-states";
 import { VerificationPendingCard } from "@/components/VerificationPendingCard";
 import { ImageCropperModal } from "@/components/ui/ImageCropperModal";
-import Image from "next/image";
 
 export default function CompleteProfilePage() {
   const {
@@ -164,7 +163,7 @@ export default function CompleteProfilePage() {
             <label className='relative cursor-pointer group'>
               <div className='w-20 h-20 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-2xl font-bold overflow-hidden border-4 border-white '>
                 {user?.profilePicture ? (
-                  <Image
+                  <img
                     src={user.profilePicture}
                     alt='Profile'
                     className='w-full h-full object-cover'
