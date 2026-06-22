@@ -8,9 +8,10 @@ import {
   ArrowLeft,
   ShieldCheck,
   ShieldAlert,
-  ShieldQuestion,
   Loader2,
   ChevronRight,
+  Fingerprint,
+  ShieldQuestion
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
@@ -25,7 +26,7 @@ import { Suspense } from "react";
 function VerificationContent() {
   const router = useRouter();
   const [verificationMode, setVerificationMode] = useState<
-    "sdk" | "manual" | "qoreid"
+    "sdk" | "manual"
   >("sdk");
 
   const { data, isLoading } = useQuery({

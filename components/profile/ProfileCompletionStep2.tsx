@@ -5,18 +5,30 @@ import {
   ArrowLeft,
   Shield,
   ShieldCheck,
+  ShieldQuestion,
+  ChevronRight,
+  Fingerprint,
 } from "lucide-react";
 import { VerifyIdentityButton } from "@/components/VerifyIdentityButton";
+import { QoreIDVerifyButton } from "@/components/QoreIDVerifyButton";
+import { NINManualSubmission } from "@/components/NINManualSubmission";
+import { VerificationPendingCard } from "@/components/VerificationPendingCard";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface ProfileCompletionStep2Props {
   setStep: (step: number) => void;
   userId?: string;
+  isVerificationPending?: boolean;
 }
 
 export function ProfileCompletionStep2({
   setStep,
   userId,
+  isVerificationPending = false,
 }: ProfileCompletionStep2Props) {
+  const [verificationMode, setVerificationMode] = useState<"sdk" | "manual">("sdk");
+
   return (
     <div className='max-w-2xl mx-auto p-4 md:p-0'>
       {/* Header */}
@@ -74,14 +86,82 @@ export function ProfileCompletionStep2({
                 Official ID Verification
               </p>
               <p className='text-sm text-gray-500 mb-6'>
-                Please verify your identity securely through QoreID.
+                Choose a verification method below to verify your identity.
               </p>
             </div>
 
-            <VerifyIdentityButton
-              userId={userId}
-              className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-16 rounded-xl font-bold text-lg mt-6   transition-all active:scale-[0.99]'
-            />
+            {isVerificationPending ? (
+              <VerificationPendingCard />
+            ) : (
+              <AnimatePresence mode="wait">
+                {verificationMode === "sdk" && (
+                  <motion.div
+                    key="sdk"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-4 w-full"
+                  >
+                    {/* Option 1: Document Upload via Didit */}
+                    <div className="border border-gray-100 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-purple-50 p-2.5 rounded-xl">
+                          <ShieldCheck size={18} className="text-[#6B46C1]" />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-bold text-gray-900 text-sm">Document Upload (Didit)</p>
+                          <p className="text-xs text-gray-400">Use this if you have your passport</p>
+                        </div>
+                      </div>
+                      <VerifyIdentityButton
+                        userId={userId}
+                        className='w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-14 rounded-xl font-bold text-sm transition-all active:scale-[0.99]'
+                      />
+                    </div>
+
+                    {/* Option 2: NIN Verification via QoreID */}
+                    <div className="border border-gray-100 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-blue-50 p-2.5 rounded-xl">
+                          <Fingerprint size={18} className="text-blue-600" />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-bold text-gray-900 text-sm">NIN Verification (QoreID)</p>
+                          <p className="text-xs text-gray-400">Use this if you have an NIN slip or card</p>
+                        </div>
+                      </div>
+                      <QoreIDVerifyButton
+                        className='w-full bg-blue-600 hover:bg-blue-700 text-white h-14 rounded-xl font-bold text-sm transition-all active:scale-[0.99]'
+                      />
+                    </div>
+
+                    {/* Manual NIN Fallback */}
+                    <Button
+                      variant="ghost"
+                      onClick={() => setVerificationMode("manual")}
+                      className="w-full text-gray-400 hover:text-gray-600 font-medium text-xs h-10"
+                    >
+                      Enter 11-digit NIN manually instead
+                      <ChevronRight size={14} className="ml-1" />
+                    </Button>
+                  </motion.div>
+                )}
+
+                {verificationMode === "manual" && (
+                  <motion.div
+                    key="manual"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="w-full"
+                  >
+                    <NINManualSubmission
+                      onCancel={() => setVerificationMode("sdk")}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
           </div>
         </div>
       </div>
