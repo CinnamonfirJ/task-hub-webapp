@@ -6,51 +6,49 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Headset } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Logo } from "@/components/layout/Logo";
 
 export default function ForgotPasswordPage() {
   const { form, onSubmit, isSubmitting, isSuccess, error } = useForgotPassword();
-  const router = useRouter();
 
   return (
-    <div className="w-full max-w-md mx-auto pt-6 px-4">
-      {/* Top Navigation */}
-      <div className="flex justify-between items-center mb-16">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back
-        </button>
-        <button className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
-          <Headset className="h-4 w-4 mr-2" /> Support
-        </button>
+    <div className="w-full max-w-md mx-auto">
+      <div className="flex justify-center mb-6">
+        <Logo />
       </div>
 
       {/* Header */}
-      <div className="flex flex-col items-center text-center mb-10">
-        <h1 className="text-3xl font-semibold mb-2 text-[#111122]">Forgot Password?</h1>
-        <p className="text-[#575762] text-[15px] max-w-[320px]">
-          Enter your email address we will send you a reset link
+      <div className="flex flex-col items-center mb-8">
+        <div className="flex justify-center items-center bg-purple-50 mb-4 rounded-full w-16 h-16">
+          <div className="flex justify-center items-center bg-white  rounded-full w-12 h-12">
+            <Mail className="w-6 h-6 text-primary" />
+          </div>
+        </div>
+        <h1 className="text-3xl font-bold mb-2">Forgot Password?</h1>
+        <p className="text-muted-foreground text-sm text-center max-w-[300px]">
+          No worries! Enter your email and we&apos;ll send you a reset code.
         </p>
       </div>
 
       <div className="space-y-6">
         {isSuccess ? (
-          <div className="flex flex-col items-start gap-1 bg-green-50/50 border border-green-100 rounded-xl p-5 mb-8">
-            <h3 className="font-semibold text-green-700 text-base">
-              Check your Email
-            </h3>
-            <p className="text-green-600/90 text-sm">
-              A reset Link was sent to
-            </p>
-            <p className="text-green-600 font-medium text-sm">
-              {form.getValues("emailAddress")}
+          <div className="space-y-6">
+            <div className="flex flex-col items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-6">
+              <CheckCircle2 className="h-10 w-10 text-green-600" />
+              <p className="font-semibold text-green-800 text-center">
+                Reset code sent!
+              </p>
+              <p className="text-green-700 text-sm text-center">
+                Check your email for a 5-digit reset code. It expires in 1 hour.
+              </p>
+            </div>
+            <p className="text-sm text-muted-foreground text-center">
+              Redirecting to reset page...
             </p>
           </div>
         ) : (
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>
@@ -60,13 +58,14 @@ export default function ForgotPasswordPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="emailAddress" className="font-semibold text-gray-700">Email Addressss</Label>
+              <Label htmlFor="emailAddress">Email Address</Label>
               <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="emailAddress"
                   type="email"
-                  placeholder="you@example.com"
-                  className="h-12 border-gray-200 bg-white placeholder:text-gray-400"
+                  placeholder="you@example.domain"
+                  className="pl-9 h-12 bg-gray-50/50"
                   {...form.register("emailAddress")}
                 />
               </div>
@@ -77,30 +76,52 @@ export default function ForgotPasswordPage() {
               )}
             </div>
 
-            {/* Role selection is hidden as per new design */}
-            <input type="hidden" {...form.register("type")} value="user" />
+            {/* Role selection (hidden field, same as login) */}
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                type="button"
+                variant={form.watch("type") === "user" ? "default" : "outline"}
+                className={`w-full ${form.watch("type") === "user"
+                    ? "bg-primary hover:bg-primary/90"
+                    : "bg-transparent border-input hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                onClick={() => form.setValue("type", "user")}
+              >
+                User
+              </Button>
+              <Button
+                type="button"
+                variant={form.watch("type") === "tasker" ? "default" : "outline"}
+                className={`w-full ${form.watch("type") === "tasker"
+                    ? "bg-[#6B46C1] hover:bg-[#553C9A] text-white"
+                    : "bg-transparent border-input hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                onClick={() => form.setValue("type", "tasker")}
+              >
+                Tasker
+              </Button>
+            </div>
 
             <Button
-              className="w-full h-12 text-base font-semibold bg-[#6c48f2] hover:bg-[#5b3cce] text-white rounded-lg mt-2"
+              className="w-full h-12 text-lg font-medium"
               type="submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Sending..." : "Send Reset Link"}
+              {isSubmitting ? "Sending..." : "Send Reset Code"}
             </Button>
           </form>
         )}
 
-        <div className="text-center pt-4">
+        <div className="text-center">
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Log In
+            Back to Login
           </Link>
         </div>
       </div>
     </div>
   );
 }
-

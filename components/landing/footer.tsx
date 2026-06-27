@@ -75,6 +75,14 @@ export default function Footer() {
                     Legal Overview
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/providers"
+                    className="hover:text-white transition-colors"
+                  >
+                    Become a Provider
+                  </Link>
+                </li>
               </ul>
             </motion.div>
 
