@@ -1,12 +1,15 @@
 import Navbar from "@/components/landing/navbar";
 import Hero from "@/components/landing/hero";
-import ServicesMarquee from "@/components/landing/services-marquee";
-import TheProblem from "@/components/landing/the-problem";
-import TheSolution from "@/components/landing/the-solution";
-import StatsSection from "@/components/landing/stats-section";
-import FoundationSection from "@/components/landing/foundation-section";
-import Testimonials from "@/components/landing/testimonials";
-import FinalCTA from "@/components/landing/final-cta";
+import ProvidersGrid from "@/components/landing/providers-grid";
+import Benefits from "@/components/landing/benefits";
+import Earnings from "@/components/landing/earnings";
+import HowItWorks from "@/components/landing/how-it-works";
+import ServicesGrid from "@/components/landing/services-grid";
+import TrustAndSafety from "@/components/landing/trust-and-safety";
+import PartnerCTA from "@/components/landing/partner-cta";
+import VerificationProcess from "@/components/landing/verification-process";
+import FAQ from "@/components/landing/faq";
+import BottomCTA from "@/components/landing/bottom-cta";
 import Footer from "@/components/landing/footer";
 import { GuestGuard } from "@/components/auth/GuestGuard";
 
@@ -17,20 +20,24 @@ export default function Page() {
         <Navbar />
         <Hero />
         <div id="categories">
-          <ServicesMarquee />
+          <ProvidersGrid />
         </div>
         <div id="about">
-          <TheProblem />
-          <TheSolution />
-          <StatsSection />
-          <FoundationSection />
+          <Benefits />
+          <Earnings />
+          <HowItWorks />
+          <ServicesGrid />
         </div>
         <div id="contact">
-          <Testimonials />
+          <TrustAndSafety />
         </div>
-        <FinalCTA />
+        <PartnerCTA />
+        <VerificationProcess />
+        <FAQ />
+        <BottomCTA />
         <Footer />
       </main>
     </GuestGuard>
   );
 }
+
